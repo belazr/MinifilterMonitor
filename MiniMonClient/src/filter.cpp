@@ -19,9 +19,8 @@ namespace {
 
     constexpr wchar_t MINIMON_NAME[] = L"MiniMonFlt";
 
-    std::vector<std::wstring> GetInstalledInstanceNames() {
+    std::vector<std::wstring> EnumerateSubKeys(const std::wstring& path) {
         std::vector<std::wstring> names;
-        const std::wstring path = std::format(L"SYSTEM\\CurrentControlSet\\Services\\{}\\Parameters\\Instances", MINIMON_NAME);
         RegKeyHandle key{};
 
         if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, path.c_str(), 0u, KEY_READ, reinterpret_cast<HKEY*>(key.Put())) != ERROR_SUCCESS) return names;
@@ -36,6 +35,20 @@ namespace {
             if (status != ERROR_SUCCESS) break;
 
             names.emplace_back(buffer.data(), len);
+        }
+
+        return names;
+    }
+
+
+    std::vector<std::wstring> GetInstalledInstanceNames() {
+        const std::wstring servicePath = std::format(L"SYSTEM\\CurrentControlSet\\Services\\{}", MINIMON_NAME);
+
+        // modern installs register the instances under Parameters\Instances, downlevel ones under Instances
+        std::vector<std::wstring> names = EnumerateSubKeys(servicePath + L"\\Parameters\\Instances");
+
+        if (names.empty()) {
+            names = EnumerateSubKeys(servicePath + L"\\Instances");
         }
 
         return names;
