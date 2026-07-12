@@ -116,11 +116,71 @@ namespace {
         port::Close();
         FltUnregisterFilter(driver::Filter);
 
-        config::Delete();
         modules::Delete();
         records::Delete();
 
         return STATUS_SUCCESS;
+    }
+
+
+    __declspec(code_seg("PAGE"))
+    ULONG GetInstanceAltitude(_In_ const FLT_RELATED_OBJECTS* pFltObjects) {
+        PAGED_CODE();
+
+        WCHAR volumeNameBuffer[128u]{};
+        UNICODE_STRING volumeName{};
+        volumeName.Buffer = volumeNameBuffer;
+        volumeName.MaximumLength = sizeof(volumeNameBuffer);
+
+        if (!NT_SUCCESS(FltGetVolumeName(pFltObjects->Volume, &volumeName, nullptr))) return 0u;
+
+        UCHAR infoBuffer[sizeof(INSTANCE_FULL_INFORMATION) + 512u * sizeof(WCHAR)]{};
+
+        for (ULONG index = 0u; ; index++) {
+            ULONG bytesReturned = 0u;
+            const NTSTATUS status = FltEnumerateInstanceInformationByFilter(pFltObjects->Filter, index, InstanceFullInformation, infoBuffer, sizeof(infoBuffer), &bytesReturned);
+
+            // this volume's entries always fit: its name fit above and instance names cap at INSTANCE_NAME_MAX_CHARS
+            if (status == STATUS_BUFFER_TOO_SMALL) continue;
+
+            if (!NT_SUCCESS(status)) break;
+
+            const INSTANCE_FULL_INFORMATION* pInfo = reinterpret_cast<const INSTANCE_FULL_INFORMATION*>(infoBuffer);
+
+            UNICODE_STRING infoVolumeName{};
+            infoVolumeName.Buffer = reinterpret_cast<PWCH>(infoBuffer + pInfo->VolumeNameBufferOffset);
+            infoVolumeName.Length = pInfo->VolumeNameLength;
+            infoVolumeName.MaximumLength = pInfo->VolumeNameLength;
+
+            if (!RtlEqualUnicodeString(&infoVolumeName, &volumeName, TRUE)) continue;
+
+            UNICODE_STRING infoInstanceName{};
+            infoInstanceName.Buffer = reinterpret_cast<PWCH>(infoBuffer + pInfo->InstanceNameBufferOffset);
+            infoInstanceName.Length = pInfo->InstanceNameLength;
+            infoInstanceName.MaximumLength = pInfo->InstanceNameLength;
+
+            PFLT_INSTANCE pCandidate = nullptr;
+
+            if (!NT_SUCCESS(FltGetVolumeInstanceFromName(pFltObjects->Filter, pFltObjects->Volume, &infoInstanceName, &pCandidate))) continue;
+
+            const bool found = pCandidate == pFltObjects->Instance;
+            FltObjectDereference(pCandidate);
+
+            if (!found) continue;
+
+            UNICODE_STRING infoAltitude{};
+            infoAltitude.Buffer = reinterpret_cast<PWCH>(infoBuffer + pInfo->AltitudeBufferOffset);
+            infoAltitude.Length = pInfo->AltitudeLength;
+            infoAltitude.MaximumLength = pInfo->AltitudeLength;
+
+            ULONG altitude = 0u;
+
+            if (!NT_SUCCESS(RtlUnicodeStringToInteger(&infoAltitude, 10u, &altitude))) return 0u;
+
+            return altitude;
+        }
+
+        return 0u;
     }
 
 
@@ -135,7 +195,7 @@ namespace {
 
         driver::InstanceContext* pContext = nullptr;
         NTSTATUS status = STATUS_SUCCESS;
-        const ULONG altitude = config::GetInstanceAltitude(pFltObjects);
+        const ULONG altitude = GetInstanceAltitude(pFltObjects);
 
         status = FltAllocateContext(pFltObjects->Filter, FLT_INSTANCE_CONTEXT, sizeof(driver::InstanceContext), NonPagedPool, reinterpret_cast<PFLT_CONTEXT*>(&pContext));
 
@@ -192,9 +252,7 @@ extern "C" NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* pDriverObject, _In_ UNICODE_
 
     records::Create();
     modules::Create();
-    status = config::Create(pRegistryPath);
-
-    if (!NT_SUCCESS(status)) goto done;
+    config::Create(pRegistryPath);
 
     status = FltRegisterFilter(pDriverObject, &FilterRegistration, &driver::Filter);
 
@@ -220,7 +278,6 @@ done:
             FltUnregisterFilter(driver::Filter);
         }
 
-        config::Delete();
         modules::Delete();
         records::Delete();
 
