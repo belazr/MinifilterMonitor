@@ -33,7 +33,7 @@ Build tested with:
 - Windows 11 64bit
 - Visual Studio 18
 - MSVC v145 (client), WindowsKernelModeDriver10.0 (driver)
-- Windows 11 SDK / WDK (10.0.26200)
+- Windows 11 SDK / WDK (10.0.28000)
 
 Usage tested with:
 - Windows 11 64bit
@@ -47,6 +47,8 @@ The client (`MiniMonClient`) builds for x64 and x86 and links the runtime static
 
 ## Installation
 Install the driver from its INF file (`MiniMonFlt.inf`): right click it and choose *Install*. This registers the `MiniMonFlt` service and its instances (a top and a bottom altitude by default) but does not start it. The client loads and attaches the driver on demand, so no manual service start is needed. The instance altitudes are stored in the registry under `HKLM\SYSTEM\CurrentControlSet\Services\MiniMonFlt\Parameters\Instances\<instance>\Altitude` and can be adjusted after installation to match your needs. Changes take effect the next time the client attaches.
+
+The driver buffers captured records in memory until the client picks them up. This memory is capped at 50 MB by default. The cap can be adjusted via a `MaxMemoryKB` value (`REG_DWORD`) under `HKLM\SYSTEM\CurrentControlSet\Services\MiniMonFlt\Parameters`, read the next time the driver loads. Once the cap is reached the driver drops further records and the client reports how many were lost.
 
 ## Usage
 Run the client from an elevated command prompt:
