@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="MiniMonClient/MiniMonClient.vcxproj" Id="86ad25c3-66ed-4b17-8c34-4668fb00387d" />
+  <Project Path="MiniMonFlt/MiniMonFlt.vcxproj" Id="859bc7b1-fb5f-c179-0303-24b5b5797e00">
+    <Platform Project="x64" />
+    <Build Solution="*|x86" Project="false" />
+    <Deploy />
+  </Project>
+</Solution>
