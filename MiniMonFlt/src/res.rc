@@ -1,0 +1,24 @@
+#include <windows.h>
+
+#include <ntverp.h>
+
+// override the WDK build version and sample identity strings with the project's own
+#undef VER_PRODUCTVERSION
+#undef VER_PRODUCTVERSION_STR
+#undef VER_COMPANYNAME_STR
+#undef VER_PRODUCTNAME_STR
+
+#define VER_FILEVERSION             0,1,0,0
+#define VER_FILEVERSION_STR         "0.1.0.0"
+#define VER_PRODUCTVERSION          0,1,0,0
+#define VER_PRODUCTVERSION_STR      "0.1.0.0"
+#define VER_COMPANYNAME_STR         "belazr"
+#define VER_PRODUCTNAME_STR         "MinifilterMonitor"
+#define VER_LEGALCOPYRIGHT_STR      "Copyright (C) 2026 belazr"
+
+#define VER_FILETYPE    VFT_DRV
+#define VER_FILESUBTYPE VFT2_DRV_SYSTEM
+#define VER_FILEDESCRIPTION_STR     "Minifilter Monitor Filter Driver"
+#define VER_INTERNALNAME_STR        "MiniMonFlt.sys"
+
+#include "common.ver"

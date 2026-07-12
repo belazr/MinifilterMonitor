@@ -1,0 +1,130 @@
+[Version]
+Signature   = "$Windows NT$"
+Class       = "ActivityMonitor"                         ;This is determined by the work this filter driver does
+ClassGuid   = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}    ;This value is determined by the Class
+Provider    = %ProviderString%
+DriverVer   = 06/10/2026,0.1.0.0
+CatalogFile = MiniMonFlt.cat
+PnpLockdown = 1
+
+[SourceDisksFiles]
+MiniMonFlt.sys = 1,,
+;MiniMonClient.exe = 1,,
+
+[SourceDisksNames]
+1 = %DiskId1%,,,
+
+[DestinationDirs]
+MiniMonFltDownlevel.CopyDriverFiles = 12            ;%windir%\system32\drivers
+MiniMonFltDownlevel.DelDriverFiles  = 12            ;%windir%\system32\drivers
+MiniMonFlt.Files                    = 13            ;driver store
+
+;;
+;; Default install sections
+;;
+
+[DefaultInstall.NT$ARCH$.10.0...25952]
+OptionDesc          = %ServiceDescription%
+CopyFiles           = MiniMonFlt.Files,
+
+[DefaultInstall.NT$ARCH$.10.0...25952.Services]
+AddService          = %ServiceName%,,MiniMonFlt.Service
+
+;
+; Support sections
+;
+
+[MiniMonFlt.Service]
+DisplayName      = %ServiceName%
+Description      = %ServiceDescription%
+ServiceBinary    = %13%\%DriverName%.sys        ;%windir%\system32\drivers\
+Dependencies     = FltMgr
+ServiceType      = 2                            ;SERVICE_FILE_SYSTEM_DRIVER
+StartType        = 3                            ;SERVICE_DEMAND_START
+ErrorControl     = 1                            ;SERVICE_ERROR_NORMAL
+LoadOrderGroup   = "FSFilter Activity Monitor"
+AddReg           = MiniMonFlt.AddRegistry
+
+[MiniMonFlt.AddRegistry]
+HKR,"Parameters","SupportedFeatures",0x00010001,0x3
+HKR,"Parameters\Instances","DefaultInstance",0x00000000,%DefaultInstance%
+HKR,"Parameters\Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
+HKR,"Parameters\Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
+HKR,"Parameters\Instances\"%Instance2.Name%,"Altitude",0x00000000,%Instance2.Altitude%
+HKR,"Parameters\Instances\"%Instance2.Name%,"Flags",0x00010001,%Instance2.Flags%
+
+[MiniMonFlt.Files]
+%DriverName%.sys
+
+;;
+;; Downlevel default install sections
+;;
+
+[DefaultInstall.NT$ARCH$]
+OptionDesc          = %ServiceDescription%
+CopyFiles           = MiniMonFltDownlevel.CopyDriverFiles
+
+[DefaultInstall.NT$ARCH$.Services]
+AddService          = %ServiceName%,,MiniMonFltDownlevel.Service
+
+;;
+;; Downlevel default uninstall sections
+;;
+
+[DefaultUninstall.NT$ARCH$]
+LegacyUninstall = 1
+DelFiles        = MiniMonFltDownlevel.DelDriverFiles
+
+[DefaultUninstall.NT$ARCH$.Services]
+DelService      = %ServiceName%,0x200      ;Ensure service is stopped before deleting
+
+;
+; Downlevel support sections
+;
+
+[MiniMonFltDownlevel.Service]
+DisplayName      = %ServiceName%
+Description      = %ServiceDescription%
+ServiceBinary    = %12%\%DriverName%.sys        ;%windir%\system32\drivers\
+Dependencies     = FltMgr
+ServiceType      = 2                            ;SERVICE_FILE_SYSTEM_DRIVER
+StartType        = 3                            ;SERVICE_DEMAND_START
+ErrorControl     = 1                            ;SERVICE_ERROR_NORMAL
+LoadOrderGroup   = "FSFilter Activity Monitor"
+AddReg           = MiniMonFltDownlevel.AddRegistry
+
+[MiniMonFltDownlevel.AddRegistry]
+HKR,,"SupportedFeatures",0x00010001,0x3
+HKR,"Instances","DefaultInstance",0x00000000,%DefaultInstance%
+HKR,"Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
+HKR,"Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
+HKR,"Instances\"%Instance2.Name%,"Altitude",0x00000000,%Instance2.Altitude%
+HKR,"Instances\"%Instance2.Name%,"Flags",0x00010001,%Instance2.Flags%
+
+[MiniMonFltDownlevel.CopyDriverFiles]
+%DriverName%.sys
+
+[MiniMonFltDownlevel.DelDriverFiles]
+%DriverName%.sys
+
+;;
+;; String Section
+;;
+
+[Strings]
+ProviderString          = "MinifilterMonitor"
+ServiceDescription      = "MiniMonFlt mini-filter driver"
+ServiceName             = "MiniMonFlt"
+DriverName              = "MiniMonFlt"
+DiskId1                 = "MiniMonFlt Device Installation Disk"
+
+;Instances specific information.
+;The default install registers a top and a bottom instance, forming the upper and lower
+;boundary of a monitoring window. Additional altitudes can be added via the registry.
+DefaultInstance         = "MiniMonFlt - Top Instance"
+Instance1.Name          = "MiniMonFlt - Top Instance"
+Instance1.Altitude      = "386500"
+Instance1.Flags         = 0x1          ; Suppress automatic attachments
+Instance2.Name          = "MiniMonFlt - Bottom Instance"
+Instance2.Altitude      = "363400"
+Instance2.Flags         = 0x1          ; Suppress automatic attachments
