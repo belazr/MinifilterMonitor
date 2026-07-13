@@ -1,6 +1,7 @@
 #include "format.h"
 
 #include "..\kernel.h"
+#include "details.h"
 
 #include "..\..\..\inc\protocol.h"
 
@@ -17,7 +18,7 @@ namespace {
     enum Column {
         SEQ_NUM, ALTITUDE, OPERATION_ID, TOP_LEVEL_IRP,
         PRE_OP_TIME, POST_OP_TIME, PROCESS_ID, THREAD_ID, OPR, MAJOR, MINOR, NAME, STATUS, INFORMATION,
-        IRP_FLAGS, DEV_OBJ, FILE_OBJ, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, REPARSE_TAG,
+        DETAILS, IRP_FLAGS, DEV_OBJ, FILE_OBJ, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, REPARSE_TAG,
         TRANSACTION, TRANSACTION_SEQ, TRANSACTION_NOTIFY,
         STACK_TRACE, COLUMN_COUNT
     };
@@ -39,6 +40,7 @@ namespace {
         labels[NAME]               = L"Name";
         labels[STATUS]             = L"Status";
         labels[INFORMATION]        = L"Information";
+        labels[DETAILS]            = L"Details";
         labels[IRP_FLAGS]          = L"IrpFlags";
         labels[DEV_OBJ]            = L"DevObj";
         labels[FILE_OBJ]           = L"FileObj";
@@ -276,14 +278,15 @@ namespace mimo {
                     columns[NAME]          = EscapeCsvField(ExtractName(data));
                     columns[STATUS]        = std::format(L"{:08X}", static_cast<ULONG>(data.status));
                     columns[INFORMATION]   = std::format(L"{:0{}X}", data.information, PTR_WIDTH);
+                    columns[DETAILS]       = EscapeCsvField(details::Render(data));
                     columns[IRP_FLAGS]     = std::format(L"{:08X}", data.irpFlags);
                     columns[FILE_OBJ]      = FormatObject(data.fileObject);
-                    columns[ARG1]          = std::format(L"{:0{}X}", data.arg1, PTR_WIDTH);
-                    columns[ARG2]          = std::format(L"{:0{}X}", data.arg2, PTR_WIDTH);
-                    columns[ARG3]          = std::format(L"{:0{}X}", data.arg3, PTR_WIDTH);
-                    columns[ARG4]          = std::format(L"{:0{}X}", data.arg4, PTR_WIDTH);
-                    columns[ARG5]          = std::format(L"{:0{}X}", data.arg5, PTR_WIDTH);
-                    columns[ARG6]          = std::format(L"{:0{}X}", static_cast<ULONGLONG>(data.arg6), PTR_WIDTH);
+                    columns[ARG1]          = std::format(L"{:0{}X}", data.parameters.others.argument1, PTR_WIDTH);
+                    columns[ARG2]          = std::format(L"{:0{}X}", data.parameters.others.argument2, PTR_WIDTH);
+                    columns[ARG3]          = std::format(L"{:0{}X}", data.parameters.others.argument3, PTR_WIDTH);
+                    columns[ARG4]          = std::format(L"{:0{}X}", data.parameters.others.argument4, PTR_WIDTH);
+                    columns[ARG5]          = std::format(L"{:0{}X}", data.parameters.others.argument5, PTR_WIDTH);
+                    columns[ARG6]          = std::format(L"{:0{}X}", static_cast<ULONGLONG>(data.parameters.others.argument6), PTR_WIDTH);
                     columns[REPARSE_TAG]   = FormatReparseTag(data.reparseTag);
                 }
 

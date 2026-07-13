@@ -12,6 +12,23 @@ namespace mimo {
         inline constexpr ULONG FLT_CALLBACK_DATA_FAST_IO_OPERATION   = 0x00000002u;
         inline constexpr ULONG FLT_CALLBACK_DATA_FS_FILTER_OPERATION = 0x00000004u;
 
+        // IRP flags carried in RecordData::irpFlags
+
+        inline constexpr ULONG IRP_NOCACHE                 = 0x00000001u;
+        inline constexpr ULONG IRP_PAGING_IO               = 0x00000002u;
+        inline constexpr ULONG IRP_SYNCHRONOUS_API         = 0x00000004u;
+        inline constexpr ULONG IRP_SYNCHRONOUS_PAGING_IO   = 0x00000040u;
+
+        // stack-location SL_* flags carried in RecordData::operationFlags
+
+        inline constexpr UCHAR SL_KEY_SPECIFIED = 0x01u;
+        inline constexpr UCHAR SL_WRITE_THROUGH = 0x04u;
+
+        // read/write ByteOffset sentinels, the 64-bit form of the wdm.h LowPart values with HighPart -1
+
+        inline constexpr LONGLONG FILE_WRITE_TO_END_OF_FILE      = -1;
+        inline constexpr LONGLONG FILE_USE_FILE_POINTER_POSITION = -2;
+
         // standard IRP major codes
 
         inline constexpr UCHAR IRP_MJ_CREATE                   = 0x00u;

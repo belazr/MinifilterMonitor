@@ -36,9 +36,41 @@ namespace mimo {
 
         typedef uint64_t ObjectId;
 
+        // the kernel's FLT_PARAMETERS union as a platform-free mirror
+        // the driver pins each mirrored member against FLT_PARAMETERS
+        union FltParameters {
+
+            struct {
+                uint64_t argument1;
+                uint64_t argument2;
+                uint64_t argument3;
+                uint64_t argument4;
+                uint64_t argument5;
+                int64_t argument6;
+            } others;
+
+            // IRP_MJ_READ / IRP_MJ_WRITE
+            struct {
+                uint32_t length;
+                uint8_t reserved1[4];
+                uint32_t key;
+                uint8_t reserved2[4];
+                int64_t byteOffset;
+                uint64_t buffer;
+                uint64_t mdlAddress;
+            } readWrite;
+
+        };
+
+        static_assert(sizeof(FltParameters) == 48u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, readWrite.key) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, readWrite.byteOffset) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, readWrite.buffer) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, readWrite.mdlAddress) == 32u, "protocol::FltParameters layout drift");
+
         inline constexpr uint32_t NAME_WCHARS = 512u;
 
-        inline constexpr uint32_t STACK_TRACE_FRAMES      = 8u;
+        inline constexpr uint32_t STACK_TRACE_FRAMES = 8u;
         inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;
 
         struct StackFrame {
@@ -63,15 +95,11 @@ namespace mimo {
             uint32_t reparseTag;            // IO_REPARSE_TAG_* of a reparse-point hit, 0 if none
             uint8_t callbackMajorId;
             uint8_t callbackMinorId;
-            uint8_t reserved[6];
+            uint8_t operationFlags;         // IRP stack-location SL_* flags
+            uint8_t reserved[5];
             uint32_t transactionNotify;     // raw TRANSACTION_NOTIFY_* code, non-zero marks a transaction lifecycle event, not an operation
             uint32_t transactionSequence;   // our per-transaction id, 0 if the operation is not transacted
-            uint64_t arg1;
-            uint64_t arg2;
-            uint64_t arg3;
-            uint64_t arg4;
-            uint64_t arg5;
-            int64_t arg6;
+            FltParameters parameters;
             uint32_t altitude;
             uint32_t stackFrameCount;
             StackFrame stackTrace[STACK_TRACE_FRAMES];
@@ -92,7 +120,7 @@ namespace mimo {
         static_assert(offsetof(RecordData, deviceObject) == 16u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, transactionNotify) == 104u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, transactionSequence) == 108u, "protocol::RecordData layout drift");
-        static_assert(offsetof(RecordData, arg1) == 112u, "protocol::RecordData layout drift");
+        static_assert(offsetof(RecordData, parameters) == 112u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, stackTrace) == 168u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, name) == 744u, "protocol::RecordData layout drift");
         static_assert(offsetof(Record, data) == 16u, "protocol::Record layout drift");

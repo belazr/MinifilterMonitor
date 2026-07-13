@@ -10,6 +10,47 @@
 
 using namespace mimo;
 
+static_assert(sizeof(protocol::FltParameters) == sizeof(FLT_PARAMETERS), "protocol::FltParameters mirror drift");
+
+static_assert(
+    offsetof(protocol::FltParameters, readWrite.length) == offsetof(FLT_PARAMETERS, Read.Length)
+    && RTL_FIELD_SIZE(protocol::FltParameters, readWrite.length) == RTL_FIELD_SIZE(FLT_PARAMETERS, Read.Length),
+    "protocol::FltParameters mirror drift: readWrite.length"
+);
+
+static_assert(
+    offsetof(protocol::FltParameters, readWrite.key) == offsetof(FLT_PARAMETERS, Read.Key)
+    && RTL_FIELD_SIZE(protocol::FltParameters, readWrite.key) == RTL_FIELD_SIZE(FLT_PARAMETERS, Read.Key),
+    "protocol::FltParameters mirror drift: readWrite.key"
+);
+
+static_assert(
+    offsetof(protocol::FltParameters, readWrite.byteOffset) == offsetof(FLT_PARAMETERS, Read.ByteOffset)
+    && RTL_FIELD_SIZE(protocol::FltParameters, readWrite.byteOffset) == RTL_FIELD_SIZE(FLT_PARAMETERS, Read.ByteOffset),
+    "protocol::FltParameters mirror drift: readWrite.byteOffset"
+);
+
+static_assert(
+    offsetof(protocol::FltParameters, readWrite.buffer) == offsetof(FLT_PARAMETERS, Read.ReadBuffer)
+    && RTL_FIELD_SIZE(protocol::FltParameters, readWrite.buffer) == RTL_FIELD_SIZE(FLT_PARAMETERS, Read.ReadBuffer),
+    "protocol::FltParameters mirror drift: readWrite.buffer"
+);
+
+static_assert(
+    offsetof(protocol::FltParameters, readWrite.mdlAddress) == offsetof(FLT_PARAMETERS, Read.MdlAddress)
+    && RTL_FIELD_SIZE(protocol::FltParameters, readWrite.mdlAddress) == RTL_FIELD_SIZE(FLT_PARAMETERS, Read.MdlAddress),
+    "protocol::FltParameters mirror drift: readWrite.mdlAddress"
+);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, Write.Length) == offsetof(FLT_PARAMETERS, Read.Length)
+    && offsetof(FLT_PARAMETERS, Write.Key) == offsetof(FLT_PARAMETERS, Read.Key)
+    && offsetof(FLT_PARAMETERS, Write.ByteOffset) == offsetof(FLT_PARAMETERS, Read.ByteOffset)
+    && offsetof(FLT_PARAMETERS, Write.WriteBuffer) == offsetof(FLT_PARAMETERS, Read.ReadBuffer)
+    && offsetof(FLT_PARAMETERS, Write.MdlAddress) == offsetof(FLT_PARAMETERS, Read.MdlAddress),
+    "protocol::FltParameters mirror drift: readWrite covers Read and Write"
+);
+
 namespace {
 
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {
@@ -59,17 +100,13 @@ namespace mimo {
 
             pRecordData->callbackMajorId = pData->Iopb->MajorFunction;
             pRecordData->callbackMinorId = pData->Iopb->MinorFunction;
+            pRecordData->operationFlags  = pData->Iopb->OperationFlags;
             pRecordData->irpFlags        = pData->Iopb->IrpFlags;
             pRecordData->flags           = pData->Flags;
             pRecordData->operationId     = reinterpret_cast<protocol::ObjectId>(pData);
             pRecordData->topLevelIrp     = reinterpret_cast<protocol::ObjectId>(IoGetTopLevelIrp());
 
-            pRecordData->arg1 = reinterpret_cast<ULONGLONG>(pData->Iopb->Parameters.Others.Argument1);
-            pRecordData->arg2 = reinterpret_cast<ULONGLONG>(pData->Iopb->Parameters.Others.Argument2);
-            pRecordData->arg3 = reinterpret_cast<ULONGLONG>(pData->Iopb->Parameters.Others.Argument3);
-            pRecordData->arg4 = reinterpret_cast<ULONGLONG>(pData->Iopb->Parameters.Others.Argument4);
-            pRecordData->arg5 = reinterpret_cast<ULONGLONG>(pData->Iopb->Parameters.Others.Argument5);
-            pRecordData->arg6 = pData->Iopb->Parameters.Others.Argument6.QuadPart;
+            RtlCopyMemory(&pRecordData->parameters, &pData->Iopb->Parameters, sizeof(pRecordData->parameters));
 
             FLT_ASSERT(pName);
             FLT_ASSERT(pEcpData);
