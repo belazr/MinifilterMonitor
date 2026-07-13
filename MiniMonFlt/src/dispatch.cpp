@@ -44,7 +44,7 @@ namespace {
         openedStatus = FltGetFileNameInformation(pData, FLT_FILE_NAME_OPENED | FLT_FILE_NAME_QUERY_ALWAYS_ALLOW_CACHE_LOOKUP, &pOpenedInfo);
 
         if (NT_SUCCESS(openedStatus)) {
-            RtlUnicodeStringPrintf(pName, L"%wZ [opened; normalize 0x%08X]", &pOpenedInfo->Name, normalizedStatus);
+            RtlUnicodeStringPrintf(pName, L"%wZ [opened: normalize 0x%08X]", &pOpenedInfo->Name, normalizedStatus);
 
             goto done;
         }
