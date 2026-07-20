@@ -49,12 +49,26 @@ namespace mimo {
                 int64_t argument6;
             } others;
 
+            // IRP_MJ_CREATE
+            struct {
+                uint64_t securityContext;
+                uint32_t options;               // low 24 bits create options, high 8 bits disposition
+                uint8_t reserved1[4u];
+                uint16_t fileAttributes;
+                uint16_t shareAccess;
+                uint8_t reserved2[4u];
+                uint32_t eaLength;
+                uint8_t reserved3[4u];
+                uint64_t eaBuffer;
+                int64_t allocationSize;
+            } create;
+
             // IRP_MJ_READ / IRP_MJ_WRITE
             struct {
                 uint32_t length;
-                uint8_t reserved1[4];
+                uint8_t reserved1[4u];
                 uint32_t key;
-                uint8_t reserved2[4];
+                uint8_t reserved2[4u];
                 int64_t byteOffset;
                 uint64_t buffer;
                 uint64_t mdlAddress;
@@ -63,10 +77,40 @@ namespace mimo {
         };
 
         static_assert(sizeof(FltParameters) == 48u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, create.options) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, create.fileAttributes) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, create.shareAccess) == 18u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, create.eaLength) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, create.eaBuffer) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, create.allocationSize) == 40u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, readWrite.key) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, readWrite.byteOffset) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, readWrite.buffer) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, readWrite.mdlAddress) == 32u, "protocol::FltParameters layout drift");
+
+        inline constexpr uint32_t ECP_TEXT_WCHARS = 256u;
+        inline constexpr uint32_t SID_BYTES       = 68u;    // SECURITY_MAX_SID_SIZE, pinned by the driver
+
+        // validity bits for the captured member of the supplement structs
+        inline constexpr uint32_t CREATE_CAPTURED_DESIRED_ACCESS   = 0x00000001u;
+        inline constexpr uint32_t CREATE_CAPTURED_IMPERSONATED_SID = 0x00000002u;
+
+        // per-operation data the parameters mirror cannot provide
+        struct CreateSupplement {
+            uint32_t captured;
+            uint32_t desiredAccess;
+            uint8_t impersonatedSid[SID_BYTES];
+            wchar_t ecpText[ECP_TEXT_WCHARS];
+        };
+
+        union Supplement {
+            CreateSupplement create;
+        };
+
+        static_assert(sizeof(CreateSupplement) == 588u, "protocol::CreateSupplement layout drift");
+        static_assert(sizeof(Supplement) == 588u, "protocol::Supplement layout drift");
+        static_assert(offsetof(CreateSupplement, impersonatedSid) == 8u, "protocol::CreateSupplement layout drift");
+        static_assert(offsetof(CreateSupplement, ecpText) == 76u, "protocol::CreateSupplement layout drift");
 
         inline constexpr uint32_t NAME_WCHARS = 512u;
 
@@ -96,7 +140,7 @@ namespace mimo {
             uint8_t callbackMajorId;
             uint8_t callbackMinorId;
             uint8_t operationFlags;         // IRP stack-location SL_* flags
-            uint8_t reserved[5];
+            uint8_t reserved[5u];
             uint32_t transactionNotify;     // raw TRANSACTION_NOTIFY_* code, non-zero marks a transaction lifecycle event, not an operation
             uint32_t transactionSequence;   // our per-transaction id, 0 if the operation is not transacted
             FltParameters parameters;
@@ -104,25 +148,27 @@ namespace mimo {
             uint32_t stackFrameCount;
             StackFrame stackTrace[STACK_TRACE_FRAMES];
             wchar_t name[NAME_WCHARS];
+            Supplement supplement;
         };
 
         struct Record {
             uint32_t sequenceNumber;
             uint32_t droppedRecords;
-            uint8_t reserved[8];
+            uint8_t reserved[8u];
             RecordData data;
         };
 
         static_assert(sizeof(Version) == 6u, "protocol::Version layout drift");
         static_assert(sizeof(StackFrame) == 72u, "protocol::StackFrame layout drift");
-        static_assert(sizeof(RecordData) == 1768u, "protocol::RecordData layout drift");
-        static_assert(sizeof(Record) == 1784u, "protocol::Record layout drift");
+        static_assert(sizeof(RecordData) == 2360u, "protocol::RecordData layout drift");
+        static_assert(sizeof(Record) == 2376u, "protocol::Record layout drift");
         static_assert(offsetof(RecordData, deviceObject) == 16u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, transactionNotify) == 104u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, transactionSequence) == 108u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, parameters) == 112u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, stackTrace) == 168u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, name) == 744u, "protocol::RecordData layout drift");
+        static_assert(offsetof(RecordData, supplement) == 1768u, "protocol::RecordData layout drift");
         static_assert(offsetof(Record, data) == 16u, "protocol::Record layout drift");
 
         enum class Command : uint32_t {

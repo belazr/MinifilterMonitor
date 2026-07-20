@@ -22,7 +22,7 @@
     <ClCompile Include="src\log\details.cpp" />
     <ClCompile Include="src\log\format.cpp" />
     <ClCompile Include="src\log\sink.cpp" />
-    <ClCompile Include="src\encoding.cpp" />
+    <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
@@ -35,7 +35,7 @@
     <ClInclude Include="src\log\sink.h" />
     <ClInclude Include="src\filter.h" />
     <ClInclude Include="src\buffer.h" />
-    <ClInclude Include="src\encoding.h" />
+    <ClInclude Include="src\text.h" />
     <ClInclude Include="src\handle.h" />
   </ItemGroup>
   <ItemGroup>

@@ -45,6 +45,9 @@
     <ClCompile Include="src\modules.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\name.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\port.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\modules.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\name.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\port.h">

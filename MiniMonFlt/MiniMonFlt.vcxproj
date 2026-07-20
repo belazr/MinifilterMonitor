@@ -99,6 +99,7 @@
     <ClCompile Include="src\driver.cpp" />
     <ClCompile Include="src\ecp.cpp" />
     <ClCompile Include="src\modules.cpp" />
+    <ClCompile Include="src\name.cpp" />
     <ClCompile Include="src\port.cpp" />
     <ClCompile Include="src\records.cpp" />
     <ClCompile Include="src\stack.cpp" />
@@ -112,6 +113,7 @@
     <ClInclude Include="src\driver.h" />
     <ClInclude Include="src\ecp.h" />
     <ClInclude Include="src\modules.h" />
+    <ClInclude Include="src\name.h" />
     <ClInclude Include="src\port.h" />
     <ClInclude Include="src\records.h" />
     <ClInclude Include="src\stack.h" />

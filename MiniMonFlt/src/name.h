@@ -1,0 +1,17 @@
+#pragma once
+
+#include <fltKernel.h>
+
+namespace mimo {
+
+    namespace name {
+
+        void ResolveFileName(
+            _In_ FLT_CALLBACK_DATA* pData,
+            _In_ const FLT_RELATED_OBJECTS* pFltObjects,
+            _Inout_ UNICODE_STRING* pName
+        );
+
+    }
+
+}

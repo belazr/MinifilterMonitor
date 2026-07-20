@@ -1,10 +1,10 @@
-#include "encoding.h"
+#include "text.h"
 
 #include <Windows.h>
 
 namespace mimo {
 
-    namespace encoding {
+    namespace text {
 
         std::string ConvertToUtf8(std::wstring_view text) {
 

@@ -1,46 +1,36 @@
 #include "capture.h"
 
 #include "driver.h"
+#include "ecp.h"
+#include "name.h"
 #include "stack.h"
 
 #include "..\..\inc\protocol.h"
 
 #include <fltKernel.h>
-#include <ntstrsafe.h>
 
 using namespace mimo;
 
+#define MIRROR_ASSERT(mirrorMember, fltMember) static_assert( \
+    offsetof(protocol::FltParameters, mirrorMember) == offsetof(FLT_PARAMETERS, fltMember) \
+    && RTL_FIELD_SIZE(protocol::FltParameters, mirrorMember) == RTL_FIELD_SIZE(FLT_PARAMETERS, fltMember), \
+    "protocol::FltParameters mirror drift: " #mirrorMember)
+
 static_assert(sizeof(protocol::FltParameters) == sizeof(FLT_PARAMETERS), "protocol::FltParameters mirror drift");
 
-static_assert(
-    offsetof(protocol::FltParameters, readWrite.length) == offsetof(FLT_PARAMETERS, Read.Length)
-    && RTL_FIELD_SIZE(protocol::FltParameters, readWrite.length) == RTL_FIELD_SIZE(FLT_PARAMETERS, Read.Length),
-    "protocol::FltParameters mirror drift: readWrite.length"
-);
+MIRROR_ASSERT(create.securityContext, Create.SecurityContext);
+MIRROR_ASSERT(create.options,         Create.Options);
+MIRROR_ASSERT(create.fileAttributes,  Create.FileAttributes);
+MIRROR_ASSERT(create.shareAccess,     Create.ShareAccess);
+MIRROR_ASSERT(create.eaLength,        Create.EaLength);
+MIRROR_ASSERT(create.eaBuffer,        Create.EaBuffer);
+MIRROR_ASSERT(create.allocationSize,  Create.AllocationSize);
 
-static_assert(
-    offsetof(protocol::FltParameters, readWrite.key) == offsetof(FLT_PARAMETERS, Read.Key)
-    && RTL_FIELD_SIZE(protocol::FltParameters, readWrite.key) == RTL_FIELD_SIZE(FLT_PARAMETERS, Read.Key),
-    "protocol::FltParameters mirror drift: readWrite.key"
-);
-
-static_assert(
-    offsetof(protocol::FltParameters, readWrite.byteOffset) == offsetof(FLT_PARAMETERS, Read.ByteOffset)
-    && RTL_FIELD_SIZE(protocol::FltParameters, readWrite.byteOffset) == RTL_FIELD_SIZE(FLT_PARAMETERS, Read.ByteOffset),
-    "protocol::FltParameters mirror drift: readWrite.byteOffset"
-);
-
-static_assert(
-    offsetof(protocol::FltParameters, readWrite.buffer) == offsetof(FLT_PARAMETERS, Read.ReadBuffer)
-    && RTL_FIELD_SIZE(protocol::FltParameters, readWrite.buffer) == RTL_FIELD_SIZE(FLT_PARAMETERS, Read.ReadBuffer),
-    "protocol::FltParameters mirror drift: readWrite.buffer"
-);
-
-static_assert(
-    offsetof(protocol::FltParameters, readWrite.mdlAddress) == offsetof(FLT_PARAMETERS, Read.MdlAddress)
-    && RTL_FIELD_SIZE(protocol::FltParameters, readWrite.mdlAddress) == RTL_FIELD_SIZE(FLT_PARAMETERS, Read.MdlAddress),
-    "protocol::FltParameters mirror drift: readWrite.mdlAddress"
-);
+MIRROR_ASSERT(readWrite.length,     Read.Length);
+MIRROR_ASSERT(readWrite.key,        Read.Key);
+MIRROR_ASSERT(readWrite.byteOffset, Read.ByteOffset);
+MIRROR_ASSERT(readWrite.buffer,     Read.ReadBuffer);
+MIRROR_ASSERT(readWrite.mdlAddress, Read.MdlAddress);
 
 static_assert(
     offsetof(FLT_PARAMETERS, Write.Length) == offsetof(FLT_PARAMETERS, Read.Length)
@@ -48,8 +38,10 @@ static_assert(
     && offsetof(FLT_PARAMETERS, Write.ByteOffset) == offsetof(FLT_PARAMETERS, Read.ByteOffset)
     && offsetof(FLT_PARAMETERS, Write.WriteBuffer) == offsetof(FLT_PARAMETERS, Read.ReadBuffer)
     && offsetof(FLT_PARAMETERS, Write.MdlAddress) == offsetof(FLT_PARAMETERS, Read.MdlAddress),
-    "protocol::FltParameters mirror drift: readWrite covers Read and Write"
+    "FLT_PARAMETERS Read and Write diverge: split protocol::FltParameters readWrite"
 );
+
+static_assert(protocol::SID_BYTES == SECURITY_MAX_SID_SIZE, "protocol::SID_BYTES mirror drift");
 
 namespace {
 
@@ -88,6 +80,62 @@ namespace {
         return;
     }
 
+
+    __declspec(code_seg("PAGE"))
+    void PopulateImpersonatedSid(_Inout_ protocol::CreateSupplement* pSupplement, _In_ PACCESS_TOKEN pClientToken) {
+        PAGED_CODE();
+
+        TOKEN_USER* pTokenUser = nullptr;
+
+        if (!NT_SUCCESS(SeQueryInformationToken(pClientToken, TokenUser, reinterpret_cast<void**>(&pTokenUser)))) return;
+
+        ULONG sidSize;
+
+        if (!RtlValidSid(pTokenUser->User.Sid)) goto done;
+
+        sidSize = RtlLengthSid(pTokenUser->User.Sid);
+
+        if (sidSize > sizeof(pSupplement->impersonatedSid)) goto done;
+
+        RtlCopyMemory(pSupplement->impersonatedSid, pTokenUser->User.Sid, sidSize);
+        pSupplement->captured |= protocol::CREATE_CAPTURED_IMPERSONATED_SID;
+
+    done:
+
+        ExFreePool(pTokenUser);
+
+        return;
+    }
+
+
+    __declspec(code_seg("PAGE"))
+    void PopulateCreateSupplement(_Inout_ protocol::RecordData* pRecordData, _In_ FLT_CALLBACK_DATA* pData) {
+        PAGED_CODE();
+
+        protocol::CreateSupplement* const pSupplement = &pRecordData->supplement.create;
+
+        UNICODE_STRING ecpText{};
+        RtlInitEmptyUnicodeString(&ecpText, pSupplement->ecpText, sizeof(pSupplement->ecpText));
+        ecp::FormatEcps(pData, &ecpText);
+
+        const IO_SECURITY_CONTEXT* const pSecurityContext = pData->Iopb->Parameters.Create.SecurityContext;
+
+        if (!pSecurityContext) return;
+
+        pSupplement->desiredAccess = pSecurityContext->DesiredAccess;
+        pSupplement->captured |= protocol::CREATE_CAPTURED_DESIRED_ACCESS;
+
+        if (!pSecurityContext->AccessState) return;
+
+        PACCESS_TOKEN const pClientToken = pSecurityContext->AccessState->SubjectSecurityContext.ClientToken;
+
+        if (!pClientToken) return;
+
+        PopulateImpersonatedSid(pSupplement, pClientToken);
+
+        return;
+    }
+
 }
 
 namespace mimo {
@@ -95,7 +143,7 @@ namespace mimo {
     namespace capture {
 
         _Use_decl_annotations_
-        void PopulatePreOperationRecordData(protocol::RecordData* pRecordData, const FLT_CALLBACK_DATA* pData, const FLT_RELATED_OBJECTS* pFltObjects, const UNICODE_STRING* pName, const UNICODE_STRING* pEcpData) {
+        void PopulatePreOperationRecordData(protocol::RecordData* pRecordData, FLT_CALLBACK_DATA* pData, const FLT_RELATED_OBJECTS* pFltObjects) {
             PopulateOriginRecordData(pRecordData, pFltObjects);
 
             pRecordData->callbackMajorId = pData->Iopb->MajorFunction;
@@ -108,14 +156,20 @@ namespace mimo {
 
             RtlCopyMemory(&pRecordData->parameters, &pData->Iopb->Parameters, sizeof(pRecordData->parameters));
 
-            FLT_ASSERT(pName);
-            FLT_ASSERT(pEcpData);
+            UNICODE_STRING fileName{};
+            RtlInitEmptyUnicodeString(&fileName, pRecordData->name, sizeof(pRecordData->name));
+            name::ResolveFileName(pData, pFltObjects, &fileName);
 
-            if (pEcpData->Length) {
-                RtlStringCbPrintfW(pRecordData->name, sizeof(pRecordData->name), L"%wZ %wZ", pName, pEcpData);
-            }
-            else {
-                RtlStringCbPrintfW(pRecordData->name, sizeof(pRecordData->name), L"%wZ", pName);
+            switch (pData->Iopb->MajorFunction) {
+
+                case IRP_MJ_CREATE:
+
+                    if (KeGetCurrentIrql() == PASSIVE_LEVEL) {
+                        PopulateCreateSupplement(pRecordData, pData);
+                    }
+
+                    break;
+
             }
 
             return;

@@ -1,7 +1,7 @@
 #include "filter.h"
 
-#include "encoding.h"
 #include "handle.h"
+#include "text.h"
 
 #include "..\..\inc\protocol.h"
 
@@ -141,7 +141,7 @@ namespace mimo {
 
                 if (hRes == ERROR_FLT_INSTANCE_ALTITUDE_COLLISION) continue;
 
-                std::cerr << std::format("  Failed to attach instance: {} 0x{:08X}\n", encoding::ConvertToUtf8(name), static_cast<ULONG>(hRes));
+                std::cerr << std::format("  Failed to attach instance: {} 0x{:08X}\n", text::ConvertToUtf8(name), static_cast<ULONG>(hRes));
                 hLastRes = hRes;
             }
 

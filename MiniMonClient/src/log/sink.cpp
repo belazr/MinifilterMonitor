@@ -1,6 +1,6 @@
 #include "sink.h"
 
-#include "..\encoding.h"
+#include "..\text.h"
 
 #include <filesystem>
 #include <format>
@@ -19,11 +19,11 @@ namespace mimo {
         bool ConsoleSink::Write(uint32_t, std::wstring_view line) {
 
             if (!this->headerWritten) {
-                this->out << encoding::ConvertToUtf8(this->header);
+                this->out << text::ConvertToUtf8(this->header);
                 this->headerWritten = true;
             }
 
-            this->out << encoding::ConvertToUtf8(line);
+            this->out << text::ConvertToUtf8(line);
 
             return static_cast<bool>(this->out);
         }
@@ -52,10 +52,10 @@ namespace mimo {
                     return false;
                 }
 
-                it->second << encoding::ConvertToUtf8(this->header);
+                it->second << text::ConvertToUtf8(this->header);
             }
 
-            it->second << encoding::ConvertToUtf8(line);
+            it->second << text::ConvertToUtf8(line);
 
             return static_cast<bool>(it->second);
         }

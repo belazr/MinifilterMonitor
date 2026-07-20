@@ -21,7 +21,7 @@
     <ClCompile Include="src\filter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\encoding.cpp">
+    <ClCompile Include="src\text.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\log\details.cpp">
@@ -44,7 +44,7 @@
     <ClInclude Include="src\filter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\encoding.h">
+    <ClInclude Include="src\text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\buffer.h">

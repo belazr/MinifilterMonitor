@@ -1,10 +1,10 @@
 #include "filter.h"
 
-#include "encoding.h"
 #include "handle.h"
 #include "log\format.h"
 #include "log\sink.h"
 #include "records.h"
+#include "text.h"
 
 #include <Windows.h>
 
@@ -151,7 +151,7 @@ namespace {
         const DWORD count = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, code, 0u, buffer.data(), static_cast<DWORD>(buffer.size()), nullptr);
 
         if (count) {
-            std::cerr << encoding::ConvertToUtf8(buffer.data());
+            std::cerr << text::ConvertToUtf8(buffer.data());
         }
         else {
             std::cerr << "failed to translate error code";

@@ -1,6 +1,7 @@
 #include "format.h"
 
 #include "..\kernel.h"
+#include "..\text.h"
 #include "details.h"
 
 #include "..\..\..\inc\protocol.h"
@@ -74,7 +75,7 @@ namespace {
 
     constexpr int PTR_WIDTH = static_cast<int>(sizeof(protocol::ObjectId) * 2u);
 
-    std::wstring FormatTime(int64_t kernelTime) {
+    std::wstring RenderTime(int64_t kernelTime) {
         const ULONGLONG ticks = static_cast<ULONGLONG>(kernelTime);
 
         FILETIME fileTime{};
@@ -96,7 +97,7 @@ namespace {
     }
 
 
-    std::wstring FormatObject(protocol::ObjectId object) {
+    std::wstring RenderObject(protocol::ObjectId object) {
 
         if (object == 0u) return L"";
 
@@ -104,18 +105,7 @@ namespace {
     }
 
 
-    std::wstring_view ExtractModuleName(const protocol::StackFrame& frame) {
-        size_t length = 0u;
-
-        while (length < protocol::STACK_FRAME_NAME_WCHARS && frame.moduleName[length] != L'\0') {
-            length++;
-        }
-
-        return { frame.moduleName, length };
-    }
-
-
-    std::wstring FormatStackTrace(const protocol::RecordData& data) {
+    std::wstring RenderStackTrace(const protocol::RecordData& data) {
         const ULONG count = data.stackFrameCount < protocol::STACK_TRACE_FRAMES ? data.stackFrameCount : protocol::STACK_TRACE_FRAMES;
 
         if (count == 0u) return L"";
@@ -126,7 +116,7 @@ namespace {
 
             if (i > 0u) result.push_back(L'|');
 
-            const std::wstring_view modName = ExtractModuleName(data.stackTrace[i]);
+            const std::wstring_view modName = text::Extract(data.stackTrace[i].moduleName);
 
             if (!modName.empty()) {
                 result.append(modName);
@@ -165,7 +155,7 @@ namespace {
     }
 
 
-    std::wstring FormatTransactionNotify(ULONG notification) {
+    std::wstring RenderTransactionNotify(ULONG notification) {
         const wchar_t* const name = kernel::TransactionNotifyName(notification);
 
         if (*name) return name;
@@ -174,7 +164,7 @@ namespace {
     }
 
 
-    std::wstring FormatOperationCategory(ULONG flags) {
+    std::wstring RenderOperationCategory(ULONG flags) {
 
         if (flags & kernel::FLT_CALLBACK_DATA_IRP_OPERATION)       return L"IRP";
 
@@ -186,7 +176,7 @@ namespace {
     }
 
 
-    std::wstring FormatMajor(UCHAR major) {
+    std::wstring RenderMajor(UCHAR major) {
         const wchar_t* const name = kernel::MajorFunctionName(major);
 
         if (*name) return name;
@@ -195,7 +185,7 @@ namespace {
     }
 
 
-    std::wstring FormatMinor(UCHAR major, UCHAR minor) {
+    std::wstring RenderMinor(UCHAR major, UCHAR minor) {
         const wchar_t* const name = kernel::MinorFunctionName(major, minor);
 
         if (*name) return name;
@@ -207,14 +197,7 @@ namespace {
     }
 
 
-    std::wstring_view ExtractName(const protocol::RecordData& data) {
-        const std::wstring_view name{ data.name, protocol::NAME_WCHARS };
-
-        return name.substr(0u, name.find(L'\0'));
-    }
-
-
-    std::wstring FormatReparseTag(ULONG tag) {
+    std::wstring RenderReparseTag(ULONG tag) {
 
         if (tag == 0u) return L"";
 
@@ -256,38 +239,38 @@ namespace mimo {
 
                 columns[SEQ_NUM]         = std::format(L"{:08X}", record.sequenceNumber);
                 columns[ALTITUDE]        = std::to_wstring(data.altitude);
-                columns[PRE_OP_TIME]     = FormatTime(data.originatingTime);
+                columns[PRE_OP_TIME]     = RenderTime(data.originatingTime);
                 columns[PROCESS_ID]      = std::format(L"{:X}", data.processId);
                 columns[THREAD_ID]       = std::format(L"{:X}", data.threadId);
-                columns[DEV_OBJ]         = FormatObject(data.deviceObject);
-                columns[TRANSACTION]     = FormatObject(data.transaction);
+                columns[DEV_OBJ]         = RenderObject(data.deviceObject);
+                columns[TRANSACTION]     = RenderObject(data.transaction);
                 columns[TRANSACTION_SEQ] = data.transactionSequence ? std::format(L"{:08X}", data.transactionSequence) : std::wstring{};
-                columns[STACK_TRACE]     = EscapeCsvField(FormatStackTrace(data));
+                columns[STACK_TRACE]     = EscapeCsvField(RenderStackTrace(data));
 
                 if (data.transactionNotify) {
                     columns[OPR]                = L"TX";
-                    columns[TRANSACTION_NOTIFY] = FormatTransactionNotify(data.transactionNotify);
+                    columns[TRANSACTION_NOTIFY] = RenderTransactionNotify(data.transactionNotify);
                 }
                 else {
-                    columns[OPR]           = FormatOperationCategory(data.flags);
+                    columns[OPR]           = RenderOperationCategory(data.flags);
                     columns[OPERATION_ID]  = std::format(L"{:0{}X}", data.operationId, PTR_WIDTH);
-                    columns[TOP_LEVEL_IRP] = FormatObject(data.topLevelIrp);
-                    columns[POST_OP_TIME]  = FormatTime(data.completionTime);
-                    columns[MAJOR]         = FormatMajor(data.callbackMajorId);
-                    columns[MINOR]         = FormatMinor(data.callbackMajorId, data.callbackMinorId);
-                    columns[NAME]          = EscapeCsvField(ExtractName(data));
+                    columns[TOP_LEVEL_IRP] = RenderObject(data.topLevelIrp);
+                    columns[POST_OP_TIME]  = RenderTime(data.completionTime);
+                    columns[MAJOR]         = RenderMajor(data.callbackMajorId);
+                    columns[MINOR]         = RenderMinor(data.callbackMajorId, data.callbackMinorId);
+                    columns[NAME]          = EscapeCsvField(text::Extract(data.name));
                     columns[STATUS]        = std::format(L"{:08X}", static_cast<ULONG>(data.status));
                     columns[INFORMATION]   = std::format(L"{:0{}X}", data.information, PTR_WIDTH);
                     columns[DETAILS]       = EscapeCsvField(details::Render(data));
                     columns[IRP_FLAGS]     = std::format(L"{:08X}", data.irpFlags);
-                    columns[FILE_OBJ]      = FormatObject(data.fileObject);
+                    columns[FILE_OBJ]      = RenderObject(data.fileObject);
                     columns[ARG1]          = std::format(L"{:0{}X}", data.parameters.others.argument1, PTR_WIDTH);
                     columns[ARG2]          = std::format(L"{:0{}X}", data.parameters.others.argument2, PTR_WIDTH);
                     columns[ARG3]          = std::format(L"{:0{}X}", data.parameters.others.argument3, PTR_WIDTH);
                     columns[ARG4]          = std::format(L"{:0{}X}", data.parameters.others.argument4, PTR_WIDTH);
                     columns[ARG5]          = std::format(L"{:0{}X}", data.parameters.others.argument5, PTR_WIDTH);
                     columns[ARG6]          = std::format(L"{:0{}X}", static_cast<ULONGLONG>(data.parameters.others.argument6), PTR_WIDTH);
-                    columns[REPARSE_TAG]   = FormatReparseTag(data.reparseTag);
+                    columns[REPARSE_TAG]   = RenderReparseTag(data.reparseTag);
                 }
 
                 std::wstring line;

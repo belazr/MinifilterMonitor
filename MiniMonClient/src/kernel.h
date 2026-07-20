@@ -6,6 +6,11 @@ namespace mimo {
 
     namespace kernel {
 
+        struct FlagName {
+            ULONG flag;
+            const wchar_t* name;
+        };
+
         // operation category flags carried in RecordData::flags
 
         inline constexpr ULONG FLT_CALLBACK_DATA_IRP_OPERATION       = 0x00000001u;
@@ -315,6 +320,175 @@ namespace mimo {
             return L"";
         }
 
+
+        inline constexpr ULONG FILE_SUPERSEDE    = 0x00000000u;
+        inline constexpr ULONG FILE_OPEN         = 0x00000001u;
+        inline constexpr ULONG FILE_CREATE       = 0x00000002u;
+        inline constexpr ULONG FILE_OPEN_IF      = 0x00000003u;
+        inline constexpr ULONG FILE_OVERWRITE    = 0x00000004u;
+        inline constexpr ULONG FILE_OVERWRITE_IF = 0x00000005u;
+
+        constexpr const wchar_t* CreateDispositionName(ULONG disposition) noexcept {
+
+            switch (disposition) {
+                case FILE_SUPERSEDE:    return L"Supersede";
+                case FILE_OPEN:         return L"Open";
+                case FILE_CREATE:       return L"Create";
+                case FILE_OPEN_IF:      return L"OpenIf";
+                case FILE_OVERWRITE:    return L"Overwrite";
+                case FILE_OVERWRITE_IF: return L"OverwriteIf";
+            }
+
+            return L"";
+        }
+
+
+        inline constexpr ULONGLONG FILE_SUPERSEDED     = 0u;
+        inline constexpr ULONGLONG FILE_OPENED         = 1u;
+        inline constexpr ULONGLONG FILE_CREATED        = 2u;
+        inline constexpr ULONGLONG FILE_OVERWRITTEN    = 3u;
+        inline constexpr ULONGLONG FILE_EXISTS         = 4u;
+        inline constexpr ULONGLONG FILE_DOES_NOT_EXIST = 5u;
+
+        constexpr const wchar_t* OpenResultName(ULONGLONG information) noexcept {
+
+            switch (information) {
+                case FILE_SUPERSEDED:     return L"Superseded";
+                case FILE_OPENED:         return L"Opened";
+                case FILE_CREATED:        return L"Created";
+                case FILE_OVERWRITTEN:    return L"Overwritten";
+                case FILE_EXISTS:         return L"Exists";
+                case FILE_DOES_NOT_EXIST: return L"Does Not Exist";
+            }
+
+            return L"";
+        }
+
+
+        inline constexpr ULONG FILE_DIRECTORY_FILE            = 0x00000001u;
+        inline constexpr ULONG FILE_WRITE_THROUGH             = 0x00000002u;
+        inline constexpr ULONG FILE_SEQUENTIAL_ONLY           = 0x00000004u;
+        inline constexpr ULONG FILE_NO_INTERMEDIATE_BUFFERING = 0x00000008u;
+        inline constexpr ULONG FILE_SYNCHRONOUS_IO_ALERT      = 0x00000010u;
+        inline constexpr ULONG FILE_SYNCHRONOUS_IO_NONALERT   = 0x00000020u;
+        inline constexpr ULONG FILE_NON_DIRECTORY_FILE        = 0x00000040u;
+        inline constexpr ULONG FILE_CREATE_TREE_CONNECTION    = 0x00000080u;
+        inline constexpr ULONG FILE_COMPLETE_IF_OPLOCKED      = 0x00000100u;
+        inline constexpr ULONG FILE_NO_EA_KNOWLEDGE           = 0x00000200u;
+        inline constexpr ULONG FILE_OPEN_REMOTE_INSTANCE      = 0x00000400u;
+        inline constexpr ULONG FILE_RANDOM_ACCESS             = 0x00000800u;
+        inline constexpr ULONG FILE_DELETE_ON_CLOSE           = 0x00001000u;
+        inline constexpr ULONG FILE_OPEN_BY_FILE_ID           = 0x00002000u;
+        inline constexpr ULONG FILE_OPEN_FOR_BACKUP_INTENT    = 0x00004000u;
+        inline constexpr ULONG FILE_NO_COMPRESSION            = 0x00008000u;
+        inline constexpr ULONG FILE_OPEN_REQUIRING_OPLOCK     = 0x00010000u;
+        inline constexpr ULONG FILE_DISALLOW_EXCLUSIVE        = 0x00020000u;
+        inline constexpr ULONG FILE_SESSION_AWARE             = 0x00040000u;
+        inline constexpr ULONG FILE_RESERVE_OPFILTER          = 0x00100000u;
+        inline constexpr ULONG FILE_OPEN_REPARSE_POINT        = 0x00200000u;
+        inline constexpr ULONG FILE_OPEN_NO_RECALL            = 0x00400000u;
+        inline constexpr ULONG FILE_OPEN_FOR_FREE_SPACE_QUERY = 0x00800000u;
+
+        // composites precede their components
+        inline constexpr FlagName DESIRED_ACCESS_NAMES[]{
+            { FILE_ALL_ACCESS,                                               L"All Access" },
+            { FILE_GENERIC_READ | FILE_GENERIC_WRITE | FILE_GENERIC_EXECUTE, L"Generic Read/Write/Execute" },
+            { FILE_GENERIC_READ | FILE_GENERIC_WRITE,                        L"Generic Read/Write" },
+            { FILE_GENERIC_READ | FILE_GENERIC_EXECUTE,                      L"Generic Read/Execute" },
+            { FILE_GENERIC_WRITE | FILE_GENERIC_EXECUTE,                     L"Generic Write/Execute" },
+            { FILE_GENERIC_READ,                                             L"Generic Read" },
+            { FILE_GENERIC_WRITE,                                            L"Generic Write" },
+            { FILE_GENERIC_EXECUTE,                                          L"Generic Execute" },
+            { GENERIC_READ,           L"Generic Read" },
+            { GENERIC_WRITE,          L"Generic Write" },
+            { GENERIC_EXECUTE,        L"Generic Execute" },
+            { GENERIC_ALL,            L"Generic All" },
+            { MAXIMUM_ALLOWED,        L"Maximum Allowed" },
+            { FILE_READ_DATA,         L"Read Data/List Directory" },
+            { FILE_WRITE_DATA,        L"Write Data/Add File" },
+            { FILE_APPEND_DATA,       L"Append Data/Add Subdirectory/Create Pipe Instance" },
+            { FILE_READ_EA,           L"Read EA" },
+            { FILE_WRITE_EA,          L"Write EA" },
+            { FILE_EXECUTE,           L"Execute/Traverse" },
+            { FILE_DELETE_CHILD,      L"Delete Child" },
+            { FILE_READ_ATTRIBUTES,   L"Read Attributes" },
+            { FILE_WRITE_ATTRIBUTES,  L"Write Attributes" },
+            { DELETE,                 L"Delete" },
+            { READ_CONTROL,           L"Read Control" },
+            { WRITE_DAC,              L"Write DAC" },
+            { WRITE_OWNER,            L"Write Owner" },
+            { SYNCHRONIZE,            L"Synchronize" },
+            { ACCESS_SYSTEM_SECURITY, L"Access System Security" },
+        };
+
+        inline constexpr FlagName CREATE_OPTION_NAMES[]{
+            { FILE_DIRECTORY_FILE,            L"Directory" },
+            { FILE_WRITE_THROUGH,             L"Write Through" },
+            { FILE_SEQUENTIAL_ONLY,           L"Sequential Access" },
+            { FILE_NO_INTERMEDIATE_BUFFERING, L"No Buffering" },
+            { FILE_SYNCHRONOUS_IO_ALERT,      L"Synchronous IO Alert" },
+            { FILE_SYNCHRONOUS_IO_NONALERT,   L"Synchronous IO Non-Alert" },
+            { FILE_NON_DIRECTORY_FILE,        L"Non-Directory File" },
+            { FILE_CREATE_TREE_CONNECTION,    L"Create Tree Connection" },
+            { FILE_COMPLETE_IF_OPLOCKED,      L"Complete If Oplocked" },
+            { FILE_NO_EA_KNOWLEDGE,           L"No EA Knowledge" },
+            { FILE_OPEN_REMOTE_INSTANCE,      L"Open Remote Instance" },
+            { FILE_RANDOM_ACCESS,             L"Random Access" },
+            { FILE_DELETE_ON_CLOSE,           L"Delete On Close" },
+            { FILE_OPEN_BY_FILE_ID,           L"Open By ID" },
+            { FILE_OPEN_FOR_BACKUP_INTENT,    L"Open For Backup" },
+            { FILE_NO_COMPRESSION,            L"No Compression" },
+            { FILE_OPEN_REQUIRING_OPLOCK,     L"Open Requiring Oplock" },
+            { FILE_DISALLOW_EXCLUSIVE,        L"Disallow Exclusive" },
+            { FILE_SESSION_AWARE,             L"Session Aware" },
+            { FILE_RESERVE_OPFILTER,          L"Reserve OpFilter" },
+            { FILE_OPEN_REPARSE_POINT,        L"Open Reparse Point" },
+            { FILE_OPEN_NO_RECALL,            L"Open No Recall" },
+            { FILE_OPEN_FOR_FREE_SPACE_QUERY, L"Open For Free Space Query" },
+        };
+
+        inline constexpr FlagName SHARE_ACCESS_NAMES[]{
+            { FILE_SHARE_READ,   L"Read" },
+            { FILE_SHARE_WRITE,  L"Write" },
+            { FILE_SHARE_DELETE, L"Delete" },
+        };
+
+        inline constexpr FlagName FILE_ATTRIBUTE_LETTERS[]{
+            { FILE_ATTRIBUTE_READONLY,            L"R" },
+            { FILE_ATTRIBUTE_HIDDEN,              L"H" },
+            { FILE_ATTRIBUTE_SYSTEM,              L"S" },
+            { FILE_ATTRIBUTE_DIRECTORY,           L"D" },
+            { FILE_ATTRIBUTE_ARCHIVE,             L"A" },
+            { FILE_ATTRIBUTE_DEVICE,              L"DE" },
+            { FILE_ATTRIBUTE_NORMAL,              L"N" },
+            { FILE_ATTRIBUTE_TEMPORARY,           L"T" },
+            { FILE_ATTRIBUTE_SPARSE_FILE,         L"SP" },
+            { FILE_ATTRIBUTE_REPARSE_POINT,       L"RP" },
+            { FILE_ATTRIBUTE_COMPRESSED,          L"C" },
+            { FILE_ATTRIBUTE_OFFLINE,             L"O" },
+            { FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, L"NCI" },
+            { FILE_ATTRIBUTE_ENCRYPTED,           L"E" },
+            { FILE_ATTRIBUTE_INTEGRITY_STREAM,    L"IS" },
+        };
+
+        // an entry that is a subset of a later entry would make the later one unreachable in flag rendering
+        template <size_t count>
+        constexpr bool CompositesPrecedeComponents(const FlagName (&names)[count]) noexcept {
+
+            for (size_t i = 0u; i < count; i++) {
+
+                for (size_t j = i + 1u; j < count; j++) {
+                    if ((names[i].flag & names[j].flag) == names[i].flag && names[i].flag != names[j].flag) return false;
+                }
+            }
+
+            return true;
+        }
+
+        static_assert(CompositesPrecedeComponents(DESIRED_ACCESS_NAMES), "composite entry after its components in DESIRED_ACCESS_NAMES");
+        static_assert(CompositesPrecedeComponents(CREATE_OPTION_NAMES), "composite entry after its components in CREATE_OPTION_NAMES");
+        static_assert(CompositesPrecedeComponents(SHARE_ACCESS_NAMES), "composite entry after its components in SHARE_ACCESS_NAMES");
+        static_assert(CompositesPrecedeComponents(FILE_ATTRIBUTE_LETTERS), "composite entry after its components in FILE_ATTRIBUTE_LETTERS");
 
         // WSL reparse tags live in kernel-only ntifs.h
         inline constexpr ULONG IO_REPARSE_TAG_LX_SYMLINK = 0xA000001Du;
