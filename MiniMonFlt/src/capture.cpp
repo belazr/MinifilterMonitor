@@ -41,6 +41,19 @@ static_assert(
     "FLT_PARAMETERS Read and Write diverge: split protocol::FltParameters readWrite"
 );
 
+MIRROR_ASSERT(queryFileInformation.length,               QueryFileInformation.Length);
+MIRROR_ASSERT(queryFileInformation.fileInformationClass, QueryFileInformation.FileInformationClass);
+MIRROR_ASSERT(queryFileInformation.infoBuffer,           QueryFileInformation.InfoBuffer);
+
+MIRROR_ASSERT(setFileInformation.length,                SetFileInformation.Length);
+MIRROR_ASSERT(setFileInformation.fileInformationClass,  SetFileInformation.FileInformationClass);
+MIRROR_ASSERT(setFileInformation.parentOfTarget,        SetFileInformation.ParentOfTarget);
+MIRROR_ASSERT(setFileInformation.flags.replaceIfExists, SetFileInformation.ReplaceIfExists);
+MIRROR_ASSERT(setFileInformation.flags.advanceOnly,     SetFileInformation.AdvanceOnly);
+MIRROR_ASSERT(setFileInformation.clusterCount,          SetFileInformation.ClusterCount);
+MIRROR_ASSERT(setFileInformation.deleteHandle,          SetFileInformation.DeleteHandle);
+MIRROR_ASSERT(setFileInformation.infoBuffer,            SetFileInformation.InfoBuffer);
+
 static_assert(protocol::SID_BYTES == SECURITY_MAX_SID_SIZE, "protocol::SID_BYTES mirror drift");
 
 namespace {

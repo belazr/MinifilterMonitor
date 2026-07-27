@@ -74,6 +74,33 @@ namespace mimo {
                 uint64_t mdlAddress;
             } readWrite;
 
+            // IRP_MJ_QUERY_INFORMATION
+            struct {
+                uint32_t length;
+                uint8_t reserved1[4u];
+                uint32_t fileInformationClass;
+                uint8_t reserved2[4u];
+                uint64_t infoBuffer;
+            } queryFileInformation;
+
+            // IRP_MJ_SET_INFORMATION
+            struct {
+                uint32_t length;
+                uint8_t reserved1[4u];
+                uint32_t fileInformationClass;
+                uint8_t reserved2[4u];
+                uint64_t parentOfTarget;
+                union {
+                    struct {
+                        uint8_t replaceIfExists;
+                        uint8_t advanceOnly;
+                    } flags;
+                    uint32_t clusterCount;
+                    uint64_t deleteHandle;
+                };
+                uint64_t infoBuffer;
+            } setFileInformation;
+
         };
 
         static_assert(sizeof(FltParameters) == 48u, "protocol::FltParameters layout drift");
@@ -87,6 +114,15 @@ namespace mimo {
         static_assert(offsetof(FltParameters, readWrite.byteOffset) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, readWrite.buffer) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, readWrite.mdlAddress) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryFileInformation.fileInformationClass) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryFileInformation.infoBuffer) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setFileInformation.fileInformationClass) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setFileInformation.parentOfTarget) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setFileInformation.flags.replaceIfExists) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setFileInformation.flags.advanceOnly) == 25u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setFileInformation.clusterCount) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setFileInformation.deleteHandle) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setFileInformation.infoBuffer) == 32u, "protocol::FltParameters layout drift");
 
         inline constexpr uint32_t ECP_TEXT_WCHARS = 256u;
         inline constexpr uint32_t SID_BYTES       = 68u;    // SECURITY_MAX_SID_SIZE, pinned by the driver

@@ -234,6 +234,55 @@ namespace {
         return details;
     }
 
+
+    std::wstring RenderFileInformationClass(ULONG fileInformationClass) {
+        const wchar_t* const name = kernel::FileInformationClassName(fileInformationClass);
+
+        if (*name) return name;
+
+        return std::to_wstring(fileInformationClass);
+    }
+
+
+    std::wstring RenderQueryInformation(const protocol::RecordData& data) {
+        const protocol::FltParameters& parameters = data.parameters;
+
+        return std::format(L"Class: {}, Length: {}", RenderFileInformationClass(parameters.queryFileInformation.fileInformationClass), parameters.queryFileInformation.length);
+    }
+
+
+    std::wstring RenderSetInformation(const protocol::RecordData& data) {
+        const protocol::FltParameters& parameters = data.parameters;
+        std::wstring details = std::format(L"Class: {}, Length: {}", RenderFileInformationClass(parameters.setFileInformation.fileInformationClass), parameters.setFileInformation.length);
+
+        switch (parameters.setFileInformation.fileInformationClass) {
+
+            case kernel::FileRenameInformation:
+            case kernel::FileLinkInformation:
+
+                details += std::format(L", ReplaceIfExists: {}", parameters.setFileInformation.flags.replaceIfExists ? L"True" : L"False");
+
+                break;
+
+            case kernel::FileEndOfFileInformation:
+
+                if (parameters.setFileInformation.flags.advanceOnly) {
+                    details += L", AdvanceOnly: True";
+                }
+
+                break;
+
+            case kernel::FileMoveClusterInformation:
+
+                details += std::format(L", ClusterCount: {}", parameters.setFileInformation.clusterCount);
+
+                break;
+
+        }
+
+        return details;
+    }
+
 }
 
 namespace mimo {
@@ -256,6 +305,14 @@ namespace mimo {
                     case kernel::IRP_MJ_WRITE:
 
                         return RenderReadWrite(data);
+
+                    case kernel::IRP_MJ_QUERY_INFORMATION:
+
+                        return RenderQueryInformation(data);
+
+                    case kernel::IRP_MJ_SET_INFORMATION:
+
+                        return RenderSetInformation(data);
 
                 }
 
