@@ -136,8 +136,8 @@ namespace mimo {
                     __try {
 
                         protocol::Version* const pVersion = reinterpret_cast<protocol::Version*>(pOutputBuffer);
-                        pVersion->major = protocol::MINIMON_MAJ_VERSION;
-                        pVersion->minor = protocol::MINIMON_MIN_VERSION;
+                        pVersion->major = protocol::MINIMON_MAJOR_VERSION;
+                        pVersion->minor = protocol::MINIMON_MINOR_VERSION;
                         pVersion->patch = protocol::MINIMON_PATCH_VERSION;
 
                     }

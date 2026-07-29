@@ -4,7 +4,7 @@
 
 #ifdef _KERNEL_MODE
 
-// kernel-mode CRT ships no <stdint.h> - define the fixed-width types from built-ins
+// kernel-mode CRT ships no <stdint.h>
 typedef unsigned __int8  uint8_t;
 typedef unsigned __int16 uint16_t;
 typedef unsigned __int32 uint32_t;
@@ -24,8 +24,8 @@ namespace mimo {
 
     namespace protocol {
 
-        inline constexpr uint16_t MINIMON_MAJ_VERSION   = 0u;
-        inline constexpr uint16_t MINIMON_MIN_VERSION   = 1u;
+        inline constexpr uint16_t MINIMON_MAJOR_VERSION = 0u;
+        inline constexpr uint16_t MINIMON_MINOR_VERSION = 1u;
         inline constexpr uint16_t MINIMON_PATCH_VERSION = 0u;
 
         struct Version {
@@ -34,25 +34,16 @@ namespace mimo {
             uint16_t patch;
         };
 
+        static_assert(sizeof(Version) == 6u, "protocol::Version layout drift");
+
         typedef uint64_t ObjectId;
 
-        // the kernel's FLT_PARAMETERS union as a platform-free mirror
-        // the driver pins each mirrored member against FLT_PARAMETERS
+        // platform-free mirror of the kernel's FLT_PARAMETERS, member layout pinned by the driver
         union FltParameters {
-
-            struct {
-                uint64_t argument1;
-                uint64_t argument2;
-                uint64_t argument3;
-                uint64_t argument4;
-                uint64_t argument5;
-                int64_t argument6;
-            } others;
-
             // IRP_MJ_CREATE
             struct {
                 uint64_t securityContext;
-                uint32_t options;               // low 24 bits create options, high 8 bits disposition
+                uint32_t options;           // low 24 bits create options, high 8 bits disposition
                 uint8_t reserved1[4u];
                 uint16_t fileAttributes;
                 uint16_t shareAccess;
@@ -101,6 +92,14 @@ namespace mimo {
                 uint64_t infoBuffer;
             } setFileInformation;
 
+            struct {
+                uint64_t argument1;
+                uint64_t argument2;
+                uint64_t argument3;
+                uint64_t argument4;
+                uint64_t argument5;
+                int64_t argument6;
+            } others;
         };
 
         static_assert(sizeof(FltParameters) == 48u, "protocol::FltParameters layout drift");
@@ -124,14 +123,22 @@ namespace mimo {
         static_assert(offsetof(FltParameters, setFileInformation.deleteHandle) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setFileInformation.infoBuffer) == 32u, "protocol::FltParameters layout drift");
 
-        inline constexpr uint32_t SID_BYTES          = 68u;                                 // SECURITY_MAX_SID_SIZE, pinned by the driver
-        inline constexpr uint32_t ECP_TEXT_WCHARS    = 256u;
-        inline constexpr uint32_t INFO_PAYLOAD_BYTES = SID_BYTES + 2u * ECP_TEXT_WCHARS;
+        inline constexpr uint32_t STACK_TRACE_FRAMES      = 8u;
+        inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;
 
-        // validity bits for the captured member of the supplement structs
+        struct StackFrame {
+            wchar_t moduleName[STACK_FRAME_NAME_WCHARS];
+            uint64_t offset;
+        };
+
+        static_assert(sizeof(StackFrame) == 72u, "protocol::StackFrame layout drift");
+
+        // validity bits for CreateSupplement::captured
         inline constexpr uint32_t CREATE_CAPTURED_DESIRED_ACCESS   = 0x00000001u;
         inline constexpr uint32_t CREATE_CAPTURED_IMPERSONATED_SID = 0x00000002u;
-        inline constexpr uint32_t INFO_CAPTURED_PAYLOAD            = 0x00000001u;
+
+        inline constexpr uint32_t SID_BYTES       = 68u;    // SECURITY_MAX_SID_SIZE, pinned by the driver
+        inline constexpr uint32_t ECP_TEXT_WCHARS = 256u;
 
         // per-operation data the parameters mirror cannot provide
         struct CreateSupplement {
@@ -141,6 +148,14 @@ namespace mimo {
             wchar_t ecpText[ECP_TEXT_WCHARS];
         };
 
+        static_assert(offsetof(CreateSupplement, impersonatedSid) == 8u, "protocol::CreateSupplement layout drift");
+        static_assert(offsetof(CreateSupplement, ecpText) == 76u, "protocol::CreateSupplement layout drift");
+
+        // validity bit for InfoSupplement::captured
+        inline constexpr uint32_t INFO_CAPTURED_PAYLOAD = 0x00000001u;
+
+        inline constexpr uint32_t INFO_PAYLOAD_BYTES = SID_BYTES + 2u * ECP_TEXT_WCHARS;
+
         // raw info-buffer bytes for query/set information
         struct InfoSupplement {
             uint32_t captured;
@@ -148,25 +163,17 @@ namespace mimo {
             uint8_t payload[INFO_PAYLOAD_BYTES];
         };
 
+        static_assert(offsetof(InfoSupplement, payload) == 8u, "protocol::InfoSupplement layout drift");
+
         union Supplement {
             CreateSupplement create;
             InfoSupplement info;
         };
 
+        // both supplements exactly fill the union
         static_assert(sizeof(CreateSupplement) == 588u, "protocol::CreateSupplement layout drift");
         static_assert(sizeof(InfoSupplement) == 588u, "protocol::InfoSupplement layout drift");
         static_assert(sizeof(Supplement) == 588u, "protocol::Supplement layout drift");
-        static_assert(offsetof(CreateSupplement, impersonatedSid) == 8u, "protocol::CreateSupplement layout drift");
-        static_assert(offsetof(CreateSupplement, ecpText) == 76u, "protocol::CreateSupplement layout drift");
-        static_assert(offsetof(InfoSupplement, payload) == 8u, "protocol::InfoSupplement layout drift");
-
-        inline constexpr uint32_t STACK_TRACE_FRAMES = 8u;
-        inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;
-
-        struct StackFrame {
-            wchar_t moduleName[STACK_FRAME_NAME_WCHARS];
-            uint64_t offset;
-        };
 
         inline constexpr uint32_t NAME_WCHARS = 512u;
 
@@ -199,17 +206,7 @@ namespace mimo {
             Supplement supplement;
         };
 
-        struct Record {
-            uint32_t sequenceNumber;
-            uint32_t droppedRecords;
-            uint8_t reserved[8u];
-            RecordData data;
-        };
-
-        static_assert(sizeof(Version) == 6u, "protocol::Version layout drift");
-        static_assert(sizeof(StackFrame) == 72u, "protocol::StackFrame layout drift");
         static_assert(sizeof(RecordData) == 2360u, "protocol::RecordData layout drift");
-        static_assert(sizeof(Record) == 2376u, "protocol::Record layout drift");
         static_assert(offsetof(RecordData, deviceObject) == 16u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, transactionNotify) == 104u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, transactionSequence) == 108u, "protocol::RecordData layout drift");
@@ -217,6 +214,15 @@ namespace mimo {
         static_assert(offsetof(RecordData, stackTrace) == 168u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, name) == 744u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, supplement) == 1768u, "protocol::RecordData layout drift");
+
+        struct Record {
+            uint32_t sequenceNumber;
+            uint32_t droppedRecords;
+            uint8_t reserved[8u];
+            RecordData data;
+        };
+
+        static_assert(sizeof(Record) == 2376u, "protocol::Record layout drift");
         static_assert(offsetof(Record, data) == 16u, "protocol::Record layout drift");
 
         enum class Command : uint32_t {
@@ -228,6 +234,8 @@ namespace mimo {
             Command command;
             uint32_t reserved;
         };
+
+        static_assert(sizeof(CommandMessage) == 8u, "protocol::CommandMessage layout drift");
 
     }
 
