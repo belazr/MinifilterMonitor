@@ -124,12 +124,14 @@ namespace mimo {
         static_assert(offsetof(FltParameters, setFileInformation.deleteHandle) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setFileInformation.infoBuffer) == 32u, "protocol::FltParameters layout drift");
 
-        inline constexpr uint32_t ECP_TEXT_WCHARS = 256u;
-        inline constexpr uint32_t SID_BYTES       = 68u;    // SECURITY_MAX_SID_SIZE, pinned by the driver
+        inline constexpr uint32_t SID_BYTES          = 68u;                                 // SECURITY_MAX_SID_SIZE, pinned by the driver
+        inline constexpr uint32_t ECP_TEXT_WCHARS    = 256u;
+        inline constexpr uint32_t INFO_PAYLOAD_BYTES = SID_BYTES + 2u * ECP_TEXT_WCHARS;
 
         // validity bits for the captured member of the supplement structs
         inline constexpr uint32_t CREATE_CAPTURED_DESIRED_ACCESS   = 0x00000001u;
         inline constexpr uint32_t CREATE_CAPTURED_IMPERSONATED_SID = 0x00000002u;
+        inline constexpr uint32_t INFO_CAPTURED_PAYLOAD            = 0x00000001u;
 
         // per-operation data the parameters mirror cannot provide
         struct CreateSupplement {
@@ -139,16 +141,24 @@ namespace mimo {
             wchar_t ecpText[ECP_TEXT_WCHARS];
         };
 
+        // raw info-buffer bytes for query/set information
+        struct InfoSupplement {
+            uint32_t captured;
+            uint32_t capturedBytes;
+            uint8_t payload[INFO_PAYLOAD_BYTES];
+        };
+
         union Supplement {
             CreateSupplement create;
+            InfoSupplement info;
         };
 
         static_assert(sizeof(CreateSupplement) == 588u, "protocol::CreateSupplement layout drift");
+        static_assert(sizeof(InfoSupplement) == 588u, "protocol::InfoSupplement layout drift");
         static_assert(sizeof(Supplement) == 588u, "protocol::Supplement layout drift");
         static_assert(offsetof(CreateSupplement, impersonatedSid) == 8u, "protocol::CreateSupplement layout drift");
         static_assert(offsetof(CreateSupplement, ecpText) == 76u, "protocol::CreateSupplement layout drift");
-
-        inline constexpr uint32_t NAME_WCHARS = 512u;
+        static_assert(offsetof(InfoSupplement, payload) == 8u, "protocol::InfoSupplement layout drift");
 
         inline constexpr uint32_t STACK_TRACE_FRAMES = 8u;
         inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;
@@ -157,6 +167,8 @@ namespace mimo {
             wchar_t moduleName[STACK_FRAME_NAME_WCHARS];
             uint64_t offset;
         };
+
+        inline constexpr uint32_t NAME_WCHARS = 512u;
 
         struct RecordData {
             int64_t originatingTime;        // 100 ns ticks since 1601

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <Windows.h>
+#include <wnnc.h>
+
+#include <cstddef>
 
 namespace mimo {
 
@@ -469,6 +472,7 @@ namespace mimo {
             { FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, L"NCI" },
             { FILE_ATTRIBUTE_ENCRYPTED,           L"E" },
             { FILE_ATTRIBUTE_INTEGRITY_STREAM,    L"IS" },
+            { FILE_ATTRIBUTE_NO_SCRUB_DATA,       L"NSD" },
         };
 
         // an entry that is a subset of a later entry would make the later one unreachable in flag rendering
@@ -484,6 +488,7 @@ namespace mimo {
 
             return true;
         }
+
 
         static_assert(CompositesPrecedeComponents(DESIRED_ACCESS_NAMES), "composite entry after its components in DESIRED_ACCESS_NAMES");
         static_assert(CompositesPrecedeComponents(CREATE_OPTION_NAMES), "composite entry after its components in CREATE_OPTION_NAMES");
@@ -668,6 +673,370 @@ namespace mimo {
         }
 
 
+        // FILE_INFORMATION_CLASS payload layouts
+
+        struct FILE_BASIC_INFORMATION {
+            LONGLONG CreationTime;
+            LONGLONG LastAccessTime;
+            LONGLONG LastWriteTime;
+            LONGLONG ChangeTime;
+            ULONG FileAttributes;
+        };
+
+        struct FILE_STANDARD_INFORMATION {
+            LONGLONG AllocationSize;
+            LONGLONG EndOfFile;
+            ULONG NumberOfLinks;
+            BOOLEAN DeletePending;
+            BOOLEAN Directory;
+        };
+
+        struct FILE_INTERNAL_INFORMATION {
+            LONGLONG IndexNumber;
+        };
+
+        struct FILE_EA_INFORMATION {
+            ULONG EaSize;
+        };
+
+        struct FILE_ACCESS_INFORMATION {
+            ACCESS_MASK AccessFlags;
+        };
+
+        struct FILE_NAME_INFORMATION {
+            ULONG FileNameLength;
+            WCHAR FileName[1u];
+        };
+
+        struct FILE_POSITION_INFORMATION {
+            LONGLONG CurrentByteOffset;
+        };
+
+        struct FILE_MODE_INFORMATION {
+            ULONG Mode;
+        };
+
+        struct FILE_ALIGNMENT_INFORMATION {
+            ULONG AlignmentRequirement;
+        };
+
+        struct FILE_ALL_INFORMATION {
+            FILE_BASIC_INFORMATION BasicInformation;
+            FILE_STANDARD_INFORMATION StandardInformation;
+            FILE_INTERNAL_INFORMATION InternalInformation;
+            FILE_EA_INFORMATION EaInformation;
+            FILE_ACCESS_INFORMATION AccessInformation;
+            FILE_POSITION_INFORMATION PositionInformation;
+            FILE_MODE_INFORMATION ModeInformation;
+            FILE_ALIGNMENT_INFORMATION AlignmentInformation;
+            FILE_NAME_INFORMATION NameInformation;
+        };
+
+        struct FILE_STREAM_INFORMATION {
+            ULONG NextEntryOffset;
+            ULONG StreamNameLength;
+            LONGLONG StreamSize;
+            LONGLONG StreamAllocationSize;
+            WCHAR StreamName[1u];
+        };
+
+        struct FILE_COMPRESSION_INFORMATION {
+            LONGLONG CompressedFileSize;
+            USHORT CompressionFormat;
+            UCHAR CompressionUnitShift;
+            UCHAR ChunkShift;
+            UCHAR ClusterShift;
+            UCHAR Reserved[3u];
+        };
+
+        struct FILE_NETWORK_OPEN_INFORMATION {
+            LONGLONG CreationTime;
+            LONGLONG LastAccessTime;
+            LONGLONG LastWriteTime;
+            LONGLONG ChangeTime;
+            LONGLONG AllocationSize;
+            LONGLONG EndOfFile;
+            ULONG FileAttributes;
+        };
+
+        struct FILE_ATTRIBUTE_TAG_INFORMATION {
+            ULONG FileAttributes;
+            ULONG ReparseTag;
+        };
+
+        struct FILE_LINK_ENTRY_INFORMATION {
+            ULONG NextEntryOffset;
+            LONGLONG ParentFileId;
+            ULONG FileNameLength;    // character count
+            WCHAR FileName[1u];
+        };
+
+        struct FILE_LINKS_INFORMATION {
+            ULONG BytesNeeded;
+            ULONG EntriesReturned;
+            FILE_LINK_ENTRY_INFORMATION Entry;
+        };
+
+        struct FILE_REMOTE_PROTOCOL_INFORMATION {
+            USHORT StructureVersion;
+            USHORT StructureSize;
+            ULONG Protocol;
+            USHORT ProtocolMajorVersion;
+            USHORT ProtocolMinorVersion;
+            USHORT ProtocolRevision;
+            USHORT Reserved;
+            ULONG Flags;
+            ULONG GenericReserved[8u];
+            ULONG ProtocolSpecific[16u];    // Smb2 capability union in the kernel
+        };
+
+        struct FILE_ID_INFORMATION {
+            ULONGLONG VolumeSerialNumber;
+            UCHAR FileId[16u];
+        };
+
+        struct FILE_STAT_INFORMATION {
+            LONGLONG FileId;
+            LONGLONG CreationTime;
+            LONGLONG LastAccessTime;
+            LONGLONG LastWriteTime;
+            LONGLONG ChangeTime;
+            LONGLONG AllocationSize;
+            LONGLONG EndOfFile;
+            ULONG FileAttributes;
+            ULONG ReparseTag;
+            ULONG NumberOfLinks;
+            ACCESS_MASK EffectiveAccess;
+        };
+
+        struct FILE_STAT_LX_INFORMATION {
+            LONGLONG FileId;
+            LONGLONG CreationTime;
+            LONGLONG LastAccessTime;
+            LONGLONG LastWriteTime;
+            LONGLONG ChangeTime;
+            LONGLONG AllocationSize;
+            LONGLONG EndOfFile;
+            ULONG FileAttributes;
+            ULONG ReparseTag;
+            ULONG NumberOfLinks;
+            ACCESS_MASK EffectiveAccess;
+            ULONG LxFlags;
+            ULONG LxUid;
+            ULONG LxGid;
+            ULONG LxMode;
+            ULONG LxDeviceIdMajor;
+            ULONG LxDeviceIdMinor;
+        };
+
+        struct FILE_CASE_SENSITIVE_INFORMATION {
+            ULONG Flags;
+        };
+
+        struct FILE_STAT_BASIC_INFORMATION {
+            LONGLONG FileId;
+            LONGLONG CreationTime;
+            LONGLONG LastAccessTime;
+            LONGLONG LastWriteTime;
+            LONGLONG ChangeTime;
+            LONGLONG AllocationSize;
+            LONGLONG EndOfFile;
+            ULONG FileAttributes;
+            ULONG ReparseTag;
+            ULONG NumberOfLinks;
+            ULONG DeviceType;
+            ULONG DeviceCharacteristics;
+            ULONG Reserved;
+            LONGLONG VolumeSerialNumber;
+            UCHAR FileId128[16u];
+        };
+
+        // FILE_LINK_INFORMATION shares this layout
+        struct FILE_RENAME_INFORMATION {
+            BOOLEAN ReplaceIfExists;
+            ULONGLONG RootDirectory;    // HANDLE in the kernel, fixed 64-bit for the x64 layout
+            ULONG FileNameLength;
+            WCHAR FileName[1u];
+        };
+
+        // MS-FSCC spelling, the ntifs.h member name DeleteFile is a winbase.h macro
+        struct FILE_DISPOSITION_INFORMATION {
+            BOOLEAN DeletePending;
+        };
+
+        struct FILE_ALLOCATION_INFORMATION {
+            LONGLONG AllocationSize;
+        };
+
+        struct FILE_END_OF_FILE_INFORMATION {
+            LONGLONG EndOfFile;
+        };
+
+        struct FILE_VALID_DATA_LENGTH_INFORMATION {
+            LONGLONG ValidDataLength;
+        };
+
+        struct FILE_DISPOSITION_INFORMATION_EX {
+            ULONG Flags;
+        };
+
+        // FILE_LINK_INFORMATION_EX shares this layout
+        struct FILE_RENAME_INFORMATION_EX {
+            ULONG Flags;
+            ULONGLONG RootDirectory;    // HANDLE in the kernel, fixed 64-bit for the x64 layout
+            ULONG FileNameLength;
+            WCHAR FileName[1u];
+        };
+
+        static_assert(sizeof(FILE_BASIC_INFORMATION) == 40u, "kernel::FILE_BASIC_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_BASIC_INFORMATION, FileAttributes) == 32u, "kernel::FILE_BASIC_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_STANDARD_INFORMATION) == 24u, "kernel::FILE_STANDARD_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_STANDARD_INFORMATION, DeletePending) == 20u, "kernel::FILE_STANDARD_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_INTERNAL_INFORMATION) == 8u, "kernel::FILE_INTERNAL_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_EA_INFORMATION) == 4u, "kernel::FILE_EA_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_ACCESS_INFORMATION) == 4u, "kernel::FILE_ACCESS_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_NAME_INFORMATION) == 8u, "kernel::FILE_NAME_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_NAME_INFORMATION, FileName) == 4u, "kernel::FILE_NAME_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_POSITION_INFORMATION) == 8u, "kernel::FILE_POSITION_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_MODE_INFORMATION) == 4u, "kernel::FILE_MODE_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_ALIGNMENT_INFORMATION) == 4u, "kernel::FILE_ALIGNMENT_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_ALL_INFORMATION) == 104u, "kernel::FILE_ALL_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_ALL_INFORMATION, StandardInformation) == 40u, "kernel::FILE_ALL_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_ALL_INFORMATION, PositionInformation) == 80u, "kernel::FILE_ALL_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_ALL_INFORMATION, NameInformation) == 96u, "kernel::FILE_ALL_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_ALL_INFORMATION, NameInformation.FileName) == 100u, "kernel::FILE_ALL_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_STREAM_INFORMATION) == 32u, "kernel::FILE_STREAM_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_STREAM_INFORMATION, StreamName) == 24u, "kernel::FILE_STREAM_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_COMPRESSION_INFORMATION) == 16u, "kernel::FILE_COMPRESSION_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_COMPRESSION_INFORMATION, CompressionFormat) == 8u, "kernel::FILE_COMPRESSION_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_NETWORK_OPEN_INFORMATION) == 56u, "kernel::FILE_NETWORK_OPEN_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_NETWORK_OPEN_INFORMATION, FileAttributes) == 48u, "kernel::FILE_NETWORK_OPEN_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_ATTRIBUTE_TAG_INFORMATION) == 8u, "kernel::FILE_ATTRIBUTE_TAG_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_LINK_ENTRY_INFORMATION) == 24u, "kernel::FILE_LINK_ENTRY_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_LINK_ENTRY_INFORMATION, ParentFileId) == 8u, "kernel::FILE_LINK_ENTRY_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_LINK_ENTRY_INFORMATION, FileName) == 20u, "kernel::FILE_LINK_ENTRY_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_LINKS_INFORMATION) == 32u, "kernel::FILE_LINKS_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_LINKS_INFORMATION, Entry) == 8u, "kernel::FILE_LINKS_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_REMOTE_PROTOCOL_INFORMATION) == 116u, "kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_REMOTE_PROTOCOL_INFORMATION, Flags) == 16u, "kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_REMOTE_PROTOCOL_INFORMATION, GenericReserved) == 20u, "kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_ID_INFORMATION) == 24u, "kernel::FILE_ID_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_ID_INFORMATION, FileId) == 8u, "kernel::FILE_ID_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_STAT_INFORMATION) == 72u, "kernel::FILE_STAT_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_STAT_INFORMATION, FileAttributes) == 56u, "kernel::FILE_STAT_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_STAT_LX_INFORMATION) == 96u, "kernel::FILE_STAT_LX_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_STAT_LX_INFORMATION, LxFlags) == sizeof(FILE_STAT_INFORMATION), "kernel::FILE_STAT_LX_INFORMATION does not extend FILE_STAT_INFORMATION");
+        static_assert(sizeof(FILE_CASE_SENSITIVE_INFORMATION) == 4u, "kernel::FILE_CASE_SENSITIVE_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_STAT_BASIC_INFORMATION) == 104u, "kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_STAT_BASIC_INFORMATION, DeviceType) == 68u, "kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_STAT_BASIC_INFORMATION, FileId128) == 88u, "kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_RENAME_INFORMATION) == 24u, "kernel::FILE_RENAME_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_RENAME_INFORMATION, RootDirectory) == 8u, "kernel::FILE_RENAME_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_RENAME_INFORMATION, FileNameLength) == 16u, "kernel::FILE_RENAME_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_RENAME_INFORMATION, FileName) == 20u, "kernel::FILE_RENAME_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_DISPOSITION_INFORMATION) == 1u, "kernel::FILE_DISPOSITION_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_ALLOCATION_INFORMATION) == 8u, "kernel::FILE_ALLOCATION_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_END_OF_FILE_INFORMATION) == 8u, "kernel::FILE_END_OF_FILE_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_VALID_DATA_LENGTH_INFORMATION) == 8u, "kernel::FILE_VALID_DATA_LENGTH_INFORMATION x64 layout drift");
+        static_assert(sizeof(FILE_DISPOSITION_INFORMATION_EX) == 4u, "kernel::FILE_DISPOSITION_INFORMATION_EX x64 layout drift");
+        static_assert(sizeof(FILE_RENAME_INFORMATION_EX) == 24u, "kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
+        static_assert(offsetof(FILE_RENAME_INFORMATION_EX, RootDirectory) == 8u, "kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
+        static_assert(offsetof(FILE_RENAME_INFORMATION_EX, FileNameLength) == 16u, "kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
+        static_assert(offsetof(FILE_RENAME_INFORMATION_EX, FileName) == 20u, "kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
+
+        constexpr const wchar_t* CompressionFormatName(USHORT format) noexcept {
+
+            switch (format) {
+                case COMPRESSION_FORMAT_NONE:        return L"None";
+                case COMPRESSION_FORMAT_DEFAULT:     return L"Default";
+                case COMPRESSION_FORMAT_LZNT1:       return L"LZNT1";
+                case COMPRESSION_FORMAT_XPRESS:      return L"XPRESS";
+                case COMPRESSION_FORMAT_XPRESS_HUFF: return L"XPRESS_HUFF";
+            }
+
+            return L"";
+        }
+
+
+        inline constexpr ULONG REMOTE_PROTOCOL_FLAG_LOOPBACK          = 0x00000001u;
+        inline constexpr ULONG REMOTE_PROTOCOL_FLAG_OFFLINE           = 0x00000002u;
+        inline constexpr ULONG REMOTE_PROTOCOL_FLAG_PERSISTENT_HANDLE = 0x00000004u;
+        inline constexpr ULONG REMOTE_PROTOCOL_FLAG_PRIVACY           = 0x00000008u;
+        inline constexpr ULONG REMOTE_PROTOCOL_FLAG_INTEGRITY         = 0x00000010u;
+        inline constexpr ULONG REMOTE_PROTOCOL_FLAG_MUTUAL_AUTH       = 0x00000020u;
+
+        inline constexpr FlagName REMOTE_PROTOCOL_FLAG_NAMES[]{
+            { REMOTE_PROTOCOL_FLAG_LOOPBACK,          L"Loopback" },
+            { REMOTE_PROTOCOL_FLAG_OFFLINE,           L"Offline" },
+            { REMOTE_PROTOCOL_FLAG_PERSISTENT_HANDLE, L"Persistent Handle" },
+            { REMOTE_PROTOCOL_FLAG_PRIVACY,           L"Privacy" },
+            { REMOTE_PROTOCOL_FLAG_INTEGRITY,         L"Integrity" },
+            { REMOTE_PROTOCOL_FLAG_MUTUAL_AUTH,       L"Mutual Auth" },
+        };
+
+        static_assert(CompositesPrecedeComponents(REMOTE_PROTOCOL_FLAG_NAMES), "composite entry after its components in REMOTE_PROTOCOL_FLAG_NAMES");
+
+        constexpr const wchar_t* RemoteProtocolName(ULONG protocol) noexcept {
+
+            switch (protocol) {
+                case WNNC_NET_SMB:    return L"SMB";
+                case WNNC_NET_DAV:    return L"DAV";
+                case WNNC_NET_MS_NFS: return L"NFS";
+            }
+
+            return L"";
+        }
+
+
+        // FILE_RENAME_INFORMATION_EX flags
+        // FILE_LINK_INFORMATION_EX flags share the values
+        inline constexpr ULONG FILE_RENAME_REPLACE_IF_EXISTS                    = 0x00000001u;
+        inline constexpr ULONG FILE_RENAME_POSIX_SEMANTICS                      = 0x00000002u;
+        inline constexpr ULONG FILE_RENAME_SUPPRESS_PIN_STATE_INHERITANCE       = 0x00000004u;
+        inline constexpr ULONG FILE_RENAME_SUPPRESS_STORAGE_RESERVE_INHERITANCE = 0x00000008u;
+        inline constexpr ULONG FILE_RENAME_NO_INCREASE_AVAILABLE_SPACE          = 0x00000010u;
+        inline constexpr ULONG FILE_RENAME_NO_DECREASE_AVAILABLE_SPACE          = 0x00000020u;
+        inline constexpr ULONG FILE_RENAME_PRESERVE_AVAILABLE_SPACE             = 0x00000030u;
+        inline constexpr ULONG FILE_RENAME_IGNORE_READONLY_ATTRIBUTE            = 0x00000040u;
+        inline constexpr ULONG FILE_RENAME_FORCE_RESIZE_TARGET_SR               = 0x00000080u;
+        inline constexpr ULONG FILE_RENAME_FORCE_RESIZE_SOURCE_SR               = 0x00000100u;
+        inline constexpr ULONG FILE_RENAME_FORCE_RESIZE_SR                      = 0x00000180u;
+
+        // composites precede their components
+        inline constexpr FlagName RENAME_FLAG_NAMES[]{
+            { FILE_RENAME_FORCE_RESIZE_SR,                      L"Force Resize SR" },
+            { FILE_RENAME_PRESERVE_AVAILABLE_SPACE,             L"Preserve Available Space" },
+            { FILE_RENAME_REPLACE_IF_EXISTS,                    L"Replace If Exists" },
+            { FILE_RENAME_POSIX_SEMANTICS,                      L"POSIX Semantics" },
+            { FILE_RENAME_SUPPRESS_PIN_STATE_INHERITANCE,       L"Suppress Pin State Inheritance" },
+            { FILE_RENAME_SUPPRESS_STORAGE_RESERVE_INHERITANCE, L"Suppress Storage Reserve Inheritance" },
+            { FILE_RENAME_NO_INCREASE_AVAILABLE_SPACE,          L"No Increase Available Space" },
+            { FILE_RENAME_NO_DECREASE_AVAILABLE_SPACE,          L"No Decrease Available Space" },
+            { FILE_RENAME_IGNORE_READONLY_ATTRIBUTE,            L"Ignore Readonly Attribute" },
+            { FILE_RENAME_FORCE_RESIZE_TARGET_SR,               L"Force Resize Target SR" },
+            { FILE_RENAME_FORCE_RESIZE_SOURCE_SR,               L"Force Resize Source SR" },
+        };
+
+        static_assert(CompositesPrecedeComponents(RENAME_FLAG_NAMES), "composite entry after its components in RENAME_FLAG_NAMES");
+
+        // FILE_DISPOSITION_INFORMATION_EX Flags
+        inline constexpr ULONG FILE_DISPOSITION_DO_NOT_DELETE             = 0x00000000u;
+        inline constexpr ULONG FILE_DISPOSITION_DELETE                    = 0x00000001u;
+        inline constexpr ULONG FILE_DISPOSITION_POSIX_SEMANTICS           = 0x00000002u;
+        inline constexpr ULONG FILE_DISPOSITION_FORCE_IMAGE_SECTION_CHECK = 0x00000004u;
+        inline constexpr ULONG FILE_DISPOSITION_ON_CLOSE                  = 0x00000008u;
+        inline constexpr ULONG FILE_DISPOSITION_IGNORE_READONLY_ATTRIBUTE = 0x00000010u;
+
+        inline constexpr FlagName DISPOSITION_FLAG_NAMES[]{
+            { FILE_DISPOSITION_DELETE,                    L"Delete" },
+            { FILE_DISPOSITION_POSIX_SEMANTICS,           L"POSIX Semantics" },
+            { FILE_DISPOSITION_FORCE_IMAGE_SECTION_CHECK, L"Force Image Section Check" },
+            { FILE_DISPOSITION_ON_CLOSE,                  L"On Close" },
+            { FILE_DISPOSITION_IGNORE_READONLY_ATTRIBUTE, L"Ignore Readonly Attribute" },
+        };
+
+        static_assert(CompositesPrecedeComponents(DISPOSITION_FLAG_NAMES), "composite entry after its components in DISPOSITION_FLAG_NAMES");
+
         // WSL reparse tags live in kernel-only ntifs.h
         inline constexpr ULONG IO_REPARSE_TAG_LX_SYMLINK = 0xA000001Du;
         inline constexpr ULONG IO_REPARSE_TAG_LX_FIFO    = 0x80000024u;
@@ -736,7 +1105,6 @@ namespace mimo {
 
             return L"";
         }
-
 
     }
 

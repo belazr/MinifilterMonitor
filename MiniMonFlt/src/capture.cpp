@@ -149,6 +149,25 @@ namespace {
         return;
     }
 
+
+    void PopulateInfoSupplement(_Inout_ protocol::RecordData* pRecordData, _In_reads_bytes_(size) const void* pBuffer, _In_ ULONG size) {
+        protocol::InfoSupplement* const pSupplement = &pRecordData->supplement.info;
+        const ULONG copySize = size < protocol::INFO_PAYLOAD_BYTES ? size : protocol::INFO_PAYLOAD_BYTES;
+
+        __try {
+            RtlCopyMemory(pSupplement->payload, pBuffer, copySize);
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER) {
+
+            return;
+        }
+
+        pSupplement->capturedBytes = copySize;
+        pSupplement->captured |= protocol::INFO_CAPTURED_PAYLOAD;
+
+        return;
+    }
+
 }
 
 namespace mimo {
@@ -183,6 +202,14 @@ namespace mimo {
 
                     break;
 
+                case IRP_MJ_SET_INFORMATION:
+
+                    if (KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.SetFileInformation.InfoBuffer) {
+                        PopulateInfoSupplement(pRecordData, pData->Iopb->Parameters.SetFileInformation.InfoBuffer, pData->Iopb->Parameters.SetFileInformation.Length);
+                    }
+
+                    break;
+
             }
 
             return;
@@ -197,6 +224,22 @@ namespace mimo {
 
             if (pData->TagData) {
                 pRecordData->reparseTag = pData->TagData->FileTag;
+            }
+
+            switch (pData->Iopb->MajorFunction) {
+
+                case IRP_MJ_QUERY_INFORMATION:
+
+                    if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && pData->Iopb->Parameters.QueryFileInformation.InfoBuffer && KeGetCurrentIrql() < DISPATCH_LEVEL) {
+                        const ULONG length = pData->Iopb->Parameters.QueryFileInformation.Length;
+                        const ULONG_PTR information = pData->IoStatus.Information;
+                        const ULONG size = information < length ? static_cast<ULONG>(information) : length;
+
+                        PopulateInfoSupplement(pRecordData, pData->Iopb->Parameters.QueryFileInformation.InfoBuffer, size);
+                    }
+
+                    break;
+
             }
 
             LARGE_INTEGER completionTime{};
