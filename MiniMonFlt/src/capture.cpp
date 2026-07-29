@@ -150,7 +150,11 @@ namespace {
     }
 
 
-    void PopulateInfoSupplement(_Inout_ protocol::RecordData* pRecordData, _In_reads_bytes_(size) const void* pBuffer, _In_ ULONG size) {
+    void PopulateInfoSupplement(
+        _Inout_ protocol::RecordData* pRecordData,
+        _In_reads_bytes_(size) const void* pBuffer,
+        _In_ ULONG size
+    ) {
         protocol::InfoSupplement* const pSupplement = &pRecordData->supplement.info;
         const ULONG copySize = size < protocol::INFO_PAYLOAD_BYTES ? size : protocol::INFO_PAYLOAD_BYTES;
 

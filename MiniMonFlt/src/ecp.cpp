@@ -41,7 +41,11 @@ namespace {
 
 
     __declspec(code_seg("PAGE"))
-    void AppendGuid(_Inout_ EcpWriter* pWriter, _In_ PCWSTR pLabel, _In_ const GUID& guid) {
+    void AppendGuid(
+        _Inout_ EcpWriter* pWriter,
+        _In_ PCWSTR pLabel,
+        _In_ const GUID& guid
+    ) {
         PAGED_CODE();
 
         UNICODE_STRING text{};
@@ -160,7 +164,11 @@ namespace {
 
 
     __declspec(code_seg("PAGE"))
-    bool AppendEcp(_Inout_ EcpWriter* pWriter, _In_ const GUID& guid, _In_ void* pContext) {
+    bool AppendEcp(
+        _Inout_ EcpWriter* pWriter,
+        _In_ const GUID& guid,
+        _In_ void* pContext
+    ) {
         PAGED_CODE();
 
         if (IsEqualGUID(GUID_ECP_OPLOCK_KEY, guid)) {

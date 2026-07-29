@@ -26,7 +26,11 @@ namespace {
         WCHAR name[MODULE_NAME_WCHARS];
     };
 
-    void AddModule(_In_ const void* pBase, _In_ SIZE_T size, _In_ const UNICODE_STRING* pName) {
+    void AddModule(
+        _In_ const void* pBase,
+        _In_ SIZE_T size,
+        _In_ const UNICODE_STRING* pName
+    ) {
         ModuleEntry* pNewEntry = nullptr;
         USHORT copyChars = 0u;
         KIRQL oldIrql{};
@@ -78,7 +82,11 @@ namespace {
     }
 
 
-    void LookupModule(_In_ const void* pAddress, _Out_writes_z_(STACK_FRAME_NAME_WCHARS) WCHAR* pNameBuffer, _Out_ ULONGLONG* pOffset) {
+    void LookupModule(
+        _In_ const void* pAddress,
+        _Out_writes_z_(STACK_FRAME_NAME_WCHARS) WCHAR* pNameBuffer,
+        _Out_ ULONGLONG* pOffset
+    ) {
         bool found = false;
         LIST_ENTRY* pListEntry = nullptr;
         const ModuleEntry* pEntry = nullptr;
@@ -118,7 +126,11 @@ namespace {
     }
 
 
-    void OnImageLoad(_In_opt_ PUNICODE_STRING pFullImageName, _In_ HANDLE processId, _In_ PIMAGE_INFO pImageInfo) {
+    void OnImageLoad(
+        _In_opt_ PUNICODE_STRING pFullImageName,
+        _In_ HANDLE processId,
+        _In_ PIMAGE_INFO pImageInfo
+    ) {
         UNICODE_STRING baseName{};
         USHORT charCount = 0u;
         USHORT i = 0u;
