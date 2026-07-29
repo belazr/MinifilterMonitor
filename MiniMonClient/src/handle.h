@@ -11,9 +11,14 @@ namespace mimo {
     class Handle {
     public:
         Handle() noexcept = default;
+
         explicit Handle(HANDLE h) noexcept : handle(h) {}
 
-        ~Handle() { this->Close(); }
+
+        ~Handle() {
+            this->Close();
+        }
+
 
         Handle(const Handle&) = delete;
 
@@ -71,7 +76,11 @@ namespace mimo {
 
     };
 
-    inline LSTATUS CloseRegKey(HANDLE h) noexcept { return RegCloseKey(static_cast<HKEY>(h)); }
+    inline LSTATUS CloseRegKey(HANDLE h) noexcept {
+        
+        return RegCloseKey(static_cast<HKEY>(h)); 
+    }
+
 
     using NullHandle = Handle<CloseHandle>;
     using InvHandle = Handle<CloseHandle, INVALID_HANDLE_VALUE>;

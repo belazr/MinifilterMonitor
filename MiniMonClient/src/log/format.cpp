@@ -60,16 +60,20 @@ namespace {
         return labels;
     }
 
+
     constexpr std::array<std::wstring_view, COLUMN_COUNT> COLUMN_LABELS = MakeColumnLabels();
 
     constexpr bool AllColumnsLabeled() {
 
         for (const std::wstring_view label : COLUMN_LABELS) {
+
             if (label.empty()) return false;
+
         }
 
         return true;
     }
+
 
     static_assert(AllColumnsLabeled(), "every Column needs a header label in COLUMN_LABELS");
 

@@ -100,6 +100,7 @@ namespace {
 
                     break;
                 }
+
             }
 
             if (matched) continue;
@@ -115,17 +116,17 @@ namespace {
         int actions = 0;
 
         if (params.unload) ++actions;
-        
+
         if (params.attach.has_value()) ++actions;
-        
+
         if (params.attachAll.has_value()) ++actions;
 
         const bool capture = params.file.has_value() || params.split;
 
         if (actions > 1) return false;
-        
+
         if (actions > 0 && capture) return false;
-        
+
         if (params.split && !params.file.has_value()) return false;
 
         return true;
@@ -212,14 +213,14 @@ namespace {
     BOOL WINAPI CtrlHandler(DWORD ctrlType) {
 
         switch (ctrlType) {
-        case CTRL_C_EVENT:
-        case CTRL_BREAK_EVENT:
-        case CTRL_CLOSE_EVENT:
-        case CTRL_LOGOFF_EVENT:
-        case CTRL_SHUTDOWN_EVENT:
-            stop.store(true, std::memory_order_relaxed);
-            
-            return TRUE;
+            case CTRL_C_EVENT:
+            case CTRL_BREAK_EVENT:
+            case CTRL_CLOSE_EVENT:
+            case CTRL_LOGOFF_EVENT:
+            case CTRL_SHUTDOWN_EVENT:
+                stop.store(true, std::memory_order_relaxed);
+
+                return TRUE;
         }
 
         return FALSE;
@@ -260,6 +261,7 @@ namespace {
 
                         return false;
                     }
+
                 }
 
                 sink.Flush();
@@ -270,6 +272,7 @@ namespace {
                     std::cerr << "Warning: the driver dropped " << (droppedTotal - droppedReported) << " record(s) (out of memory or memory cap reached)\n";
                     droppedReported = droppedTotal;
                 }
+
             }
 
             if (buffer.Size() < BUFFER_SIZE) {

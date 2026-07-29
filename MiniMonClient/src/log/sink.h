@@ -16,6 +16,7 @@ namespace mimo {
             virtual ~Sink() = default;
 
             Sink(const Sink&) = delete;
+
             Sink& operator=(const Sink&) = delete;
 
             virtual bool Write(uint32_t altitude, std::wstring_view line) = 0;
@@ -28,7 +29,6 @@ namespace mimo {
             std::wstring header;
         };
 
-
         class ConsoleSink final : public Sink {
             std::ostream& out;
             bool headerWritten;
@@ -40,7 +40,6 @@ namespace mimo {
 
             void Flush() override;
         };
-
 
         class FileSink final : public Sink {
             std::wstring basePath;

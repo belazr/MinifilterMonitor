@@ -237,7 +237,6 @@ namespace {
 
 }
 
-
 namespace mimo {
 
     namespace driver {
@@ -247,7 +246,6 @@ namespace mimo {
     }
 
 }
-
 
 extern "C" DRIVER_INITIALIZE DriverEntry;
 
@@ -276,7 +274,6 @@ extern "C" NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* pDriverObject, _In_ UNICODE_
 done:
 
     if (!NT_SUCCESS(status)) {
-
         port::Close();
 
         if (driver::Filter) {
@@ -285,7 +282,6 @@ done:
 
         modules::Delete();
         records::Delete();
-
     }
 
     return status;

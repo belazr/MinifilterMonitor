@@ -13,6 +13,7 @@ namespace mimo {
     public:
         explicit AlignedBuffer(uint32_t size) : buffer((size + sizeof(Block) - 1u) / sizeof(Block)) {}
 
+
         uint8_t* Data() {
 
             return reinterpret_cast<uint8_t*>(this->buffer.data());

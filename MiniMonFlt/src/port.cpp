@@ -147,12 +147,10 @@ namespace mimo {
                     if (!IS_ALIGNED(pOutputBuffer, alignof(protocol::Version))) return STATUS_DATATYPE_MISALIGNMENT;
 
                     __try {
-
                         protocol::Version* const pVersion = reinterpret_cast<protocol::Version*>(pOutputBuffer);
                         pVersion->major = protocol::MINIMON_MAJOR_VERSION;
                         pVersion->minor = protocol::MINIMON_MINOR_VERSION;
                         pVersion->patch = protocol::MINIMON_PATCH_VERSION;
-
                     }
                     __except (EXCEPTION_EXECUTE_HANDLER) {
 

@@ -146,6 +146,7 @@ namespace {
         for (i = charCount; i > 0u; i--) {
 
             if (pFullImageName->Buffer[i - 1u] == L'\\') break;
+
         }
 
         baseName.Buffer = pFullImageName->Buffer + i;
