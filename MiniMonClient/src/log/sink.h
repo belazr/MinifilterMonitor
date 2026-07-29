@@ -48,7 +48,11 @@ namespace mimo {
             std::map<std::wstring, std::ofstream> files;
 
         public:
-            FileSink(std::wstring path, bool splitByAltitude, std::wstring_view headerText);
+            FileSink(
+                std::wstring path,
+                bool splitByAltitude,
+                std::wstring_view headerText
+            );
 
             bool Write(uint32_t altitude, std::wstring_view line) override;
 

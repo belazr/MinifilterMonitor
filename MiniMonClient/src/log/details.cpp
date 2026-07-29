@@ -25,7 +25,11 @@ namespace {
 
     std::map<std::wstring, std::wstring> accountNames;
 
-    std::wstring RenderFlags(ULONG flags, std::span<const kernel::FlagName> names, std::wstring_view separator) {
+    std::wstring RenderFlags(
+        ULONG flags,
+        std::span<const kernel::FlagName> names,
+        std::wstring_view separator
+    ) {
         std::wstring result;
 
         for (const kernel::FlagName& entry : names) {
@@ -261,7 +265,11 @@ namespace {
 
 
     template <typename T>
-    bool ReadValue(std::span<const uint8_t> payload, T& value, size_t offset = 0u) {
+    bool ReadValue(
+        std::span<const uint8_t> payload,
+        T& value,
+        size_t offset = 0u
+    ) {
 
         if (payload.size() < offset + sizeof(T)) return false;
 

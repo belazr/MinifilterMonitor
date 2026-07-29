@@ -8,7 +8,11 @@ namespace mimo {
     namespace name {
 
         _Use_decl_annotations_
-        void ResolveFileName(FLT_CALLBACK_DATA* pData, const FLT_RELATED_OBJECTS* pFltObjects, UNICODE_STRING* pName) {
+        void ResolveFileName(
+            FLT_CALLBACK_DATA* pData,
+            const FLT_RELATED_OBJECTS* pFltObjects,
+            UNICODE_STRING* pName
+        ) {
             FLT_FILE_NAME_INFORMATION* pNormalizedInfo = nullptr;
             FLT_FILE_NAME_INFORMATION* pOpenedInfo = nullptr;
             NTSTATUS normalizedStatus = STATUS_UNSUCCESSFUL;

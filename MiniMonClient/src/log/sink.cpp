@@ -36,7 +36,11 @@ namespace mimo {
         }
 
 
-        FileSink::FileSink(std::wstring path, bool splitByAltitude, std::wstring_view headerText) : Sink(headerText), basePath(std::move(path)), split(splitByAltitude) {}
+        FileSink::FileSink(
+            std::wstring path,
+            bool splitByAltitude,
+            std::wstring_view headerText
+        ) : Sink(headerText), basePath(std::move(path)), split(splitByAltitude) {}
 
 
         bool FileSink::Write(uint32_t altitude, std::wstring_view line) {

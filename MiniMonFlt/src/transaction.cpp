@@ -76,7 +76,11 @@ namespace mimo {
 
         __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
-        NTSTATUS HandleNotification(const FLT_RELATED_OBJECTS* pFltObjects, PFLT_CONTEXT pContext, ULONG notificationMask) {
+        NTSTATUS HandleNotification(
+            const FLT_RELATED_OBJECTS* pFltObjects,
+            PFLT_CONTEXT pContext,
+            ULONG notificationMask
+        ) {
             PAGED_CODE();
 
             const Context* const pCtx = reinterpret_cast<Context*>(pContext);

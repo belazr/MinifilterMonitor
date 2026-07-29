@@ -179,7 +179,11 @@ namespace mimo {
     namespace capture {
 
         _Use_decl_annotations_
-        void PopulatePreOperationRecordData(protocol::RecordData* pRecordData, FLT_CALLBACK_DATA* pData, const FLT_RELATED_OBJECTS* pFltObjects) {
+        void PopulatePreOperationRecordData(
+            protocol::RecordData* pRecordData,
+            FLT_CALLBACK_DATA* pData,
+            const FLT_RELATED_OBJECTS* pFltObjects
+        ) {
             PopulateOriginRecordData(pRecordData, pFltObjects);
 
             pRecordData->callbackMajorId = pData->Iopb->MajorFunction;
@@ -221,7 +225,11 @@ namespace mimo {
 
 
         _Use_decl_annotations_
-        void PopulatePostOperationRecordData(protocol::RecordData* pRecordData, const FLT_CALLBACK_DATA* pData, ULONG transactionSequence) {
+        void PopulatePostOperationRecordData(
+            protocol::RecordData* pRecordData,
+            const FLT_CALLBACK_DATA* pData,
+            ULONG transactionSequence
+        ) {
             pRecordData->status = pData->IoStatus.Status;
             pRecordData->information = pData->IoStatus.Information;
             pRecordData->transactionSequence = transactionSequence;
@@ -255,7 +263,12 @@ namespace mimo {
 
 
         _Use_decl_annotations_
-        void PopulateTransactionEventRecordData(protocol::RecordData* pRecordData, const FLT_RELATED_OBJECTS* pFltObjects, ULONG notificationMask, ULONG transactionSequence) {
+        void PopulateTransactionEventRecordData(
+            protocol::RecordData* pRecordData,
+            const FLT_RELATED_OBJECTS* pFltObjects,
+            ULONG notificationMask,
+            ULONG transactionSequence
+        ) {
             PopulateOriginRecordData(pRecordData, pFltObjects);
 
             pRecordData->transactionNotify = notificationMask;

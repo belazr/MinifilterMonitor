@@ -11,7 +11,11 @@ namespace mimo {
     namespace dispatch {
 
         _Use_decl_annotations_
-        FLT_PREOP_CALLBACK_STATUS PreOperationCallback(FLT_CALLBACK_DATA* pData, const FLT_RELATED_OBJECTS* pFltObjects, void** ppCompletionContext) {
+        FLT_PREOP_CALLBACK_STATUS PreOperationCallback(
+            FLT_CALLBACK_DATA* pData,
+            const FLT_RELATED_OBJECTS* pFltObjects,
+            void** ppCompletionContext
+        ) {
             records::Entry* const pEntry = records::CreateEntry();
 
             if (!pEntry) return FLT_PREOP_SUCCESS_NO_CALLBACK;
@@ -31,7 +35,12 @@ namespace mimo {
 
 
         _Use_decl_annotations_
-        FLT_POSTOP_CALLBACK_STATUS PostOperationCallback(FLT_CALLBACK_DATA* pData, const FLT_RELATED_OBJECTS* pFltObjects, void* pCompletionContext, FLT_POST_OPERATION_FLAGS flags) {
+        FLT_POSTOP_CALLBACK_STATUS PostOperationCallback(
+            FLT_CALLBACK_DATA* pData,
+            const FLT_RELATED_OBJECTS* pFltObjects,
+            void* pCompletionContext,
+            FLT_POST_OPERATION_FLAGS flags
+        ) {
             records::Entry* const pEntry = reinterpret_cast<records::Entry*>(pCompletionContext);
 
             if (FlagOn(flags, FLTFL_POST_OPERATION_DRAINING)) {

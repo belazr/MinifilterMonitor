@@ -186,7 +186,12 @@ namespace {
 
     __declspec(code_seg("PAGE"))
     _Use_decl_annotations_
-    NTSTATUS InstanceSetup(const FLT_RELATED_OBJECTS* pFltObjects, FLT_INSTANCE_SETUP_FLAGS flags, DEVICE_TYPE volumeDeviceType, FLT_FILESYSTEM_TYPE volumeFilesystemType) {
+    NTSTATUS InstanceSetup(
+        const FLT_RELATED_OBJECTS* pFltObjects,
+        FLT_INSTANCE_SETUP_FLAGS flags,
+        DEVICE_TYPE volumeDeviceType,
+        FLT_FILESYSTEM_TYPE volumeFilesystemType
+    ) {
         PAGED_CODE();
 
         UNREFERENCED_PARAMETER(flags);

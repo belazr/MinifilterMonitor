@@ -293,7 +293,11 @@ namespace mimo {
 
 
         _Use_decl_annotations_
-        void Lookup(const void* const* pAddresses, ULONG count, protocol::StackFrame* pFrames) {
+        void Lookup(
+            const void* const* pAddresses,
+            ULONG count,
+            protocol::StackFrame* pFrames
+        ) {
             KIRQL oldIrql{};
 
             KeAcquireSpinLock(&ModuleListLock, &oldIrql);

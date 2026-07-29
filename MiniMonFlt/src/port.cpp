@@ -60,7 +60,13 @@ namespace mimo {
 
         __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
-        NTSTATUS Connect(PFLT_PORT pClientPort, void* pServerPortCookie, void* pConnectionContext, ULONG sizeOfContext, void** ppConnectionCookie) {
+        NTSTATUS Connect(
+            PFLT_PORT pClientPort,
+            void* pServerPortCookie,
+            void* pConnectionContext,
+            ULONG sizeOfContext,
+            void** ppConnectionCookie
+        ) {
             PAGED_CODE();
 
             UNREFERENCED_PARAMETER(pServerPortCookie);
@@ -94,7 +100,14 @@ namespace mimo {
 
         __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
-        NTSTATUS Message(void* pConnectionCookie, void* pInputBuffer, ULONG inputSize, void* pOutputBuffer, ULONG outputSize, ULONG* pBytesWritten) {
+        NTSTATUS Message(
+            void* pConnectionCookie,
+            void* pInputBuffer,
+            ULONG inputSize,
+            void* pOutputBuffer,
+            ULONG outputSize,
+            ULONG* pBytesWritten
+        ) {
             PAGED_CODE();
 
             UNREFERENCED_PARAMETER(pConnectionCookie);

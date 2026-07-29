@@ -19,7 +19,11 @@ namespace mimo {
     namespace stack {
 
         _Use_decl_annotations_
-        void CaptureStackTrace(protocol::StackFrame* pFrames, ULONG capacity, ULONG* pCount) {
+        void CaptureStackTrace(
+            protocol::StackFrame* pFrames,
+            ULONG capacity,
+            ULONG* pCount
+        ) {
             const ULONG limit = capacity < protocol::STACK_TRACE_FRAMES ? capacity : protocol::STACK_TRACE_FRAMES;
             void* addresses[protocol::STACK_TRACE_FRAMES]{};
             USHORT captured = 0u;

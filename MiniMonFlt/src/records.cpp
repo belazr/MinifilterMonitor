@@ -133,7 +133,11 @@ namespace mimo {
 
 
         _Use_decl_annotations_
-        NTSTATUS Drain(UCHAR* pBuffer, ULONG size, ULONG* pBytesWritten) {
+        NTSTATUS Drain(
+            UCHAR* pBuffer,
+            ULONG size,
+            ULONG* pBytesWritten
+        ) {
             constexpr ULONG RECORD_STRIDE = static_cast<ULONG>(sizeof(protocol::Record));
 
             ULONG bytesWritten = 0u;
