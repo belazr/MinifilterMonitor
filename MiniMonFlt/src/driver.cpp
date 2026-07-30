@@ -250,7 +250,8 @@ namespace mimo {
 extern "C" DRIVER_INITIALIZE DriverEntry;
 
 __declspec(code_seg("INIT"))
-extern "C" NTSTATUS DriverEntry(_In_ DRIVER_OBJECT* pDriverObject, _In_ UNICODE_STRING* pRegistryPath) {
+_Use_decl_annotations_
+extern "C" NTSTATUS DriverEntry(DRIVER_OBJECT* pDriverObject, UNICODE_STRING* pRegistryPath) {
     NTSTATUS status = STATUS_SUCCESS;
 
     records::Create();
