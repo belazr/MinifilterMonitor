@@ -26,6 +26,13 @@ using namespace mimo;
 
 namespace {
 
+    void ConfigureOutputEncoding() {
+        SetConsoleOutputCP(CP_UTF8);
+
+        return;
+    }
+
+
     struct Parameters final {
         std::optional<std::wstring> attach;
         std::optional<std::wstring> attachAll;
@@ -54,15 +61,6 @@ namespace {
         { L"/m", &Parameters::attachAll },
         { L"/f", &Parameters::file },
     };
-
-    std::atomic<bool> stop{ false };
-
-    void ConfigureOutputEncoding() {
-        SetConsoleOutputCP(CP_UTF8);
-
-        return;
-    }
-
 
     std::optional<Parameters> ParseParameters(int argc, wchar_t* argv[]) {
         Parameters params{};
@@ -182,13 +180,6 @@ namespace {
     }
 
 
-    void DisplayFilterUnloadedError() {
-        std::cerr << "The driver does not appear to be loaded. Load and attach it first (e.g. MiniMonClient /a <volume>).\n";
-
-        return;
-    }
-
-
     bool DoesParentDirectoryExist(const std::wstring& filePath) {
         const std::filesystem::path parent = std::filesystem::path{ filePath }.parent_path();
 
@@ -209,6 +200,15 @@ namespace {
         return std::make_unique<log::FileSink>(*params.file, params.split, log::format::GetHeader());
     }
 
+
+    void DisplayFilterUnloadedError() {
+        std::cerr << "The driver does not appear to be loaded. Load and attach it first (e.g. MiniMonClient /a <volume>).\n";
+
+        return;
+    }
+
+
+    std::atomic<bool> stop{ false };
 
     BOOL WINAPI CtrlHandler(DWORD ctrlType) {
 

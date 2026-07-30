@@ -15,16 +15,16 @@ namespace {
 
     constexpr ULONG MODULE_NAME_WCHARS = 64u;
 
-    KSPIN_LOCK ModuleListLock;
-    LIST_ENTRY ModuleList;
-    bool ImageNotifyRegistered;
-
     struct ModuleEntry {
         LIST_ENTRY list;
         const void* pBase;
         SIZE_T size;
         WCHAR name[MODULE_NAME_WCHARS];
     };
+
+    KSPIN_LOCK ModuleListLock;
+    LIST_ENTRY ModuleList;
+    bool ImageNotifyRegistered;
 
     void AddModule(
         _In_ const void* pBase,
@@ -82,6 +82,41 @@ namespace {
     }
 
 
+    void OnImageLoad(
+        _In_opt_ PUNICODE_STRING pFullImageName,
+        _In_ HANDLE processId,
+        _In_ PIMAGE_INFO pImageInfo
+    ) {
+        UNICODE_STRING baseName{};
+        USHORT charCount = 0u;
+        USHORT i = 0u;
+
+        UNREFERENCED_PARAMETER(processId);
+
+        if (!pImageInfo || !pImageInfo->SystemModeImage) return;
+
+        if (!pFullImageName || !pFullImageName->Buffer || pFullImageName->Length == 0u) return;
+
+        charCount = pFullImageName->Length / sizeof(WCHAR);
+
+        for (i = charCount; i > 0u; i--) {
+
+            if (pFullImageName->Buffer[i - 1u] == L'\\') break;
+
+        }
+
+        baseName.Buffer = pFullImageName->Buffer + i;
+        baseName.Length = static_cast<USHORT>((charCount - i) * sizeof(WCHAR));
+        baseName.MaximumLength = baseName.Length;
+
+        if (baseName.Length == 0u) return;
+
+        AddModule(pImageInfo->ImageBase, pImageInfo->ImageSize, &baseName);
+
+        return;
+    }
+
+
     void LookupModule(
         _In_ const void* pAddress,
         _Out_writes_z_(STACK_FRAME_NAME_WCHARS) WCHAR* pNameBuffer,
@@ -121,41 +156,6 @@ namespace {
             pNameBuffer[0] = L'\0';
             *pOffset = addressVal;
         }
-
-        return;
-    }
-
-
-    void OnImageLoad(
-        _In_opt_ PUNICODE_STRING pFullImageName,
-        _In_ HANDLE processId,
-        _In_ PIMAGE_INFO pImageInfo
-    ) {
-        UNICODE_STRING baseName{};
-        USHORT charCount = 0u;
-        USHORT i = 0u;
-
-        UNREFERENCED_PARAMETER(processId);
-
-        if (!pImageInfo || !pImageInfo->SystemModeImage) return;
-
-        if (!pFullImageName || !pFullImageName->Buffer || pFullImageName->Length == 0u) return;
-
-        charCount = pFullImageName->Length / sizeof(WCHAR);
-
-        for (i = charCount; i > 0u; i--) {
-
-            if (pFullImageName->Buffer[i - 1u] == L'\\') break;
-
-        }
-
-        baseName.Buffer = pFullImageName->Buffer + i;
-        baseName.Length = static_cast<USHORT>((charCount - i) * sizeof(WCHAR));
-        baseName.MaximumLength = baseName.Length;
-
-        if (baseName.Length == 0u) return;
-
-        AddModule(pImageInfo->ImageBase, pImageInfo->ImageSize, &baseName);
 
         return;
     }

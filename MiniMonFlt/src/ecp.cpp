@@ -12,33 +12,10 @@ using namespace mimo;
 
 namespace {
 
-    constexpr ULONG ENDPOINT_TEXT_CHARS = 64u;
-
     struct EcpWriter {
         WCHAR* pCursor;
         size_t bytesLeft;
     };
-
-    __declspec(code_seg("PAGE"))
-    _Success_(return)
-    bool FormatEndpoint(_In_ PSOCKADDR_STORAGE_NFS pAddr, _Out_writes_z_(ENDPOINT_TEXT_CHARS) CHAR* pText) {
-        PAGED_CODE();
-
-        ULONG textChars = ENDPOINT_TEXT_CHARS;
-        NTSTATUS status = STATUS_INVALID_PARAMETER;
-
-        if (pAddr->ss_family == AF_INET) {
-            const SOCKADDR_IN* const pIpv4 = reinterpret_cast<const SOCKADDR_IN*>(pAddr);
-            status = RtlIpv4AddressToStringEx(&pIpv4->sin_addr, pIpv4->sin_port, pText, &textChars);
-        }
-        else if (pAddr->ss_family == AF_INET6) {
-            const SOCKADDR_IN6* const pIpv6 = reinterpret_cast<const SOCKADDR_IN6*>(pAddr);
-            status = RtlIpv6AddressToStringEx(&pIpv6->sin6_addr, 0u, pIpv6->sin6_port, pText, &textChars);
-        }
-
-        return NT_SUCCESS(status);
-    }
-
 
     __declspec(code_seg("PAGE"))
     void AppendGuid(
@@ -89,6 +66,29 @@ namespace {
         }
 
         return;
+    }
+
+
+    constexpr ULONG ENDPOINT_TEXT_CHARS = 64u;
+
+    __declspec(code_seg("PAGE"))
+    _Success_(return)
+    bool FormatEndpoint(_In_ PSOCKADDR_STORAGE_NFS pAddr, _Out_writes_z_(ENDPOINT_TEXT_CHARS) CHAR* pText) {
+        PAGED_CODE();
+
+        ULONG textChars = ENDPOINT_TEXT_CHARS;
+        NTSTATUS status = STATUS_INVALID_PARAMETER;
+
+        if (pAddr->ss_family == AF_INET) {
+            const SOCKADDR_IN* const pIpv4 = reinterpret_cast<const SOCKADDR_IN*>(pAddr);
+            status = RtlIpv4AddressToStringEx(&pIpv4->sin_addr, pIpv4->sin_port, pText, &textChars);
+        }
+        else if (pAddr->ss_family == AF_INET6) {
+            const SOCKADDR_IN6* const pIpv6 = reinterpret_cast<const SOCKADDR_IN6*>(pAddr);
+            status = RtlIpv6AddressToStringEx(&pIpv6->sin6_addr, 0u, pIpv6->sin6_port, pText, &textChars);
+        }
+
+        return NT_SUCCESS(status);
     }
 
 

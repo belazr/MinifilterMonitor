@@ -21,10 +21,6 @@ using namespace mimo;
 
 namespace {
 
-    constexpr DWORD ACCOUNT_NAME_CHARS = 256u;
-
-    std::map<std::wstring, std::wstring> accountNames;
-
     std::wstring RenderFlags(
         ULONG flags,
         std::span<const kernel::FlagName> names,
@@ -78,6 +74,10 @@ namespace {
         return RenderFlags(shareAccess, kernel::SHARE_ACCESS_NAMES, L"|");
     }
 
+
+    constexpr DWORD ACCOUNT_NAME_CHARS = 256u;
+
+    std::map<std::wstring, std::wstring> accountNames;
 
     std::wstring RenderImpersonated(const protocol::CreateSupplement& createSupplement) {
         const PSID pSid = const_cast<uint8_t*>(createSupplement.impersonatedSid);
