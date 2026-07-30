@@ -145,7 +145,7 @@ namespace {
 
             if (!NT_SUCCESS(status)) break;
 
-            const INSTANCE_FULL_INFORMATION* pInfo = reinterpret_cast<const INSTANCE_FULL_INFORMATION*>(infoBuffer);
+            const INSTANCE_FULL_INFORMATION* const pInfo = reinterpret_cast<const INSTANCE_FULL_INFORMATION*>(infoBuffer);
 
             UNICODE_STRING infoVolumeName{};
             infoVolumeName.Buffer = reinterpret_cast<PWCH>(infoBuffer + pInfo->VolumeNameBufferOffset);

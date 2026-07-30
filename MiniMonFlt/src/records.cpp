@@ -51,9 +51,9 @@ namespace {
 
     records::Entry* RemoveHead() {
         KIRQL oldIrql{};
-        records::Entry* pEntry = nullptr;
-
         KeAcquireSpinLock(&RecordListLock, &oldIrql);
+
+        records::Entry* pEntry = nullptr;
 
         if (!IsListEmpty(&RecordList)) {
             pEntry = CONTAINING_RECORD(RemoveHeadList(&RecordList), records::Entry, list);
@@ -67,9 +67,10 @@ namespace {
 
     void InsertHead(_Inout_ records::Entry* pEntry) {
         KIRQL oldIrql{};
-
         KeAcquireSpinLock(&RecordListLock, &oldIrql);
+
         InsertHeadList(&RecordList, &pEntry->list);
+
         KeReleaseSpinLock(&RecordListLock, oldIrql);
 
         return;
@@ -122,10 +123,11 @@ namespace mimo {
         _Use_decl_annotations_
         void Append(Entry* pEntry) {
             KIRQL oldIrql{};
-
             KeAcquireSpinLock(&RecordListLock, &oldIrql);
+
             pEntry->record.droppedRecords = DroppedRecords;
             InsertTailList(&RecordList, &pEntry->list);
+
             KeReleaseSpinLock(&RecordListLock, oldIrql);
 
             return;

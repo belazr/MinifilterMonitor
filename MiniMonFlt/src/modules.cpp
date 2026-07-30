@@ -31,23 +31,16 @@ namespace {
         _In_ SIZE_T size,
         _In_ const UNICODE_STRING* pName
     ) {
-        ModuleEntry* pNewEntry = nullptr;
-        USHORT copyChars = 0u;
-        KIRQL oldIrql{};
-        LIST_ENTRY* pListEntry = nullptr;
-        const ModuleEntry* pExisting = nullptr;
-        bool duplicate = false;
-
         FLT_ASSERT(pName);
 
-        pNewEntry = reinterpret_cast<ModuleEntry*>(ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(ModuleEntry), driver::MEM_TAG));
+        ModuleEntry* const pNewEntry = reinterpret_cast<ModuleEntry*>(ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(ModuleEntry), driver::MEM_TAG));
 
         if (!pNewEntry) return;
 
         pNewEntry->pBase = pBase;
         pNewEntry->size = size;
 
-        copyChars = pName->Length / sizeof(WCHAR);
+        USHORT copyChars = pName->Length / sizeof(WCHAR);
 
         if (copyChars >= MODULE_NAME_WCHARS) {
             copyChars = MODULE_NAME_WCHARS - 1u;
@@ -56,10 +49,13 @@ namespace {
         RtlCopyMemory(pNewEntry->name, pName->Buffer, copyChars * sizeof(WCHAR));
         pNewEntry->name[copyChars] = L'\0';
 
+        KIRQL oldIrql{};
         KeAcquireSpinLock(&ModuleListLock, &oldIrql);
 
-        for (pListEntry = ModuleList.Flink; pListEntry != &ModuleList; pListEntry = pListEntry->Flink) {
-            pExisting = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
+        bool duplicate = false;
+
+        for (LIST_ENTRY* pListEntry = ModuleList.Flink; pListEntry != &ModuleList; pListEntry = pListEntry->Flink) {
+            const ModuleEntry* const pExisting = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
 
             if (pExisting->pBase == pBase) {
                 duplicate = true;
@@ -87,24 +83,20 @@ namespace {
         _In_ HANDLE processId,
         _In_ PIMAGE_INFO pImageInfo
     ) {
-        UNICODE_STRING baseName{};
-        USHORT charCount = 0u;
-        USHORT i = 0u;
-
         UNREFERENCED_PARAMETER(processId);
 
         if (!pImageInfo || !pImageInfo->SystemModeImage) return;
 
         if (!pFullImageName || !pFullImageName->Buffer || pFullImageName->Length == 0u) return;
 
-        charCount = pFullImageName->Length / sizeof(WCHAR);
+        const USHORT charCount = pFullImageName->Length / sizeof(WCHAR);
+        USHORT i = charCount;
 
-        for (i = charCount; i > 0u; i--) {
-
-            if (pFullImageName->Buffer[i - 1u] == L'\\') break;
-
+        while (i > 0u && pFullImageName->Buffer[i - 1u] != L'\\') {
+            i--;
         }
 
+        UNICODE_STRING baseName{};
         baseName.Buffer = pFullImageName->Buffer + i;
         baseName.Length = static_cast<USHORT>((charCount - i) * sizeof(WCHAR));
         baseName.MaximumLength = baseName.Length;
@@ -122,26 +114,24 @@ namespace {
         _Out_writes_z_(STACK_FRAME_NAME_WCHARS) WCHAR* pNameBuffer,
         _Out_ ULONGLONG* pOffset
     ) {
-        bool found = false;
-        LIST_ENTRY* pListEntry = nullptr;
-        const ModuleEntry* pEntry = nullptr;
         const ULONG_PTR addressVal = reinterpret_cast<ULONG_PTR>(pAddress);
-        ULONG_PTR baseVal = 0u;
-        ULONG_PTR offset = 0u;
-        USHORT copyChars = 0u;
+        bool found = false;
 
-        for (pListEntry = ModuleList.Flink; pListEntry != &ModuleList; pListEntry = pListEntry->Flink) {
-            pEntry = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
-            baseVal = reinterpret_cast<ULONG_PTR>(pEntry->pBase);
+        for (LIST_ENTRY* pListEntry = ModuleList.Flink; pListEntry != &ModuleList; pListEntry = pListEntry->Flink) {
+            const ModuleEntry* const pEntry = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
+            const ULONG_PTR baseVal = reinterpret_cast<ULONG_PTR>(pEntry->pBase);
 
             if (addressVal < baseVal) continue;
 
-            offset = addressVal - baseVal;
+            const ULONG_PTR offset = addressVal - baseVal;
 
             if (offset >= pEntry->size) continue;
 
-            for (copyChars = 0u; copyChars < protocol::STACK_FRAME_NAME_WCHARS - 1u && pEntry->name[copyChars] != L'\0'; copyChars++) {
+            USHORT copyChars = 0u;
+
+            while (copyChars < protocol::STACK_FRAME_NAME_WCHARS - 1u && pEntry->name[copyChars] != L'\0') {
                 pNameBuffer[copyChars] = pEntry->name[copyChars];
+                copyChars++;
             }
 
             pNameBuffer[copyChars] = L'\0';
@@ -266,9 +256,6 @@ namespace mimo {
 
 
         void Delete() {
-            LIST_ENTRY* pListEntry = nullptr;
-            ModuleEntry* pEntry = nullptr;
-            KIRQL oldIrql{};
 
             if (ImageNotifyRegistered) {
                 PsRemoveLoadImageNotifyRoutine(OnImageLoad);
@@ -277,12 +264,13 @@ namespace mimo {
 
             if (!ModuleList.Flink) return;
 
+            KIRQL oldIrql{};
             KeAcquireSpinLock(&ModuleListLock, &oldIrql);
 
             while (!IsListEmpty(&ModuleList)) {
-                pListEntry = RemoveHeadList(&ModuleList);
+                LIST_ENTRY* const pListEntry = RemoveHeadList(&ModuleList);
                 KeReleaseSpinLock(&ModuleListLock, oldIrql);
-                pEntry = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
+                ModuleEntry* const pEntry = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
                 ExFreePoolWithTag(pEntry, driver::MEM_TAG);
                 KeAcquireSpinLock(&ModuleListLock, &oldIrql);
             }
@@ -300,7 +288,6 @@ namespace mimo {
             protocol::StackFrame* pFrames
         ) {
             KIRQL oldIrql{};
-
             KeAcquireSpinLock(&ModuleListLock, &oldIrql);
 
             for (ULONG i = 0u; i < count; i++) {
