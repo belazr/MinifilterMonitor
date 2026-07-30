@@ -6,6 +6,8 @@
 
 #include "..\..\..\inc\protocol.h"
 
+#include <Windows.h>
+
 #include <array>
 #include <cstddef>
 #include <format>
@@ -235,8 +237,7 @@ namespace mimo {
 
 
             std::wstring Render(const protocol::Record& record) {
-                // some column names (e.g. OPERATION_ID, a winbase.h typedef) collide with Windows SDK globals
-                // without this they'd be ambiguous here
+                // using enum because some labels (OPERATION_ID, a winbase.h typedef) collide with SDK globals
                 using enum Column;
                 const protocol::RecordData& data = record.data;
                 std::array<std::wstring, COLUMN_COUNT> columns;

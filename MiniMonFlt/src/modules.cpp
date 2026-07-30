@@ -8,7 +8,7 @@
 #include <fltKernel.h>
 
 using namespace mimo;
-// SAL of LookupModule complains if addresed with namespace
+// LookupModule's SAL needs the unqualified name
 using protocol::STACK_FRAME_NAME_WCHARS;
 
 namespace {

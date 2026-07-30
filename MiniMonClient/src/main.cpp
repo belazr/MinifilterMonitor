@@ -6,6 +6,8 @@
 #include "records.h"
 #include "text.h"
 
+#include "..\..\inc\protocol.h"
+
 #include <Windows.h>
 
 #include <algorithm>
@@ -228,7 +230,7 @@ namespace {
 
 
     bool CaptureLoop(const InvHandle& port, log::Sink& sink) {
-        constexpr uint32_t BUFFER_SIZE = 1000 * sizeof(protocol::Record);
+        constexpr uint32_t BUFFER_SIZE = 1000u * sizeof(protocol::Record);
         constexpr DWORD POLL_INTERVAL_MS = 200u;
 
         AlignedBuffer buffer{ BUFFER_SIZE };
