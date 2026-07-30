@@ -243,11 +243,11 @@ namespace mimo {
                 case IRP_MJ_QUERY_INFORMATION:
 
                     if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && pData->Iopb->Parameters.QueryFileInformation.InfoBuffer && KeGetCurrentIrql() < DISPATCH_LEVEL) {
-                        const ULONG length = pData->Iopb->Parameters.QueryFileInformation.Length;
-                        const ULONG_PTR information = pData->IoStatus.Information;
-                        const ULONG size = information < length ? static_cast<ULONG>(information) : length;
+                        const ULONG bufferSize = pData->Iopb->Parameters.QueryFileInformation.Length;
+                        const ULONG_PTR writtenSize = pData->IoStatus.Information;
+                        const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
 
-                        PopulateInfoSupplement(pRecordData, pData->Iopb->Parameters.QueryFileInformation.InfoBuffer, size);
+                        PopulateInfoSupplement(pRecordData, pData->Iopb->Parameters.QueryFileInformation.InfoBuffer, dataSize);
                     }
 
                     break;

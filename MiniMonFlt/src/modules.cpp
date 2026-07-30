@@ -21,7 +21,7 @@ namespace {
 
     struct ModuleEntry {
         LIST_ENTRY list;
-        const void* base;
+        const void* pBase;
         SIZE_T size;
         WCHAR name[MODULE_NAME_WCHARS];
     };
@@ -44,7 +44,7 @@ namespace {
 
         if (!pNewEntry) return;
 
-        pNewEntry->base = pBase;
+        pNewEntry->pBase = pBase;
         pNewEntry->size = size;
 
         copyChars = pName->Length / sizeof(WCHAR);
@@ -61,7 +61,7 @@ namespace {
         for (pListEntry = ModuleList.Flink; pListEntry != &ModuleList; pListEntry = pListEntry->Flink) {
             pExisting = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
 
-            if (pExisting->base == pBase) {
+            if (pExisting->pBase == pBase) {
                 duplicate = true;
 
                 break;
@@ -97,7 +97,7 @@ namespace {
 
         for (pListEntry = ModuleList.Flink; pListEntry != &ModuleList; pListEntry = pListEntry->Flink) {
             pEntry = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
-            baseVal = reinterpret_cast<ULONG_PTR>(pEntry->base);
+            baseVal = reinterpret_cast<ULONG_PTR>(pEntry->pBase);
 
             if (addressVal < baseVal) continue;
 
@@ -295,7 +295,7 @@ namespace mimo {
 
         _Use_decl_annotations_
         void Lookup(
-            const void* const* pAddresses,
+            const void* const* ppAddresses,
             ULONG count,
             protocol::StackFrame* pFrames
         ) {
@@ -305,14 +305,14 @@ namespace mimo {
 
             for (ULONG i = 0u; i < count; i++) {
 
-                if (!pAddresses[i]) {
+                if (!ppAddresses[i]) {
                     pFrames[i].moduleName[0] = L'\0';
                     pFrames[i].offset = 0ull;
 
                     continue;
                 }
 
-                LookupModule(pAddresses[i], pFrames[i].moduleName, &pFrames[i].offset);
+                LookupModule(ppAddresses[i], pFrames[i].moduleName, &pFrames[i].offset);
             }
 
             KeReleaseSpinLock(&ModuleListLock, oldIrql);

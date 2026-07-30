@@ -7,7 +7,7 @@ namespace mimo {
     namespace port {
 
         __declspec(code_seg("INIT"))
-        NTSTATUS Open(_In_ PFLT_FILTER filter);
+        NTSTATUS Open(_In_ PFLT_FILTER pFilter);
 
         void Close();
 

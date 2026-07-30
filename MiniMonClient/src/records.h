@@ -19,9 +19,9 @@ namespace mimo {
 
             if (buffer.Size() % RECORD_BYTES != 0u) return std::nullopt;
 
-            const protocol::Record* const records = reinterpret_cast<const protocol::Record*>(buffer.Data());
+            const protocol::Record* const pRecords = reinterpret_cast<const protocol::Record*>(buffer.Data());
 
-            return std::span<const protocol::Record>{ records, buffer.Size() / RECORD_BYTES };
+            return std::span<const protocol::Record>{ pRecords, buffer.Size() / RECORD_BYTES };
         }
 
     }

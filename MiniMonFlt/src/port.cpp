@@ -20,7 +20,7 @@ namespace mimo {
 
         __declspec(code_seg("INIT"))
         _Use_decl_annotations_
-        NTSTATUS Open(PFLT_FILTER filter) {
+        NTSTATUS Open(PFLT_FILTER pFilter) {
             SECURITY_DESCRIPTOR* pSecDesc = nullptr;
             OBJECT_ATTRIBUTES objAttribs{};
             UNICODE_STRING portName = RTL_CONSTANT_STRING(PORT_NAME);
@@ -33,7 +33,7 @@ namespace mimo {
             InitializeObjectAttributes(&objAttribs, &portName, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, nullptr, pSecDesc);
 
             status = FltCreateCommunicationPort(
-                filter, &ServerPort, &objAttribs, nullptr,
+                pFilter, &ServerPort, &objAttribs, nullptr,
                 Connect, Disconnect, Message, 1
             );
 
