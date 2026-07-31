@@ -32,7 +32,7 @@ namespace mimo {
             void* addresses[protocol::STACK_TRACE_FRAMES]{};
             const USHORT captured = RtlCaptureStackBackTrace(STACK_TRACE_SKIP_FRAMES, limit, addresses, nullptr);
 
-            modules::Lookup(addresses, captured, pFrames);
+            modules::Resolve(addresses, captured, pFrames);
 
             *pCount = captured;
 

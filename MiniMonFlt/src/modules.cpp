@@ -8,7 +8,7 @@
 #include <fltKernel.h>
 
 using namespace mimo;
-// LookupModule's SAL needs the unqualified name
+// ResolveAddress's SAL needs the unqualified name
 using protocol::STACK_FRAME_NAME_WCHARS;
 
 namespace {
@@ -109,7 +109,7 @@ namespace {
     }
 
 
-    void LookupModule(
+    void ResolveAddress(
         _In_ const void* pAddress,
         _Out_writes_z_(STACK_FRAME_NAME_WCHARS) WCHAR* pNameBuffer,
         _Out_ ULONGLONG* pOffset
@@ -282,7 +282,7 @@ namespace mimo {
 
 
         _Use_decl_annotations_
-        void Lookup(
+        void Resolve(
             const void* const* ppAddresses,
             ULONG count,
             protocol::StackFrame* pFrames
@@ -299,7 +299,7 @@ namespace mimo {
                     continue;
                 }
 
-                LookupModule(ppAddresses[i], pFrames[i].moduleName, &pFrames[i].offset);
+                ResolveAddress(ppAddresses[i], pFrames[i].moduleName, &pFrames[i].offset);
             }
 
             KeReleaseSpinLock(&ModuleListLock, oldIrql);

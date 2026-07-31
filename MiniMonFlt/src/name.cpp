@@ -8,7 +8,7 @@ namespace mimo {
     namespace name {
 
         _Use_decl_annotations_
-        void ResolveFileName(
+        void FormatFileName(
             FLT_CALLBACK_DATA* pData,
             const FLT_RELATED_OBJECTS* pFltObjects,
             UNICODE_STRING* pName

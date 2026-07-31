@@ -200,7 +200,7 @@ namespace mimo {
 
             UNICODE_STRING fileName{};
             RtlInitEmptyUnicodeString(&fileName, pRecordData->name, sizeof(pRecordData->name));
-            name::ResolveFileName(pData, pFltObjects, &fileName);
+            name::FormatFileName(pData, pFltObjects, &fileName);
 
             switch (pData->Iopb->MajorFunction) {
 

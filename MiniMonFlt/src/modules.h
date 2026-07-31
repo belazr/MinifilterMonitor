@@ -16,7 +16,7 @@ namespace mimo {
 
         void Delete();
 
-        void Lookup(
+        void Resolve(
             _In_reads_(count) const void* const* ppAddresses,
             _In_ ULONG count,
             _Out_writes_(count) protocol::StackFrame* pFrames
