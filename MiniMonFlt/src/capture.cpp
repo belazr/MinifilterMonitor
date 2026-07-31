@@ -100,7 +100,7 @@ namespace {
 
         TOKEN_USER* pTokenUser = nullptr;
 
-        if (!NT_SUCCESS(SeQueryInformationToken(pClientToken, TokenUser, reinterpret_cast<void**>(&pTokenUser)))) return;
+        if (!NT_SUCCESS(SeQueryInformationToken(pClientToken, TokenUser, reinterpret_cast<void**>(&pTokenUser)))) goto done;
 
         ULONG sidSize;
 
@@ -115,7 +115,9 @@ namespace {
 
     done:
 
-        ExFreePool(pTokenUser);
+        if (pTokenUser) {
+            ExFreePool(pTokenUser);
+        }
 
         return;
     }
