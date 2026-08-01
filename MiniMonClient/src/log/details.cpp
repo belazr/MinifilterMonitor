@@ -2,6 +2,7 @@
 
 #include "..\kernel.h"
 #include "..\text.h"
+#include "names.h"
 
 #include "..\..\..\inc\protocol.h"
 
@@ -20,60 +21,6 @@
 using namespace mimo;
 
 namespace {
-
-    std::wstring RenderFlags(
-        ULONG flags,
-        std::span<const kernel::FlagName> names,
-        std::wstring_view separator
-    ) {
-        std::wstring result;
-
-        for (const kernel::FlagName& entry : names) {
-
-            if ((flags & entry.flag) != entry.flag) continue;
-
-            result += entry.name;
-            result += separator;
-            flags &= ~entry.flag;
-        }
-
-        if (flags) {
-            result += std::format(L"0x{:X}", flags);
-            result += separator;
-        }
-
-        if (!result.empty()) {
-            result.resize(result.size() - separator.size());
-        }
-
-        return result;
-    }
-
-
-    std::wstring RenderDisposition(ULONG disposition) {
-        const wchar_t* const name = kernel::CreateDispositionName(disposition);
-
-        if (*name) return name;
-
-        return std::to_wstring(disposition);
-    }
-
-
-    std::wstring RenderAttributes(ULONG fileAttributes) {
-
-        if (!fileAttributes) return L"n/a";
-
-        return RenderFlags(fileAttributes, kernel::FILE_ATTRIBUTE_LETTERS, L"");
-    }
-
-
-    std::wstring RenderShareMode(ULONG shareAccess) {
-
-        if (!shareAccess) return L"None";
-
-        return RenderFlags(shareAccess, kernel::SHARE_ACCESS_NAMES, L"|");
-    }
-
 
     constexpr DWORD ACCOUNT_NAME_CHARS = 256u;
 
@@ -115,22 +62,22 @@ namespace {
         std::wstring result;
 
         if (createSupplement.captured & protocol::CREATE_CAPTURED_DESIRED_ACCESS) {
-            result += std::format(L"Desired Access: {}, ", RenderFlags(createSupplement.desiredAccess, kernel::DESIRED_ACCESS_NAMES, L"|"));
+            result += std::format(L"Desired Access: {}, ", log::names::RenderDesiredAccess(createSupplement.desiredAccess));
         }
 
         const ULONG disposition = parameters.create.options >> 24;
         const ULONG createOptions = parameters.create.options & 0x00FFFFFFu;
 
-        result += std::format(L"Disposition: {}, ", RenderDisposition(disposition));
+        result += std::format(L"Disposition: {}, ", log::names::RenderCreateDisposition(disposition));
 
-        const std::wstring options = RenderFlags(createOptions, kernel::CREATE_OPTION_NAMES, L"|");
+        const std::wstring options = log::names::RenderCreateOptions(createOptions);
 
         if (!options.empty()) {
             result += std::format(L"Options: {}, ", options);
         }
 
-        result += std::format(L"Attributes: {}, ", RenderAttributes(parameters.create.fileAttributes));
-        result += std::format(L"ShareMode: {}, ", RenderShareMode(parameters.create.shareAccess));
+        result += std::format(L"Attributes: {}, ", log::names::RenderFileAttributes(parameters.create.fileAttributes));
+        result += std::format(L"ShareMode: {}, ", log::names::RenderShareAccess(parameters.create.shareAccess));
 
         if (disposition == kernel::FILE_OPEN) {
             result += L"AllocationSize: n/a, ";
@@ -148,9 +95,9 @@ namespace {
         }
 
         if (data.status == 0 || data.information == kernel::FILE_EXISTS || data.information == kernel::FILE_DOES_NOT_EXIST) {
-            const wchar_t* const openResult = kernel::OpenResultName(data.information);
+            const std::wstring openResult = log::names::RenderOpenResult(data.information);
 
-            if (*openResult) {
+            if (!openResult.empty()) {
                 result += std::format(L"OpenResult: {}, ", openResult);
             }
         }
@@ -167,16 +114,6 @@ namespace {
         }
 
         return result;
-    }
-
-
-    std::wstring RenderOffset(int64_t byteOffset) {
-
-        if (byteOffset == kernel::FILE_WRITE_TO_END_OF_FILE) return L"EOF";
-
-        if (byteOffset == kernel::FILE_USE_FILE_POINTER_POSITION) return L"Current";
-
-        return std::to_wstring(byteOffset);
     }
 
 
@@ -220,7 +157,7 @@ namespace {
             return std::format(L"Mdl: 0x{:X}", parameters.readWrite.mdlAddress);
         }
 
-        std::wstring details = std::format(L"Offset: {}, Length: {}", RenderOffset(parameters.readWrite.byteOffset), parameters.readWrite.length);
+        std::wstring details = std::format(L"Offset: {}, Length: {}", log::names::RenderByteOffset(parameters.readWrite.byteOffset), parameters.readWrite.length);
 
         if ((data.operationFlags & kernel::SL_KEY_SPECIFIED) || parameters.readWrite.key) {
             details += std::format(L", Key: 0x{:X}", parameters.readWrite.key);
@@ -241,18 +178,9 @@ namespace {
     }
 
 
-    std::wstring RenderFileInformationClass(ULONG fileInformationClass) {
-        const wchar_t* const name = kernel::FileInformationClassName(fileInformationClass);
-
-        if (*name) return name;
-
-        return std::to_wstring(fileInformationClass);
-    }
-
-
     std::wstring RenderInformationParameters(ULONG fileInformationClass, ULONG length) {
 
-        return std::format(L"Class: {}, Length: {}", RenderFileInformationClass(fileInformationClass), length);
+        return std::format(L"Class: {}, Length: {}", log::names::RenderFileInformationClass(fileInformationClass), length);
     }
 
 
@@ -321,7 +249,7 @@ namespace {
         }
 
         if (payload.FileAttributes) {
-            result += std::format(L"FileAttributes: {}, ", RenderAttributes(payload.FileAttributes));
+            result += std::format(L"FileAttributes: {}, ", log::names::RenderFileAttributes(payload.FileAttributes));
         }
 
         if (!result.empty()) {
@@ -380,10 +308,10 @@ namespace {
         }
 
         result += RenderStandardPayload(payload.StandardInformation);
-        result += std::format(L", {}, {}, Access: {}, {}", RenderInternalPayload(payload.InternalInformation), RenderEaPayload(payload.EaInformation), RenderFlags(payload.AccessInformation.AccessFlags, kernel::DESIRED_ACCESS_NAMES, L"|"), RenderPositionPayload(payload.PositionInformation));
+        result += std::format(L", {}, {}, Access: {}, {}", RenderInternalPayload(payload.InternalInformation), RenderEaPayload(payload.EaInformation), log::names::RenderDesiredAccess(payload.AccessInformation.AccessFlags), RenderPositionPayload(payload.PositionInformation));
 
         if (payload.ModeInformation.Mode) {
-            result += std::format(L", Mode: {}", RenderFlags(payload.ModeInformation.Mode, kernel::CREATE_OPTION_NAMES, L"|"));
+            result += std::format(L", Mode: {}", log::names::RenderCreateOptions(payload.ModeInformation.Mode));
         }
 
         result += std::format(L", AlignmentRequirement: {}, {}", payload.AlignmentInformation.AlignmentRequirement, RenderNamePayload(payload.NameInformation, nameData));
@@ -418,15 +346,7 @@ namespace {
 
 
     std::wstring RenderCompressionPayload(const kernel::FILE_COMPRESSION_INFORMATION& payload) {
-        const wchar_t* const formatName = kernel::CompressionFormatName(payload.CompressionFormat);
-        std::wstring result = std::format(L"CompressedFileSize: {}", payload.CompressedFileSize);
-
-        if (*formatName) {
-            result += std::format(L", CompressionFormat: {}", formatName);
-        }
-        else {
-            result += std::format(L", CompressionFormat: {}", payload.CompressionFormat);
-        }
+        std::wstring result = std::format(L"CompressedFileSize: {}, CompressionFormat: {}", payload.CompressedFileSize, log::names::RenderCompressionFormat(payload.CompressionFormat));
 
         if (payload.CompressionFormat != COMPRESSION_FORMAT_NONE) {
             result += std::format(L", CompressionUnitShift: {}, ChunkShift: {}, ClusterShift: {}", payload.CompressionUnitShift, payload.ChunkShift, payload.ClusterShift);
@@ -458,27 +378,18 @@ namespace {
         result += std::format(L"AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);
 
         if (payload.FileAttributes) {
-            result += std::format(L", FileAttributes: {}", RenderAttributes(payload.FileAttributes));
+            result += std::format(L", FileAttributes: {}", log::names::RenderFileAttributes(payload.FileAttributes));
         }
 
         return result;
     }
 
 
-    std::wstring RenderReparseTag(ULONG reparseTag) {
-        const wchar_t* const tagName = kernel::ReparseTagName(reparseTag);
-
-        if (*tagName) return tagName;
-
-        return std::format(L"{:08X}", reparseTag);
-    }
-
-
     std::wstring RenderAttributeTagPayload(const kernel::FILE_ATTRIBUTE_TAG_INFORMATION& payload) {
-        std::wstring result = std::format(L"Attributes: {}", RenderAttributes(payload.FileAttributes));
+        std::wstring result = std::format(L"Attributes: {}", log::names::RenderFileAttributes(payload.FileAttributes));
 
         if (payload.ReparseTag) {
-            result += std::format(L", ReparseTag: {}", RenderReparseTag(payload.ReparseTag));
+            result += std::format(L", ReparseTag: {}", log::names::RenderReparseTag(payload.ReparseTag));
         }
 
         return result;
@@ -512,20 +423,12 @@ namespace {
 
 
     std::wstring RenderRemoteProtocolPayload(const kernel::FILE_REMOTE_PROTOCOL_INFORMATION& payload) {
-        const wchar_t* const protocolName = kernel::RemoteProtocolName(payload.Protocol);
-        std::wstring result;
-
-        if (*protocolName) {
-            result = std::format(L"Protocol: {}", protocolName);
-        }
-        else {
-            result = std::format(L"Protocol: 0x{:X}", payload.Protocol);
-        }
+        std::wstring result = std::format(L"Protocol: {}", log::names::RenderRemoteProtocol(payload.Protocol));
 
         result += std::format(L", Version: {}.{}.{}", payload.ProtocolMajorVersion, payload.ProtocolMinorVersion, payload.ProtocolRevision);
 
         if (payload.Flags) {
-            result += std::format(L", Flags: {}", RenderFlags(payload.Flags, kernel::REMOTE_PROTOCOL_FLAG_NAMES, L"|"));
+            result += std::format(L", Flags: {}", log::names::RenderRemoteProtocolFlags(payload.Flags));
         }
 
         return result;
@@ -573,14 +476,14 @@ namespace {
         result += std::format(L", AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);
 
         if (payload.FileAttributes) {
-            result += std::format(L", FileAttributes: {}", RenderAttributes(payload.FileAttributes));
+            result += std::format(L", FileAttributes: {}", log::names::RenderFileAttributes(payload.FileAttributes));
         }
 
         if (payload.ReparseTag) {
-            result += std::format(L", ReparseTag: {}", RenderReparseTag(payload.ReparseTag));
+            result += std::format(L", ReparseTag: {}", log::names::RenderReparseTag(payload.ReparseTag));
         }
 
-        result += std::format(L", NumberOfLinks: {}, EffectiveAccess: {}", payload.NumberOfLinks, RenderFlags(payload.EffectiveAccess, kernel::DESIRED_ACCESS_NAMES, L"|"));
+        result += std::format(L", NumberOfLinks: {}, EffectiveAccess: {}", payload.NumberOfLinks, log::names::RenderDesiredAccess(payload.EffectiveAccess));
 
         return result;
     }
@@ -644,11 +547,11 @@ namespace {
         result += std::format(L", AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);
 
         if (payload.FileAttributes) {
-            result += std::format(L", FileAttributes: {}", RenderAttributes(payload.FileAttributes));
+            result += std::format(L", FileAttributes: {}", log::names::RenderFileAttributes(payload.FileAttributes));
         }
 
         if (payload.ReparseTag) {
-            result += std::format(L", ReparseTag: {}", RenderReparseTag(payload.ReparseTag));
+            result += std::format(L", ReparseTag: {}", log::names::RenderReparseTag(payload.ReparseTag));
         }
 
         result += std::format(L", NumberOfLinks: {}, DeviceType: {}, DeviceCharacteristics: 0x{:X}, VolumeSerialNumber: 0x{:X}, FileId128: {}", payload.NumberOfLinks, payload.DeviceType, payload.DeviceCharacteristics, static_cast<ULONGLONG>(payload.VolumeSerialNumber), RenderFileId(payload.FileId128));
@@ -911,7 +814,7 @@ namespace {
 
         if (payload.Flags == kernel::FILE_DISPOSITION_DO_NOT_DELETE) return L"Flags: Do Not Delete";
 
-        return std::format(L"Flags: {}", RenderFlags(payload.Flags, kernel::DISPOSITION_FLAG_NAMES, L"|"));
+        return std::format(L"Flags: {}", log::names::RenderDispositionFlags(payload.Flags));
     }
 
 
@@ -919,7 +822,7 @@ namespace {
         std::wstring result;
 
         if (payload.Flags) {
-            result = std::format(L"Flags: {}, ", RenderFlags(payload.Flags, kernel::RENAME_FLAG_NAMES, L"|"));
+            result = std::format(L"Flags: {}, ", log::names::RenderRenameFlags(payload.Flags));
         }
 
         result += std::format(L"FileName: {}", RenderPayloadFileName(nameData, payload.FileNameLength));

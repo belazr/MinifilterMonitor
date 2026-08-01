@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Windows.h>
-#include <wnnc.h>
 
 #include <cstddef>
 
@@ -149,235 +148,11 @@ namespace mimo {
         inline constexpr UCHAR IRP_MN_REGINFO                = 0x08u;
         inline constexpr UCHAR IRP_MN_EXECUTE_METHOD         = 0x09u;
 
-        constexpr const wchar_t* MajorFunctionName(UCHAR major) noexcept {
-
-            switch (major) {
-                case IRP_MJ_CREATE:                              return L"IRP_MJ_CREATE";
-                case IRP_MJ_CREATE_NAMED_PIPE:                   return L"IRP_MJ_CREATE_NAMED_PIPE";
-                case IRP_MJ_CLOSE:                               return L"IRP_MJ_CLOSE";
-                case IRP_MJ_READ:                                return L"IRP_MJ_READ";
-                case IRP_MJ_WRITE:                               return L"IRP_MJ_WRITE";
-                case IRP_MJ_QUERY_INFORMATION:                   return L"IRP_MJ_QUERY_INFORMATION";
-                case IRP_MJ_SET_INFORMATION:                     return L"IRP_MJ_SET_INFORMATION";
-                case IRP_MJ_QUERY_EA:                            return L"IRP_MJ_QUERY_EA";
-                case IRP_MJ_SET_EA:                              return L"IRP_MJ_SET_EA";
-                case IRP_MJ_FLUSH_BUFFERS:                       return L"IRP_MJ_FLUSH_BUFFERS";
-                case IRP_MJ_QUERY_VOLUME_INFORMATION:            return L"IRP_MJ_QUERY_VOLUME_INFORMATION";
-                case IRP_MJ_SET_VOLUME_INFORMATION:              return L"IRP_MJ_SET_VOLUME_INFORMATION";
-                case IRP_MJ_DIRECTORY_CONTROL:                   return L"IRP_MJ_DIRECTORY_CONTROL";
-                case IRP_MJ_FILE_SYSTEM_CONTROL:                 return L"IRP_MJ_FILE_SYSTEM_CONTROL";
-                case IRP_MJ_DEVICE_CONTROL:                      return L"IRP_MJ_DEVICE_CONTROL";
-                case IRP_MJ_INTERNAL_DEVICE_CONTROL:             return L"IRP_MJ_INTERNAL_DEVICE_CONTROL";
-                case IRP_MJ_SHUTDOWN:                            return L"IRP_MJ_SHUTDOWN";
-                case IRP_MJ_LOCK_CONTROL:                        return L"IRP_MJ_LOCK_CONTROL";
-                case IRP_MJ_CLEANUP:                             return L"IRP_MJ_CLEANUP";
-                case IRP_MJ_CREATE_MAILSLOT:                     return L"IRP_MJ_CREATE_MAILSLOT";
-                case IRP_MJ_QUERY_SECURITY:                      return L"IRP_MJ_QUERY_SECURITY";
-                case IRP_MJ_SET_SECURITY:                        return L"IRP_MJ_SET_SECURITY";
-                case IRP_MJ_POWER:                               return L"IRP_MJ_POWER";
-                case IRP_MJ_SYSTEM_CONTROL:                      return L"IRP_MJ_SYSTEM_CONTROL";
-                case IRP_MJ_DEVICE_CHANGE:                       return L"IRP_MJ_DEVICE_CHANGE";
-                case IRP_MJ_QUERY_QUOTA:                         return L"IRP_MJ_QUERY_QUOTA";
-                case IRP_MJ_SET_QUOTA:                           return L"IRP_MJ_SET_QUOTA";
-                case IRP_MJ_PNP:                                 return L"IRP_MJ_PNP";
-                case IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION: return L"IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION";
-                case IRP_MJ_RELEASE_FOR_SECTION_SYNCHRONIZATION: return L"IRP_MJ_RELEASE_FOR_SECTION_SYNCHRONIZATION";
-                case IRP_MJ_ACQUIRE_FOR_MOD_WRITE:               return L"IRP_MJ_ACQUIRE_FOR_MOD_WRITE";
-                case IRP_MJ_RELEASE_FOR_MOD_WRITE:               return L"IRP_MJ_RELEASE_FOR_MOD_WRITE";
-                case IRP_MJ_ACQUIRE_FOR_CC_FLUSH:                return L"IRP_MJ_ACQUIRE_FOR_CC_FLUSH";
-                case IRP_MJ_RELEASE_FOR_CC_FLUSH:                return L"IRP_MJ_RELEASE_FOR_CC_FLUSH";
-                case IRP_MJ_QUERY_OPEN:                          return L"IRP_MJ_QUERY_OPEN";
-                case IRP_MJ_FAST_IO_CHECK_IF_POSSIBLE:           return L"IRP_MJ_FAST_IO_CHECK_IF_POSSIBLE";
-                case IRP_MJ_NETWORK_QUERY_OPEN:                  return L"IRP_MJ_NETWORK_QUERY_OPEN";
-                case IRP_MJ_MDL_READ:                            return L"IRP_MJ_MDL_READ";
-                case IRP_MJ_MDL_READ_COMPLETE:                   return L"IRP_MJ_MDL_READ_COMPLETE";
-                case IRP_MJ_PREPARE_MDL_WRITE:                   return L"IRP_MJ_PREPARE_MDL_WRITE";
-                case IRP_MJ_MDL_WRITE_COMPLETE:                  return L"IRP_MJ_MDL_WRITE_COMPLETE";
-                case IRP_MJ_VOLUME_MOUNT:                        return L"IRP_MJ_VOLUME_MOUNT";
-                case IRP_MJ_VOLUME_DISMOUNT:                     return L"IRP_MJ_VOLUME_DISMOUNT";
-            }
-
-            return L"";
-        }
-
-
-        constexpr const wchar_t* MinorFunctionName(UCHAR major, UCHAR minor) noexcept {
-
-            switch (major) {
-                case IRP_MJ_DIRECTORY_CONTROL:
-                    switch (minor) {
-                        case IRP_MN_QUERY_DIRECTORY:         return L"IRP_MN_QUERY_DIRECTORY";
-                        case IRP_MN_NOTIFY_CHANGE_DIRECTORY: return L"IRP_MN_NOTIFY_CHANGE_DIRECTORY";
-                    }
-                    break;
-
-                case IRP_MJ_FILE_SYSTEM_CONTROL:
-                    switch (minor) {
-                        case IRP_MN_USER_FS_REQUEST:  return L"IRP_MN_USER_FS_REQUEST";
-                        case IRP_MN_MOUNT_VOLUME:     return L"IRP_MN_MOUNT_VOLUME";
-                        case IRP_MN_VERIFY_VOLUME:    return L"IRP_MN_VERIFY_VOLUME";
-                        case IRP_MN_LOAD_FILE_SYSTEM: return L"IRP_MN_LOAD_FILE_SYSTEM";
-                        case IRP_MN_TRACK_LINK:       return L"IRP_MN_TRACK_LINK";
-                    }
-                    break;
-
-                case IRP_MJ_LOCK_CONTROL:
-                    switch (minor) {
-                        case IRP_MN_LOCK:              return L"IRP_MN_LOCK";
-                        case IRP_MN_UNLOCK_SINGLE:     return L"IRP_MN_UNLOCK_SINGLE";
-                        case IRP_MN_UNLOCK_ALL:        return L"IRP_MN_UNLOCK_ALL";
-                        case IRP_MN_UNLOCK_ALL_BY_KEY: return L"IRP_MN_UNLOCK_ALL_BY_KEY";
-                    }
-                    break;
-
-                case IRP_MJ_READ:
-                case IRP_MJ_WRITE:
-                    switch (minor) {
-                        case IRP_MN_NORMAL:           return L"IRP_MN_NORMAL";
-                        case IRP_MN_DPC:              return L"IRP_MN_DPC";
-                        case IRP_MN_MDL:              return L"IRP_MN_MDL";
-                        case IRP_MN_COMPLETE:         return L"IRP_MN_COMPLETE";
-                        case IRP_MN_COMPRESSED:       return L"IRP_MN_COMPRESSED";
-                        case IRP_MN_MDL_DPC:          return L"IRP_MN_MDL_DPC";
-                        case IRP_MN_COMPLETE_MDL:     return L"IRP_MN_COMPLETE_MDL";
-                        case IRP_MN_COMPLETE_MDL_DPC: return L"IRP_MN_COMPLETE_MDL_DPC";
-                    }
-                    break;
-
-                case IRP_MJ_DEVICE_CONTROL:
-                case IRP_MJ_INTERNAL_DEVICE_CONTROL:
-                    switch (minor) {
-                        case IRP_MN_SCSI_CLASS: return L"IRP_MN_SCSI_CLASS";
-                    }
-                    break;
-
-                case IRP_MJ_PNP:
-                    switch (minor) {
-                        case IRP_MN_START_DEVICE:                 return L"IRP_MN_START_DEVICE";
-                        case IRP_MN_QUERY_REMOVE_DEVICE:          return L"IRP_MN_QUERY_REMOVE_DEVICE";
-                        case IRP_MN_REMOVE_DEVICE:                return L"IRP_MN_REMOVE_DEVICE";
-                        case IRP_MN_CANCEL_REMOVE_DEVICE:         return L"IRP_MN_CANCEL_REMOVE_DEVICE";
-                        case IRP_MN_STOP_DEVICE:                  return L"IRP_MN_STOP_DEVICE";
-                        case IRP_MN_QUERY_STOP_DEVICE:            return L"IRP_MN_QUERY_STOP_DEVICE";
-                        case IRP_MN_CANCEL_STOP_DEVICE:           return L"IRP_MN_CANCEL_STOP_DEVICE";
-                        case IRP_MN_QUERY_DEVICE_RELATIONS:       return L"IRP_MN_QUERY_DEVICE_RELATIONS";
-                        case IRP_MN_QUERY_INTERFACE:              return L"IRP_MN_QUERY_INTERFACE";
-                        case IRP_MN_QUERY_CAPABILITIES:           return L"IRP_MN_QUERY_CAPABILITIES";
-                        case IRP_MN_QUERY_RESOURCES:              return L"IRP_MN_QUERY_RESOURCES";
-                        case IRP_MN_QUERY_RESOURCE_REQUIREMENTS:  return L"IRP_MN_QUERY_RESOURCE_REQUIREMENTS";
-                        case IRP_MN_QUERY_DEVICE_TEXT:            return L"IRP_MN_QUERY_DEVICE_TEXT";
-                        case IRP_MN_FILTER_RESOURCE_REQUIREMENTS: return L"IRP_MN_FILTER_RESOURCE_REQUIREMENTS";
-                        case IRP_MN_READ_CONFIG:                  return L"IRP_MN_READ_CONFIG";
-                        case IRP_MN_WRITE_CONFIG:                 return L"IRP_MN_WRITE_CONFIG";
-                        case IRP_MN_EJECT:                        return L"IRP_MN_EJECT";
-                        case IRP_MN_SET_LOCK:                     return L"IRP_MN_SET_LOCK";
-                        case IRP_MN_QUERY_ID:                     return L"IRP_MN_QUERY_ID";
-                        case IRP_MN_QUERY_PNP_DEVICE_STATE:       return L"IRP_MN_QUERY_PNP_DEVICE_STATE";
-                        case IRP_MN_QUERY_BUS_INFORMATION:        return L"IRP_MN_QUERY_BUS_INFORMATION";
-                        case IRP_MN_DEVICE_USAGE_NOTIFICATION:    return L"IRP_MN_DEVICE_USAGE_NOTIFICATION";
-                        case IRP_MN_SURPRISE_REMOVAL:             return L"IRP_MN_SURPRISE_REMOVAL";
-                        case IRP_MN_QUERY_LEGACY_BUS_INFORMATION: return L"IRP_MN_QUERY_LEGACY_BUS_INFORMATION";
-                    }
-                    break;
-
-                case IRP_MJ_POWER:
-                    switch (minor) {
-                        case IRP_MN_WAIT_WAKE:      return L"IRP_MN_WAIT_WAKE";
-                        case IRP_MN_POWER_SEQUENCE: return L"IRP_MN_POWER_SEQUENCE";
-                        case IRP_MN_SET_POWER:      return L"IRP_MN_SET_POWER";
-                        case IRP_MN_QUERY_POWER:    return L"IRP_MN_QUERY_POWER";
-                    }
-                    break;
-
-                case IRP_MJ_SYSTEM_CONTROL:
-                    switch (minor) {
-                        case IRP_MN_QUERY_ALL_DATA:         return L"IRP_MN_QUERY_ALL_DATA";
-                        case IRP_MN_QUERY_SINGLE_INSTANCE:  return L"IRP_MN_QUERY_SINGLE_INSTANCE";
-                        case IRP_MN_CHANGE_SINGLE_INSTANCE: return L"IRP_MN_CHANGE_SINGLE_INSTANCE";
-                        case IRP_MN_CHANGE_SINGLE_ITEM:     return L"IRP_MN_CHANGE_SINGLE_ITEM";
-                        case IRP_MN_ENABLE_EVENTS:          return L"IRP_MN_ENABLE_EVENTS";
-                        case IRP_MN_DISABLE_EVENTS:         return L"IRP_MN_DISABLE_EVENTS";
-                        case IRP_MN_ENABLE_COLLECTION:      return L"IRP_MN_ENABLE_COLLECTION";
-                        case IRP_MN_DISABLE_COLLECTION:     return L"IRP_MN_DISABLE_COLLECTION";
-                        case IRP_MN_REGINFO:                return L"IRP_MN_REGINFO";
-                        case IRP_MN_EXECUTE_METHOD:         return L"IRP_MN_EXECUTE_METHOD";
-                    }
-                    break;
-            }
-
-            return L"";
-        }
-
-
         // WSL reparse tags live in kernel-only ntifs.h
         inline constexpr ULONG IO_REPARSE_TAG_LX_SYMLINK = 0xA000001Du;
         inline constexpr ULONG IO_REPARSE_TAG_LX_FIFO    = 0x80000024u;
         inline constexpr ULONG IO_REPARSE_TAG_LX_CHR     = 0x80000025u;
         inline constexpr ULONG IO_REPARSE_TAG_LX_BLK     = 0x80000026u;
-
-        constexpr const wchar_t* ReparseTagName(ULONG tag) noexcept {
-
-            switch (tag) {
-                case IO_REPARSE_TAG_HSM2:         return L"HSM2";
-                case IO_REPARSE_TAG_SIS:          return L"SIS";
-                case IO_REPARSE_TAG_WIM:          return L"WIM";
-                case IO_REPARSE_TAG_CSV:          return L"CSV";
-                case IO_REPARSE_TAG_DFS:          return L"DFS";
-                case IO_REPARSE_TAG_DFSR:         return L"DFSR";
-                case IO_REPARSE_TAG_DEDUP:        return L"DEDUP";
-                case IO_REPARSE_TAG_NFS:          return L"NFS";
-                case IO_REPARSE_TAG_WOF:          return L"WOF";
-                case IO_REPARSE_TAG_WCI:          return L"WCI";
-                case IO_REPARSE_TAG_APPEXECLINK:  return L"APPEXECLINK";
-                case IO_REPARSE_TAG_STORAGE_SYNC: return L"STORAGE_SYNC";
-                case IO_REPARSE_TAG_AF_UNIX:      return L"AF_UNIX";
-                case IO_REPARSE_TAG_LX_FIFO:      return L"LX_FIFO";
-                case IO_REPARSE_TAG_LX_CHR:       return L"LX_CHR";
-                case IO_REPARSE_TAG_LX_BLK:       return L"LX_BLK";
-                case IO_REPARSE_TAG_PROJFS:       return L"PROJFS";
-                case IO_REPARSE_TAG_MOUNT_POINT:  return L"MOUNT_POINT";
-                case IO_REPARSE_TAG_SYMLINK:      return L"SYMLINK";
-                case IO_REPARSE_TAG_LX_SYMLINK:   return L"LX_SYMLINK";
-                case IO_REPARSE_TAG_HSM:          return L"HSM";
-            }
-
-            return L"";
-        }
-
-
-        constexpr const wchar_t* TransactionNotifyName(ULONG notification) noexcept {
-
-            switch (notification) {
-                case TRANSACTION_NOTIFY_PREPREPARE:          return L"PREPREPARE";
-                case TRANSACTION_NOTIFY_PREPARE:             return L"PREPARE";
-                case TRANSACTION_NOTIFY_COMMIT:              return L"COMMIT";
-                case TRANSACTION_NOTIFY_ROLLBACK:            return L"ROLLBACK";
-                case TRANSACTION_NOTIFY_PREPREPARE_COMPLETE: return L"PREPREPARE_COMPLETE";
-                case TRANSACTION_NOTIFY_PREPARE_COMPLETE:    return L"PREPARE_COMPLETE";
-                case TRANSACTION_NOTIFY_COMMIT_COMPLETE:     return L"COMMIT_COMPLETE";
-                case TRANSACTION_NOTIFY_ROLLBACK_COMPLETE:   return L"ROLLBACK_COMPLETE";
-                case TRANSACTION_NOTIFY_RECOVER:             return L"RECOVER";
-                case TRANSACTION_NOTIFY_SINGLE_PHASE_COMMIT: return L"SINGLE_PHASE_COMMIT";
-                case TRANSACTION_NOTIFY_DELEGATE_COMMIT:     return L"DELEGATE_COMMIT";
-                case TRANSACTION_NOTIFY_RECOVER_QUERY:       return L"RECOVER_QUERY";
-                case TRANSACTION_NOTIFY_ENLIST_PREPREPARE:   return L"ENLIST_PREPREPARE";
-                case TRANSACTION_NOTIFY_LAST_RECOVER:        return L"LAST_RECOVER";
-                case TRANSACTION_NOTIFY_INDOUBT:             return L"INDOUBT";
-                case TRANSACTION_NOTIFY_PROPAGATE_PULL:      return L"PROPAGATE_PULL";
-                case TRANSACTION_NOTIFY_PROPAGATE_PUSH:      return L"PROPAGATE_PUSH";
-                case TRANSACTION_NOTIFY_MARSHAL:             return L"MARSHAL";
-                case TRANSACTION_NOTIFY_RM_DISCONNECTED:     return L"RM_DISCONNECTED";
-                case TRANSACTION_NOTIFY_TM_ONLINE:           return L"TM_ONLINE";
-                case TRANSACTION_NOTIFY_COMMIT_REQUEST:      return L"COMMIT_REQUEST";
-                case TRANSACTION_NOTIFY_PROMOTE:             return L"PROMOTE";
-                case TRANSACTION_NOTIFY_PROMOTE_NEW:         return L"PROMOTE_NEW";
-                case TRANSACTION_NOTIFY_REQUEST_OUTCOME:     return L"REQUEST_OUTCOME";
-                case TRANSACTION_NOTIFY_COMMIT_FINALIZE:     return L"COMMIT_FINALIZE";
-            }
-
-            return L"";
-        }
-
 
         inline constexpr ULONG FILE_SUPERSEDE    = 0x00000000u;
         inline constexpr ULONG FILE_OPEN         = 0x00000001u;
@@ -386,95 +161,12 @@ namespace mimo {
         inline constexpr ULONG FILE_OVERWRITE    = 0x00000004u;
         inline constexpr ULONG FILE_OVERWRITE_IF = 0x00000005u;
 
-        constexpr const wchar_t* CreateDispositionName(ULONG disposition) noexcept {
-
-            switch (disposition) {
-                case FILE_SUPERSEDE:    return L"Supersede";
-                case FILE_OPEN:         return L"Open";
-                case FILE_CREATE:       return L"Create";
-                case FILE_OPEN_IF:      return L"OpenIf";
-                case FILE_OVERWRITE:    return L"Overwrite";
-                case FILE_OVERWRITE_IF: return L"OverwriteIf";
-            }
-
-            return L"";
-        }
-
-
         inline constexpr ULONGLONG FILE_SUPERSEDED     = 0u;
         inline constexpr ULONGLONG FILE_OPENED         = 1u;
         inline constexpr ULONGLONG FILE_CREATED        = 2u;
         inline constexpr ULONGLONG FILE_OVERWRITTEN    = 3u;
         inline constexpr ULONGLONG FILE_EXISTS         = 4u;
         inline constexpr ULONGLONG FILE_DOES_NOT_EXIST = 5u;
-
-        constexpr const wchar_t* OpenResultName(ULONGLONG information) noexcept {
-
-            switch (information) {
-                case FILE_SUPERSEDED:     return L"Superseded";
-                case FILE_OPENED:         return L"Opened";
-                case FILE_CREATED:        return L"Created";
-                case FILE_OVERWRITTEN:    return L"Overwritten";
-                case FILE_EXISTS:         return L"Exists";
-                case FILE_DOES_NOT_EXIST: return L"Does Not Exist";
-            }
-
-            return L"";
-        }
-
-
-        struct FlagName {
-            ULONG flag;
-            const wchar_t* name;
-        };
-
-        // an entry that is a subset of a later entry would make the later one unreachable in flag rendering
-        template <size_t count>
-        constexpr bool CompositesPrecedeComponents(const FlagName (&names)[count]) noexcept {
-
-            for (size_t i = 0u; i < count; i++) {
-
-                for (size_t j = i + 1u; j < count; j++) {
-                    if ((names[i].flag & names[j].flag) == names[i].flag && names[i].flag != names[j].flag) return false;
-                }
-            }
-
-            return true;
-        }
-
-
-        inline constexpr FlagName DESIRED_ACCESS_NAMES[]{
-            { FILE_ALL_ACCESS,                                               L"All Access" },
-            { FILE_GENERIC_READ | FILE_GENERIC_WRITE | FILE_GENERIC_EXECUTE, L"Generic Read/Write/Execute" },
-            { FILE_GENERIC_READ | FILE_GENERIC_WRITE,                        L"Generic Read/Write" },
-            { FILE_GENERIC_READ | FILE_GENERIC_EXECUTE,                      L"Generic Read/Execute" },
-            { FILE_GENERIC_WRITE | FILE_GENERIC_EXECUTE,                     L"Generic Write/Execute" },
-            { FILE_GENERIC_READ,                                             L"Generic Read" },
-            { FILE_GENERIC_WRITE,                                            L"Generic Write" },
-            { FILE_GENERIC_EXECUTE,                                          L"Generic Execute" },
-            { GENERIC_READ,           L"Generic Read" },
-            { GENERIC_WRITE,          L"Generic Write" },
-            { GENERIC_EXECUTE,        L"Generic Execute" },
-            { GENERIC_ALL,            L"Generic All" },
-            { MAXIMUM_ALLOWED,        L"Maximum Allowed" },
-            { FILE_READ_DATA,         L"Read Data/List Directory" },
-            { FILE_WRITE_DATA,        L"Write Data/Add File" },
-            { FILE_APPEND_DATA,       L"Append Data/Add Subdirectory/Create Pipe Instance" },
-            { FILE_READ_EA,           L"Read EA" },
-            { FILE_WRITE_EA,          L"Write EA" },
-            { FILE_EXECUTE,           L"Execute/Traverse" },
-            { FILE_DELETE_CHILD,      L"Delete Child" },
-            { FILE_READ_ATTRIBUTES,   L"Read Attributes" },
-            { FILE_WRITE_ATTRIBUTES,  L"Write Attributes" },
-            { DELETE,                 L"Delete" },
-            { READ_CONTROL,           L"Read Control" },
-            { WRITE_DAC,              L"Write DAC" },
-            { WRITE_OWNER,            L"Write Owner" },
-            { SYNCHRONIZE,            L"Synchronize" },
-            { ACCESS_SYSTEM_SECURITY, L"Access System Security" },
-        };
-
-        static_assert(CompositesPrecedeComponents(DESIRED_ACCESS_NAMES), "composite entry after its components in DESIRED_ACCESS_NAMES");
 
         inline constexpr ULONG FILE_DIRECTORY_FILE            = 0x00000001u;
         inline constexpr ULONG FILE_WRITE_THROUGH             = 0x00000002u;
@@ -499,63 +191,6 @@ namespace mimo {
         inline constexpr ULONG FILE_OPEN_REPARSE_POINT        = 0x00200000u;
         inline constexpr ULONG FILE_OPEN_NO_RECALL            = 0x00400000u;
         inline constexpr ULONG FILE_OPEN_FOR_FREE_SPACE_QUERY = 0x00800000u;
-
-        inline constexpr FlagName CREATE_OPTION_NAMES[]{
-            { FILE_DIRECTORY_FILE,            L"Directory" },
-            { FILE_WRITE_THROUGH,             L"Write Through" },
-            { FILE_SEQUENTIAL_ONLY,           L"Sequential Access" },
-            { FILE_NO_INTERMEDIATE_BUFFERING, L"No Buffering" },
-            { FILE_SYNCHRONOUS_IO_ALERT,      L"Synchronous IO Alert" },
-            { FILE_SYNCHRONOUS_IO_NONALERT,   L"Synchronous IO Non-Alert" },
-            { FILE_NON_DIRECTORY_FILE,        L"Non-Directory File" },
-            { FILE_CREATE_TREE_CONNECTION,    L"Create Tree Connection" },
-            { FILE_COMPLETE_IF_OPLOCKED,      L"Complete If Oplocked" },
-            { FILE_NO_EA_KNOWLEDGE,           L"No EA Knowledge" },
-            { FILE_OPEN_REMOTE_INSTANCE,      L"Open Remote Instance" },
-            { FILE_RANDOM_ACCESS,             L"Random Access" },
-            { FILE_DELETE_ON_CLOSE,           L"Delete On Close" },
-            { FILE_OPEN_BY_FILE_ID,           L"Open By ID" },
-            { FILE_OPEN_FOR_BACKUP_INTENT,    L"Open For Backup" },
-            { FILE_NO_COMPRESSION,            L"No Compression" },
-            { FILE_OPEN_REQUIRING_OPLOCK,     L"Open Requiring Oplock" },
-            { FILE_DISALLOW_EXCLUSIVE,        L"Disallow Exclusive" },
-            { FILE_SESSION_AWARE,             L"Session Aware" },
-            { FILE_RESERVE_OPFILTER,          L"Reserve OpFilter" },
-            { FILE_OPEN_REPARSE_POINT,        L"Open Reparse Point" },
-            { FILE_OPEN_NO_RECALL,            L"Open No Recall" },
-            { FILE_OPEN_FOR_FREE_SPACE_QUERY, L"Open For Free Space Query" },
-        };
-
-        static_assert(CompositesPrecedeComponents(CREATE_OPTION_NAMES), "composite entry after its components in CREATE_OPTION_NAMES");
-
-        inline constexpr FlagName SHARE_ACCESS_NAMES[]{
-            { FILE_SHARE_READ,   L"Read" },
-            { FILE_SHARE_WRITE,  L"Write" },
-            { FILE_SHARE_DELETE, L"Delete" },
-        };
-
-        static_assert(CompositesPrecedeComponents(SHARE_ACCESS_NAMES), "composite entry after its components in SHARE_ACCESS_NAMES");
-
-        inline constexpr FlagName FILE_ATTRIBUTE_LETTERS[]{
-            { FILE_ATTRIBUTE_READONLY,            L"R" },
-            { FILE_ATTRIBUTE_HIDDEN,              L"H" },
-            { FILE_ATTRIBUTE_SYSTEM,              L"S" },
-            { FILE_ATTRIBUTE_DIRECTORY,           L"D" },
-            { FILE_ATTRIBUTE_ARCHIVE,             L"A" },
-            { FILE_ATTRIBUTE_DEVICE,              L"DE" },
-            { FILE_ATTRIBUTE_NORMAL,              L"N" },
-            { FILE_ATTRIBUTE_TEMPORARY,           L"T" },
-            { FILE_ATTRIBUTE_SPARSE_FILE,         L"SP" },
-            { FILE_ATTRIBUTE_REPARSE_POINT,       L"RP" },
-            { FILE_ATTRIBUTE_COMPRESSED,          L"C" },
-            { FILE_ATTRIBUTE_OFFLINE,             L"O" },
-            { FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, L"NCI" },
-            { FILE_ATTRIBUTE_ENCRYPTED,           L"E" },
-            { FILE_ATTRIBUTE_INTEGRITY_STREAM,    L"IS" },
-            { FILE_ATTRIBUTE_NO_SCRUB_DATA,       L"NSD" },
-        };
-
-        static_assert(CompositesPrecedeComponents(FILE_ATTRIBUTE_LETTERS), "composite entry after its components in FILE_ATTRIBUTE_LETTERS");
 
         // read/write ByteOffset sentinels
         inline constexpr LONGLONG FILE_WRITE_TO_END_OF_FILE      = -1;
@@ -645,98 +280,6 @@ namespace mimo {
         inline constexpr ULONG FileIdAllExtdBothDirectoryInformation          = 81u;
         inline constexpr ULONG FileStreamReservationInformation               = 82u;
         inline constexpr ULONG FileMupProviderInfo                            = 83u;
-
-        constexpr const wchar_t* FileInformationClassName(ULONG fileInformationClass) noexcept {
-
-            switch (fileInformationClass) {
-                case FileDirectoryInformation:                     return L"FileDirectoryInformation";
-                case FileFullDirectoryInformation:                 return L"FileFullDirectoryInformation";
-                case FileBothDirectoryInformation:                 return L"FileBothDirectoryInformation";
-                case FileBasicInformation:                         return L"FileBasicInformation";
-                case FileStandardInformation:                      return L"FileStandardInformation";
-                case FileInternalInformation:                      return L"FileInternalInformation";
-                case FileEaInformation:                            return L"FileEaInformation";
-                case FileAccessInformation:                        return L"FileAccessInformation";
-                case FileNameInformation:                          return L"FileNameInformation";
-                case FileRenameInformation:                        return L"FileRenameInformation";
-                case FileLinkInformation:                          return L"FileLinkInformation";
-                case FileNamesInformation:                         return L"FileNamesInformation";
-                case FileDispositionInformation:                   return L"FileDispositionInformation";
-                case FilePositionInformation:                      return L"FilePositionInformation";
-                case FileFullEaInformation:                        return L"FileFullEaInformation";
-                case FileModeInformation:                          return L"FileModeInformation";
-                case FileAlignmentInformation:                     return L"FileAlignmentInformation";
-                case FileAllInformation:                           return L"FileAllInformation";
-                case FileAllocationInformation:                    return L"FileAllocationInformation";
-                case FileEndOfFileInformation:                     return L"FileEndOfFileInformation";
-                case FileAlternateNameInformation:                 return L"FileAlternateNameInformation";
-                case FileStreamInformation:                        return L"FileStreamInformation";
-                case FilePipeInformation:                          return L"FilePipeInformation";
-                case FilePipeLocalInformation:                     return L"FilePipeLocalInformation";
-                case FilePipeRemoteInformation:                    return L"FilePipeRemoteInformation";
-                case FileMailslotQueryInformation:                 return L"FileMailslotQueryInformation";
-                case FileMailslotSetInformation:                   return L"FileMailslotSetInformation";
-                case FileCompressionInformation:                   return L"FileCompressionInformation";
-                case FileObjectIdInformation:                      return L"FileObjectIdInformation";
-                case FileCompletionInformation:                    return L"FileCompletionInformation";
-                case FileMoveClusterInformation:                   return L"FileMoveClusterInformation";
-                case FileQuotaInformation:                         return L"FileQuotaInformation";
-                case FileReparsePointInformation:                  return L"FileReparsePointInformation";
-                case FileNetworkOpenInformation:                   return L"FileNetworkOpenInformation";
-                case FileAttributeTagInformation:                  return L"FileAttributeTagInformation";
-                case FileTrackingInformation:                      return L"FileTrackingInformation";
-                case FileIdBothDirectoryInformation:               return L"FileIdBothDirectoryInformation";
-                case FileIdFullDirectoryInformation:               return L"FileIdFullDirectoryInformation";
-                case FileValidDataLengthInformation:               return L"FileValidDataLengthInformation";
-                case FileShortNameInformation:                     return L"FileShortNameInformation";
-                case FileIoCompletionNotificationInformation:      return L"FileIoCompletionNotificationInformation";
-                case FileIoStatusBlockRangeInformation:            return L"FileIoStatusBlockRangeInformation";
-                case FileIoPriorityHintInformation:                return L"FileIoPriorityHintInformation";
-                case FileSfioReserveInformation:                   return L"FileSfioReserveInformation";
-                case FileSfioVolumeInformation:                    return L"FileSfioVolumeInformation";
-                case FileHardLinkInformation:                      return L"FileHardLinkInformation";
-                case FileProcessIdsUsingFileInformation:           return L"FileProcessIdsUsingFileInformation";
-                case FileNormalizedNameInformation:                return L"FileNormalizedNameInformation";
-                case FileNetworkPhysicalNameInformation:           return L"FileNetworkPhysicalNameInformation";
-                case FileIdGlobalTxDirectoryInformation:           return L"FileIdGlobalTxDirectoryInformation";
-                case FileIsRemoteDeviceInformation:                return L"FileIsRemoteDeviceInformation";
-                case FileUnusedInformation:                        return L"FileUnusedInformation";
-                case FileNumaNodeInformation:                      return L"FileNumaNodeInformation";
-                case FileStandardLinkInformation:                  return L"FileStandardLinkInformation";
-                case FileRemoteProtocolInformation:                return L"FileRemoteProtocolInformation";
-                case FileRenameInformationBypassAccessCheck:       return L"FileRenameInformationBypassAccessCheck";
-                case FileLinkInformationBypassAccessCheck:         return L"FileLinkInformationBypassAccessCheck";
-                case FileVolumeNameInformation:                    return L"FileVolumeNameInformation";
-                case FileIdInformation:                            return L"FileIdInformation";
-                case FileIdExtdDirectoryInformation:               return L"FileIdExtdDirectoryInformation";
-                case FileReplaceCompletionInformation:             return L"FileReplaceCompletionInformation";
-                case FileHardLinkFullIdInformation:                return L"FileHardLinkFullIdInformation";
-                case FileIdExtdBothDirectoryInformation:           return L"FileIdExtdBothDirectoryInformation";
-                case FileDispositionInformationEx:                 return L"FileDispositionInformationEx";
-                case FileRenameInformationEx:                      return L"FileRenameInformationEx";
-                case FileRenameInformationExBypassAccessCheck:     return L"FileRenameInformationExBypassAccessCheck";
-                case FileDesiredStorageClassInformation:           return L"FileDesiredStorageClassInformation";
-                case FileStatInformation:                          return L"FileStatInformation";
-                case FileMemoryPartitionInformation:               return L"FileMemoryPartitionInformation";
-                case FileStatLxInformation:                        return L"FileStatLxInformation";
-                case FileCaseSensitiveInformation:                 return L"FileCaseSensitiveInformation";
-                case FileLinkInformationEx:                        return L"FileLinkInformationEx";
-                case FileLinkInformationExBypassAccessCheck:       return L"FileLinkInformationExBypassAccessCheck";
-                case FileStorageReserveIdInformation:              return L"FileStorageReserveIdInformation";
-                case FileCaseSensitiveInformationForceAccessCheck: return L"FileCaseSensitiveInformationForceAccessCheck";
-                case FileKnownFolderInformation:                   return L"FileKnownFolderInformation";
-                case FileStatBasicInformation:                     return L"FileStatBasicInformation";
-                case FileId64ExtdDirectoryInformation:             return L"FileId64ExtdDirectoryInformation";
-                case FileId64ExtdBothDirectoryInformation:         return L"FileId64ExtdBothDirectoryInformation";
-                case FileIdAllExtdDirectoryInformation:            return L"FileIdAllExtdDirectoryInformation";
-                case FileIdAllExtdBothDirectoryInformation:        return L"FileIdAllExtdBothDirectoryInformation";
-                case FileStreamReservationInformation:             return L"FileStreamReservationInformation";
-                case FileMupProviderInfo:                          return L"FileMupProviderInfo";
-            }
-
-            return L"";
-        }
-
 
         // FILE_INFORMATION_CLASS payload layouts
 
@@ -1036,49 +579,12 @@ namespace mimo {
         static_assert(offsetof(FILE_RENAME_INFORMATION_EX, FileNameLength) == 16u, "kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
         static_assert(offsetof(FILE_RENAME_INFORMATION_EX, FileName) == 20u, "kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
 
-        constexpr const wchar_t* CompressionFormatName(USHORT format) noexcept {
-
-            switch (format) {
-                case COMPRESSION_FORMAT_NONE:        return L"None";
-                case COMPRESSION_FORMAT_DEFAULT:     return L"Default";
-                case COMPRESSION_FORMAT_LZNT1:       return L"LZNT1";
-                case COMPRESSION_FORMAT_XPRESS:      return L"XPRESS";
-                case COMPRESSION_FORMAT_XPRESS_HUFF: return L"XPRESS_HUFF";
-            }
-
-            return L"";
-        }
-
-
         inline constexpr ULONG REMOTE_PROTOCOL_FLAG_LOOPBACK          = 0x00000001u;
         inline constexpr ULONG REMOTE_PROTOCOL_FLAG_OFFLINE           = 0x00000002u;
         inline constexpr ULONG REMOTE_PROTOCOL_FLAG_PERSISTENT_HANDLE = 0x00000004u;
         inline constexpr ULONG REMOTE_PROTOCOL_FLAG_PRIVACY           = 0x00000008u;
         inline constexpr ULONG REMOTE_PROTOCOL_FLAG_INTEGRITY         = 0x00000010u;
         inline constexpr ULONG REMOTE_PROTOCOL_FLAG_MUTUAL_AUTH       = 0x00000020u;
-
-        inline constexpr FlagName REMOTE_PROTOCOL_FLAG_NAMES[]{
-            { REMOTE_PROTOCOL_FLAG_LOOPBACK,          L"Loopback" },
-            { REMOTE_PROTOCOL_FLAG_OFFLINE,           L"Offline" },
-            { REMOTE_PROTOCOL_FLAG_PERSISTENT_HANDLE, L"Persistent Handle" },
-            { REMOTE_PROTOCOL_FLAG_PRIVACY,           L"Privacy" },
-            { REMOTE_PROTOCOL_FLAG_INTEGRITY,         L"Integrity" },
-            { REMOTE_PROTOCOL_FLAG_MUTUAL_AUTH,       L"Mutual Auth" },
-        };
-
-        static_assert(CompositesPrecedeComponents(REMOTE_PROTOCOL_FLAG_NAMES), "composite entry after its components in REMOTE_PROTOCOL_FLAG_NAMES");
-
-        constexpr const wchar_t* RemoteProtocolName(ULONG protocol) noexcept {
-
-            switch (protocol) {
-                case WNNC_NET_SMB:    return L"SMB";
-                case WNNC_NET_DAV:    return L"DAV";
-                case WNNC_NET_MS_NFS: return L"NFS";
-            }
-
-            return L"";
-        }
-
 
         // FILE_DISPOSITION_INFORMATION_EX flags
         inline constexpr ULONG FILE_DISPOSITION_DO_NOT_DELETE             = 0x00000000u;
@@ -1087,16 +593,6 @@ namespace mimo {
         inline constexpr ULONG FILE_DISPOSITION_FORCE_IMAGE_SECTION_CHECK = 0x00000004u;
         inline constexpr ULONG FILE_DISPOSITION_ON_CLOSE                  = 0x00000008u;
         inline constexpr ULONG FILE_DISPOSITION_IGNORE_READONLY_ATTRIBUTE = 0x00000010u;
-
-        inline constexpr FlagName DISPOSITION_FLAG_NAMES[]{
-            { FILE_DISPOSITION_DELETE,                    L"Delete" },
-            { FILE_DISPOSITION_POSIX_SEMANTICS,           L"POSIX Semantics" },
-            { FILE_DISPOSITION_FORCE_IMAGE_SECTION_CHECK, L"Force Image Section Check" },
-            { FILE_DISPOSITION_ON_CLOSE,                  L"On Close" },
-            { FILE_DISPOSITION_IGNORE_READONLY_ATTRIBUTE, L"Ignore Readonly Attribute" },
-        };
-
-        static_assert(CompositesPrecedeComponents(DISPOSITION_FLAG_NAMES), "composite entry after its components in DISPOSITION_FLAG_NAMES");
 
         // FILE_RENAME_INFORMATION_EX flags, FILE_LINK_INFORMATION_EX shares the values
         inline constexpr ULONG FILE_RENAME_REPLACE_IF_EXISTS                    = 0x00000001u;
@@ -1110,22 +606,6 @@ namespace mimo {
         inline constexpr ULONG FILE_RENAME_FORCE_RESIZE_TARGET_SR               = 0x00000080u;
         inline constexpr ULONG FILE_RENAME_FORCE_RESIZE_SOURCE_SR               = 0x00000100u;
         inline constexpr ULONG FILE_RENAME_FORCE_RESIZE_SR                      = 0x00000180u;
-
-        inline constexpr FlagName RENAME_FLAG_NAMES[]{
-            { FILE_RENAME_FORCE_RESIZE_SR,                      L"Force Resize SR" },
-            { FILE_RENAME_PRESERVE_AVAILABLE_SPACE,             L"Preserve Available Space" },
-            { FILE_RENAME_REPLACE_IF_EXISTS,                    L"Replace If Exists" },
-            { FILE_RENAME_POSIX_SEMANTICS,                      L"POSIX Semantics" },
-            { FILE_RENAME_SUPPRESS_PIN_STATE_INHERITANCE,       L"Suppress Pin State Inheritance" },
-            { FILE_RENAME_SUPPRESS_STORAGE_RESERVE_INHERITANCE, L"Suppress Storage Reserve Inheritance" },
-            { FILE_RENAME_NO_INCREASE_AVAILABLE_SPACE,          L"No Increase Available Space" },
-            { FILE_RENAME_NO_DECREASE_AVAILABLE_SPACE,          L"No Decrease Available Space" },
-            { FILE_RENAME_IGNORE_READONLY_ATTRIBUTE,            L"Ignore Readonly Attribute" },
-            { FILE_RENAME_FORCE_RESIZE_TARGET_SR,               L"Force Resize Target SR" },
-            { FILE_RENAME_FORCE_RESIZE_SOURCE_SR,               L"Force Resize Source SR" },
-        };
-
-        static_assert(CompositesPrecedeComponents(RENAME_FLAG_NAMES), "composite entry after its components in RENAME_FLAG_NAMES");
 
     }
 

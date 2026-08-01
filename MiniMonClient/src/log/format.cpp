@@ -1,8 +1,8 @@
 #include "format.h"
 
-#include "..\kernel.h"
 #include "..\text.h"
 #include "details.h"
+#include "names.h"
 
 #include "..\..\..\inc\protocol.h"
 
@@ -160,60 +160,6 @@ namespace {
         return std::format(LR"("{}")", inner);
     }
 
-
-    std::wstring RenderTransactionNotify(ULONG notification) {
-        const wchar_t* const name = kernel::TransactionNotifyName(notification);
-
-        if (*name) return name;
-
-        return std::format(L"{:08X}", notification);
-    }
-
-
-    std::wstring RenderOperationCategory(ULONG flags) {
-
-        if (flags & kernel::FLT_CALLBACK_DATA_IRP_OPERATION)       return L"IRP";
-
-        if (flags & kernel::FLT_CALLBACK_DATA_FAST_IO_OPERATION)   return L"FASTIO";
-
-        if (flags & kernel::FLT_CALLBACK_DATA_FS_FILTER_OPERATION) return L"FSFILTER";
-
-        return L"OTHER";
-    }
-
-
-    std::wstring RenderMajor(UCHAR major) {
-        const wchar_t* const name = kernel::MajorFunctionName(major);
-
-        if (*name) return name;
-
-        return std::format(L"{:02X}", static_cast<ULONG>(major));
-    }
-
-
-    std::wstring RenderMinor(UCHAR major, UCHAR minor) {
-        const wchar_t* const name = kernel::MinorFunctionName(major, minor);
-
-        if (*name) return name;
-
-        // a zero minor with no name is an operation that has no minor function
-        if (minor == 0u) return L"";
-
-        return std::format(L"{:02X}", static_cast<ULONG>(minor));
-    }
-
-
-    std::wstring RenderReparseTag(ULONG tag) {
-
-        if (tag == 0u) return L"";
-
-        const wchar_t* const name = kernel::ReparseTagName(tag);
-
-        if (*name) return name;
-
-        return std::format(L"{:08X}", tag);
-    }
-
 }
 
 namespace mimo {
@@ -254,15 +200,15 @@ namespace mimo {
 
                 if (data.transactionNotify) {
                     columns[OPR]                = L"TX";
-                    columns[TRANSACTION_NOTIFY] = RenderTransactionNotify(data.transactionNotify);
+                    columns[TRANSACTION_NOTIFY] = names::RenderTransactionNotify(data.transactionNotify);
                 }
                 else {
-                    columns[OPR]           = RenderOperationCategory(data.flags);
+                    columns[OPR]           = names::RenderOperationCategory(data.flags);
                     columns[OPERATION_ID]  = std::format(L"{:0{}X}", data.operationId, PTR_WIDTH);
                     columns[TOP_LEVEL_IRP] = RenderObject(data.topLevelIrp);
                     columns[POST_OP_TIME]  = RenderTime(data.completionTime);
-                    columns[MAJOR]         = RenderMajor(data.callbackMajorId);
-                    columns[MINOR]         = RenderMinor(data.callbackMajorId, data.callbackMinorId);
+                    columns[MAJOR]         = names::RenderMajorFunction(data.callbackMajorId);
+                    columns[MINOR]         = names::RenderMinorFunction(data.callbackMajorId, data.callbackMinorId);
                     columns[NAME]          = EscapeCsvField(text::MarkTruncated(text::Extract(data.name), data.truncated & protocol::TRUNCATED_NAME));
                     columns[STATUS]        = std::format(L"{:08X}", static_cast<ULONG>(data.status));
                     columns[INFORMATION]   = std::format(L"{:0{}X}", data.information, PTR_WIDTH);
@@ -275,7 +221,7 @@ namespace mimo {
                     columns[ARG4]          = std::format(L"{:0{}X}", data.parameters.others.argument4, PTR_WIDTH);
                     columns[ARG5]          = std::format(L"{:0{}X}", data.parameters.others.argument5, PTR_WIDTH);
                     columns[ARG6]          = std::format(L"{:0{}X}", static_cast<ULONGLONG>(data.parameters.others.argument6), PTR_WIDTH);
-                    columns[REPARSE_TAG]   = RenderReparseTag(data.reparseTag);
+                    columns[REPARSE_TAG]   = names::RenderReparseTag(data.reparseTag);
                 }
 
                 std::wstring line;

@@ -25,6 +25,7 @@
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\log\names.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\protocol.h" />
@@ -37,6 +38,7 @@
     <ClInclude Include="src\buffer.h" />
     <ClInclude Include="src\text.h" />
     <ClInclude Include="src\handle.h" />
+    <ClInclude Include="src\log\names.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\res.rc" />
