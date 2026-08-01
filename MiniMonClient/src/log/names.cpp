@@ -199,7 +199,7 @@ namespace mimo {
 
         namespace names {
 
-            std::wstring RenderOperationCategory(ULONG flags) {
+            std::wstring RenderOperationCategory(uint32_t flags) {
 
                 if (flags & kernel::FLT_CALLBACK_DATA_IRP_OPERATION)       return L"IRP";
 
@@ -211,7 +211,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderMajorFunction(UCHAR major) {
+            std::wstring RenderMajorFunction(uint8_t major) {
 
                 switch (major) {
                     case kernel::IRP_MJ_CREATE:                              return L"IRP_MJ_CREATE";
@@ -263,7 +263,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderMinorFunction(UCHAR major, UCHAR minor) {
+            std::wstring RenderMinorFunction(uint8_t major, uint8_t minor) {
 
                 switch (major) {
                     case kernel::IRP_MJ_DIRECTORY_CONTROL:
@@ -374,7 +374,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderReparseTag(ULONG tag) {
+            std::wstring RenderReparseTag(uint32_t tag) {
 
                 if (tag == 0u) return L"";
 
@@ -406,7 +406,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderTransactionNotify(ULONG notification) {
+            std::wstring RenderTransactionNotify(uint32_t notification) {
 
                 switch (notification) {
                     case TRANSACTION_NOTIFY_PREPREPARE:          return L"PREPREPARE";
@@ -440,7 +440,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderCreateDisposition(ULONG disposition) {
+            std::wstring RenderCreateDisposition(uint32_t disposition) {
 
                 switch (disposition) {
                     case kernel::FILE_SUPERSEDE:    return L"Supersede";
@@ -455,7 +455,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderOpenResult(ULONGLONG information) {
+            std::wstring RenderOpenResult(uint64_t information) {
 
                 switch (information) {
                     case kernel::FILE_SUPERSEDED:     return L"Superseded";
@@ -470,19 +470,19 @@ namespace mimo {
             }
 
 
-            std::wstring RenderDesiredAccess(ULONG desiredAccess) {
+            std::wstring RenderDesiredAccess(uint32_t desiredAccess) {
 
                 return RenderFlags(desiredAccess, DESIRED_ACCESS_NAMES, L"|");
             }
 
 
-            std::wstring RenderCreateOptions(ULONG createOptions) {
+            std::wstring RenderCreateOptions(uint32_t createOptions) {
 
                 return RenderFlags(createOptions, CREATE_OPTION_NAMES, L"|");
             }
 
 
-            std::wstring RenderShareAccess(ULONG shareAccess) {
+            std::wstring RenderShareAccess(uint32_t shareAccess) {
 
                 if (!shareAccess) return L"None";
 
@@ -490,7 +490,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderFileAttributes(ULONG fileAttributes) {
+            std::wstring RenderFileAttributes(uint32_t fileAttributes) {
 
                 if (!fileAttributes) return L"n/a";
 
@@ -498,7 +498,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderByteOffset(LONGLONG byteOffset) {
+            std::wstring RenderByteOffset(int64_t byteOffset) {
 
                 if (byteOffset == kernel::FILE_WRITE_TO_END_OF_FILE) return L"EOF";
 
@@ -508,7 +508,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderFileInformationClass(ULONG fileInformationClass) {
+            std::wstring RenderFileInformationClass(uint32_t fileInformationClass) {
 
                 switch (fileInformationClass) {
                     case kernel::FileDirectoryInformation:                     return L"FileDirectoryInformation";
@@ -600,7 +600,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderCompressionFormat(USHORT format) {
+            std::wstring RenderCompressionFormat(uint16_t format) {
 
                 switch (format) {
                     case COMPRESSION_FORMAT_NONE:        return L"None";
@@ -614,7 +614,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderRemoteProtocol(ULONG protocol) {
+            std::wstring RenderRemoteProtocol(uint32_t protocol) {
 
                 switch (protocol) {
                     case WNNC_NET_SMB:    return L"SMB";
@@ -626,19 +626,19 @@ namespace mimo {
             }
 
 
-            std::wstring RenderRemoteProtocolFlags(ULONG flags) {
+            std::wstring RenderRemoteProtocolFlags(uint32_t flags) {
 
                 return RenderFlags(flags, REMOTE_PROTOCOL_FLAG_NAMES, L"|");
             }
 
 
-            std::wstring RenderDispositionFlags(ULONG flags) {
+            std::wstring RenderDispositionFlags(uint32_t flags) {
 
                 return RenderFlags(flags, DISPOSITION_FLAG_NAMES, L"|");
             }
 
 
-            std::wstring RenderRenameFlags(ULONG flags) {
+            std::wstring RenderRenameFlags(uint32_t flags) {
 
                 return RenderFlags(flags, RENAME_FLAG_NAMES, L"|");
             }
