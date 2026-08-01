@@ -175,6 +175,10 @@ namespace mimo {
         static_assert(sizeof(InfoSupplement) == 588u, "protocol::InfoSupplement layout drift");
         static_assert(sizeof(Supplement) == 588u, "protocol::Supplement layout drift");
 
+        // truncation bits for RecordData::truncated
+        inline constexpr uint8_t TRUNCATED_NAME     = 0x01u;
+        inline constexpr uint8_t TRUNCATED_ECP_TEXT = 0x02u;
+
         inline constexpr uint32_t NAME_WCHARS = 512u;
 
         struct RecordData {
@@ -195,7 +199,8 @@ namespace mimo {
             uint8_t callbackMajorId;
             uint8_t callbackMinorId;
             uint8_t operationFlags;         // IRP stack-location SL_* flags
-            uint8_t reserved[5u];
+            uint8_t truncated;              // TRUNCATED_* bits
+            uint8_t reserved[4u];
             uint32_t transactionNotify;     // raw TRANSACTION_NOTIFY_* code, non-zero marks a transaction lifecycle event, not an operation
             uint32_t transactionSequence;   // our per-transaction id, 0 if the operation is not transacted
             FltParameters parameters;

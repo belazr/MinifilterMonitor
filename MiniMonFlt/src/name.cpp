@@ -8,7 +8,7 @@ namespace mimo {
     namespace name {
 
         _Use_decl_annotations_
-        void FormatFileName(
+        NTSTATUS FormatFileName(
             FLT_CALLBACK_DATA* pData,
             const FLT_RELATED_OBJECTS* pFltObjects,
             UNICODE_STRING* pName
@@ -17,9 +17,10 @@ namespace mimo {
             FLT_FILE_NAME_INFORMATION* pOpenedInfo = nullptr;
             NTSTATUS normalizedStatus = STATUS_UNSUCCESSFUL;
             NTSTATUS openedStatus = STATUS_UNSUCCESSFUL;
+            NTSTATUS formatStatus = STATUS_UNSUCCESSFUL;
 
             if (!pFltObjects->FileObject) {
-                RtlUnicodeStringCopyString(pName, L"[no file name]");
+                formatStatus = RtlUnicodeStringCopyString(pName, L"[no file name]");
 
                 goto done;
             }
@@ -34,7 +35,7 @@ namespace mimo {
 
             #endif // DBG
 
-                RtlUnicodeStringPrintf(pName, L"%wZ", &pNormalizedInfo->Name);
+                formatStatus = RtlUnicodeStringPrintf(pName, L"%wZ", &pNormalizedInfo->Name);
 
                 goto done;
             }
@@ -42,12 +43,12 @@ namespace mimo {
             openedStatus = FltGetFileNameInformation(pData, FLT_FILE_NAME_OPENED | FLT_FILE_NAME_QUERY_ALWAYS_ALLOW_CACHE_LOOKUP, &pOpenedInfo);
 
             if (NT_SUCCESS(openedStatus)) {
-                RtlUnicodeStringPrintf(pName, L"%wZ [opened: normalize 0x%08X]", &pOpenedInfo->Name, normalizedStatus);
+                formatStatus = RtlUnicodeStringPrintf(pName, L"%wZ [opened: normalize 0x%08X]", &pOpenedInfo->Name, normalizedStatus);
 
                 goto done;
             }
 
-            RtlUnicodeStringPrintf(pName, L"[name unavailable: normalize 0x%08X, opened 0x%08X]", normalizedStatus, openedStatus);
+            formatStatus = RtlUnicodeStringPrintf(pName, L"[name unavailable: normalize 0x%08X, opened 0x%08X]", normalizedStatus, openedStatus);
 
         done:
 
@@ -59,7 +60,7 @@ namespace mimo {
                 FltReleaseFileNameInformation(pOpenedInfo);
             }
 
-            return;
+            return formatStatus;
         }
 
     }

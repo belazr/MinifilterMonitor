@@ -158,7 +158,7 @@ namespace {
         const std::wstring_view ecpText = text::Extract(createSupplement.ecpText);
 
         if (!ecpText.empty()) {
-            result += ecpText;
+            result += text::MarkTruncated(ecpText, data.truncated & protocol::TRUNCATED_ECP_TEXT);
             result += L", ";
         }
 
@@ -356,12 +356,7 @@ namespace {
         std::wstring name(nameBytes / sizeof(wchar_t), L'\0');
         std::memcpy(name.data(), nameData.data(), name.size() * sizeof(wchar_t));
 
-        if (nameBytes < fileNameLength) {
-            // ellipsis
-            name += L'\x2026';
-        }
-
-        return name;
+        return text::MarkTruncated(name, nameBytes < fileNameLength);
     }
 
 

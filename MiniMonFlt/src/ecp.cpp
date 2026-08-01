@@ -8,6 +8,8 @@
 #include <ntstrsafe.h>
 #include <wsk.h>
 
+#include <stdarg.h>
+
 using namespace mimo;
 
 namespace {
@@ -15,7 +17,27 @@ namespace {
     struct EcpWriter {
         WCHAR* pCursor;
         size_t bytesLeft;
+        bool truncated;
     };
+
+    __declspec(code_seg("PAGE"))
+    void AppendText(_Inout_ EcpWriter* pWriter, _In_ _Printf_format_string_ PCWSTR pFormat, ...) {
+        PAGED_CODE();
+
+        va_list args;
+        va_start(args, pFormat);
+
+        const NTSTATUS status = RtlStringCbVPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, pFormat, args);
+
+        va_end(args);
+
+        if (status == STATUS_BUFFER_OVERFLOW) {
+            pWriter->truncated = true;
+        }
+
+        return;
+    }
+
 
     __declspec(code_seg("PAGE"))
     void AppendGuid(
@@ -28,11 +50,11 @@ namespace {
         UNICODE_STRING text{};
 
         if (NT_SUCCESS(RtlStringFromGUID(guid, &text))) {
-            RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"%s=%wZ ", pLabel, &text);
+            AppendText(pWriter, L"%s=%wZ ", pLabel, &text);
             RtlFreeUnicodeString(&text);
         }
         else {
-            RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"%s=<unprintable> ", pLabel);
+            AppendText(pWriter, L"%s=<unprintable> ", pLabel);
         }
 
         return;
@@ -43,8 +65,7 @@ namespace {
     void AppendOplockKey(_Inout_ EcpWriter* pWriter, _In_ const OPLOCK_KEY_ECP_CONTEXT* pContext) {
         PAGED_CODE();
 
-        RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"OPLOCK: ");
-
+        AppendText(pWriter, L"OPLOCK: ");
         AppendGuid(pWriter, L"key", pContext->OplockKey);
 
         return;
@@ -55,7 +76,7 @@ namespace {
     void AppendDualOplockKey(_Inout_ EcpWriter* pWriter, _In_ const DUAL_OPLOCK_KEY_ECP_CONTEXT* pContext) {
         PAGED_CODE();
 
-        RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"DUAL-OPLOCK: ");
+        AppendText(pWriter, L"DUAL-OPLOCK: ");
 
         if (pContext->ParentOplockKeySet) {
             AppendGuid(pWriter, L"parent", pContext->ParentOplockKey);
@@ -69,14 +90,12 @@ namespace {
     }
 
 
-    constexpr ULONG ENDPOINT_TEXT_CHARS = 64u;
-
     __declspec(code_seg("PAGE"))
     _Success_(return)
-    bool FormatEndpoint(_In_ PSOCKADDR_STORAGE_NFS pAddr, _Out_writes_z_(ENDPOINT_TEXT_CHARS) CHAR* pText) {
+    bool FormatEndpoint(_In_ PSOCKADDR_STORAGE_NFS pAddr, _Out_writes_z_(INET6_ADDRSTRLEN) CHAR* pText) {
         PAGED_CODE();
 
-        ULONG textChars = ENDPOINT_TEXT_CHARS;
+        ULONG textChars = INET6_ADDRSTRLEN;
         NTSTATUS status = STATUS_INVALID_PARAMETER;
 
         if (pAddr->ss_family == AF_INET) {
@@ -96,16 +115,16 @@ namespace {
     void AppendNfsOpen(_Inout_ EcpWriter* pWriter, _In_ const NFS_OPEN_ECP_CONTEXT* pContext) {
         PAGED_CODE();
 
-        CHAR endpoint[ENDPOINT_TEXT_CHARS]{};
+        CHAR endpoint[INET6_ADDRSTRLEN]{};
 
-        RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"NFS: ");
+        AppendText(pWriter, L"NFS: ");
 
         if (pContext->ExportAlias) {
-            RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"share=%wZ ", pContext->ExportAlias);
+            AppendText(pWriter, L"share=%wZ ", pContext->ExportAlias);
         }
 
         if (pContext->ClientSocketAddress && FormatEndpoint(pContext->ClientSocketAddress, endpoint)) {
-            RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"client=%S ", endpoint);
+            AppendText(pWriter, L"client=%S ", endpoint);
         }
 
         return;
@@ -125,17 +144,17 @@ namespace {
 
         if (pContext->OplockFinalState) states[count++] = L"final";
 
-        RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"state=");
+        AppendText(pWriter, L"state=");
 
         if (!count) {
-            RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"none");
+            AppendText(pWriter, L"none");
         }
 
         for (ULONG i = 0u; i < count; i++) {
-            RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, i ? L"|%s" : L"%s", states[i]);
+            AppendText(pWriter, i ? L"|%s" : L"%s", states[i]);
         }
 
-        RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L" ");
+        AppendText(pWriter, L" ");
 
         return;
     }
@@ -145,16 +164,16 @@ namespace {
     void AppendSrvOpen(_Inout_ EcpWriter* pWriter, _In_ const SRV_OPEN_ECP_CONTEXT* pContext) {
         PAGED_CODE();
 
-        CHAR endpoint[ENDPOINT_TEXT_CHARS]{};
+        CHAR endpoint[INET6_ADDRSTRLEN]{};
 
-        RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"SRV: ");
+        AppendText(pWriter, L"SRV: ");
 
         if (pContext->ShareName) {
-            RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"share=%wZ ", pContext->ShareName);
+            AppendText(pWriter, L"share=%wZ ", pContext->ShareName);
         }
 
         if (pContext->SocketAddress && FormatEndpoint(pContext->SocketAddress, endpoint)) {
-            RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"client=%S ", endpoint);
+            AppendText(pWriter, L"client=%S ", endpoint);
         }
 
         AppendOplockStates(pWriter, pContext);
@@ -184,7 +203,7 @@ namespace {
             AppendSrvOpen(pWriter, reinterpret_cast<const SRV_OPEN_ECP_CONTEXT*>(pContext));
         }
         else if (IsEqualGUID(GUID_ECP_PREFETCH_OPEN, guid)) {
-            RtlStringCbPrintfExW(pWriter->pCursor, pWriter->bytesLeft, &pWriter->pCursor, &pWriter->bytesLeft, 0u, L"PREFETCH ");
+            AppendText(pWriter, L"PREFETCH ");
         }
         else {
 
@@ -202,12 +221,12 @@ namespace mimo {
 
         __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
-        void FormatEcps(FLT_CALLBACK_DATA* pData, UNICODE_STRING* pEcpString) {
+        NTSTATUS FormatEcps(FLT_CALLBACK_DATA* pData, UNICODE_STRING* pEcpString) {
             PAGED_CODE();
 
             ECP_LIST* pEcpList = nullptr;
 
-            if (!NT_SUCCESS(FltGetEcpListFromCallbackData(driver::Filter, pData, &pEcpList)) || !pEcpList) return;
+            if (!NT_SUCCESS(FltGetEcpListFromCallbackData(driver::Filter, pData, &pEcpList)) || !pEcpList) return STATUS_SUCCESS;
 
             EcpWriter writer{ pEcpString->Buffer, pEcpString->MaximumLength };
             ULONG total = 0u;
@@ -226,7 +245,7 @@ namespace mimo {
             }
 
             if (recognized < total) {
-                RtlStringCbPrintfExW(writer.pCursor, writer.bytesLeft, &writer.pCursor, &writer.bytesLeft, 0u, L"unknown=%lu ", total - recognized);
+                AppendText(&writer, L"unknown=%lu ", total - recognized);
             }
 
             pEcpString->Length = static_cast<USHORT>(pEcpString->MaximumLength - writer.bytesLeft);
@@ -236,7 +255,7 @@ namespace mimo {
                 pEcpString->Buffer[pEcpString->Length / sizeof(WCHAR)] = L'\0';
             }
 
-            return;
+            return writer.truncated ? STATUS_BUFFER_OVERFLOW : STATUS_SUCCESS;
         }
 
     }

@@ -131,7 +131,10 @@ namespace {
 
         UNICODE_STRING ecpText{};
         RtlInitEmptyUnicodeString(&ecpText, pSupplement->ecpText, sizeof(pSupplement->ecpText));
-        ecp::FormatEcps(pData, &ecpText);
+
+        if (ecp::FormatEcps(pData, &ecpText) == STATUS_BUFFER_OVERFLOW) {
+            pRecordData->truncated |= protocol::TRUNCATED_ECP_TEXT;
+        }
 
         const IO_SECURITY_CONTEXT* const pSecurityContext = pData->Iopb->Parameters.Create.SecurityContext;
 
@@ -200,7 +203,10 @@ namespace mimo {
 
             UNICODE_STRING fileName{};
             RtlInitEmptyUnicodeString(&fileName, pRecordData->name, sizeof(pRecordData->name));
-            name::FormatFileName(pData, pFltObjects, &fileName);
+
+            if (name::FormatFileName(pData, pFltObjects, &fileName) == STATUS_BUFFER_OVERFLOW) {
+                pRecordData->truncated |= protocol::TRUNCATED_NAME;
+            }
 
             switch (pData->Iopb->MajorFunction) {
 

@@ -15,6 +15,19 @@ namespace mimo {
         }
 
 
+        inline std::wstring MarkTruncated(std::wstring_view value, bool truncated) {
+            constexpr std::wstring_view TRUNCATION_MARK = L"...";
+
+            std::wstring result{ value };
+
+            if (truncated) {
+                result += TRUNCATION_MARK;
+            }
+
+            return result;
+        }
+
+
         std::string ConvertToUtf8(std::wstring_view text);
 
     }

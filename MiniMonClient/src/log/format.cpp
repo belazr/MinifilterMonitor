@@ -263,7 +263,7 @@ namespace mimo {
                     columns[POST_OP_TIME]  = RenderTime(data.completionTime);
                     columns[MAJOR]         = RenderMajor(data.callbackMajorId);
                     columns[MINOR]         = RenderMinor(data.callbackMajorId, data.callbackMinorId);
-                    columns[NAME]          = EscapeCsvField(text::Extract(data.name));
+                    columns[NAME]          = EscapeCsvField(text::MarkTruncated(text::Extract(data.name), data.truncated & protocol::TRUNCATED_NAME));
                     columns[STATUS]        = std::format(L"{:08X}", static_cast<ULONG>(data.status));
                     columns[INFORMATION]   = std::format(L"{:0{}X}", data.information, PTR_WIDTH);
                     columns[DETAILS]       = EscapeCsvField(details::Render(data));
