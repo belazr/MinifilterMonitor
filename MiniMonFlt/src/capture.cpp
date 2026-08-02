@@ -124,10 +124,8 @@ namespace {
 
 
     __declspec(code_seg("PAGE"))
-    void PopulateCreateSupplement(_Inout_ protocol::RecordData* pRecordData, _In_ FLT_CALLBACK_DATA* pData) {
+    void PopulateCreateSupplement(_Inout_ protocol::CreateSupplement* pSupplement, _In_ FLT_CALLBACK_DATA* pData) {
         PAGED_CODE();
-
-        protocol::CreateSupplement* const pSupplement = &pRecordData->supplement.create;
 
         UNICODE_STRING ecpText{};
         RtlInitEmptyUnicodeString(&ecpText, pSupplement->ecpText, sizeof(pSupplement->ecpText));
@@ -182,13 +180,12 @@ namespace {
 
     __declspec(code_seg("PAGE"))
     void PopulateSetInfoSupplement(
-        _Inout_ protocol::RecordData* pRecordData,
+        _Inout_ protocol::SetInfoSupplement* pSupplement,
         _In_ FLT_CALLBACK_DATA* pData,
         _In_ const FLT_RELATED_OBJECTS* pFltObjects
     ) {
         PAGED_CODE();
 
-        protocol::SetInfoSupplement* const pSupplement = &pRecordData->supplement.setInfo;
         const ULONG size = pData->Iopb->Parameters.SetFileInformation.Length;
         const ULONG copySize = size < protocol::SET_INFO_PAYLOAD_BYTES ? size : protocol::SET_INFO_PAYLOAD_BYTES;
 
@@ -228,10 +225,9 @@ namespace {
 
 
     __declspec(code_seg("PAGE"))
-    void PopulateQueryInfoSupplement(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_CALLBACK_DATA* pData) {
+    void PopulateQueryInfoSupplement(_Inout_ protocol::QueryInfoSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
         PAGED_CODE();
 
-        protocol::QueryInfoSupplement* const pSupplement = &pRecordData->supplement.queryInfo;
         const ULONG bufferSize = pData->Iopb->Parameters.QueryFileInformation.Length;
         const ULONG_PTR writtenSize = pData->IoStatus.Information;
         const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
@@ -287,7 +283,7 @@ namespace mimo {
                 case IRP_MJ_CREATE:
 
                     if (KeGetCurrentIrql() == PASSIVE_LEVEL) {
-                        PopulateCreateSupplement(pRecordData, pData);
+                        PopulateCreateSupplement(&pRecordData->supplement.create, pData);
                     }
 
                     break;
@@ -295,7 +291,7 @@ namespace mimo {
                 case IRP_MJ_SET_INFORMATION:
 
                     if (KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.SetFileInformation.InfoBuffer) {
-                        PopulateSetInfoSupplement(pRecordData, pData, pFltObjects);
+                        PopulateSetInfoSupplement(&pRecordData->supplement.setInfo, pData, pFltObjects);
                     }
 
                     break;
@@ -325,7 +321,7 @@ namespace mimo {
                 case IRP_MJ_QUERY_INFORMATION:
 
                     if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryFileInformation.InfoBuffer) {
-                        PopulateQueryInfoSupplement(pRecordData, pData);
+                        PopulateQueryInfoSupplement(&pRecordData->supplement.queryInfo, pData);
                     }
 
                     break;
