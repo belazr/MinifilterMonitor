@@ -24,11 +24,19 @@ namespace {
     }
 
 
-    std::span<const uint8_t> ExtractPayload(const protocol::InfoSupplement& info) {
+    std::span<const uint8_t> ExtractPayload(const protocol::QueryInfoSupplement& supplement) {
 
-        if (!(info.captured & protocol::INFO_CAPTURED_PAYLOAD)) return {};
+        if (!(supplement.captured & protocol::QUERY_INFO_CAPTURED_PAYLOAD)) return {};
 
-        return { info.payload, info.capturedBytes };
+        return { supplement.payload, supplement.capturedBytes };
+    }
+
+
+    std::span<const uint8_t> ExtractPayload(const protocol::SetInfoSupplement& supplement) {
+
+        if (!(supplement.captured & protocol::SET_INFO_CAPTURED_PAYLOAD)) return {};
+
+        return { supplement.payload, supplement.capturedBytes };
     }
 
 
@@ -406,9 +414,11 @@ namespace {
     }
 
 
-    std::wstring RenderRenamePayload(const kernel::FILE_RENAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderTargetName(const protocol::SetInfoSupplement& supplement) {
 
-        return std::format(L"FileName: {}", RenderPayloadFileName(nameData, payload.FileNameLength));
+        if (!(supplement.captured & protocol::SET_INFO_CAPTURED_TARGET_NAME)) return {};
+
+        return std::format(L"FileName: {}", text::MarkTruncated(text::Extract(supplement.targetName), supplement.captured & protocol::SET_INFO_TRUNCATED_TARGET_NAME));
     }
 
 
@@ -464,16 +474,11 @@ namespace {
     }
 
 
-    std::wstring RenderRenameExPayload(const kernel::FILE_RENAME_INFORMATION_EX& payload, std::span<const uint8_t> nameData) {
-        std::wstring result;
+    std::wstring RenderRenameExPayload(const kernel::FILE_RENAME_INFORMATION_EX& payload) {
 
-        if (payload.Flags) {
-            result = std::format(L"Flags: {}, ", log::names::RenderRenameFlags(payload.Flags));
-        }
+        if (!payload.Flags) return {};
 
-        result += std::format(L"FileName: {}", RenderPayloadFileName(nameData, payload.FileNameLength));
-
-        return result;
+        return std::format(L"Flags: {}", log::names::RenderRenameFlags(payload.Flags));
     }
 
 }
@@ -489,7 +494,7 @@ namespace mimo {
                 std::wstring RenderQuery(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = RenderInformationParameters(parameters.queryFileInformation.fileInformationClass, parameters.queryFileInformation.length);
-                    const std::span<const uint8_t> payload = ExtractPayload(data.supplement.info);
+                    const std::span<const uint8_t> payload = ExtractPayload(data.supplement.queryInfo);
                     std::wstring payloadText;
 
                     switch (parameters.queryFileInformation.fileInformationClass) {
@@ -682,10 +687,12 @@ namespace mimo {
 
                 std::wstring RenderSet(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
+                    const protocol::SetInfoSupplement& setInfoSupplement = data.supplement.setInfo;
                     std::wstring details = RenderInformationParameters(parameters.setFileInformation.fileInformationClass, parameters.setFileInformation.length);
-                    const std::span<const uint8_t> payload = ExtractPayload(data.supplement.info);
+                    const std::span<const uint8_t> payload = ExtractPayload(setInfoSupplement);
                     std::wstring parametersText;
                     std::wstring payloadText;
+                    std::wstring targetText;
 
                     switch (parameters.setFileInformation.fileInformationClass) {
 
@@ -702,18 +709,11 @@ namespace mimo {
                         case kernel::FileRenameInformation:
                         case kernel::FileLinkInformation:
                         case kernel::FileRenameInformationBypassAccessCheck:
-                        case kernel::FileLinkInformationBypassAccessCheck: {
+                        case kernel::FileLinkInformationBypassAccessCheck:
                             parametersText = RenderRenameParameters(parameters);
-
-                            kernel::FILE_RENAME_INFORMATION rename;
-
-                            if (ReadValue(payload, rename)) {
-                                constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_RENAME_INFORMATION, FileName));
-                                payloadText = RenderRenamePayload(rename, payload.subspan(NAME_OFFSET));
-                            }
+                            targetText = RenderTargetName(setInfoSupplement);
 
                             break;
-                        }
 
                         case kernel::FileDispositionInformation: {
                             kernel::FILE_DISPOSITION_INFORMATION disposition;
@@ -790,9 +790,10 @@ namespace mimo {
                             kernel::FILE_RENAME_INFORMATION_EX renameEx;
 
                             if (ReadValue(payload, renameEx)) {
-                                constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_RENAME_INFORMATION_EX, FileName));
-                                payloadText = RenderRenameExPayload(renameEx, payload.subspan(NAME_OFFSET));
+                                payloadText = RenderRenameExPayload(renameEx);
                             }
+
+                            targetText = RenderTargetName(setInfoSupplement);
 
                             break;
                         }
@@ -818,6 +819,11 @@ namespace mimo {
                     if (!payloadText.empty()) {
                         details += L", ";
                         details += payloadText;
+                    }
+
+                    if (!targetText.empty()) {
+                        details += L", ";
+                        details += targetText;
                     }
 
                     return details;

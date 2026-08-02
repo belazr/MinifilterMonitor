@@ -63,6 +63,60 @@ namespace mimo {
             return formatStatus;
         }
 
+
+        __declspec(code_seg("PAGE"))
+        _Use_decl_annotations_
+        NTSTATUS FormatTargetFileName(
+            FLT_CALLBACK_DATA* pData,
+            const FLT_RELATED_OBJECTS* pFltObjects,
+            UNICODE_STRING* pName
+        ) {
+            PAGED_CODE();
+
+            // rename and link layouts agree on RootDirectory, FileNameLength and FileName
+            const FILE_RENAME_INFORMATION* const pInfo = static_cast<const FILE_RENAME_INFORMATION*>(pData->Iopb->Parameters.SetFileInformation.InfoBuffer);
+            HANDLE rootDirectory = nullptr;
+            PWSTR pFileName = nullptr;
+            ULONG fileNameSize = 0u;
+
+            __try {
+                rootDirectory = pInfo->RootDirectory;
+                pFileName = const_cast<PWSTR>(pInfo->FileName);
+                fileNameSize = pInfo->FileNameLength;
+            }
+            __except (EXCEPTION_EXECUTE_HANDLER) {
+
+                return GetExceptionCode();
+            }
+
+            // copy source, defaulted to the raw, possibly relative name from the info buffer
+            UNICODE_STRING sourceName{};
+            sourceName.Buffer = pFileName;
+            sourceName.Length = static_cast<USHORT>((fileNameSize < MAXUSHORT ? fileNameSize : MAXUSHORT) & ~1u);
+            sourceName.MaximumLength = sourceName.Length;
+
+            FLT_FILE_NAME_INFORMATION* pTargetInfo = nullptr;
+
+            if (KeGetCurrentIrql() == PASSIVE_LEVEL && FLT_IS_IRP_OPERATION(pData) && NT_SUCCESS(FltGetDestinationFileNameInformation(pFltObjects->Instance, pFltObjects->FileObject, rootDirectory, pFileName, fileNameSize, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &pTargetInfo))) {
+                sourceName = pTargetInfo->Name;
+            }
+
+            NTSTATUS copyStatus = STATUS_UNSUCCESSFUL;
+
+            __try {
+                copyStatus = RtlUnicodeStringCopy(pName, &sourceName);
+            }
+            __except (EXCEPTION_EXECUTE_HANDLER) {
+                copyStatus = GetExceptionCode();
+            }
+
+            if (pTargetInfo) {
+                FltReleaseFileNameInformation(pTargetInfo);
+            }
+
+            return copyStatus;
+        }
+
     }
 
 }

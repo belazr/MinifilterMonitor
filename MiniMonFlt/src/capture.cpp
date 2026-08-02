@@ -133,7 +133,7 @@ namespace {
         RtlInitEmptyUnicodeString(&ecpText, pSupplement->ecpText, sizeof(pSupplement->ecpText));
 
         if (ecp::FormatEcps(pData, &ecpText) == STATUS_BUFFER_OVERFLOW) {
-            pRecordData->truncated |= protocol::TRUNCATED_ECP_TEXT;
+            pSupplement->captured |= protocol::CREATE_TRUNCATED_ECP_TEXT;
         }
 
         const IO_SECURITY_CONTEXT* const pSecurityContext = pData->Iopb->Parameters.Create.SecurityContext;
@@ -155,16 +155,45 @@ namespace {
     }
 
 
-    void PopulateInfoSupplement(
-        _Inout_ protocol::RecordData* pRecordData,
-        _In_reads_bytes_(size) const void* pBuffer,
-        _In_ ULONG size
+    __declspec(code_seg("PAGE"))
+    void PopulateTargetName(
+        _Inout_ protocol::SetInfoSupplement* pSupplement,
+        _In_ FLT_CALLBACK_DATA* pData,
+        _In_ const FLT_RELATED_OBJECTS* pFltObjects
     ) {
-        protocol::InfoSupplement* const pSupplement = &pRecordData->supplement.info;
-        const ULONG copySize = size < protocol::INFO_PAYLOAD_BYTES ? size : protocol::INFO_PAYLOAD_BYTES;
+        PAGED_CODE();
+
+        UNICODE_STRING targetName{};
+        RtlInitEmptyUnicodeString(&targetName, pSupplement->targetName, sizeof(pSupplement->targetName));
+
+        const NTSTATUS status = name::FormatTargetFileName(pData, pFltObjects, &targetName);
+
+        if (!NT_SUCCESS(status) && status != STATUS_BUFFER_OVERFLOW) return;
+
+        if (status == STATUS_BUFFER_OVERFLOW) {
+            pSupplement->captured |= protocol::SET_INFO_TRUNCATED_TARGET_NAME;
+        }
+
+        pSupplement->captured |= protocol::SET_INFO_CAPTURED_TARGET_NAME;
+
+        return;
+    }
+
+
+    __declspec(code_seg("PAGE"))
+    void PopulateSetInfoSupplement(
+        _Inout_ protocol::RecordData* pRecordData,
+        _In_ FLT_CALLBACK_DATA* pData,
+        _In_ const FLT_RELATED_OBJECTS* pFltObjects
+    ) {
+        PAGED_CODE();
+
+        protocol::SetInfoSupplement* const pSupplement = &pRecordData->supplement.setInfo;
+        const ULONG size = pData->Iopb->Parameters.SetFileInformation.Length;
+        const ULONG copySize = size < protocol::SET_INFO_PAYLOAD_BYTES ? size : protocol::SET_INFO_PAYLOAD_BYTES;
 
         __try {
-            RtlCopyMemory(pSupplement->payload, pBuffer, copySize);
+            RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.SetFileInformation.InfoBuffer, copySize);
         }
         __except (EXCEPTION_EXECUTE_HANDLER) {
 
@@ -172,7 +201,52 @@ namespace {
         }
 
         pSupplement->capturedBytes = copySize;
-        pSupplement->captured |= protocol::INFO_CAPTURED_PAYLOAD;
+        pSupplement->captured |= protocol::SET_INFO_CAPTURED_PAYLOAD;
+
+        switch (pData->Iopb->Parameters.SetFileInformation.FileInformationClass) {
+
+            case FileRenameInformation:
+            case FileLinkInformation:
+            case FileRenameInformationBypassAccessCheck:
+            case FileLinkInformationBypassAccessCheck:
+            case FileRenameInformationEx:
+            case FileRenameInformationExBypassAccessCheck:
+            case FileLinkInformationEx:
+            case FileLinkInformationExBypassAccessCheck:
+                PopulateTargetName(pSupplement, pData, pFltObjects);
+
+                break;
+
+            default:
+
+                break;
+
+        }
+
+        return;
+    }
+
+
+    __declspec(code_seg("PAGE"))
+    void PopulateQueryInfoSupplement(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_CALLBACK_DATA* pData) {
+        PAGED_CODE();
+
+        protocol::QueryInfoSupplement* const pSupplement = &pRecordData->supplement.queryInfo;
+        const ULONG bufferSize = pData->Iopb->Parameters.QueryFileInformation.Length;
+        const ULONG_PTR writtenSize = pData->IoStatus.Information;
+        const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
+        const ULONG copySize = dataSize < protocol::QUERY_INFO_PAYLOAD_BYTES ? dataSize : protocol::QUERY_INFO_PAYLOAD_BYTES;
+
+        __try {
+            RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.QueryFileInformation.InfoBuffer, copySize);
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER) {
+
+            return;
+        }
+
+        pSupplement->capturedBytes = copySize;
+        pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;
 
         return;
     }
@@ -221,7 +295,7 @@ namespace mimo {
                 case IRP_MJ_SET_INFORMATION:
 
                     if (KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.SetFileInformation.InfoBuffer) {
-                        PopulateInfoSupplement(pRecordData, pData->Iopb->Parameters.SetFileInformation.InfoBuffer, pData->Iopb->Parameters.SetFileInformation.Length);
+                        PopulateSetInfoSupplement(pRecordData, pData, pFltObjects);
                     }
 
                     break;
@@ -250,12 +324,8 @@ namespace mimo {
 
                 case IRP_MJ_QUERY_INFORMATION:
 
-                    if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && pData->Iopb->Parameters.QueryFileInformation.InfoBuffer && KeGetCurrentIrql() < DISPATCH_LEVEL) {
-                        const ULONG bufferSize = pData->Iopb->Parameters.QueryFileInformation.Length;
-                        const ULONG_PTR writtenSize = pData->IoStatus.Information;
-                        const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
-
-                        PopulateInfoSupplement(pRecordData, pData->Iopb->Parameters.QueryFileInformation.InfoBuffer, dataSize);
+                    if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryFileInformation.InfoBuffer) {
+                        PopulateQueryInfoSupplement(pRecordData, pData);
                     }
 
                     break;

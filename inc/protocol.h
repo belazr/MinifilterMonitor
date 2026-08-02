@@ -133,14 +133,18 @@ namespace mimo {
 
         static_assert(sizeof(StackFrame) == 72u, "protocol::StackFrame layout drift");
 
-        // validity bits for CreateSupplement::captured
+        // per-operation supplements: data the parameters mirror cannot provide
+
+        // IRP_MJ_CREATE
+
+        // capture bits for CreateSupplement::captured
         inline constexpr uint32_t CREATE_CAPTURED_DESIRED_ACCESS   = 0x00000001u;
         inline constexpr uint32_t CREATE_CAPTURED_IMPERSONATED_SID = 0x00000002u;
+        inline constexpr uint32_t CREATE_TRUNCATED_ECP_TEXT        = 0x00000004u;
 
         inline constexpr uint32_t SID_BYTES       = 68u;    // SECURITY_MAX_SID_SIZE, pinned by the driver
-        inline constexpr uint32_t ECP_TEXT_WCHARS = 256u;
+        inline constexpr uint32_t ECP_TEXT_WCHARS = 512u;
 
-        // per-operation data the parameters mirror cannot provide
         struct CreateSupplement {
             uint32_t captured;
             uint32_t desiredAccess;
@@ -151,33 +155,55 @@ namespace mimo {
         static_assert(offsetof(CreateSupplement, impersonatedSid) == 8u, "protocol::CreateSupplement layout drift");
         static_assert(offsetof(CreateSupplement, ecpText) == 76u, "protocol::CreateSupplement layout drift");
 
-        // validity bit for InfoSupplement::captured
-        inline constexpr uint32_t INFO_CAPTURED_PAYLOAD = 0x00000001u;
+        // IRP_MJ_QUERY_INFORMATION
 
-        inline constexpr uint32_t INFO_PAYLOAD_BYTES = SID_BYTES + 2u * ECP_TEXT_WCHARS;
+        // capture bit for QueryInfoSupplement::captured
+        inline constexpr uint32_t QUERY_INFO_CAPTURED_PAYLOAD = 0x00000001u;
 
-        // raw info-buffer bytes for query/set information
-        struct InfoSupplement {
+        inline constexpr uint32_t QUERY_INFO_PAYLOAD_BYTES = SID_BYTES + 2u * ECP_TEXT_WCHARS;
+
+        struct QueryInfoSupplement {
             uint32_t captured;
             uint32_t capturedBytes;
-            uint8_t payload[INFO_PAYLOAD_BYTES];
+            uint8_t payload[QUERY_INFO_PAYLOAD_BYTES];
         };
 
-        static_assert(offsetof(InfoSupplement, payload) == 8u, "protocol::InfoSupplement layout drift");
+        static_assert(offsetof(QueryInfoSupplement, payload) == 8u, "protocol::QueryInfoSupplement layout drift");
+
+        // IRP_MJ_SET_INFORMATION
+
+        // capture bits for SetInfoSupplement::captured
+        inline constexpr uint32_t SET_INFO_CAPTURED_PAYLOAD      = 0x00000001u;
+        inline constexpr uint32_t SET_INFO_CAPTURED_TARGET_NAME  = 0x00000002u;
+        inline constexpr uint32_t SET_INFO_TRUNCATED_TARGET_NAME = 0x00000004u;
+
+        inline constexpr uint32_t TARGET_NAME_WCHARS = 256u;
+
+        inline constexpr uint32_t SET_INFO_PAYLOAD_BYTES = QUERY_INFO_PAYLOAD_BYTES - 2u * TARGET_NAME_WCHARS;
+
+        struct SetInfoSupplement {
+            uint32_t captured;
+            uint32_t capturedBytes;
+            uint8_t payload[SET_INFO_PAYLOAD_BYTES];
+            wchar_t targetName[TARGET_NAME_WCHARS];
+        };
+
+        static_assert(offsetof(SetInfoSupplement, payload) == 8u, "protocol::SetInfoSupplement layout drift");
+        static_assert(offsetof(SetInfoSupplement, targetName) == 588u, "protocol::SetInfoSupplement layout drift");
 
         union Supplement {
             CreateSupplement create;
-            InfoSupplement info;
+            QueryInfoSupplement queryInfo;
+            SetInfoSupplement setInfo;
         };
 
-        // both supplements exactly fill the union
-        static_assert(sizeof(CreateSupplement) == 588u, "protocol::CreateSupplement layout drift");
-        static_assert(sizeof(InfoSupplement) == 588u, "protocol::InfoSupplement layout drift");
-        static_assert(sizeof(Supplement) == 588u, "protocol::Supplement layout drift");
+        static_assert(sizeof(CreateSupplement) == 1100u, "protocol::CreateSupplement layout drift");
+        static_assert(sizeof(QueryInfoSupplement) == 1100u, "protocol::QueryInfoSupplement layout drift");
+        static_assert(sizeof(SetInfoSupplement) == 1100u, "protocol::SetInfoSupplement layout drift");
+        static_assert(sizeof(Supplement) == 1100u, "protocol::Supplement layout drift");
 
-        // truncation bits for RecordData::truncated
-        inline constexpr uint8_t TRUNCATED_NAME     = 0x01u;
-        inline constexpr uint8_t TRUNCATED_ECP_TEXT = 0x02u;
+        // truncation bit for RecordData::truncated
+        inline constexpr uint8_t TRUNCATED_NAME = 0x01u;
 
         inline constexpr uint32_t NAME_WCHARS = 512u;
 
@@ -211,7 +237,7 @@ namespace mimo {
             Supplement supplement;
         };
 
-        static_assert(sizeof(RecordData) == 2360u, "protocol::RecordData layout drift");
+        static_assert(sizeof(RecordData) == 2872u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, deviceObject) == 16u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, transactionNotify) == 104u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, transactionSequence) == 108u, "protocol::RecordData layout drift");
@@ -227,7 +253,7 @@ namespace mimo {
             RecordData data;
         };
 
-        static_assert(sizeof(Record) == 2376u, "protocol::Record layout drift");
+        static_assert(sizeof(Record) == 2888u, "protocol::Record layout drift");
         static_assert(offsetof(Record, data) == 16u, "protocol::Record layout drift");
 
         enum class Command : uint32_t {

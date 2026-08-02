@@ -111,7 +111,7 @@ namespace mimo {
                     const std::wstring_view ecpText = text::Extract(createSupplement.ecpText);
 
                     if (!ecpText.empty()) {
-                        result += text::MarkTruncated(ecpText, data.truncated & protocol::TRUNCATED_ECP_TEXT);
+                        result += text::MarkTruncated(ecpText, createSupplement.captured & protocol::CREATE_TRUNCATED_ECP_TEXT);
                         result += L", ";
                     }
 
