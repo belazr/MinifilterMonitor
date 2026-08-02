@@ -30,6 +30,15 @@
     <ClCompile Include="src\log\details.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\log\details\create.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\log\details\info.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\log\details\readwrite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\log\format.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -54,6 +63,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\log\details.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\log\details\create.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\log\details\info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\log\details\readwrite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\log\format.h">

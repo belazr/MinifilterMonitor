@@ -20,6 +20,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\log\details.cpp" />
+    <ClCompile Include="src\log\details\create.cpp" />
+    <ClCompile Include="src\log\details\info.cpp" />
+    <ClCompile Include="src\log\details\readwrite.cpp" />
     <ClCompile Include="src\log\format.cpp" />
     <ClCompile Include="src\log\sink.cpp" />
     <ClCompile Include="src\text.cpp" />
@@ -31,6 +34,9 @@
     <ClInclude Include="..\inc\protocol.h" />
     <ClInclude Include="src\kernel.h" />
     <ClInclude Include="src\log\details.h" />
+    <ClInclude Include="src\log\details\create.h" />
+    <ClInclude Include="src\log\details\info.h" />
+    <ClInclude Include="src\log\details\readwrite.h" />
     <ClInclude Include="src\log\format.h" />
     <ClInclude Include="src\records.h" />
     <ClInclude Include="src\log\sink.h" />
