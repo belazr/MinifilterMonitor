@@ -36,6 +36,9 @@
     <ClCompile Include="src\log\details\create.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\log\details\directory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\log\details\info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -69,6 +72,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\log\details\create.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\log\details\directory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\log\details\info.h">

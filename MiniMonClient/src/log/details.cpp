@@ -2,6 +2,7 @@
 
 #include "..\kernel.h"
 #include "details\create.h"
+#include "details\directory.h"
 #include "details\info.h"
 #include "details\readwrite.h"
 
@@ -37,6 +38,10 @@ namespace mimo {
                     case kernel::IRP_MJ_SET_INFORMATION:
 
                         return info::RenderSet(data);
+
+                    case kernel::IRP_MJ_DIRECTORY_CONTROL:
+
+                        return directory::Render(data);
 
                 }
 

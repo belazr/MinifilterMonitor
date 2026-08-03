@@ -8,6 +8,7 @@
 #include "..\..\inc\protocol.h"
 
 #include <fltKernel.h>
+#include <ntstrsafe.h>
 
 using namespace mimo;
 
@@ -53,6 +54,27 @@ MIRROR_ASSERT(setFileInformation.flags.advanceOnly,     SetFileInformation.Advan
 MIRROR_ASSERT(setFileInformation.clusterCount,          SetFileInformation.ClusterCount);
 MIRROR_ASSERT(setFileInformation.deleteHandle,          SetFileInformation.DeleteHandle);
 MIRROR_ASSERT(setFileInformation.infoBuffer,            SetFileInformation.InfoBuffer);
+
+MIRROR_ASSERT(queryDirectory.length,               DirectoryControl.QueryDirectory.Length);
+MIRROR_ASSERT(queryDirectory.fileName,             DirectoryControl.QueryDirectory.FileName);
+MIRROR_ASSERT(queryDirectory.fileInformationClass, DirectoryControl.QueryDirectory.FileInformationClass);
+MIRROR_ASSERT(queryDirectory.fileIndex,            DirectoryControl.QueryDirectory.FileIndex);
+MIRROR_ASSERT(queryDirectory.directoryBuffer,      DirectoryControl.QueryDirectory.DirectoryBuffer);
+MIRROR_ASSERT(queryDirectory.mdlAddress,           DirectoryControl.QueryDirectory.MdlAddress);
+
+MIRROR_ASSERT(notifyDirectory.length,                          DirectoryControl.NotifyDirectoryEx.Length);
+MIRROR_ASSERT(notifyDirectory.completionFilter,                DirectoryControl.NotifyDirectoryEx.CompletionFilter);
+MIRROR_ASSERT(notifyDirectory.directoryNotifyInformationClass, DirectoryControl.NotifyDirectoryEx.DirectoryNotifyInformationClass);
+MIRROR_ASSERT(notifyDirectory.directoryBuffer,                 DirectoryControl.NotifyDirectoryEx.DirectoryBuffer);
+MIRROR_ASSERT(notifyDirectory.mdlAddress,                      DirectoryControl.NotifyDirectoryEx.MdlAddress);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, DirectoryControl.NotifyDirectory.Length) == offsetof(FLT_PARAMETERS, DirectoryControl.NotifyDirectoryEx.Length)
+    && offsetof(FLT_PARAMETERS, DirectoryControl.NotifyDirectory.CompletionFilter) == offsetof(FLT_PARAMETERS, DirectoryControl.NotifyDirectoryEx.CompletionFilter)
+    && offsetof(FLT_PARAMETERS, DirectoryControl.NotifyDirectory.DirectoryBuffer) == offsetof(FLT_PARAMETERS, DirectoryControl.NotifyDirectoryEx.DirectoryBuffer)
+    && offsetof(FLT_PARAMETERS, DirectoryControl.NotifyDirectory.MdlAddress) == offsetof(FLT_PARAMETERS, DirectoryControl.NotifyDirectoryEx.MdlAddress),
+    "FLT_PARAMETERS NotifyDirectory and NotifyDirectoryEx diverge: split protocol::FltParameters notifyDirectory"
+);
 
 static_assert(protocol::SID_BYTES == SECURITY_MAX_SID_SIZE, "protocol::SID_BYTES mirror drift");
 
@@ -225,6 +247,35 @@ namespace {
 
 
     __declspec(code_seg("PAGE"))
+    void PopulateQueryDirectoryFileName(_Inout_ protocol::QueryDirectorySupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
+        PAGED_CODE();
+
+        UNICODE_STRING fileName{};
+        RtlInitEmptyUnicodeString(&fileName, pSupplement->fileName, sizeof(pSupplement->fileName));
+
+        NTSTATUS status = STATUS_UNSUCCESSFUL;
+
+        __try {
+            status = RtlUnicodeStringCopy(&fileName, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName);
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER) {
+
+            return;
+        }
+
+        if (!NT_SUCCESS(status) && status != STATUS_BUFFER_OVERFLOW) return;
+
+        if (status == STATUS_BUFFER_OVERFLOW) {
+            pSupplement->captured |= protocol::QUERY_DIRECTORY_TRUNCATED_FILE_NAME;
+        }
+
+        pSupplement->captured |= protocol::QUERY_DIRECTORY_CAPTURED_FILE_NAME;
+
+        return;
+    }
+
+
+    __declspec(code_seg("PAGE"))
     void PopulateQueryInfoSupplement(_Inout_ protocol::QueryInfoSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
         PAGED_CODE();
 
@@ -243,6 +294,30 @@ namespace {
 
         pSupplement->capturedBytes = copySize;
         pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;
+
+        return;
+    }
+
+
+    __declspec(code_seg("PAGE"))
+    void PopulateQueryDirectoryPayload(_Inout_ protocol::QueryDirectorySupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
+        PAGED_CODE();
+
+        const ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
+        const ULONG_PTR writtenSize = pData->IoStatus.Information;
+        const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
+        const ULONG copySize = dataSize < protocol::QUERY_DIRECTORY_PAYLOAD_BYTES ? dataSize : protocol::QUERY_DIRECTORY_PAYLOAD_BYTES;
+
+        __try {
+            RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, copySize);
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER) {
+
+            return;
+        }
+
+        pSupplement->capturedBytes = copySize;
+        pSupplement->captured |= protocol::QUERY_DIRECTORY_CAPTURED_PAYLOAD;
 
         return;
     }
@@ -296,6 +371,14 @@ namespace mimo {
 
                     break;
 
+                case IRP_MJ_DIRECTORY_CONTROL:
+
+                    if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName) {
+                        PopulateQueryDirectoryFileName(&pRecordData->supplement.queryDirectory, pData);
+                    }
+
+                    break;
+
             }
 
             return;
@@ -322,6 +405,14 @@ namespace mimo {
 
                     if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryFileInformation.InfoBuffer) {
                         PopulateQueryInfoSupplement(&pRecordData->supplement.queryInfo, pData);
+                    }
+
+                    break;
+
+                case IRP_MJ_DIRECTORY_CONTROL:
+
+                    if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && (NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer) {
+                        PopulateQueryDirectoryPayload(&pRecordData->supplement.queryDirectory, pData);
                     }
 
                     break;

@@ -191,6 +191,31 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(RENAME_FLAG_NAMES), "composite entry after its components in RENAME_FLAG_NAMES");
 
+    constexpr FlagName QUERY_DIRECTORY_FLAG_NAMES[]{
+        { kernel::SL_RESTART_SCAN,        L"Restart Scan" },
+        { kernel::SL_RETURN_SINGLE_ENTRY, L"Return Single Entry" },
+        { kernel::SL_INDEX_SPECIFIED,     L"Index Specified" },
+    };
+
+    static_assert(CompositesPrecedeComponents(QUERY_DIRECTORY_FLAG_NAMES), "composite entry after its components in QUERY_DIRECTORY_FLAG_NAMES");
+
+    constexpr FlagName COMPLETION_FILTER_NAMES[]{
+        { FILE_NOTIFY_CHANGE_FILE_NAME,            L"FILE_NOTIFY_CHANGE_FILE_NAME" },
+        { FILE_NOTIFY_CHANGE_DIR_NAME,             L"FILE_NOTIFY_CHANGE_DIR_NAME" },
+        { FILE_NOTIFY_CHANGE_ATTRIBUTES,           L"FILE_NOTIFY_CHANGE_ATTRIBUTES" },
+        { FILE_NOTIFY_CHANGE_SIZE,                 L"FILE_NOTIFY_CHANGE_SIZE" },
+        { FILE_NOTIFY_CHANGE_LAST_WRITE,           L"FILE_NOTIFY_CHANGE_LAST_WRITE" },
+        { FILE_NOTIFY_CHANGE_LAST_ACCESS,          L"FILE_NOTIFY_CHANGE_LAST_ACCESS" },
+        { FILE_NOTIFY_CHANGE_CREATION,             L"FILE_NOTIFY_CHANGE_CREATION" },
+        { kernel::FILE_NOTIFY_CHANGE_EA,           L"FILE_NOTIFY_CHANGE_EA" },
+        { FILE_NOTIFY_CHANGE_SECURITY,             L"FILE_NOTIFY_CHANGE_SECURITY" },
+        { kernel::FILE_NOTIFY_CHANGE_STREAM_NAME,  L"FILE_NOTIFY_CHANGE_STREAM_NAME" },
+        { kernel::FILE_NOTIFY_CHANGE_STREAM_SIZE,  L"FILE_NOTIFY_CHANGE_STREAM_SIZE" },
+        { kernel::FILE_NOTIFY_CHANGE_STREAM_WRITE, L"FILE_NOTIFY_CHANGE_STREAM_WRITE" },
+    };
+
+    static_assert(CompositesPrecedeComponents(COMPLETION_FILTER_NAMES), "composite entry after its components in COMPLETION_FILTER_NAMES");
+
 }
 
 namespace mimo {
@@ -268,8 +293,9 @@ namespace mimo {
                 switch (major) {
                     case kernel::IRP_MJ_DIRECTORY_CONTROL:
                         switch (minor) {
-                            case kernel::IRP_MN_QUERY_DIRECTORY:         return L"IRP_MN_QUERY_DIRECTORY";
-                            case kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY: return L"IRP_MN_NOTIFY_CHANGE_DIRECTORY";
+                            case kernel::IRP_MN_QUERY_DIRECTORY:            return L"IRP_MN_QUERY_DIRECTORY";
+                            case kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY:    return L"IRP_MN_NOTIFY_CHANGE_DIRECTORY";
+                            case kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX: return L"IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX";
                         }
                         break;
 
@@ -631,6 +657,30 @@ namespace mimo {
             std::wstring RenderRenameFlags(uint32_t flags) {
 
                 return RenderFlags(flags, RENAME_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderQueryDirectoryFlags(uint8_t operationFlags) {
+
+                return RenderFlags(operationFlags, QUERY_DIRECTORY_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderCompletionFilter(uint32_t completionFilter) {
+
+                return RenderFlags(completionFilter, COMPLETION_FILTER_NAMES, L"|");
+            }
+
+
+            std::wstring RenderDirectoryNotifyInformationClass(uint32_t directoryNotifyInformationClass) {
+
+                switch (directoryNotifyInformationClass) {
+                    case kernel::DirectoryNotifyInformation:         return L"DirectoryNotifyInformation";
+                    case kernel::DirectoryNotifyExtendedInformation: return L"DirectoryNotifyExtendedInformation";
+                    case kernel::DirectoryNotifyFullInformation:     return L"DirectoryNotifyFullInformation";
+                }
+
+                return std::to_wstring(directoryNotifyInformationClass);
             }
 
         }

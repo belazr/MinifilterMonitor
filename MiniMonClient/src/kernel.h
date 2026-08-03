@@ -18,9 +18,14 @@ namespace mimo {
         inline constexpr uint32_t IRP_SYNCHRONOUS_API         = 0x00000004u;
         inline constexpr uint32_t IRP_SYNCHRONOUS_PAGING_IO   = 0x00000040u;
 
-        // stack-location SL_* flags carried in RecordData::operationFlags
+        // read/write stack-location SL_* flags carried in RecordData::operationFlags
         inline constexpr uint8_t SL_KEY_SPECIFIED = 0x01u;
         inline constexpr uint8_t SL_WRITE_THROUGH = 0x04u;
+
+        // directory control stack-location SL_* flags carried in RecordData::operationFlags
+        inline constexpr uint8_t SL_RESTART_SCAN        = 0x01u;
+        inline constexpr uint8_t SL_RETURN_SINGLE_ENTRY = 0x02u;
+        inline constexpr uint8_t SL_INDEX_SPECIFIED     = 0x04u;
 
         // standard IRP major codes
         inline constexpr uint8_t IRP_MJ_CREATE                   = 0x00u;
@@ -74,8 +79,9 @@ namespace mimo {
         // IRP minor codes, meaning is scoped by the major code
 
         // directory control
-        inline constexpr uint8_t IRP_MN_QUERY_DIRECTORY         = 0x01u;
-        inline constexpr uint8_t IRP_MN_NOTIFY_CHANGE_DIRECTORY = 0x02u;
+        inline constexpr uint8_t IRP_MN_QUERY_DIRECTORY            = 0x01u;
+        inline constexpr uint8_t IRP_MN_NOTIFY_CHANGE_DIRECTORY    = 0x02u;
+        inline constexpr uint8_t IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX = 0x03u;
 
         // file system control
         inline constexpr uint8_t IRP_MN_USER_FS_REQUEST  = 0x00u;
@@ -605,6 +611,126 @@ namespace mimo {
         inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_TARGET_SR               = 0x00000080u;
         inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_SOURCE_SR               = 0x00000100u;
         inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_SR                      = 0x00000180u;
+
+        // completion filter values
+        inline constexpr uint32_t FILE_NOTIFY_CHANGE_EA           = 0x00000080u;
+        inline constexpr uint32_t FILE_NOTIFY_CHANGE_STREAM_NAME  = 0x00000200u;
+        inline constexpr uint32_t FILE_NOTIFY_CHANGE_STREAM_SIZE  = 0x00000400u;
+        inline constexpr uint32_t FILE_NOTIFY_CHANGE_STREAM_WRITE = 0x00000800u;
+
+        // DIRECTORY_NOTIFY_INFORMATION_CLASS codes
+        inline constexpr uint32_t DirectoryNotifyInformation         = 1u;
+        inline constexpr uint32_t DirectoryNotifyExtendedInformation = 2u;
+        inline constexpr uint32_t DirectoryNotifyFullInformation     = 3u;
+
+        // directory enumeration entry layouts
+
+        struct FILE_DIRECTORY_INFORMATION {
+            uint32_t NextEntryOffset;
+            uint32_t FileIndex;
+            int64_t CreationTime;
+            int64_t LastAccessTime;
+            int64_t LastWriteTime;
+            int64_t ChangeTime;
+            int64_t EndOfFile;
+            int64_t AllocationSize;
+            uint32_t FileAttributes;
+            uint32_t FileNameLength;
+            wchar_t FileName[1u];
+        };
+
+        static_assert(sizeof(FILE_DIRECTORY_INFORMATION) == 72u, "kernel::FILE_DIRECTORY_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_DIRECTORY_INFORMATION, FileName) == 64u, "kernel::FILE_DIRECTORY_INFORMATION x64 layout drift");
+
+        struct FILE_FULL_DIR_INFORMATION {
+            uint32_t NextEntryOffset;
+            uint32_t FileIndex;
+            int64_t CreationTime;
+            int64_t LastAccessTime;
+            int64_t LastWriteTime;
+            int64_t ChangeTime;
+            int64_t EndOfFile;
+            int64_t AllocationSize;
+            uint32_t FileAttributes;
+            uint32_t FileNameLength;
+            uint32_t EaSize;
+            wchar_t FileName[1u];
+        };
+
+        static_assert(sizeof(FILE_FULL_DIR_INFORMATION) == 72u, "kernel::FILE_FULL_DIR_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_FULL_DIR_INFORMATION, FileName) == 68u, "kernel::FILE_FULL_DIR_INFORMATION x64 layout drift");
+
+        struct FILE_BOTH_DIR_INFORMATION {
+            uint32_t NextEntryOffset;
+            uint32_t FileIndex;
+            int64_t CreationTime;
+            int64_t LastAccessTime;
+            int64_t LastWriteTime;
+            int64_t ChangeTime;
+            int64_t EndOfFile;
+            int64_t AllocationSize;
+            uint32_t FileAttributes;
+            uint32_t FileNameLength;
+            uint32_t EaSize;
+            int8_t ShortNameLength;
+            wchar_t ShortName[12u];
+            wchar_t FileName[1u];
+        };
+
+        static_assert(sizeof(FILE_BOTH_DIR_INFORMATION) == 96u, "kernel::FILE_BOTH_DIR_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_BOTH_DIR_INFORMATION, FileName) == 94u, "kernel::FILE_BOTH_DIR_INFORMATION x64 layout drift");
+
+        struct FILE_NAMES_INFORMATION {
+            uint32_t NextEntryOffset;
+            uint32_t FileIndex;
+            uint32_t FileNameLength;
+            wchar_t FileName[1u];
+        };
+
+        static_assert(sizeof(FILE_NAMES_INFORMATION) == 16u, "kernel::FILE_NAMES_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_NAMES_INFORMATION, FileName) == 12u, "kernel::FILE_NAMES_INFORMATION x64 layout drift");
+
+        struct FILE_ID_BOTH_DIR_INFORMATION {
+            uint32_t NextEntryOffset;
+            uint32_t FileIndex;
+            int64_t CreationTime;
+            int64_t LastAccessTime;
+            int64_t LastWriteTime;
+            int64_t ChangeTime;
+            int64_t EndOfFile;
+            int64_t AllocationSize;
+            uint32_t FileAttributes;
+            uint32_t FileNameLength;
+            uint32_t EaSize;
+            int8_t ShortNameLength;
+            wchar_t ShortName[12u];
+            int64_t FileId;
+            wchar_t FileName[1u];
+        };
+
+        static_assert(sizeof(FILE_ID_BOTH_DIR_INFORMATION) == 112u, "kernel::FILE_ID_BOTH_DIR_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileId) == 96u, "kernel::FILE_ID_BOTH_DIR_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileName) == 104u, "kernel::FILE_ID_BOTH_DIR_INFORMATION x64 layout drift");
+
+        struct FILE_ID_FULL_DIR_INFORMATION {
+            uint32_t NextEntryOffset;
+            uint32_t FileIndex;
+            int64_t CreationTime;
+            int64_t LastAccessTime;
+            int64_t LastWriteTime;
+            int64_t ChangeTime;
+            int64_t EndOfFile;
+            int64_t AllocationSize;
+            uint32_t FileAttributes;
+            uint32_t FileNameLength;
+            uint32_t EaSize;
+            int64_t FileId;
+            wchar_t FileName[1u];
+        };
+
+        static_assert(sizeof(FILE_ID_FULL_DIR_INFORMATION) == 88u, "kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileId) == 72u, "kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileName) == 80u, "kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
 
     }
 

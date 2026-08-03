@@ -43,6 +43,12 @@ namespace mimo {
 
             std::wstring RenderRenameFlags(uint32_t flags);
 
+            std::wstring RenderQueryDirectoryFlags(uint8_t operationFlags);
+
+            std::wstring RenderCompletionFilter(uint32_t completionFilter);
+
+            std::wstring RenderDirectoryNotifyInformationClass(uint32_t directoryNotifyInformationClass);
+
         }
 
     }

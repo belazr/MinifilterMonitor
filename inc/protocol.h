@@ -92,6 +92,31 @@ namespace mimo {
                 uint64_t infoBuffer;
             } setFileInformation;
 
+            // IRP_MJ_DIRECTORY_CONTROL / IRP_MN_QUERY_DIRECTORY
+            struct {
+                uint32_t length;
+                uint8_t reserved1[4u];
+                uint64_t fileName;
+                uint32_t fileInformationClass;
+                uint8_t reserved2[4u];
+                uint32_t fileIndex;
+                uint8_t reserved3[4u];
+                uint64_t directoryBuffer;
+                uint64_t mdlAddress;
+            } queryDirectory;
+
+            // IRP_MJ_DIRECTORY_CONTROL / IRP_MN_NOTIFY_CHANGE_DIRECTORY / IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX
+            struct {
+                uint32_t length;
+                uint8_t reserved1[4u];
+                uint32_t completionFilter;
+                uint8_t reserved2[4u];
+                uint32_t directoryNotifyInformationClass;   // IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX only
+                uint8_t reserved3[12u];
+                uint64_t directoryBuffer;
+                uint64_t mdlAddress;
+            } notifyDirectory;
+
             struct {
                 uint64_t argument1;
                 uint64_t argument2;
@@ -122,6 +147,15 @@ namespace mimo {
         static_assert(offsetof(FltParameters, setFileInformation.clusterCount) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setFileInformation.deleteHandle) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setFileInformation.infoBuffer) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryDirectory.fileName) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryDirectory.fileInformationClass) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryDirectory.fileIndex) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryDirectory.directoryBuffer) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryDirectory.mdlAddress) == 40u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, notifyDirectory.completionFilter) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, notifyDirectory.directoryNotifyInformationClass) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, notifyDirectory.directoryBuffer) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, notifyDirectory.mdlAddress) == 40u, "protocol::FltParameters layout drift");
 
         inline constexpr uint32_t STACK_TRACE_FRAMES      = 8u;
         inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;
@@ -191,15 +225,38 @@ namespace mimo {
         static_assert(offsetof(SetInfoSupplement, payload) == 8u, "protocol::SetInfoSupplement layout drift");
         static_assert(offsetof(SetInfoSupplement, targetName) == 588u, "protocol::SetInfoSupplement layout drift");
 
+        // IRP_MJ_DIRECTORY_CONTROL
+
+        // capture bits for QueryDirectorySupplement::captured
+        inline constexpr uint32_t QUERY_DIRECTORY_CAPTURED_PAYLOAD    = 0x00000001u;
+        inline constexpr uint32_t QUERY_DIRECTORY_CAPTURED_FILE_NAME  = 0x00000002u;
+        inline constexpr uint32_t QUERY_DIRECTORY_TRUNCATED_FILE_NAME = 0x00000004u;
+
+        inline constexpr uint32_t FILE_NAME_WCHARS = 256u;
+
+        inline constexpr uint32_t QUERY_DIRECTORY_PAYLOAD_BYTES = QUERY_INFO_PAYLOAD_BYTES - 2u * FILE_NAME_WCHARS;
+
+        struct QueryDirectorySupplement {
+            uint32_t captured;
+            uint32_t capturedBytes;
+            uint8_t payload[QUERY_DIRECTORY_PAYLOAD_BYTES];
+            wchar_t fileName[FILE_NAME_WCHARS];
+        };
+
+        static_assert(offsetof(QueryDirectorySupplement, payload) == 8u, "protocol::QueryDirectorySupplement layout drift");
+        static_assert(offsetof(QueryDirectorySupplement, fileName) == 588u, "protocol::QueryDirectorySupplement layout drift");
+
         union Supplement {
             CreateSupplement create;
             QueryInfoSupplement queryInfo;
             SetInfoSupplement setInfo;
+            QueryDirectorySupplement queryDirectory;
         };
 
         static_assert(sizeof(CreateSupplement) == 1100u, "protocol::CreateSupplement layout drift");
         static_assert(sizeof(QueryInfoSupplement) == 1100u, "protocol::QueryInfoSupplement layout drift");
         static_assert(sizeof(SetInfoSupplement) == 1100u, "protocol::SetInfoSupplement layout drift");
+        static_assert(sizeof(QueryDirectorySupplement) == 1100u, "protocol::QueryDirectorySupplement layout drift");
         static_assert(sizeof(Supplement) == 1100u, "protocol::Supplement layout drift");
 
         // truncation bit for RecordData::truncated
