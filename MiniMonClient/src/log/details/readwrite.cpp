@@ -1,7 +1,7 @@
 #include "readwrite.h"
 
 #include "..\..\kernel.h"
-#include "..\names.h"
+#include "..\values.h"
 
 #include "..\..\..\..\inc\protocol.h"
 
@@ -61,7 +61,7 @@ namespace mimo {
                         return std::format(L"Mdl: 0x{:X}", parameters.readWrite.mdlAddress);
                     }
 
-                    std::wstring details = std::format(L"Offset: {}, Length: {}", names::RenderByteOffset(parameters.readWrite.byteOffset), parameters.readWrite.length);
+                    std::wstring details = std::format(L"Offset: {}, Length: {}", values::RenderByteOffset(parameters.readWrite.byteOffset), parameters.readWrite.length);
 
                     if ((data.operationFlags & kernel::SL_KEY_SPECIFIED) || parameters.readWrite.key) {
                         details += std::format(L", Key: 0x{:X}", parameters.readWrite.key);

@@ -4,6 +4,7 @@
 #include "..\..\kernel.h"
 #include "..\..\text.h"
 #include "..\names.h"
+#include "..\values.h"
 
 #include "..\..\..\..\inc\protocol.h"
 
@@ -41,45 +42,23 @@ namespace {
     }
 
 
-    std::wstring RenderFileTime(LONGLONG fileTime) {
-
-        if (fileTime < 0) return std::to_wstring(fileTime);
-
-        const ULONGLONG ticks = static_cast<ULONGLONG>(fileTime);
-
-        FILETIME systemFileTime{};
-        systemFileTime.dwLowDateTime = static_cast<DWORD>(ticks);
-        systemFileTime.dwHighDateTime = static_cast<DWORD>(ticks >> 32);
-
-        FILETIME localFileTime{};
-
-        if (!FileTimeToLocalFileTime(&systemFileTime, &localFileTime)) return L"TIME ERROR";
-
-        SYSTEMTIME localTime{};
-
-        if (!FileTimeToSystemTime(&localFileTime, &localTime)) return L"TIME ERROR";
-
-        return std::format(L"{:04}-{:02}-{:02} {:02}:{:02}:{:02}", localTime.wYear, localTime.wMonth, localTime.wDay, localTime.wHour, localTime.wMinute, localTime.wSecond);
-    }
-
-
     std::wstring RenderBasicPayload(const kernel::FILE_BASIC_INFORMATION& payload) {
         std::wstring result;
 
         if (payload.CreationTime) {
-            result += std::format(L"CreationTime: {}, ", RenderFileTime(payload.CreationTime));
+            result += std::format(L"CreationTime: {}, ", log::values::RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L"LastAccessTime: {}, ", RenderFileTime(payload.LastAccessTime));
+            result += std::format(L"LastAccessTime: {}, ", log::values::RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L"LastWriteTime: {}, ", RenderFileTime(payload.LastWriteTime));
+            result += std::format(L"LastWriteTime: {}, ", log::values::RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L"ChangeTime: {}, ", RenderFileTime(payload.ChangeTime));
+            result += std::format(L"ChangeTime: {}, ", log::values::RenderFileTime(payload.ChangeTime));
         }
 
         if (payload.FileAttributes) {
@@ -184,19 +163,19 @@ namespace {
         std::wstring result;
 
         if (payload.CreationTime) {
-            result += std::format(L"CreationTime: {}, ", RenderFileTime(payload.CreationTime));
+            result += std::format(L"CreationTime: {}, ", log::values::RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L"LastAccessTime: {}, ", RenderFileTime(payload.LastAccessTime));
+            result += std::format(L"LastAccessTime: {}, ", log::values::RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L"LastWriteTime: {}, ", RenderFileTime(payload.LastWriteTime));
+            result += std::format(L"LastWriteTime: {}, ", log::values::RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L"ChangeTime: {}, ", RenderFileTime(payload.ChangeTime));
+            result += std::format(L"ChangeTime: {}, ", log::values::RenderFileTime(payload.ChangeTime));
         }
 
         result += std::format(L"AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);
@@ -282,19 +261,19 @@ namespace {
         std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<ULONGLONG>(payload.FileId));
 
         if (payload.CreationTime) {
-            result += std::format(L", CreationTime: {}", RenderFileTime(payload.CreationTime));
+            result += std::format(L", CreationTime: {}", log::values::RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L", LastAccessTime: {}", RenderFileTime(payload.LastAccessTime));
+            result += std::format(L", LastAccessTime: {}", log::values::RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L", LastWriteTime: {}", RenderFileTime(payload.LastWriteTime));
+            result += std::format(L", LastWriteTime: {}", log::values::RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L", ChangeTime: {}", RenderFileTime(payload.ChangeTime));
+            result += std::format(L", ChangeTime: {}", log::values::RenderFileTime(payload.ChangeTime));
         }
 
         result += std::format(L", AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);
@@ -353,19 +332,19 @@ namespace {
         std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<ULONGLONG>(payload.FileId));
 
         if (payload.CreationTime) {
-            result += std::format(L", CreationTime: {}", RenderFileTime(payload.CreationTime));
+            result += std::format(L", CreationTime: {}", log::values::RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L", LastAccessTime: {}", RenderFileTime(payload.LastAccessTime));
+            result += std::format(L", LastAccessTime: {}", log::values::RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L", LastWriteTime: {}", RenderFileTime(payload.LastWriteTime));
+            result += std::format(L", LastWriteTime: {}", log::values::RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L", ChangeTime: {}", RenderFileTime(payload.ChangeTime));
+            result += std::format(L", ChangeTime: {}", log::values::RenderFileTime(payload.ChangeTime));
         }
 
         result += std::format(L", AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);

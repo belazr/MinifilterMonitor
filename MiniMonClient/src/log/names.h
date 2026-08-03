@@ -31,8 +31,6 @@ namespace mimo {
 
             std::wstring RenderFileAttributes(uint32_t fileAttributes);
 
-            std::wstring RenderByteOffset(int64_t byteOffset);
-
             std::wstring RenderFileInformationClass(uint32_t fileInformationClass);
 
             std::wstring RenderCompressionFormat(uint16_t format);

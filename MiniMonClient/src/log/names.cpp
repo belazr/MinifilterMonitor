@@ -498,16 +498,6 @@ namespace mimo {
             }
 
 
-            std::wstring RenderByteOffset(int64_t byteOffset) {
-
-                if (byteOffset == kernel::FILE_WRITE_TO_END_OF_FILE) return L"EOF";
-
-                if (byteOffset == kernel::FILE_USE_FILE_POINTER_POSITION) return L"Current";
-
-                return std::to_wstring(byteOffset);
-            }
-
-
             std::wstring RenderFileInformationClass(uint32_t fileInformationClass) {
 
                 switch (fileInformationClass) {

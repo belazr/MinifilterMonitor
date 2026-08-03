@@ -29,6 +29,7 @@
     <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\log\names.cpp" />
+    <ClCompile Include="src\log\values.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\protocol.h" />
@@ -46,6 +47,7 @@
     <ClInclude Include="src\text.h" />
     <ClInclude Include="src\handle.h" />
     <ClInclude Include="src\log\names.h" />
+    <ClInclude Include="src\log\values.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\res.rc" />
