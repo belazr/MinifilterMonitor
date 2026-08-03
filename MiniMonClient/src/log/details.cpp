@@ -1,10 +1,11 @@
 #include "details.h"
 
-#include "..\kernel.h"
 #include "details\create.h"
 #include "details\directory.h"
 #include "details\info.h"
 #include "details\readwrite.h"
+
+#include "..\kernel.h"
 
 #include "..\..\..\inc\protocol.h"
 

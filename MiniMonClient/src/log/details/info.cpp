@@ -1,10 +1,12 @@
 #include "info.h"
 
 #include "payload.h"
-#include "..\..\kernel.h"
-#include "..\..\text.h"
+
 #include "..\names.h"
 #include "..\values.h"
+
+#include "..\..\kernel.h"
+#include "..\..\text.h"
 
 #include "..\..\..\..\inc\protocol.h"
 

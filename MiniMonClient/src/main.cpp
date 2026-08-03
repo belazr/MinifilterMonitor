@@ -1,8 +1,9 @@
 #include "filter.h"
 
-#include "handle.h"
 #include "log\format.h"
 #include "log\sink.h"
+
+#include "handle.h"
 #include "records.h"
 #include "text.h"
 

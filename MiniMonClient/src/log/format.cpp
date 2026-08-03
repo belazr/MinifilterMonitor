@@ -1,8 +1,9 @@
 #include "format.h"
 
-#include "..\text.h"
 #include "details.h"
 #include "names.h"
+
+#include "..\text.h"
 
 #include "..\..\..\inc\protocol.h"
 

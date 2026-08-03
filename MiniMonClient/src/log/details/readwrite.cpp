@@ -1,7 +1,8 @@
 #include "readwrite.h"
 
-#include "..\..\kernel.h"
 #include "..\values.h"
+
+#include "..\..\kernel.h"
 
 #include "..\..\..\..\inc\protocol.h"
 
