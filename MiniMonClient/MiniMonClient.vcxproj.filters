@@ -71,6 +71,9 @@
     <ClInclude Include="src\log\details\info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\log\details\payload.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\log\details\readwrite.h">
       <Filter>Header Files</Filter>
     </ClInclude>

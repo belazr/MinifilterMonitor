@@ -36,6 +36,7 @@
     <ClInclude Include="src\log\details.h" />
     <ClInclude Include="src\log\details\create.h" />
     <ClInclude Include="src\log\details\info.h" />
+    <ClInclude Include="src\log\details\payload.h" />
     <ClInclude Include="src\log\details\readwrite.h" />
     <ClInclude Include="src\log\format.h" />
     <ClInclude Include="src\records.h" />

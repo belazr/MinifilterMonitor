@@ -1,5 +1,6 @@
 #include "info.h"
 
+#include "payload.h"
 #include "..\..\kernel.h"
 #include "..\..\text.h"
 #include "..\names.h"
@@ -37,21 +38,6 @@ namespace {
         if (!(supplement.captured & protocol::SET_INFO_CAPTURED_PAYLOAD)) return {};
 
         return { supplement.payload, supplement.capturedBytes };
-    }
-
-
-    template <typename T>
-    bool ReadValue(
-        std::span<const uint8_t> payload,
-        T& value,
-        size_t offset = 0u
-    ) {
-
-        if (payload.size() < offset + sizeof(T)) return false;
-
-        std::memcpy(&value, payload.data() + offset, sizeof(T));
-
-        return true;
     }
 
 
@@ -126,19 +112,9 @@ namespace {
     }
 
 
-    std::wstring RenderPayloadFileName(std::span<const uint8_t> nameData, ULONG fileNameLength) {
-        const size_t nameBytes = fileNameLength < nameData.size() ? fileNameLength : nameData.size();
-
-        std::wstring name(nameBytes / sizeof(wchar_t), L'\0');
-        std::memcpy(name.data(), nameData.data(), name.size() * sizeof(wchar_t));
-
-        return text::MarkTruncated(name, nameBytes < fileNameLength);
-    }
-
-
     std::wstring RenderNamePayload(const kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
 
-        return std::format(L"Name: {}", RenderPayloadFileName(nameData, payload.FileNameLength));
+        return std::format(L"Name: {}", log::details::payload::RenderFileName(nameData, payload.FileNameLength));
     }
 
 
@@ -175,10 +151,10 @@ namespace {
         while (true) {
             kernel::FILE_STREAM_INFORMATION entry;
 
-            if (!ReadValue(payload, entry, offset)) break;
+            if (!log::details::payload::ReadValue(payload, entry, offset)) break;
 
             constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_STREAM_INFORMATION, StreamName));
-            result += std::format(L"StreamName: {}, StreamSize: {}, StreamAllocationSize: {}, ", RenderPayloadFileName(payload.subspan(offset + NAME_OFFSET), entry.StreamNameLength), entry.StreamSize, entry.StreamAllocationSize);
+            result += std::format(L"StreamName: {}, StreamSize: {}, StreamAllocationSize: {}, ", log::details::payload::RenderFileName(payload.subspan(offset + NAME_OFFSET), entry.StreamNameLength), entry.StreamSize, entry.StreamAllocationSize);
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
 
@@ -248,7 +224,7 @@ namespace {
         ULONG bytesNeeded;
         ULONG entriesReturned;
 
-        if (!ReadValue(payload, bytesNeeded) || !ReadValue(payload, entriesReturned, offsetof(kernel::FILE_LINKS_INFORMATION, EntriesReturned))) return {};
+        if (!log::details::payload::ReadValue(payload, bytesNeeded) || !log::details::payload::ReadValue(payload, entriesReturned, offsetof(kernel::FILE_LINKS_INFORMATION, EntriesReturned))) return {};
 
         std::wstring result = std::format(L"BytesNeeded: {}, EntriesReturned: {}", bytesNeeded, entriesReturned);
         ULONG offset = static_cast<ULONG>(offsetof(kernel::FILE_LINKS_INFORMATION, Entry));
@@ -256,10 +232,10 @@ namespace {
         while (true) {
             kernel::FILE_LINK_ENTRY_INFORMATION entry;
 
-            if (!ReadValue(payload, entry, offset)) break;
+            if (!log::details::payload::ReadValue(payload, entry, offset)) break;
 
             constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_LINK_ENTRY_INFORMATION, FileName));
-            result += std::format(L", ParentFileId: 0x{:X}, FileName: {}", static_cast<ULONGLONG>(entry.ParentFileId), RenderPayloadFileName(payload.subspan(offset + NAME_OFFSET), static_cast<ULONG>(entry.FileNameLength * sizeof(wchar_t))));
+            result += std::format(L", ParentFileId: 0x{:X}, FileName: {}", static_cast<ULONGLONG>(entry.ParentFileId), log::details::payload::RenderFileName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
 
@@ -462,7 +438,7 @@ namespace {
 
     std::wstring RenderShortNamePayload(const kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
 
-        return std::format(L"FileName: {}", RenderPayloadFileName(nameData, payload.FileNameLength));
+        return std::format(L"FileName: {}", log::details::payload::RenderFileName(nameData, payload.FileNameLength));
     }
 
 
@@ -502,7 +478,7 @@ namespace mimo {
                         case kernel::FileBasicInformation: {
                             kernel::FILE_BASIC_INFORMATION basic;
 
-                            if (ReadValue(payload, basic)) {
+                            if (payload::ReadValue(payload, basic)) {
                                 payloadText = RenderBasicPayload(basic);
                             }
 
@@ -512,7 +488,7 @@ namespace mimo {
                         case kernel::FileStandardInformation: {
                             kernel::FILE_STANDARD_INFORMATION standard;
 
-                            if (ReadValue(payload, standard)) {
+                            if (payload::ReadValue(payload, standard)) {
                                 payloadText = RenderStandardPayload(standard);
                             }
 
@@ -522,7 +498,7 @@ namespace mimo {
                         case kernel::FileInternalInformation: {
                             kernel::FILE_INTERNAL_INFORMATION internal;
 
-                            if (ReadValue(payload, internal)) {
+                            if (payload::ReadValue(payload, internal)) {
                                 payloadText = RenderInternalPayload(internal);
                             }
 
@@ -532,7 +508,7 @@ namespace mimo {
                         case kernel::FileEaInformation: {
                             kernel::FILE_EA_INFORMATION ea;
 
-                            if (ReadValue(payload, ea)) {
+                            if (payload::ReadValue(payload, ea)) {
                                 payloadText = RenderEaPayload(ea);
                             }
 
@@ -545,7 +521,7 @@ namespace mimo {
                         case kernel::FileNetworkPhysicalNameInformation: {
                             kernel::FILE_NAME_INFORMATION name;
 
-                            if (ReadValue(payload, name)) {
+                            if (payload::ReadValue(payload, name)) {
                                 constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_NAME_INFORMATION, FileName));
                                 payloadText = RenderNamePayload(name, payload.subspan(NAME_OFFSET));
                             }
@@ -556,7 +532,7 @@ namespace mimo {
                         case kernel::FilePositionInformation: {
                             kernel::FILE_POSITION_INFORMATION position;
 
-                            if (ReadValue(payload, position)) {
+                            if (payload::ReadValue(payload, position)) {
                                 payloadText = RenderPositionPayload(position);
                             }
 
@@ -566,7 +542,7 @@ namespace mimo {
                         case kernel::FileAllInformation: {
                             kernel::FILE_ALL_INFORMATION all;
 
-                            if (ReadValue(payload, all)) {
+                            if (payload::ReadValue(payload, all)) {
                                 constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_ALL_INFORMATION, NameInformation.FileName));
                                 payloadText = RenderAllPayload(all, payload.subspan(NAME_OFFSET));
                             }
@@ -582,7 +558,7 @@ namespace mimo {
                         case kernel::FileCompressionInformation: {
                             kernel::FILE_COMPRESSION_INFORMATION compression;
 
-                            if (ReadValue(payload, compression)) {
+                            if (payload::ReadValue(payload, compression)) {
                                 payloadText = RenderCompressionPayload(compression);
                             }
 
@@ -592,7 +568,7 @@ namespace mimo {
                         case kernel::FileNetworkOpenInformation: {
                             kernel::FILE_NETWORK_OPEN_INFORMATION networkOpen;
 
-                            if (ReadValue(payload, networkOpen)) {
+                            if (payload::ReadValue(payload, networkOpen)) {
                                 payloadText = RenderNetworkOpenPayload(networkOpen);
                             }
 
@@ -602,7 +578,7 @@ namespace mimo {
                         case kernel::FileAttributeTagInformation: {
                             kernel::FILE_ATTRIBUTE_TAG_INFORMATION attributeTag;
 
-                            if (ReadValue(payload, attributeTag)) {
+                            if (payload::ReadValue(payload, attributeTag)) {
                                 payloadText = RenderAttributeTagPayload(attributeTag);
                             }
 
@@ -617,7 +593,7 @@ namespace mimo {
                         case kernel::FileRemoteProtocolInformation: {
                             kernel::FILE_REMOTE_PROTOCOL_INFORMATION remoteProtocol;
 
-                            if (ReadValue(payload, remoteProtocol)) {
+                            if (payload::ReadValue(payload, remoteProtocol)) {
                                 payloadText = RenderRemoteProtocolPayload(remoteProtocol);
                             }
 
@@ -627,7 +603,7 @@ namespace mimo {
                         case kernel::FileIdInformation: {
                             kernel::FILE_ID_INFORMATION id;
 
-                            if (ReadValue(payload, id)) {
+                            if (payload::ReadValue(payload, id)) {
                                 payloadText = RenderIdPayload(id);
                             }
 
@@ -637,7 +613,7 @@ namespace mimo {
                         case kernel::FileStatInformation: {
                             kernel::FILE_STAT_INFORMATION stat;
 
-                            if (ReadValue(payload, stat)) {
+                            if (payload::ReadValue(payload, stat)) {
                                 payloadText = RenderStatPayload(stat);
                             }
 
@@ -647,7 +623,7 @@ namespace mimo {
                         case kernel::FileStatLxInformation: {
                             kernel::FILE_STAT_LX_INFORMATION statLx;
 
-                            if (ReadValue(payload, statLx)) {
+                            if (payload::ReadValue(payload, statLx)) {
                                 payloadText = RenderStatLxPayload(statLx);
                             }
 
@@ -657,7 +633,7 @@ namespace mimo {
                         case kernel::FileCaseSensitiveInformation: {
                             kernel::FILE_CASE_SENSITIVE_INFORMATION caseSensitive;
 
-                            if (ReadValue(payload, caseSensitive)) {
+                            if (payload::ReadValue(payload, caseSensitive)) {
                                 payloadText = RenderCaseSensitivePayload(caseSensitive);
                             }
 
@@ -667,7 +643,7 @@ namespace mimo {
                         case kernel::FileStatBasicInformation: {
                             kernel::FILE_STAT_BASIC_INFORMATION statBasic;
 
-                            if (ReadValue(payload, statBasic)) {
+                            if (payload::ReadValue(payload, statBasic)) {
                                 payloadText = RenderStatBasicPayload(statBasic);
                             }
 
@@ -699,7 +675,7 @@ namespace mimo {
                         case kernel::FileBasicInformation: {
                             kernel::FILE_BASIC_INFORMATION basic;
 
-                            if (ReadValue(payload, basic)) {
+                            if (payload::ReadValue(payload, basic)) {
                                 payloadText = RenderBasicPayload(basic);
                             }
 
@@ -718,7 +694,7 @@ namespace mimo {
                         case kernel::FileDispositionInformation: {
                             kernel::FILE_DISPOSITION_INFORMATION disposition;
 
-                            if (ReadValue(payload, disposition)) {
+                            if (payload::ReadValue(payload, disposition)) {
                                 payloadText = RenderDispositionPayload(disposition);
                             }
 
@@ -728,7 +704,7 @@ namespace mimo {
                         case kernel::FileAllocationInformation: {
                             kernel::FILE_ALLOCATION_INFORMATION allocation;
 
-                            if (ReadValue(payload, allocation)) {
+                            if (payload::ReadValue(payload, allocation)) {
                                 payloadText = RenderAllocationPayload(allocation);
                             }
 
@@ -740,7 +716,7 @@ namespace mimo {
 
                             kernel::FILE_END_OF_FILE_INFORMATION endOfFile;
 
-                            if (ReadValue(payload, endOfFile)) {
+                            if (payload::ReadValue(payload, endOfFile)) {
                                 payloadText = RenderEndOfFilePayload(endOfFile);
                             }
 
@@ -755,7 +731,7 @@ namespace mimo {
                         case kernel::FileValidDataLengthInformation: {
                             kernel::FILE_VALID_DATA_LENGTH_INFORMATION validDataLength;
 
-                            if (ReadValue(payload, validDataLength)) {
+                            if (payload::ReadValue(payload, validDataLength)) {
                                 payloadText = RenderValidDataLengthPayload(validDataLength);
                             }
 
@@ -765,7 +741,7 @@ namespace mimo {
                         case kernel::FileShortNameInformation: {
                             kernel::FILE_NAME_INFORMATION shortName;
 
-                            if (ReadValue(payload, shortName)) {
+                            if (payload::ReadValue(payload, shortName)) {
                                 constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_NAME_INFORMATION, FileName));
                                 payloadText = RenderShortNamePayload(shortName, payload.subspan(NAME_OFFSET));
                             }
@@ -776,7 +752,7 @@ namespace mimo {
                         case kernel::FileDispositionInformationEx: {
                             kernel::FILE_DISPOSITION_INFORMATION_EX dispositionEx;
 
-                            if (ReadValue(payload, dispositionEx)) {
+                            if (payload::ReadValue(payload, dispositionEx)) {
                                 payloadText = RenderDispositionExPayload(dispositionEx);
                             }
 
@@ -789,7 +765,7 @@ namespace mimo {
                         case kernel::FileLinkInformationExBypassAccessCheck: {
                             kernel::FILE_RENAME_INFORMATION_EX renameEx;
 
-                            if (ReadValue(payload, renameEx)) {
+                            if (payload::ReadValue(payload, renameEx)) {
                                 payloadText = RenderRenameExPayload(renameEx);
                             }
 
@@ -802,7 +778,7 @@ namespace mimo {
                         case kernel::FileCaseSensitiveInformationForceAccessCheck: {
                             kernel::FILE_CASE_SENSITIVE_INFORMATION caseSensitive;
 
-                            if (ReadValue(payload, caseSensitive)) {
+                            if (payload::ReadValue(payload, caseSensitive)) {
                                 payloadText = RenderCaseSensitivePayload(caseSensitive);
                             }
 
