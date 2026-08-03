@@ -21,6 +21,18 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderFileName(const protocol::QueryDirectorySupplement& supplement) {
+
+        if (!(supplement.captured & protocol::QUERY_DIRECTORY_CAPTURED_FILE_NAME)) return {};
+
+        const std::wstring_view fileName = text::Extract(supplement.fileName);
+
+        if (fileName.empty()) return {};
+
+        return std::format(L"Filter: {}", text::MarkTruncated(fileName, supplement.captured & protocol::QUERY_DIRECTORY_TRUNCATED_FILE_NAME));
+    }
+
+
     std::span<const uint8_t> ExtractPayload(const protocol::QueryDirectorySupplement& supplement) {
 
         if (!(supplement.captured & protocol::QUERY_DIRECTORY_CAPTURED_PAYLOAD)) return {};
@@ -54,18 +66,6 @@ namespace {
         }
 
         return result;
-    }
-
-
-    std::wstring RenderFileName(const protocol::QueryDirectorySupplement& supplement) {
-
-        if (!(supplement.captured & protocol::QUERY_DIRECTORY_CAPTURED_FILE_NAME)) return {};
-
-        const std::wstring_view fileName = text::Extract(supplement.fileName);
-
-        if (fileName.empty()) return {};
-
-        return std::format(L"Filter: {}", text::MarkTruncated(fileName, supplement.captured & protocol::QUERY_DIRECTORY_TRUNCATED_FILE_NAME));
     }
 
 
