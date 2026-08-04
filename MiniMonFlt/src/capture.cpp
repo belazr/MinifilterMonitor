@@ -87,7 +87,7 @@ static_assert(
     "FLT_PARAMETERS NotifyDirectory and NotifyDirectoryEx diverge: split protocol::FltParameters notifyDirectory"
 );
 
-static_assert(protocol::SID_BYTES == SECURITY_MAX_SID_SIZE, "protocol::SID_BYTES mirror drift");
+static_assert(protocol::CREATE_SID_BYTES == SECURITY_MAX_SID_SIZE, "protocol::CREATE_SID_BYTES mirror drift");
 
 namespace {
 
