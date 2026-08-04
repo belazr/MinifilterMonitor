@@ -236,6 +236,21 @@ namespace mimo {
         static_assert(offsetof(SetInfoSupplement, payload) == 8u, "protocol::SetInfoSupplement layout drift");
         static_assert(offsetof(SetInfoSupplement, targetName) == 588u, "protocol::SetInfoSupplement layout drift");
 
+        // IRP_MJ_QUERY_VOLUME_INFORMATION / IRP_MJ_SET_VOLUME_INFORMATION
+
+        // capture bit for VolumeInfoSupplement::captured
+        inline constexpr uint32_t VOLUME_INFO_CAPTURED_PAYLOAD = 0x00000001u;
+
+        inline constexpr uint32_t VOLUME_INFO_PAYLOAD_BYTES = QUERY_INFO_PAYLOAD_BYTES;
+
+        struct VolumeInfoSupplement {
+            uint32_t captured;
+            uint32_t capturedBytes;
+            uint8_t payload[VOLUME_INFO_PAYLOAD_BYTES];
+        };
+
+        static_assert(offsetof(VolumeInfoSupplement, payload) == 8u, "protocol::VolumeInfoSupplement layout drift");
+
         // IRP_MJ_DIRECTORY_CONTROL
 
         // capture bits for QueryDirectorySupplement::captured
@@ -261,12 +276,14 @@ namespace mimo {
             CreateSupplement create;
             QueryInfoSupplement queryInfo;
             SetInfoSupplement setInfo;
+            VolumeInfoSupplement volumeInfo;
             QueryDirectorySupplement queryDirectory;
         };
 
         static_assert(sizeof(CreateSupplement) == 1100u, "protocol::CreateSupplement layout drift");
         static_assert(sizeof(QueryInfoSupplement) == 1100u, "protocol::QueryInfoSupplement layout drift");
         static_assert(sizeof(SetInfoSupplement) == 1100u, "protocol::SetInfoSupplement layout drift");
+        static_assert(sizeof(VolumeInfoSupplement) == 1100u, "protocol::VolumeInfoSupplement layout drift");
         static_assert(sizeof(QueryDirectorySupplement) == 1100u, "protocol::QueryDirectorySupplement layout drift");
         static_assert(sizeof(Supplement) == 1100u, "protocol::Supplement layout drift");
 

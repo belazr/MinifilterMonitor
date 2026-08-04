@@ -191,6 +191,41 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(RENAME_FLAG_NAMES), "composite entry after its components in RENAME_FLAG_NAMES");
 
+    constexpr FlagName FILE_SYSTEM_ATTRIBUTE_NAMES[]{
+        { FILE_CASE_SENSITIVE_SEARCH,         L"FILE_CASE_SENSITIVE_SEARCH" },
+        { FILE_CASE_PRESERVED_NAMES,          L"FILE_CASE_PRESERVED_NAMES" },
+        { FILE_UNICODE_ON_DISK,               L"FILE_UNICODE_ON_DISK" },
+        { FILE_PERSISTENT_ACLS,               L"FILE_PERSISTENT_ACLS" },
+        { FILE_FILE_COMPRESSION,              L"FILE_FILE_COMPRESSION" },
+        { FILE_VOLUME_QUOTAS,                 L"FILE_VOLUME_QUOTAS" },
+        { FILE_SUPPORTS_SPARSE_FILES,         L"FILE_SUPPORTS_SPARSE_FILES" },
+        { FILE_SUPPORTS_REPARSE_POINTS,       L"FILE_SUPPORTS_REPARSE_POINTS" },
+        { FILE_SUPPORTS_REMOTE_STORAGE,       L"FILE_SUPPORTS_REMOTE_STORAGE" },
+        { FILE_RETURNS_CLEANUP_RESULT_INFO,   L"FILE_RETURNS_CLEANUP_RESULT_INFO" },
+        { FILE_SUPPORTS_POSIX_UNLINK_RENAME,  L"FILE_SUPPORTS_POSIX_UNLINK_RENAME" },
+        { FILE_SUPPORTS_BYPASS_IO,            L"FILE_SUPPORTS_BYPASS_IO" },
+        { FILE_SUPPORTS_STREAM_SNAPSHOTS,     L"FILE_SUPPORTS_STREAM_SNAPSHOTS" },
+        { FILE_SUPPORTS_CASE_SENSITIVE_DIRS,  L"FILE_SUPPORTS_CASE_SENSITIVE_DIRS" },
+        { FILE_VOLUME_IS_COMPRESSED,          L"FILE_VOLUME_IS_COMPRESSED" },
+        { FILE_SUPPORTS_OBJECT_IDS,           L"FILE_SUPPORTS_OBJECT_IDS" },
+        { FILE_SUPPORTS_ENCRYPTION,           L"FILE_SUPPORTS_ENCRYPTION" },
+        { FILE_NAMED_STREAMS,                 L"FILE_NAMED_STREAMS" },
+        { FILE_READ_ONLY_VOLUME,              L"FILE_READ_ONLY_VOLUME" },
+        { FILE_SEQUENTIAL_WRITE_ONCE,         L"FILE_SEQUENTIAL_WRITE_ONCE" },
+        { FILE_SUPPORTS_TRANSACTIONS,         L"FILE_SUPPORTS_TRANSACTIONS" },
+        { FILE_SUPPORTS_HARD_LINKS,           L"FILE_SUPPORTS_HARD_LINKS" },
+        { FILE_SUPPORTS_EXTENDED_ATTRIBUTES,  L"FILE_SUPPORTS_EXTENDED_ATTRIBUTES" },
+        { FILE_SUPPORTS_OPEN_BY_FILE_ID,      L"FILE_SUPPORTS_OPEN_BY_FILE_ID" },
+        { FILE_SUPPORTS_USN_JOURNAL,          L"FILE_SUPPORTS_USN_JOURNAL" },
+        { FILE_SUPPORTS_INTEGRITY_STREAMS,    L"FILE_SUPPORTS_INTEGRITY_STREAMS" },
+        { FILE_SUPPORTS_BLOCK_REFCOUNTING,    L"FILE_SUPPORTS_BLOCK_REFCOUNTING" },
+        { FILE_SUPPORTS_SPARSE_VDL,           L"FILE_SUPPORTS_SPARSE_VDL" },
+        { FILE_DAX_VOLUME,                    L"FILE_DAX_VOLUME" },
+        { FILE_SUPPORTS_GHOSTING,             L"FILE_SUPPORTS_GHOSTING" },
+    };
+
+    static_assert(CompositesPrecedeComponents(FILE_SYSTEM_ATTRIBUTE_NAMES), "composite entry after its components in FILE_SYSTEM_ATTRIBUTE_NAMES");
+
     constexpr FlagName QUERY_DIRECTORY_FLAG_NAMES[]{
         { kernel::SL_RESTART_SCAN,        L"Restart Scan" },
         { kernel::SL_RETURN_SINGLE_ENTRY, L"Return Single Entry" },
@@ -681,6 +716,14 @@ namespace mimo {
                 }
 
                 return std::to_wstring(fsInformationClass);
+            }
+
+
+            std::wstring RenderFileSystemAttributes(uint32_t fileSystemAttributes) {
+
+                if (!fileSystemAttributes) return L"None";
+
+                return RenderFlags(fileSystemAttributes, FILE_SYSTEM_ATTRIBUTE_NAMES, L"|");
             }
 
 

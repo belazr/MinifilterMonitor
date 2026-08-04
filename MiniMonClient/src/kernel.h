@@ -629,6 +629,75 @@ namespace mimo {
         inline constexpr uint32_t FileFsFullSizeInformationEx   = 14u;
         inline constexpr uint32_t FileFsGuidInformation         = 15u;
 
+        // FS_INFORMATION_CLASS payload layouts
+
+        struct FILE_FS_VOLUME_INFORMATION {
+            int64_t VolumeCreationTime;
+            uint32_t VolumeSerialNumber;
+            uint32_t VolumeLabelLength;
+            uint8_t SupportsObjects;
+            wchar_t VolumeLabel[1u];
+        };
+
+        static_assert(sizeof(FILE_FS_VOLUME_INFORMATION) == 24u, "kernel::FILE_FS_VOLUME_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_FS_VOLUME_INFORMATION, VolumeLabel) == 18u, "kernel::FILE_FS_VOLUME_INFORMATION x64 layout drift");
+
+        struct FILE_FS_LABEL_INFORMATION {
+            uint32_t VolumeLabelLength;
+            wchar_t VolumeLabel[1u];
+        };
+
+        static_assert(sizeof(FILE_FS_LABEL_INFORMATION) == 8u, "kernel::FILE_FS_LABEL_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_FS_LABEL_INFORMATION, VolumeLabel) == 4u, "kernel::FILE_FS_LABEL_INFORMATION x64 layout drift");
+
+        struct FILE_FS_SIZE_INFORMATION {
+            int64_t TotalAllocationUnits;
+            int64_t AvailableAllocationUnits;
+            uint32_t SectorsPerAllocationUnit;
+            uint32_t BytesPerSector;
+        };
+
+        static_assert(sizeof(FILE_FS_SIZE_INFORMATION) == 24u, "kernel::FILE_FS_SIZE_INFORMATION x64 layout drift");
+
+        struct FILE_FS_DEVICE_INFORMATION {
+            uint32_t DeviceType;
+            uint32_t Characteristics;
+        };
+
+        static_assert(sizeof(FILE_FS_DEVICE_INFORMATION) == 8u, "kernel::FILE_FS_DEVICE_INFORMATION x64 layout drift");
+
+        struct FILE_FS_ATTRIBUTE_INFORMATION {
+            uint32_t FileSystemAttributes;
+            int32_t MaximumComponentNameLength;
+            uint32_t FileSystemNameLength;
+            wchar_t FileSystemName[1u];
+        };
+
+        static_assert(sizeof(FILE_FS_ATTRIBUTE_INFORMATION) == 16u, "kernel::FILE_FS_ATTRIBUTE_INFORMATION x64 layout drift");
+        static_assert(offsetof(FILE_FS_ATTRIBUTE_INFORMATION, FileSystemName) == 12u, "kernel::FILE_FS_ATTRIBUTE_INFORMATION x64 layout drift");
+
+        struct FILE_FS_FULL_SIZE_INFORMATION {
+            int64_t TotalAllocationUnits;
+            int64_t CallerAvailableAllocationUnits;
+            int64_t ActualAvailableAllocationUnits;
+            uint32_t SectorsPerAllocationUnit;
+            uint32_t BytesPerSector;
+        };
+
+        static_assert(sizeof(FILE_FS_FULL_SIZE_INFORMATION) == 32u, "kernel::FILE_FS_FULL_SIZE_INFORMATION x64 layout drift");
+
+        struct FILE_FS_SECTOR_SIZE_INFORMATION {
+            uint32_t LogicalBytesPerSector;
+            uint32_t PhysicalBytesPerSectorForAtomicity;
+            uint32_t PhysicalBytesPerSectorForPerformance;
+            uint32_t FileSystemEffectivePhysicalBytesPerSectorForAtomicity;
+            uint32_t Flags;
+            uint32_t ByteOffsetForSectorAlignment;
+            uint32_t ByteOffsetForPartitionAlignment;
+        };
+
+        static_assert(sizeof(FILE_FS_SECTOR_SIZE_INFORMATION) == 28u, "kernel::FILE_FS_SECTOR_SIZE_INFORMATION x64 layout drift");
+
         // completion filter values
         inline constexpr uint32_t FILE_NOTIFY_CHANGE_EA           = 0x00000080u;
         inline constexpr uint32_t FILE_NOTIFY_CHANGE_STREAM_NAME  = 0x00000200u;

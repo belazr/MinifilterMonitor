@@ -45,6 +45,8 @@ namespace mimo {
 
             std::wstring RenderFsInformationClass(uint32_t fsInformationClass);
 
+            std::wstring RenderFileSystemAttributes(uint32_t fileSystemAttributes);
+
             std::wstring RenderQueryDirectoryFlags(uint8_t operationFlags);
 
             std::wstring RenderCompletionFilter(uint32_t completionFilter);

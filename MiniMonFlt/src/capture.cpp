@@ -258,6 +258,28 @@ namespace {
 
 
     __declspec(code_seg("PAGE"))
+    void PopulateSetVolumeInfoSupplement(_Inout_ protocol::VolumeInfoSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
+        PAGED_CODE();
+
+        const ULONG size = pData->Iopb->Parameters.SetVolumeInformation.Length;
+        const ULONG copySize = size < protocol::VOLUME_INFO_PAYLOAD_BYTES ? size : protocol::VOLUME_INFO_PAYLOAD_BYTES;
+
+        __try {
+            RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer, copySize);
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER) {
+
+            return;
+        }
+
+        pSupplement->capturedBytes = copySize;
+        pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;
+
+        return;
+    }
+
+
+    __declspec(code_seg("PAGE"))
     void PopulateQueryDirectoryFileName(_Inout_ protocol::QueryDirectorySupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
         PAGED_CODE();
 
@@ -305,6 +327,30 @@ namespace {
 
         pSupplement->capturedBytes = copySize;
         pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;
+
+        return;
+    }
+
+
+    __declspec(code_seg("PAGE"))
+    void PopulateQueryVolumeInfoSupplement(_Inout_ protocol::VolumeInfoSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
+        PAGED_CODE();
+
+        const ULONG bufferSize = pData->Iopb->Parameters.QueryVolumeInformation.Length;
+        const ULONG_PTR writtenSize = pData->IoStatus.Information;
+        const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
+        const ULONG copySize = dataSize < protocol::VOLUME_INFO_PAYLOAD_BYTES ? dataSize : protocol::VOLUME_INFO_PAYLOAD_BYTES;
+
+        __try {
+            RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer, copySize);
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER) {
+
+            return;
+        }
+
+        pSupplement->capturedBytes = copySize;
+        pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;
 
         return;
     }
@@ -382,6 +428,14 @@ namespace mimo {
 
                     break;
 
+                case IRP_MJ_SET_VOLUME_INFORMATION:
+
+                    if (KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer) {
+                        PopulateSetVolumeInfoSupplement(&pRecordData->supplement.volumeInfo, pData);
+                    }
+
+                    break;
+
                 case IRP_MJ_DIRECTORY_CONTROL:
 
                     if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName) {
@@ -416,6 +470,14 @@ namespace mimo {
 
                     if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryFileInformation.InfoBuffer) {
                         PopulateQueryInfoSupplement(&pRecordData->supplement.queryInfo, pData);
+                    }
+
+                    break;
+
+                case IRP_MJ_QUERY_VOLUME_INFORMATION:
+
+                    if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer) {
+                        PopulateQueryVolumeInfoSupplement(&pRecordData->supplement.volumeInfo, pData);
                     }
 
                     break;
