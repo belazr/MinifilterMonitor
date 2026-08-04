@@ -48,13 +48,13 @@ namespace mimo {
                 }
 
 
-                inline std::wstring RenderFileName(std::span<const uint8_t> nameData, uint32_t fileNameLength) {
-                    const size_t nameBytes = fileNameLength < nameData.size() ? fileNameLength : nameData.size();
+                inline std::wstring RenderName(std::span<const uint8_t> nameData, uint32_t nameBytes) {
+                    const size_t copyBytes = nameBytes < nameData.size() ? nameBytes : nameData.size();
 
-                    std::wstring name(nameBytes / sizeof(wchar_t), L'\0');
+                    std::wstring name(copyBytes / sizeof(wchar_t), L'\0');
                     std::memcpy(name.data(), nameData.data(), name.size() * sizeof(wchar_t));
 
-                    return text::MarkTruncated(name, nameBytes < fileNameLength);
+                    return text::MarkTruncated(name, copyBytes < nameBytes);
                 }
 
             }

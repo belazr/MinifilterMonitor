@@ -53,7 +53,7 @@ namespace {
 
             if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L"{}: {}, ", index, log::details::payload::RenderFileName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
+            result += std::format(L"{}: {}, ", index, log::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
             index++;
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;

@@ -95,7 +95,7 @@ namespace {
 
     std::wstring RenderNamePayload(const kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
 
-        return std::format(L"Name: {}", log::details::payload::RenderFileName(nameData, payload.FileNameLength));
+        return std::format(L"Name: {}", log::details::payload::RenderName(nameData, payload.FileNameLength));
     }
 
 
@@ -135,7 +135,7 @@ namespace {
 
             if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L"StreamName: {}, StreamSize: {}, StreamAllocationSize: {}, ", log::details::payload::RenderFileName(payload.subspan(offset + NAME_OFFSET), entry.StreamNameLength), entry.StreamSize, entry.StreamAllocationSize);
+            result += std::format(L"StreamName: {}, StreamSize: {}, StreamAllocationSize: {}, ", log::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.StreamNameLength), entry.StreamSize, entry.StreamAllocationSize);
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
 
@@ -216,7 +216,7 @@ namespace {
 
             if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L", ParentFileId: 0x{:X}, FileName: {}", static_cast<ULONGLONG>(entry.ParentFileId), log::details::payload::RenderFileName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
+            result += std::format(L", ParentFileId: 0x{:X}, FileName: {}", static_cast<ULONGLONG>(entry.ParentFileId), log::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
 
@@ -419,7 +419,7 @@ namespace {
 
     std::wstring RenderShortNamePayload(const kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
 
-        return std::format(L"FileName: {}", log::details::payload::RenderFileName(nameData, payload.FileNameLength));
+        return std::format(L"FileName: {}", log::details::payload::RenderName(nameData, payload.FileNameLength));
     }
 
 
