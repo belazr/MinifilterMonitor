@@ -48,11 +48,11 @@ namespace {
         ULONG index = 1u;
 
         while (true) {
+            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(Entry, FileName));
             Entry entry;
 
-            if (!log::details::payload::ReadValue(payload, entry, offset)) break;
+            if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(Entry, FileName));
             result += std::format(L"{}: {}, ", index, log::details::payload::RenderFileName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
             index++;
 

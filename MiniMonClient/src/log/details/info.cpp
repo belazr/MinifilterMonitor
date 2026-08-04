@@ -130,11 +130,11 @@ namespace {
         ULONG offset = 0u;
 
         while (true) {
+            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_STREAM_INFORMATION, StreamName));
             kernel::FILE_STREAM_INFORMATION entry;
 
-            if (!log::details::payload::ReadValue(payload, entry, offset)) break;
+            if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_STREAM_INFORMATION, StreamName));
             result += std::format(L"StreamName: {}, StreamSize: {}, StreamAllocationSize: {}, ", log::details::payload::RenderFileName(payload.subspan(offset + NAME_OFFSET), entry.StreamNameLength), entry.StreamSize, entry.StreamAllocationSize);
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
@@ -211,11 +211,11 @@ namespace {
         ULONG offset = static_cast<ULONG>(offsetof(kernel::FILE_LINKS_INFORMATION, Entry));
 
         while (true) {
+            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_LINK_ENTRY_INFORMATION, FileName));
             kernel::FILE_LINK_ENTRY_INFORMATION entry;
 
-            if (!log::details::payload::ReadValue(payload, entry, offset)) break;
+            if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_LINK_ENTRY_INFORMATION, FileName));
             result += std::format(L", ParentFileId: 0x{:X}, FileName: {}", static_cast<ULONGLONG>(entry.ParentFileId), log::details::payload::RenderFileName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
@@ -500,10 +500,10 @@ namespace mimo {
                         case kernel::FileAlternateNameInformation:
                         case kernel::FileNormalizedNameInformation:
                         case kernel::FileNetworkPhysicalNameInformation: {
+                            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_NAME_INFORMATION, FileName));
                             kernel::FILE_NAME_INFORMATION name;
 
-                            if (payload::ReadValue(payload, name)) {
-                                constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_NAME_INFORMATION, FileName));
+                            if (payload::ReadHeader(payload, name, NAME_OFFSET)) {
                                 payloadText = RenderNamePayload(name, payload.subspan(NAME_OFFSET));
                             }
 
@@ -521,10 +521,10 @@ namespace mimo {
                         }
 
                         case kernel::FileAllInformation: {
+                            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_ALL_INFORMATION, NameInformation.FileName));
                             kernel::FILE_ALL_INFORMATION all;
 
-                            if (payload::ReadValue(payload, all)) {
-                                constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_ALL_INFORMATION, NameInformation.FileName));
+                            if (payload::ReadHeader(payload, all, NAME_OFFSET)) {
                                 payloadText = RenderAllPayload(all, payload.subspan(NAME_OFFSET));
                             }
 
@@ -720,10 +720,10 @@ namespace mimo {
                         }
 
                         case kernel::FileShortNameInformation: {
+                            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_NAME_INFORMATION, FileName));
                             kernel::FILE_NAME_INFORMATION shortName;
 
-                            if (payload::ReadValue(payload, shortName)) {
-                                constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_NAME_INFORMATION, FileName));
+                            if (payload::ReadHeader(payload, shortName, NAME_OFFSET)) {
                                 payloadText = RenderShortNamePayload(shortName, payload.subspan(NAME_OFFSET));
                             }
 
@@ -746,7 +746,7 @@ namespace mimo {
                         case kernel::FileLinkInformationExBypassAccessCheck: {
                             kernel::FILE_RENAME_INFORMATION_EX renameEx;
 
-                            if (payload::ReadValue(payload, renameEx)) {
+                            if (payload::ReadHeader(payload, renameEx, offsetof(kernel::FILE_RENAME_INFORMATION_EX, FileName))) {
                                 payloadText = RenderRenameExPayload(renameEx);
                             }
 

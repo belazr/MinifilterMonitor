@@ -31,6 +31,23 @@ namespace mimo {
                 }
 
 
+                template <typename T>
+                bool ReadHeader(
+                    std::span<const uint8_t> payload,
+                    T& value,
+                    size_t headerBytes,
+                    size_t offset = 0u
+                ) {
+
+                    if (payload.size() < offset + headerBytes) return false;
+
+                    std::memset(&value, 0, sizeof(value));
+                    std::memcpy(&value, payload.data() + offset, headerBytes);
+
+                    return true;
+                }
+
+
                 inline std::wstring RenderFileName(std::span<const uint8_t> nameData, uint32_t fileNameLength) {
                     const size_t nameBytes = fileNameLength < nameData.size() ? fileNameLength : nameData.size();
 
