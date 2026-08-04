@@ -660,6 +660,30 @@ namespace mimo {
             }
 
 
+            std::wstring RenderFsInformationClass(uint32_t fsInformationClass) {
+
+                switch (fsInformationClass) {
+                    case kernel::FileFsVolumeInformation:       return L"FileFsVolumeInformation";
+                    case kernel::FileFsLabelInformation:        return L"FileFsLabelInformation";
+                    case kernel::FileFsSizeInformation:         return L"FileFsSizeInformation";
+                    case kernel::FileFsDeviceInformation:       return L"FileFsDeviceInformation";
+                    case kernel::FileFsAttributeInformation:    return L"FileFsAttributeInformation";
+                    case kernel::FileFsControlInformation:      return L"FileFsControlInformation";
+                    case kernel::FileFsFullSizeInformation:     return L"FileFsFullSizeInformation";
+                    case kernel::FileFsObjectIdInformation:     return L"FileFsObjectIdInformation";
+                    case kernel::FileFsDriverPathInformation:   return L"FileFsDriverPathInformation";
+                    case kernel::FileFsVolumeFlagsInformation:  return L"FileFsVolumeFlagsInformation";
+                    case kernel::FileFsSectorSizeInformation:   return L"FileFsSectorSizeInformation";
+                    case kernel::FileFsDataCopyInformation:     return L"FileFsDataCopyInformation";
+                    case kernel::FileFsMetadataSizeInformation: return L"FileFsMetadataSizeInformation";
+                    case kernel::FileFsFullSizeInformationEx:   return L"FileFsFullSizeInformationEx";
+                    case kernel::FileFsGuidInformation:         return L"FileFsGuidInformation";
+                }
+
+                return std::to_wstring(fsInformationClass);
+            }
+
+
             std::wstring RenderQueryDirectoryFlags(uint8_t operationFlags) {
 
                 return RenderFlags(operationFlags, QUERY_DIRECTORY_FLAG_NAMES, L"|");

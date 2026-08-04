@@ -24,6 +24,7 @@
     <ClCompile Include="src\log\details\directory.cpp" />
     <ClCompile Include="src\log\details\info.cpp" />
     <ClCompile Include="src\log\details\readwrite.cpp" />
+    <ClCompile Include="src\log\details\volume.cpp" />
     <ClCompile Include="src\log\format.cpp" />
     <ClCompile Include="src\log\sink.cpp" />
     <ClCompile Include="src\text.cpp" />
@@ -41,6 +42,7 @@
     <ClInclude Include="src\log\details\info.h" />
     <ClInclude Include="src\log\details\payload.h" />
     <ClInclude Include="src\log\details\readwrite.h" />
+    <ClInclude Include="src\log\details\volume.h" />
     <ClInclude Include="src\log\format.h" />
     <ClInclude Include="src\records.h" />
     <ClInclude Include="src\log\sink.h" />

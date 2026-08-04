@@ -612,6 +612,23 @@ namespace mimo {
         inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_SOURCE_SR               = 0x00000100u;
         inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_SR                      = 0x00000180u;
 
+        // FS_INFORMATION_CLASS codes
+        inline constexpr uint32_t FileFsVolumeInformation       = 1u;
+        inline constexpr uint32_t FileFsLabelInformation        = 2u;
+        inline constexpr uint32_t FileFsSizeInformation         = 3u;
+        inline constexpr uint32_t FileFsDeviceInformation       = 4u;
+        inline constexpr uint32_t FileFsAttributeInformation    = 5u;
+        inline constexpr uint32_t FileFsControlInformation      = 6u;
+        inline constexpr uint32_t FileFsFullSizeInformation     = 7u;
+        inline constexpr uint32_t FileFsObjectIdInformation     = 8u;
+        inline constexpr uint32_t FileFsDriverPathInformation   = 9u;
+        inline constexpr uint32_t FileFsVolumeFlagsInformation  = 10u;
+        inline constexpr uint32_t FileFsSectorSizeInformation   = 11u;
+        inline constexpr uint32_t FileFsDataCopyInformation     = 12u;
+        inline constexpr uint32_t FileFsMetadataSizeInformation = 13u;
+        inline constexpr uint32_t FileFsFullSizeInformationEx   = 14u;
+        inline constexpr uint32_t FileFsGuidInformation         = 15u;
+
         // completion filter values
         inline constexpr uint32_t FILE_NOTIFY_CHANGE_EA           = 0x00000080u;
         inline constexpr uint32_t FILE_NOTIFY_CHANGE_STREAM_NAME  = 0x00000200u;

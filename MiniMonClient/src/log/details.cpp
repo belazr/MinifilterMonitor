@@ -4,6 +4,7 @@
 #include "details\directory.h"
 #include "details\info.h"
 #include "details\readwrite.h"
+#include "details\volume.h"
 
 #include "..\kernel.h"
 
@@ -39,6 +40,11 @@ namespace mimo {
                     case kernel::IRP_MJ_SET_INFORMATION:
 
                         return info::RenderSet(data);
+
+                    case kernel::IRP_MJ_QUERY_VOLUME_INFORMATION:
+                    case kernel::IRP_MJ_SET_VOLUME_INFORMATION:
+
+                        return volume::Render(data);
 
                     case kernel::IRP_MJ_DIRECTORY_CONTROL:
 

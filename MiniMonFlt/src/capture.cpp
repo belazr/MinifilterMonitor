@@ -55,6 +55,17 @@ MIRROR_ASSERT(setFileInformation.clusterCount,          SetFileInformation.Clust
 MIRROR_ASSERT(setFileInformation.deleteHandle,          SetFileInformation.DeleteHandle);
 MIRROR_ASSERT(setFileInformation.infoBuffer,            SetFileInformation.InfoBuffer);
 
+MIRROR_ASSERT(volumeInformation.length,             QueryVolumeInformation.Length);
+MIRROR_ASSERT(volumeInformation.fsInformationClass, QueryVolumeInformation.FsInformationClass);
+MIRROR_ASSERT(volumeInformation.volumeBuffer,       QueryVolumeInformation.VolumeBuffer);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, SetVolumeInformation.Length) == offsetof(FLT_PARAMETERS, QueryVolumeInformation.Length)
+    && offsetof(FLT_PARAMETERS, SetVolumeInformation.FsInformationClass) == offsetof(FLT_PARAMETERS, QueryVolumeInformation.FsInformationClass)
+    && offsetof(FLT_PARAMETERS, SetVolumeInformation.VolumeBuffer) == offsetof(FLT_PARAMETERS, QueryVolumeInformation.VolumeBuffer),
+    "FLT_PARAMETERS QueryVolumeInformation and SetVolumeInformation diverge: split protocol::FltParameters volumeInformation"
+);
+
 MIRROR_ASSERT(queryDirectory.length,               DirectoryControl.QueryDirectory.Length);
 MIRROR_ASSERT(queryDirectory.fileName,             DirectoryControl.QueryDirectory.FileName);
 MIRROR_ASSERT(queryDirectory.fileInformationClass, DirectoryControl.QueryDirectory.FileInformationClass);

@@ -45,6 +45,9 @@
     <ClCompile Include="src\log\details\readwrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\log\details\volume.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\log\format.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -84,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\log\details\readwrite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\log\details\volume.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\log\format.h">
