@@ -26,7 +26,7 @@
     <ClCompile Include="src\log\details\readwrite.cpp" />
     <ClCompile Include="src\log\details\volume.cpp" />
     <ClCompile Include="src\log\format.cpp" />
-    <ClCompile Include="src\log\sink.cpp" />
+    <ClCompile Include="src\sink.cpp" />
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -45,7 +45,7 @@
     <ClInclude Include="src\log\details\volume.h" />
     <ClInclude Include="src\log\format.h" />
     <ClInclude Include="src\records.h" />
-    <ClInclude Include="src\log\sink.h" />
+    <ClInclude Include="src\sink.h" />
     <ClInclude Include="src\filter.h" />
     <ClInclude Include="src\buffer.h" />
     <ClInclude Include="src\text.h" />

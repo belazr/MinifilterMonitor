@@ -51,7 +51,7 @@
     <ClCompile Include="src\log\format.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\log\sink.cpp">
+    <ClCompile Include="src\sink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,7 +98,7 @@
     <ClInclude Include="src\records.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\log\sink.h">
+    <ClInclude Include="src\sink.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\kernel.h">

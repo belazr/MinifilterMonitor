@@ -1,10 +1,10 @@
 #include "filter.h"
 
 #include "log\format.h"
-#include "log\sink.h"
 
 #include "handle.h"
 #include "records.h"
+#include "sink.h"
 #include "text.h"
 
 #include "..\..\inc\protocol.h"
@@ -194,13 +194,13 @@ namespace {
     }
 
 
-    std::unique_ptr<log::Sink> MakeSink(const Parameters& params) {
+    std::unique_ptr<Sink> MakeSink(const Parameters& params) {
 
-        if (!params.file.has_value()) return std::make_unique<log::ConsoleSink>(std::cout, log::format::GetHeader());
+        if (!params.file.has_value()) return std::make_unique<ConsoleSink>(std::cout, log::format::GetHeader());
 
         if (!DoesParentDirectoryExist(*params.file)) return nullptr;
 
-        return std::make_unique<log::FileSink>(*params.file, params.split, log::format::GetHeader());
+        return std::make_unique<FileSink>(*params.file, params.split, log::format::GetHeader());
     }
 
 
@@ -230,7 +230,7 @@ namespace {
     }
 
 
-    bool CaptureLoop(const InvHandle& port, log::Sink& sink) {
+    bool CaptureLoop(const InvHandle& port, Sink& sink) {
         constexpr uint32_t BUFFER_SIZE = 1000u * sizeof(protocol::Record);
         constexpr DWORD POLL_INTERVAL_MS = 200u;
 
@@ -337,7 +337,7 @@ int wmain(int argc, wchar_t* argv[]) {
         return result;
     }
 
-    std::unique_ptr<log::Sink> sink = MakeSink(*params);
+    std::unique_ptr<Sink> sink = MakeSink(*params);
 
     if (!sink) {
 
