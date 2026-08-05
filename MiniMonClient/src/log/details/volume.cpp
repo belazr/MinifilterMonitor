@@ -2,10 +2,9 @@
 
 #include "payload.h"
 
+#include "..\kernel.h"
 #include "..\names.h"
 #include "..\values.h"
-
-#include "..\..\kernel.h"
 
 #include "..\..\..\..\inc\protocol.h"
 
@@ -28,7 +27,7 @@ namespace {
     }
 
 
-    std::wstring RenderVolumePayload(const kernel::FILE_FS_VOLUME_INFORMATION& payload, std::span<const uint8_t> labelData) {
+    std::wstring RenderVolumePayload(const log::kernel::FILE_FS_VOLUME_INFORMATION& payload, std::span<const uint8_t> labelData) {
         std::wstring result;
 
         if (payload.VolumeCreationTime) {
@@ -45,7 +44,7 @@ namespace {
     }
 
 
-    std::wstring RenderLabelPayload(const kernel::FILE_FS_LABEL_INFORMATION& payload, std::span<const uint8_t> labelData) {
+    std::wstring RenderLabelPayload(const log::kernel::FILE_FS_LABEL_INFORMATION& payload, std::span<const uint8_t> labelData) {
 
         if (!payload.VolumeLabelLength) return {};
 
@@ -53,19 +52,19 @@ namespace {
     }
 
 
-    std::wstring RenderSizePayload(const kernel::FILE_FS_SIZE_INFORMATION& payload) {
+    std::wstring RenderSizePayload(const log::kernel::FILE_FS_SIZE_INFORMATION& payload) {
 
         return std::format(L"TotalAllocationUnits: {}, AvailableAllocationUnits: {}, SectorsPerAllocationUnit: {}, BytesPerSector: {}", payload.TotalAllocationUnits, payload.AvailableAllocationUnits, payload.SectorsPerAllocationUnit, payload.BytesPerSector);
     }
 
 
-    std::wstring RenderDevicePayload(const kernel::FILE_FS_DEVICE_INFORMATION& payload) {
+    std::wstring RenderDevicePayload(const log::kernel::FILE_FS_DEVICE_INFORMATION& payload) {
 
         return std::format(L"DeviceType: {}, Characteristics: 0x{:X}", payload.DeviceType, payload.Characteristics);
     }
 
 
-    std::wstring RenderAttributePayload(const kernel::FILE_FS_ATTRIBUTE_INFORMATION& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderAttributePayload(const log::kernel::FILE_FS_ATTRIBUTE_INFORMATION& payload, std::span<const uint8_t> nameData) {
         std::wstring result = std::format(L"FileSystemAttributes: {}, MaximumComponentNameLength: {}", log::names::RenderFileSystemAttributes(payload.FileSystemAttributes), payload.MaximumComponentNameLength);
 
         if (payload.FileSystemNameLength) {
@@ -76,13 +75,13 @@ namespace {
     }
 
 
-    std::wstring RenderFullSizePayload(const kernel::FILE_FS_FULL_SIZE_INFORMATION& payload) {
+    std::wstring RenderFullSizePayload(const log::kernel::FILE_FS_FULL_SIZE_INFORMATION& payload) {
 
         return std::format(L"TotalAllocationUnits: {}, CallerAvailableAllocationUnits: {}, ActualAvailableAllocationUnits: {}, SectorsPerAllocationUnit: {}, BytesPerSector: {}", payload.TotalAllocationUnits, payload.CallerAvailableAllocationUnits, payload.ActualAvailableAllocationUnits, payload.SectorsPerAllocationUnit, payload.BytesPerSector);
     }
 
 
-    std::wstring RenderSectorSizePayload(const kernel::FILE_FS_SECTOR_SIZE_INFORMATION& payload) {
+    std::wstring RenderSectorSizePayload(const log::kernel::FILE_FS_SECTOR_SIZE_INFORMATION& payload) {
 
         return std::format(L"LogicalBytesPerSector: {}, PhysicalBytesPerSectorForAtomicity: {}, PhysicalBytesPerSectorForPerformance: {}, FileSystemEffectivePhysicalBytesPerSectorForAtomicity: {}, Flags: 0x{:X}, ByteOffsetForSectorAlignment: {}, ByteOffsetForPartitionAlignment: {}", payload.LogicalBytesPerSector, payload.PhysicalBytesPerSectorForAtomicity, payload.PhysicalBytesPerSectorForPerformance, payload.FileSystemEffectivePhysicalBytesPerSectorForAtomicity, payload.Flags, payload.ByteOffsetForSectorAlignment, payload.ByteOffsetForPartitionAlignment);
     }

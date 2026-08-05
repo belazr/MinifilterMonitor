@@ -2,9 +2,9 @@
 
 #include "payload.h"
 
+#include "..\kernel.h"
 #include "..\names.h"
 
-#include "..\..\kernel.h"
 #include "..\..\text.h"
 
 #include "..\..\..\..\inc\protocol.h"
@@ -74,7 +74,7 @@ namespace {
         const protocol::QueryDirectorySupplement& queryDirectorySupplement = data.supplement.queryDirectory;
         std::wstring details = std::format(L"Class: {}, Length: {}", log::names::RenderFileInformationClass(parameters.queryDirectory.fileInformationClass), parameters.queryDirectory.length);
 
-        if ((data.operationFlags & kernel::SL_INDEX_SPECIFIED) || parameters.queryDirectory.fileIndex) {
+        if ((data.operationFlags & log::kernel::SL_INDEX_SPECIFIED) || parameters.queryDirectory.fileIndex) {
             details += std::format(L", FileIndex: {}", parameters.queryDirectory.fileIndex);
         }
 
@@ -97,33 +97,33 @@ namespace {
 
         switch (parameters.queryDirectory.fileInformationClass) {
 
-            case kernel::FileDirectoryInformation:
-                payloadText = RenderEntriesPayload<kernel::FILE_DIRECTORY_INFORMATION>(payload);
+            case log::kernel::FileDirectoryInformation:
+                payloadText = RenderEntriesPayload<log::kernel::FILE_DIRECTORY_INFORMATION>(payload);
 
                 break;
 
-            case kernel::FileFullDirectoryInformation:
-                payloadText = RenderEntriesPayload<kernel::FILE_FULL_DIR_INFORMATION>(payload);
+            case log::kernel::FileFullDirectoryInformation:
+                payloadText = RenderEntriesPayload<log::kernel::FILE_FULL_DIR_INFORMATION>(payload);
 
                 break;
 
-            case kernel::FileBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<kernel::FILE_BOTH_DIR_INFORMATION>(payload);
+            case log::kernel::FileBothDirectoryInformation:
+                payloadText = RenderEntriesPayload<log::kernel::FILE_BOTH_DIR_INFORMATION>(payload);
 
                 break;
 
-            case kernel::FileNamesInformation:
-                payloadText = RenderEntriesPayload<kernel::FILE_NAMES_INFORMATION>(payload);
+            case log::kernel::FileNamesInformation:
+                payloadText = RenderEntriesPayload<log::kernel::FILE_NAMES_INFORMATION>(payload);
 
                 break;
 
-            case kernel::FileIdBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<kernel::FILE_ID_BOTH_DIR_INFORMATION>(payload);
+            case log::kernel::FileIdBothDirectoryInformation:
+                payloadText = RenderEntriesPayload<log::kernel::FILE_ID_BOTH_DIR_INFORMATION>(payload);
 
                 break;
 
-            case kernel::FileIdFullDirectoryInformation:
-                payloadText = RenderEntriesPayload<kernel::FILE_ID_FULL_DIR_INFORMATION>(payload);
+            case log::kernel::FileIdFullDirectoryInformation:
+                payloadText = RenderEntriesPayload<log::kernel::FILE_ID_FULL_DIR_INFORMATION>(payload);
 
                 break;
 
@@ -148,7 +148,7 @@ namespace {
             details += std::format(L"Filter: {}, ", completionFilter);
         }
 
-        if (data.callbackMinorId == kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX) {
+        if (data.callbackMinorId == log::kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX) {
             details += std::format(L"Class: {}, ", log::names::RenderDirectoryNotifyInformationClass(parameters.notifyDirectory.directoryNotifyInformationClass));
         }
 

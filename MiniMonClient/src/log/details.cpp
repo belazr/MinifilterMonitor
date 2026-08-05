@@ -6,7 +6,7 @@
 #include "details\readwrite.h"
 #include "details\volume.h"
 
-#include "..\kernel.h"
+#include "kernel.h"
 
 #include "..\..\..\inc\protocol.h"
 

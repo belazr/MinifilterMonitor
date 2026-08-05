@@ -1,8 +1,8 @@
 #include "create.h"
 
+#include "..\kernel.h"
 #include "..\names.h"
 
-#include "..\..\kernel.h"
 #include "..\..\text.h"
 
 #include "..\..\..\..\inc\protocol.h"

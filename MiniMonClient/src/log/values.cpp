@@ -1,6 +1,6 @@
 #include "values.h"
 
-#include "..\kernel.h"
+#include "kernel.h"
 
 #include <Windows.h>
 

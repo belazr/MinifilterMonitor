@@ -1,8 +1,7 @@
 #include "readwrite.h"
 
+#include "..\kernel.h"
 #include "..\values.h"
-
-#include "..\..\kernel.h"
 
 #include "..\..\..\..\inc\protocol.h"
 
@@ -16,22 +15,22 @@ namespace {
     std::wstring RenderIoFlags(const protocol::RecordData& data) {
         std::wstring ioFlags;
 
-        if (data.irpFlags & kernel::IRP_NOCACHE) {
+        if (data.irpFlags & log::kernel::IRP_NOCACHE) {
             ioFlags += L"Non-cached|";
         }
 
-        if (data.irpFlags & kernel::IRP_PAGING_IO) {
+        if (data.irpFlags & log::kernel::IRP_PAGING_IO) {
             ioFlags += L"Paging I/O|";
         }
 
-        if ((data.irpFlags & kernel::IRP_PAGING_IO) && (data.irpFlags & kernel::IRP_SYNCHRONOUS_PAGING_IO)) {
+        if ((data.irpFlags & log::kernel::IRP_PAGING_IO) && (data.irpFlags & log::kernel::IRP_SYNCHRONOUS_PAGING_IO)) {
             ioFlags += L"Synchronous Paging I/O|";
         }
-        else if (data.irpFlags & kernel::IRP_SYNCHRONOUS_API) {
+        else if (data.irpFlags & log::kernel::IRP_SYNCHRONOUS_API) {
             ioFlags += L"Synchronous|";
         }
 
-        if (data.operationFlags & kernel::SL_WRITE_THROUGH) {
+        if (data.operationFlags & log::kernel::SL_WRITE_THROUGH) {
             ioFlags += L"Write Through|";
         }
 

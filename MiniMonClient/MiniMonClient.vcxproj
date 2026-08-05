@@ -35,7 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\protocol.h" />
-    <ClInclude Include="src\kernel.h" />
+    <ClInclude Include="src\log\kernel.h" />
     <ClInclude Include="src\log\details.h" />
     <ClInclude Include="src\log\details\create.h" />
     <ClInclude Include="src\log\details\directory.h" />

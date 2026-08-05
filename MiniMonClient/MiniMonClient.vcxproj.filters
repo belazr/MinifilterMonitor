@@ -101,7 +101,7 @@
     <ClInclude Include="src\sink.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\kernel.h">
+    <ClInclude Include="src\log\kernel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\log\names.h">

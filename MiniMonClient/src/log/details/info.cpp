@@ -2,10 +2,10 @@
 
 #include "payload.h"
 
+#include "..\kernel.h"
 #include "..\names.h"
 #include "..\values.h"
 
-#include "..\..\kernel.h"
 #include "..\..\text.h"
 
 #include "..\..\..\..\inc\protocol.h"
@@ -44,7 +44,7 @@ namespace {
     }
 
 
-    std::wstring RenderBasicPayload(const kernel::FILE_BASIC_INFORMATION& payload) {
+    std::wstring RenderBasicPayload(const log::kernel::FILE_BASIC_INFORMATION& payload) {
         std::wstring result;
 
         if (payload.CreationTime) {
@@ -75,37 +75,37 @@ namespace {
     }
 
 
-    std::wstring RenderStandardPayload(const kernel::FILE_STANDARD_INFORMATION& payload) {
+    std::wstring RenderStandardPayload(const log::kernel::FILE_STANDARD_INFORMATION& payload) {
 
         return std::format(L"AllocationSize: {}, EndOfFile: {}, NumberOfLinks: {}, DeletePending: {}, Directory: {}", payload.AllocationSize, payload.EndOfFile, payload.NumberOfLinks, payload.DeletePending ? L"True" : L"False", payload.Directory ? L"True" : L"False");
     }
 
 
-    std::wstring RenderInternalPayload(const kernel::FILE_INTERNAL_INFORMATION& payload) {
+    std::wstring RenderInternalPayload(const log::kernel::FILE_INTERNAL_INFORMATION& payload) {
 
         return std::format(L"IndexNumber: 0x{:X}", static_cast<ULONGLONG>(payload.IndexNumber));
     }
 
 
-    std::wstring RenderEaPayload(const kernel::FILE_EA_INFORMATION& payload) {
+    std::wstring RenderEaPayload(const log::kernel::FILE_EA_INFORMATION& payload) {
 
         return std::format(L"EaSize: {}", payload.EaSize);
     }
 
 
-    std::wstring RenderNamePayload(const kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderNamePayload(const log::kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
 
         return std::format(L"Name: {}", log::details::payload::RenderName(nameData, payload.FileNameLength));
     }
 
 
-    std::wstring RenderPositionPayload(const kernel::FILE_POSITION_INFORMATION& payload) {
+    std::wstring RenderPositionPayload(const log::kernel::FILE_POSITION_INFORMATION& payload) {
 
         return std::format(L"CurrentByteOffset: {}", payload.CurrentByteOffset);
     }
 
 
-    std::wstring RenderAllPayload(const kernel::FILE_ALL_INFORMATION& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderAllPayload(const log::kernel::FILE_ALL_INFORMATION& payload, std::span<const uint8_t> nameData) {
         std::wstring result = RenderBasicPayload(payload.BasicInformation);
 
         if (!result.empty()) {
@@ -130,8 +130,8 @@ namespace {
         ULONG offset = 0u;
 
         while (true) {
-            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_STREAM_INFORMATION, StreamName));
-            kernel::FILE_STREAM_INFORMATION entry;
+            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(log::kernel::FILE_STREAM_INFORMATION, StreamName));
+            log::kernel::FILE_STREAM_INFORMATION entry;
 
             if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
@@ -150,7 +150,7 @@ namespace {
     }
 
 
-    std::wstring RenderCompressionPayload(const kernel::FILE_COMPRESSION_INFORMATION& payload) {
+    std::wstring RenderCompressionPayload(const log::kernel::FILE_COMPRESSION_INFORMATION& payload) {
         std::wstring result = std::format(L"CompressedFileSize: {}, CompressionFormat: {}", payload.CompressedFileSize, log::names::RenderCompressionFormat(payload.CompressionFormat));
 
         if (payload.CompressionFormat != COMPRESSION_FORMAT_NONE) {
@@ -161,7 +161,7 @@ namespace {
     }
 
 
-    std::wstring RenderNetworkOpenPayload(const kernel::FILE_NETWORK_OPEN_INFORMATION& payload) {
+    std::wstring RenderNetworkOpenPayload(const log::kernel::FILE_NETWORK_OPEN_INFORMATION& payload) {
         std::wstring result;
 
         if (payload.CreationTime) {
@@ -190,7 +190,7 @@ namespace {
     }
 
 
-    std::wstring RenderAttributeTagPayload(const kernel::FILE_ATTRIBUTE_TAG_INFORMATION& payload) {
+    std::wstring RenderAttributeTagPayload(const log::kernel::FILE_ATTRIBUTE_TAG_INFORMATION& payload) {
         std::wstring result = std::format(L"Attributes: {}", log::names::RenderFileAttributes(payload.FileAttributes));
 
         if (payload.ReparseTag) {
@@ -205,14 +205,14 @@ namespace {
         ULONG bytesNeeded;
         ULONG entriesReturned;
 
-        if (!log::details::payload::ReadValue(payload, bytesNeeded) || !log::details::payload::ReadValue(payload, entriesReturned, offsetof(kernel::FILE_LINKS_INFORMATION, EntriesReturned))) return {};
+        if (!log::details::payload::ReadValue(payload, bytesNeeded) || !log::details::payload::ReadValue(payload, entriesReturned, offsetof(log::kernel::FILE_LINKS_INFORMATION, EntriesReturned))) return {};
 
         std::wstring result = std::format(L"BytesNeeded: {}, EntriesReturned: {}", bytesNeeded, entriesReturned);
-        ULONG offset = static_cast<ULONG>(offsetof(kernel::FILE_LINKS_INFORMATION, Entry));
+        ULONG offset = static_cast<ULONG>(offsetof(log::kernel::FILE_LINKS_INFORMATION, Entry));
 
         while (true) {
-            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_LINK_ENTRY_INFORMATION, FileName));
-            kernel::FILE_LINK_ENTRY_INFORMATION entry;
+            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(log::kernel::FILE_LINK_ENTRY_INFORMATION, FileName));
+            log::kernel::FILE_LINK_ENTRY_INFORMATION entry;
 
             if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
@@ -227,7 +227,7 @@ namespace {
     }
 
 
-    std::wstring RenderRemoteProtocolPayload(const kernel::FILE_REMOTE_PROTOCOL_INFORMATION& payload) {
+    std::wstring RenderRemoteProtocolPayload(const log::kernel::FILE_REMOTE_PROTOCOL_INFORMATION& payload) {
         std::wstring result = std::format(L"Protocol: {}", log::names::RenderRemoteProtocol(payload.Protocol));
 
         result += std::format(L", Version: {}.{}.{}", payload.ProtocolMajorVersion, payload.ProtocolMinorVersion, payload.ProtocolRevision);
@@ -253,13 +253,13 @@ namespace {
     }
 
 
-    std::wstring RenderIdPayload(const kernel::FILE_ID_INFORMATION& payload) {
+    std::wstring RenderIdPayload(const log::kernel::FILE_ID_INFORMATION& payload) {
 
         return std::format(L"VolumeSerialNumber: 0x{:X}, FileId: {}", payload.VolumeSerialNumber, RenderFileId(payload.FileId));
     }
 
 
-    std::wstring RenderStatPayload(const kernel::FILE_STAT_INFORMATION& payload) {
+    std::wstring RenderStatPayload(const log::kernel::FILE_STAT_INFORMATION& payload) {
         std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<ULONGLONG>(payload.FileId));
 
         if (payload.CreationTime) {
@@ -294,8 +294,8 @@ namespace {
     }
 
 
-    std::wstring RenderStatLxPayload(const kernel::FILE_STAT_LX_INFORMATION& payload) {
-        kernel::FILE_STAT_INFORMATION stat;
+    std::wstring RenderStatLxPayload(const log::kernel::FILE_STAT_LX_INFORMATION& payload) {
+        log::kernel::FILE_STAT_INFORMATION stat;
         std::memcpy(&stat, &payload, sizeof(stat));
 
         std::wstring result = RenderStatPayload(stat);
@@ -324,13 +324,13 @@ namespace {
     }
 
 
-    std::wstring RenderCaseSensitivePayload(const kernel::FILE_CASE_SENSITIVE_INFORMATION& payload) {
+    std::wstring RenderCaseSensitivePayload(const log::kernel::FILE_CASE_SENSITIVE_INFORMATION& payload) {
 
         return std::format(L"CaseSensitiveDir: {}", (payload.Flags & FILE_CS_FLAG_CASE_SENSITIVE_DIR) ? L"True" : L"False");
     }
 
 
-    std::wstring RenderStatBasicPayload(const kernel::FILE_STAT_BASIC_INFORMATION& payload) {
+    std::wstring RenderStatBasicPayload(const log::kernel::FILE_STAT_BASIC_INFORMATION& payload) {
         std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<ULONGLONG>(payload.FileId));
 
         if (payload.CreationTime) {
@@ -379,13 +379,13 @@ namespace {
     }
 
 
-    std::wstring RenderDispositionPayload(const kernel::FILE_DISPOSITION_INFORMATION& payload) {
+    std::wstring RenderDispositionPayload(const log::kernel::FILE_DISPOSITION_INFORMATION& payload) {
 
         return std::format(L"Delete: {}", payload.DeletePending ? L"True" : L"False");
     }
 
 
-    std::wstring RenderAllocationPayload(const kernel::FILE_ALLOCATION_INFORMATION& payload) {
+    std::wstring RenderAllocationPayload(const log::kernel::FILE_ALLOCATION_INFORMATION& payload) {
 
         return std::format(L"AllocationSize: {}", payload.AllocationSize);
     }
@@ -399,7 +399,7 @@ namespace {
     }
 
 
-    std::wstring RenderEndOfFilePayload(const kernel::FILE_END_OF_FILE_INFORMATION& payload) {
+    std::wstring RenderEndOfFilePayload(const log::kernel::FILE_END_OF_FILE_INFORMATION& payload) {
 
         return std::format(L"EndOfFile: {}", payload.EndOfFile);
     }
@@ -411,27 +411,27 @@ namespace {
     }
 
 
-    std::wstring RenderValidDataLengthPayload(const kernel::FILE_VALID_DATA_LENGTH_INFORMATION& payload) {
+    std::wstring RenderValidDataLengthPayload(const log::kernel::FILE_VALID_DATA_LENGTH_INFORMATION& payload) {
 
         return std::format(L"ValidDataLength: {}", payload.ValidDataLength);
     }
 
 
-    std::wstring RenderShortNamePayload(const kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderShortNamePayload(const log::kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
 
         return std::format(L"FileName: {}", log::details::payload::RenderName(nameData, payload.FileNameLength));
     }
 
 
-    std::wstring RenderDispositionExPayload(const kernel::FILE_DISPOSITION_INFORMATION_EX& payload) {
+    std::wstring RenderDispositionExPayload(const log::kernel::FILE_DISPOSITION_INFORMATION_EX& payload) {
 
-        if (payload.Flags == kernel::FILE_DISPOSITION_DO_NOT_DELETE) return L"Flags: Do Not Delete";
+        if (payload.Flags == log::kernel::FILE_DISPOSITION_DO_NOT_DELETE) return L"Flags: Do Not Delete";
 
         return std::format(L"Flags: {}", log::names::RenderDispositionFlags(payload.Flags));
     }
 
 
-    std::wstring RenderRenameExPayload(const kernel::FILE_RENAME_INFORMATION_EX& payload) {
+    std::wstring RenderRenameExPayload(const log::kernel::FILE_RENAME_INFORMATION_EX& payload) {
 
         if (!payload.Flags) return {};
 
