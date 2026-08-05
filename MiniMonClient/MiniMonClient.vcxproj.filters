@@ -15,19 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\filter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\text.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\trace\names.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\trace\values.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\trace\details.cpp">
@@ -51,7 +48,10 @@
     <ClCompile Include="src\trace\format.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\sink.cpp">
+    <ClCompile Include="src\trace\names.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trace\values.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,16 +59,22 @@
     <ClInclude Include="..\inc\protocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\handle.h">
+    <ClInclude Include="src\buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\filter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\text.h">
+    <ClInclude Include="src\handle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\buffer.h">
+    <ClInclude Include="src\records.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sink.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\details.h">
@@ -93,12 +99,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\format.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\records.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sink.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\kernel.h">

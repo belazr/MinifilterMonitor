@@ -19,6 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\filter.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\sink.cpp" />
+    <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\trace\details.cpp" />
     <ClCompile Include="src\trace\details\create.cpp" />
     <ClCompile Include="src\trace\details\directory.cpp" />
@@ -26,16 +30,17 @@
     <ClCompile Include="src\trace\details\readwrite.cpp" />
     <ClCompile Include="src\trace\details\volume.cpp" />
     <ClCompile Include="src\trace\format.cpp" />
-    <ClCompile Include="src\sink.cpp" />
-    <ClCompile Include="src\text.cpp" />
-    <ClCompile Include="src\filter.cpp" />
-    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\trace\names.cpp" />
     <ClCompile Include="src\trace\values.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\protocol.h" />
-    <ClInclude Include="src\trace\kernel.h" />
+    <ClInclude Include="src\buffer.h" />
+    <ClInclude Include="src\filter.h" />
+    <ClInclude Include="src\handle.h" />
+    <ClInclude Include="src\records.h" />
+    <ClInclude Include="src\sink.h" />
+    <ClInclude Include="src\text.h" />
     <ClInclude Include="src\trace\details.h" />
     <ClInclude Include="src\trace\details\create.h" />
     <ClInclude Include="src\trace\details\directory.h" />
@@ -44,12 +49,7 @@
     <ClInclude Include="src\trace\details\readwrite.h" />
     <ClInclude Include="src\trace\details\volume.h" />
     <ClInclude Include="src\trace\format.h" />
-    <ClInclude Include="src\records.h" />
-    <ClInclude Include="src\sink.h" />
-    <ClInclude Include="src\filter.h" />
-    <ClInclude Include="src\buffer.h" />
-    <ClInclude Include="src\text.h" />
-    <ClInclude Include="src\handle.h" />
+    <ClInclude Include="src\trace\kernel.h" />
     <ClInclude Include="src\trace\names.h" />
     <ClInclude Include="src\trace\values.h" />
   </ItemGroup>

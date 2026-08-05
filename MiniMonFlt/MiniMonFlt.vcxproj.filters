@@ -24,19 +24,19 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\dispatch.cpp">
+    <ClCompile Include="src\config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\config.cpp">
+    <ClCompile Include="src\dispatch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\driver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\records.cpp">
+    <ClCompile Include="src\port.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\port.cpp">
+    <ClCompile Include="src\records.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\trace\capture.cpp">
@@ -74,19 +74,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\dispatch.h">
+    <ClInclude Include="..\inc\protocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\dispatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\driver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\records.h">
+    <ClInclude Include="src\port.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\port.h">
+    <ClInclude Include="src\records.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\capture.h">
@@ -120,9 +123,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\transaction.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\inc\protocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
