@@ -15,22 +15,22 @@ namespace {
     std::wstring RenderIoFlags(const protocol::RecordData& data) {
         std::wstring ioFlags;
 
-        if (data.irpFlags & log::kernel::IRP_NOCACHE) {
+        if (data.irpFlags & trace::kernel::IRP_NOCACHE) {
             ioFlags += L"Non-cached|";
         }
 
-        if (data.irpFlags & log::kernel::IRP_PAGING_IO) {
+        if (data.irpFlags & trace::kernel::IRP_PAGING_IO) {
             ioFlags += L"Paging I/O|";
         }
 
-        if ((data.irpFlags & log::kernel::IRP_PAGING_IO) && (data.irpFlags & log::kernel::IRP_SYNCHRONOUS_PAGING_IO)) {
+        if ((data.irpFlags & trace::kernel::IRP_PAGING_IO) && (data.irpFlags & trace::kernel::IRP_SYNCHRONOUS_PAGING_IO)) {
             ioFlags += L"Synchronous Paging I/O|";
         }
-        else if (data.irpFlags & log::kernel::IRP_SYNCHRONOUS_API) {
+        else if (data.irpFlags & trace::kernel::IRP_SYNCHRONOUS_API) {
             ioFlags += L"Synchronous|";
         }
 
-        if (data.operationFlags & log::kernel::SL_WRITE_THROUGH) {
+        if (data.operationFlags & trace::kernel::SL_WRITE_THROUGH) {
             ioFlags += L"Write Through|";
         }
 
@@ -45,7 +45,7 @@ namespace {
 
 namespace mimo {
 
-    namespace log {
+    namespace trace {
 
         namespace details {
 

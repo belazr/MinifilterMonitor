@@ -6,11 +6,11 @@
 
 namespace mimo {
 
-    namespace log {
+    namespace trace {
 
         namespace details {
 
-            namespace directory {
+            namespace create {
 
                 std::wstring Render(const protocol::RecordData& data);
 

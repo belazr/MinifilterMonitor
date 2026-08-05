@@ -165,7 +165,7 @@ namespace {
 
 namespace mimo {
 
-    namespace log {
+    namespace trace {
 
         namespace format {
 

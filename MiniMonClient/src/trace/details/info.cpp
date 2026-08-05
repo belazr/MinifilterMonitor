@@ -24,7 +24,7 @@ namespace {
 
     std::wstring RenderInformationParameters(ULONG fileInformationClass, ULONG length) {
 
-        return std::format(L"Class: {}, Length: {}", log::names::RenderFileInformationClass(fileInformationClass), length);
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(fileInformationClass), length);
     }
 
 
@@ -44,27 +44,27 @@ namespace {
     }
 
 
-    std::wstring RenderBasicPayload(const log::kernel::FILE_BASIC_INFORMATION& payload) {
+    std::wstring RenderBasicPayload(const trace::kernel::FILE_BASIC_INFORMATION& payload) {
         std::wstring result;
 
         if (payload.CreationTime) {
-            result += std::format(L"CreationTime: {}, ", log::values::RenderFileTime(payload.CreationTime));
+            result += std::format(L"CreationTime: {}, ", trace::values::RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L"LastAccessTime: {}, ", log::values::RenderFileTime(payload.LastAccessTime));
+            result += std::format(L"LastAccessTime: {}, ", trace::values::RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L"LastWriteTime: {}, ", log::values::RenderFileTime(payload.LastWriteTime));
+            result += std::format(L"LastWriteTime: {}, ", trace::values::RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L"ChangeTime: {}, ", log::values::RenderFileTime(payload.ChangeTime));
+            result += std::format(L"ChangeTime: {}, ", trace::values::RenderFileTime(payload.ChangeTime));
         }
 
         if (payload.FileAttributes) {
-            result += std::format(L"FileAttributes: {}, ", log::names::RenderFileAttributes(payload.FileAttributes));
+            result += std::format(L"FileAttributes: {}, ", trace::names::RenderFileAttributes(payload.FileAttributes));
         }
 
         if (!result.empty()) {
@@ -75,37 +75,37 @@ namespace {
     }
 
 
-    std::wstring RenderStandardPayload(const log::kernel::FILE_STANDARD_INFORMATION& payload) {
+    std::wstring RenderStandardPayload(const trace::kernel::FILE_STANDARD_INFORMATION& payload) {
 
         return std::format(L"AllocationSize: {}, EndOfFile: {}, NumberOfLinks: {}, DeletePending: {}, Directory: {}", payload.AllocationSize, payload.EndOfFile, payload.NumberOfLinks, payload.DeletePending ? L"True" : L"False", payload.Directory ? L"True" : L"False");
     }
 
 
-    std::wstring RenderInternalPayload(const log::kernel::FILE_INTERNAL_INFORMATION& payload) {
+    std::wstring RenderInternalPayload(const trace::kernel::FILE_INTERNAL_INFORMATION& payload) {
 
         return std::format(L"IndexNumber: 0x{:X}", static_cast<ULONGLONG>(payload.IndexNumber));
     }
 
 
-    std::wstring RenderEaPayload(const log::kernel::FILE_EA_INFORMATION& payload) {
+    std::wstring RenderEaPayload(const trace::kernel::FILE_EA_INFORMATION& payload) {
 
         return std::format(L"EaSize: {}", payload.EaSize);
     }
 
 
-    std::wstring RenderNamePayload(const log::kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderNamePayload(const trace::kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
 
-        return std::format(L"Name: {}", log::details::payload::RenderName(nameData, payload.FileNameLength));
+        return std::format(L"Name: {}", trace::details::payload::RenderName(nameData, payload.FileNameLength));
     }
 
 
-    std::wstring RenderPositionPayload(const log::kernel::FILE_POSITION_INFORMATION& payload) {
+    std::wstring RenderPositionPayload(const trace::kernel::FILE_POSITION_INFORMATION& payload) {
 
         return std::format(L"CurrentByteOffset: {}", payload.CurrentByteOffset);
     }
 
 
-    std::wstring RenderAllPayload(const log::kernel::FILE_ALL_INFORMATION& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderAllPayload(const trace::kernel::FILE_ALL_INFORMATION& payload, std::span<const uint8_t> nameData) {
         std::wstring result = RenderBasicPayload(payload.BasicInformation);
 
         if (!result.empty()) {
@@ -113,10 +113,10 @@ namespace {
         }
 
         result += RenderStandardPayload(payload.StandardInformation);
-        result += std::format(L", {}, {}, Access: {}, {}", RenderInternalPayload(payload.InternalInformation), RenderEaPayload(payload.EaInformation), log::names::RenderDesiredAccess(payload.AccessInformation.AccessFlags), RenderPositionPayload(payload.PositionInformation));
+        result += std::format(L", {}, {}, Access: {}, {}", RenderInternalPayload(payload.InternalInformation), RenderEaPayload(payload.EaInformation), trace::names::RenderDesiredAccess(payload.AccessInformation.AccessFlags), RenderPositionPayload(payload.PositionInformation));
 
         if (payload.ModeInformation.Mode) {
-            result += std::format(L", Mode: {}", log::names::RenderCreateOptions(payload.ModeInformation.Mode));
+            result += std::format(L", Mode: {}", trace::names::RenderCreateOptions(payload.ModeInformation.Mode));
         }
 
         result += std::format(L", AlignmentRequirement: {}, {}", payload.AlignmentInformation.AlignmentRequirement, RenderNamePayload(payload.NameInformation, nameData));
@@ -130,12 +130,12 @@ namespace {
         ULONG offset = 0u;
 
         while (true) {
-            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(log::kernel::FILE_STREAM_INFORMATION, StreamName));
-            log::kernel::FILE_STREAM_INFORMATION entry;
+            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(trace::kernel::FILE_STREAM_INFORMATION, StreamName));
+            trace::kernel::FILE_STREAM_INFORMATION entry;
 
-            if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+            if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L"StreamName: {}, StreamSize: {}, StreamAllocationSize: {}, ", log::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.StreamNameLength), entry.StreamSize, entry.StreamAllocationSize);
+            result += std::format(L"StreamName: {}, StreamSize: {}, StreamAllocationSize: {}, ", trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.StreamNameLength), entry.StreamSize, entry.StreamAllocationSize);
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
 
@@ -150,8 +150,8 @@ namespace {
     }
 
 
-    std::wstring RenderCompressionPayload(const log::kernel::FILE_COMPRESSION_INFORMATION& payload) {
-        std::wstring result = std::format(L"CompressedFileSize: {}, CompressionFormat: {}", payload.CompressedFileSize, log::names::RenderCompressionFormat(payload.CompressionFormat));
+    std::wstring RenderCompressionPayload(const trace::kernel::FILE_COMPRESSION_INFORMATION& payload) {
+        std::wstring result = std::format(L"CompressedFileSize: {}, CompressionFormat: {}", payload.CompressedFileSize, trace::names::RenderCompressionFormat(payload.CompressionFormat));
 
         if (payload.CompressionFormat != COMPRESSION_FORMAT_NONE) {
             result += std::format(L", CompressionUnitShift: {}, ChunkShift: {}, ClusterShift: {}", payload.CompressionUnitShift, payload.ChunkShift, payload.ClusterShift);
@@ -161,40 +161,40 @@ namespace {
     }
 
 
-    std::wstring RenderNetworkOpenPayload(const log::kernel::FILE_NETWORK_OPEN_INFORMATION& payload) {
+    std::wstring RenderNetworkOpenPayload(const trace::kernel::FILE_NETWORK_OPEN_INFORMATION& payload) {
         std::wstring result;
 
         if (payload.CreationTime) {
-            result += std::format(L"CreationTime: {}, ", log::values::RenderFileTime(payload.CreationTime));
+            result += std::format(L"CreationTime: {}, ", trace::values::RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L"LastAccessTime: {}, ", log::values::RenderFileTime(payload.LastAccessTime));
+            result += std::format(L"LastAccessTime: {}, ", trace::values::RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L"LastWriteTime: {}, ", log::values::RenderFileTime(payload.LastWriteTime));
+            result += std::format(L"LastWriteTime: {}, ", trace::values::RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L"ChangeTime: {}, ", log::values::RenderFileTime(payload.ChangeTime));
+            result += std::format(L"ChangeTime: {}, ", trace::values::RenderFileTime(payload.ChangeTime));
         }
 
         result += std::format(L"AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);
 
         if (payload.FileAttributes) {
-            result += std::format(L", FileAttributes: {}", log::names::RenderFileAttributes(payload.FileAttributes));
+            result += std::format(L", FileAttributes: {}", trace::names::RenderFileAttributes(payload.FileAttributes));
         }
 
         return result;
     }
 
 
-    std::wstring RenderAttributeTagPayload(const log::kernel::FILE_ATTRIBUTE_TAG_INFORMATION& payload) {
-        std::wstring result = std::format(L"Attributes: {}", log::names::RenderFileAttributes(payload.FileAttributes));
+    std::wstring RenderAttributeTagPayload(const trace::kernel::FILE_ATTRIBUTE_TAG_INFORMATION& payload) {
+        std::wstring result = std::format(L"Attributes: {}", trace::names::RenderFileAttributes(payload.FileAttributes));
 
         if (payload.ReparseTag) {
-            result += std::format(L", ReparseTag: {}", log::names::RenderReparseTag(payload.ReparseTag));
+            result += std::format(L", ReparseTag: {}", trace::names::RenderReparseTag(payload.ReparseTag));
         }
 
         return result;
@@ -205,18 +205,18 @@ namespace {
         ULONG bytesNeeded;
         ULONG entriesReturned;
 
-        if (!log::details::payload::ReadValue(payload, bytesNeeded) || !log::details::payload::ReadValue(payload, entriesReturned, offsetof(log::kernel::FILE_LINKS_INFORMATION, EntriesReturned))) return {};
+        if (!trace::details::payload::ReadValue(payload, bytesNeeded) || !trace::details::payload::ReadValue(payload, entriesReturned, offsetof(trace::kernel::FILE_LINKS_INFORMATION, EntriesReturned))) return {};
 
         std::wstring result = std::format(L"BytesNeeded: {}, EntriesReturned: {}", bytesNeeded, entriesReturned);
-        ULONG offset = static_cast<ULONG>(offsetof(log::kernel::FILE_LINKS_INFORMATION, Entry));
+        ULONG offset = static_cast<ULONG>(offsetof(trace::kernel::FILE_LINKS_INFORMATION, Entry));
 
         while (true) {
-            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(log::kernel::FILE_LINK_ENTRY_INFORMATION, FileName));
-            log::kernel::FILE_LINK_ENTRY_INFORMATION entry;
+            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(trace::kernel::FILE_LINK_ENTRY_INFORMATION, FileName));
+            trace::kernel::FILE_LINK_ENTRY_INFORMATION entry;
 
-            if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+            if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L", ParentFileId: 0x{:X}, FileName: {}", static_cast<ULONGLONG>(entry.ParentFileId), log::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
+            result += std::format(L", ParentFileId: 0x{:X}, FileName: {}", static_cast<ULONGLONG>(entry.ParentFileId), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
 
@@ -227,13 +227,13 @@ namespace {
     }
 
 
-    std::wstring RenderRemoteProtocolPayload(const log::kernel::FILE_REMOTE_PROTOCOL_INFORMATION& payload) {
-        std::wstring result = std::format(L"Protocol: {}", log::names::RenderRemoteProtocol(payload.Protocol));
+    std::wstring RenderRemoteProtocolPayload(const trace::kernel::FILE_REMOTE_PROTOCOL_INFORMATION& payload) {
+        std::wstring result = std::format(L"Protocol: {}", trace::names::RenderRemoteProtocol(payload.Protocol));
 
         result += std::format(L", Version: {}.{}.{}", payload.ProtocolMajorVersion, payload.ProtocolMinorVersion, payload.ProtocolRevision);
 
         if (payload.Flags) {
-            result += std::format(L", Flags: {}", log::names::RenderRemoteProtocolFlags(payload.Flags));
+            result += std::format(L", Flags: {}", trace::names::RenderRemoteProtocolFlags(payload.Flags));
         }
 
         return result;
@@ -253,49 +253,49 @@ namespace {
     }
 
 
-    std::wstring RenderIdPayload(const log::kernel::FILE_ID_INFORMATION& payload) {
+    std::wstring RenderIdPayload(const trace::kernel::FILE_ID_INFORMATION& payload) {
 
         return std::format(L"VolumeSerialNumber: 0x{:X}, FileId: {}", payload.VolumeSerialNumber, RenderFileId(payload.FileId));
     }
 
 
-    std::wstring RenderStatPayload(const log::kernel::FILE_STAT_INFORMATION& payload) {
+    std::wstring RenderStatPayload(const trace::kernel::FILE_STAT_INFORMATION& payload) {
         std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<ULONGLONG>(payload.FileId));
 
         if (payload.CreationTime) {
-            result += std::format(L", CreationTime: {}", log::values::RenderFileTime(payload.CreationTime));
+            result += std::format(L", CreationTime: {}", trace::values::RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L", LastAccessTime: {}", log::values::RenderFileTime(payload.LastAccessTime));
+            result += std::format(L", LastAccessTime: {}", trace::values::RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L", LastWriteTime: {}", log::values::RenderFileTime(payload.LastWriteTime));
+            result += std::format(L", LastWriteTime: {}", trace::values::RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L", ChangeTime: {}", log::values::RenderFileTime(payload.ChangeTime));
+            result += std::format(L", ChangeTime: {}", trace::values::RenderFileTime(payload.ChangeTime));
         }
 
         result += std::format(L", AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);
 
         if (payload.FileAttributes) {
-            result += std::format(L", FileAttributes: {}", log::names::RenderFileAttributes(payload.FileAttributes));
+            result += std::format(L", FileAttributes: {}", trace::names::RenderFileAttributes(payload.FileAttributes));
         }
 
         if (payload.ReparseTag) {
-            result += std::format(L", ReparseTag: {}", log::names::RenderReparseTag(payload.ReparseTag));
+            result += std::format(L", ReparseTag: {}", trace::names::RenderReparseTag(payload.ReparseTag));
         }
 
-        result += std::format(L", NumberOfLinks: {}, EffectiveAccess: {}", payload.NumberOfLinks, log::names::RenderDesiredAccess(payload.EffectiveAccess));
+        result += std::format(L", NumberOfLinks: {}, EffectiveAccess: {}", payload.NumberOfLinks, trace::names::RenderDesiredAccess(payload.EffectiveAccess));
 
         return result;
     }
 
 
-    std::wstring RenderStatLxPayload(const log::kernel::FILE_STAT_LX_INFORMATION& payload) {
-        log::kernel::FILE_STAT_INFORMATION stat;
+    std::wstring RenderStatLxPayload(const trace::kernel::FILE_STAT_LX_INFORMATION& payload) {
+        trace::kernel::FILE_STAT_INFORMATION stat;
         std::memcpy(&stat, &payload, sizeof(stat));
 
         std::wstring result = RenderStatPayload(stat);
@@ -324,39 +324,39 @@ namespace {
     }
 
 
-    std::wstring RenderCaseSensitivePayload(const log::kernel::FILE_CASE_SENSITIVE_INFORMATION& payload) {
+    std::wstring RenderCaseSensitivePayload(const trace::kernel::FILE_CASE_SENSITIVE_INFORMATION& payload) {
 
         return std::format(L"CaseSensitiveDir: {}", (payload.Flags & FILE_CS_FLAG_CASE_SENSITIVE_DIR) ? L"True" : L"False");
     }
 
 
-    std::wstring RenderStatBasicPayload(const log::kernel::FILE_STAT_BASIC_INFORMATION& payload) {
+    std::wstring RenderStatBasicPayload(const trace::kernel::FILE_STAT_BASIC_INFORMATION& payload) {
         std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<ULONGLONG>(payload.FileId));
 
         if (payload.CreationTime) {
-            result += std::format(L", CreationTime: {}", log::values::RenderFileTime(payload.CreationTime));
+            result += std::format(L", CreationTime: {}", trace::values::RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L", LastAccessTime: {}", log::values::RenderFileTime(payload.LastAccessTime));
+            result += std::format(L", LastAccessTime: {}", trace::values::RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L", LastWriteTime: {}", log::values::RenderFileTime(payload.LastWriteTime));
+            result += std::format(L", LastWriteTime: {}", trace::values::RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L", ChangeTime: {}", log::values::RenderFileTime(payload.ChangeTime));
+            result += std::format(L", ChangeTime: {}", trace::values::RenderFileTime(payload.ChangeTime));
         }
 
         result += std::format(L", AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);
 
         if (payload.FileAttributes) {
-            result += std::format(L", FileAttributes: {}", log::names::RenderFileAttributes(payload.FileAttributes));
+            result += std::format(L", FileAttributes: {}", trace::names::RenderFileAttributes(payload.FileAttributes));
         }
 
         if (payload.ReparseTag) {
-            result += std::format(L", ReparseTag: {}", log::names::RenderReparseTag(payload.ReparseTag));
+            result += std::format(L", ReparseTag: {}", trace::names::RenderReparseTag(payload.ReparseTag));
         }
 
         result += std::format(L", NumberOfLinks: {}, DeviceType: {}, DeviceCharacteristics: 0x{:X}, VolumeSerialNumber: 0x{:X}, FileId128: {}", payload.NumberOfLinks, payload.DeviceType, payload.DeviceCharacteristics, static_cast<ULONGLONG>(payload.VolumeSerialNumber), RenderFileId(payload.FileId128));
@@ -379,13 +379,13 @@ namespace {
     }
 
 
-    std::wstring RenderDispositionPayload(const log::kernel::FILE_DISPOSITION_INFORMATION& payload) {
+    std::wstring RenderDispositionPayload(const trace::kernel::FILE_DISPOSITION_INFORMATION& payload) {
 
         return std::format(L"Delete: {}", payload.DeletePending ? L"True" : L"False");
     }
 
 
-    std::wstring RenderAllocationPayload(const log::kernel::FILE_ALLOCATION_INFORMATION& payload) {
+    std::wstring RenderAllocationPayload(const trace::kernel::FILE_ALLOCATION_INFORMATION& payload) {
 
         return std::format(L"AllocationSize: {}", payload.AllocationSize);
     }
@@ -399,7 +399,7 @@ namespace {
     }
 
 
-    std::wstring RenderEndOfFilePayload(const log::kernel::FILE_END_OF_FILE_INFORMATION& payload) {
+    std::wstring RenderEndOfFilePayload(const trace::kernel::FILE_END_OF_FILE_INFORMATION& payload) {
 
         return std::format(L"EndOfFile: {}", payload.EndOfFile);
     }
@@ -411,38 +411,38 @@ namespace {
     }
 
 
-    std::wstring RenderValidDataLengthPayload(const log::kernel::FILE_VALID_DATA_LENGTH_INFORMATION& payload) {
+    std::wstring RenderValidDataLengthPayload(const trace::kernel::FILE_VALID_DATA_LENGTH_INFORMATION& payload) {
 
         return std::format(L"ValidDataLength: {}", payload.ValidDataLength);
     }
 
 
-    std::wstring RenderShortNamePayload(const log::kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderShortNamePayload(const trace::kernel::FILE_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
 
-        return std::format(L"FileName: {}", log::details::payload::RenderName(nameData, payload.FileNameLength));
+        return std::format(L"FileName: {}", trace::details::payload::RenderName(nameData, payload.FileNameLength));
     }
 
 
-    std::wstring RenderDispositionExPayload(const log::kernel::FILE_DISPOSITION_INFORMATION_EX& payload) {
+    std::wstring RenderDispositionExPayload(const trace::kernel::FILE_DISPOSITION_INFORMATION_EX& payload) {
 
-        if (payload.Flags == log::kernel::FILE_DISPOSITION_DO_NOT_DELETE) return L"Flags: Do Not Delete";
+        if (payload.Flags == trace::kernel::FILE_DISPOSITION_DO_NOT_DELETE) return L"Flags: Do Not Delete";
 
-        return std::format(L"Flags: {}", log::names::RenderDispositionFlags(payload.Flags));
+        return std::format(L"Flags: {}", trace::names::RenderDispositionFlags(payload.Flags));
     }
 
 
-    std::wstring RenderRenameExPayload(const log::kernel::FILE_RENAME_INFORMATION_EX& payload) {
+    std::wstring RenderRenameExPayload(const trace::kernel::FILE_RENAME_INFORMATION_EX& payload) {
 
         if (!payload.Flags) return {};
 
-        return std::format(L"Flags: {}", log::names::RenderRenameFlags(payload.Flags));
+        return std::format(L"Flags: {}", trace::names::RenderRenameFlags(payload.Flags));
     }
 
 }
 
 namespace mimo {
 
-    namespace log {
+    namespace trace {
 
         namespace details {
 

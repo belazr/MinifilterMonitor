@@ -14,7 +14,7 @@
 
 namespace mimo {
 
-    namespace log {
+    namespace trace {
 
         namespace details {
 

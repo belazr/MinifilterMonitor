@@ -19,39 +19,39 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\log\details.cpp" />
-    <ClCompile Include="src\log\details\create.cpp" />
-    <ClCompile Include="src\log\details\directory.cpp" />
-    <ClCompile Include="src\log\details\info.cpp" />
-    <ClCompile Include="src\log\details\readwrite.cpp" />
-    <ClCompile Include="src\log\details\volume.cpp" />
-    <ClCompile Include="src\log\format.cpp" />
+    <ClCompile Include="src\trace\details.cpp" />
+    <ClCompile Include="src\trace\details\create.cpp" />
+    <ClCompile Include="src\trace\details\directory.cpp" />
+    <ClCompile Include="src\trace\details\info.cpp" />
+    <ClCompile Include="src\trace\details\readwrite.cpp" />
+    <ClCompile Include="src\trace\details\volume.cpp" />
+    <ClCompile Include="src\trace\format.cpp" />
     <ClCompile Include="src\sink.cpp" />
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\log\names.cpp" />
-    <ClCompile Include="src\log\values.cpp" />
+    <ClCompile Include="src\trace\names.cpp" />
+    <ClCompile Include="src\trace\values.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\protocol.h" />
-    <ClInclude Include="src\log\kernel.h" />
-    <ClInclude Include="src\log\details.h" />
-    <ClInclude Include="src\log\details\create.h" />
-    <ClInclude Include="src\log\details\directory.h" />
-    <ClInclude Include="src\log\details\info.h" />
-    <ClInclude Include="src\log\details\payload.h" />
-    <ClInclude Include="src\log\details\readwrite.h" />
-    <ClInclude Include="src\log\details\volume.h" />
-    <ClInclude Include="src\log\format.h" />
+    <ClInclude Include="src\trace\kernel.h" />
+    <ClInclude Include="src\trace\details.h" />
+    <ClInclude Include="src\trace\details\create.h" />
+    <ClInclude Include="src\trace\details\directory.h" />
+    <ClInclude Include="src\trace\details\info.h" />
+    <ClInclude Include="src\trace\details\payload.h" />
+    <ClInclude Include="src\trace\details\readwrite.h" />
+    <ClInclude Include="src\trace\details\volume.h" />
+    <ClInclude Include="src\trace\format.h" />
     <ClInclude Include="src\records.h" />
     <ClInclude Include="src\sink.h" />
     <ClInclude Include="src\filter.h" />
     <ClInclude Include="src\buffer.h" />
     <ClInclude Include="src\text.h" />
     <ClInclude Include="src\handle.h" />
-    <ClInclude Include="src\log\names.h" />
-    <ClInclude Include="src\log\values.h" />
+    <ClInclude Include="src\trace\names.h" />
+    <ClInclude Include="src\trace\values.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src\res.rc" />

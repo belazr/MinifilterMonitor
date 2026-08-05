@@ -98,29 +98,29 @@ namespace {
     static_assert(CompositesPrecedeComponents(DESIRED_ACCESS_NAMES), "composite entry after its components in DESIRED_ACCESS_NAMES");
 
     constexpr FlagName CREATE_OPTION_NAMES[]{
-        { log::kernel::FILE_DIRECTORY_FILE,            L"Directory" },
-        { log::kernel::FILE_WRITE_THROUGH,             L"Write Through" },
-        { log::kernel::FILE_SEQUENTIAL_ONLY,           L"Sequential Access" },
-        { log::kernel::FILE_NO_INTERMEDIATE_BUFFERING, L"No Buffering" },
-        { log::kernel::FILE_SYNCHRONOUS_IO_ALERT,      L"Synchronous IO Alert" },
-        { log::kernel::FILE_SYNCHRONOUS_IO_NONALERT,   L"Synchronous IO Non-Alert" },
-        { log::kernel::FILE_NON_DIRECTORY_FILE,        L"Non-Directory File" },
-        { log::kernel::FILE_CREATE_TREE_CONNECTION,    L"Create Tree Connection" },
-        { log::kernel::FILE_COMPLETE_IF_OPLOCKED,      L"Complete If Oplocked" },
-        { log::kernel::FILE_NO_EA_KNOWLEDGE,           L"No EA Knowledge" },
-        { log::kernel::FILE_OPEN_REMOTE_INSTANCE,      L"Open Remote Instance" },
-        { log::kernel::FILE_RANDOM_ACCESS,             L"Random Access" },
-        { log::kernel::FILE_DELETE_ON_CLOSE,           L"Delete On Close" },
-        { log::kernel::FILE_OPEN_BY_FILE_ID,           L"Open By ID" },
-        { log::kernel::FILE_OPEN_FOR_BACKUP_INTENT,    L"Open For Backup" },
-        { log::kernel::FILE_NO_COMPRESSION,            L"No Compression" },
-        { log::kernel::FILE_OPEN_REQUIRING_OPLOCK,     L"Open Requiring Oplock" },
-        { log::kernel::FILE_DISALLOW_EXCLUSIVE,        L"Disallow Exclusive" },
-        { log::kernel::FILE_SESSION_AWARE,             L"Session Aware" },
-        { log::kernel::FILE_RESERVE_OPFILTER,          L"Reserve OpFilter" },
-        { log::kernel::FILE_OPEN_REPARSE_POINT,        L"Open Reparse Point" },
-        { log::kernel::FILE_OPEN_NO_RECALL,            L"Open No Recall" },
-        { log::kernel::FILE_OPEN_FOR_FREE_SPACE_QUERY, L"Open For Free Space Query" },
+        { trace::kernel::FILE_DIRECTORY_FILE,            L"Directory" },
+        { trace::kernel::FILE_WRITE_THROUGH,             L"Write Through" },
+        { trace::kernel::FILE_SEQUENTIAL_ONLY,           L"Sequential Access" },
+        { trace::kernel::FILE_NO_INTERMEDIATE_BUFFERING, L"No Buffering" },
+        { trace::kernel::FILE_SYNCHRONOUS_IO_ALERT,      L"Synchronous IO Alert" },
+        { trace::kernel::FILE_SYNCHRONOUS_IO_NONALERT,   L"Synchronous IO Non-Alert" },
+        { trace::kernel::FILE_NON_DIRECTORY_FILE,        L"Non-Directory File" },
+        { trace::kernel::FILE_CREATE_TREE_CONNECTION,    L"Create Tree Connection" },
+        { trace::kernel::FILE_COMPLETE_IF_OPLOCKED,      L"Complete If Oplocked" },
+        { trace::kernel::FILE_NO_EA_KNOWLEDGE,           L"No EA Knowledge" },
+        { trace::kernel::FILE_OPEN_REMOTE_INSTANCE,      L"Open Remote Instance" },
+        { trace::kernel::FILE_RANDOM_ACCESS,             L"Random Access" },
+        { trace::kernel::FILE_DELETE_ON_CLOSE,           L"Delete On Close" },
+        { trace::kernel::FILE_OPEN_BY_FILE_ID,           L"Open By ID" },
+        { trace::kernel::FILE_OPEN_FOR_BACKUP_INTENT,    L"Open For Backup" },
+        { trace::kernel::FILE_NO_COMPRESSION,            L"No Compression" },
+        { trace::kernel::FILE_OPEN_REQUIRING_OPLOCK,     L"Open Requiring Oplock" },
+        { trace::kernel::FILE_DISALLOW_EXCLUSIVE,        L"Disallow Exclusive" },
+        { trace::kernel::FILE_SESSION_AWARE,             L"Session Aware" },
+        { trace::kernel::FILE_RESERVE_OPFILTER,          L"Reserve OpFilter" },
+        { trace::kernel::FILE_OPEN_REPARSE_POINT,        L"Open Reparse Point" },
+        { trace::kernel::FILE_OPEN_NO_RECALL,            L"Open No Recall" },
+        { trace::kernel::FILE_OPEN_FOR_FREE_SPACE_QUERY, L"Open For Free Space Query" },
     };
 
     static_assert(CompositesPrecedeComponents(CREATE_OPTION_NAMES), "composite entry after its components in CREATE_OPTION_NAMES");
@@ -155,38 +155,38 @@ namespace {
     static_assert(CompositesPrecedeComponents(FILE_ATTRIBUTE_LETTERS), "composite entry after its components in FILE_ATTRIBUTE_LETTERS");
 
     constexpr FlagName REMOTE_PROTOCOL_FLAG_NAMES[]{
-        { log::kernel::REMOTE_PROTOCOL_FLAG_LOOPBACK,          L"Loopback" },
-        { log::kernel::REMOTE_PROTOCOL_FLAG_OFFLINE,           L"Offline" },
-        { log::kernel::REMOTE_PROTOCOL_FLAG_PERSISTENT_HANDLE, L"Persistent Handle" },
-        { log::kernel::REMOTE_PROTOCOL_FLAG_PRIVACY,           L"Privacy" },
-        { log::kernel::REMOTE_PROTOCOL_FLAG_INTEGRITY,         L"Integrity" },
-        { log::kernel::REMOTE_PROTOCOL_FLAG_MUTUAL_AUTH,       L"Mutual Auth" },
+        { trace::kernel::REMOTE_PROTOCOL_FLAG_LOOPBACK,          L"Loopback" },
+        { trace::kernel::REMOTE_PROTOCOL_FLAG_OFFLINE,           L"Offline" },
+        { trace::kernel::REMOTE_PROTOCOL_FLAG_PERSISTENT_HANDLE, L"Persistent Handle" },
+        { trace::kernel::REMOTE_PROTOCOL_FLAG_PRIVACY,           L"Privacy" },
+        { trace::kernel::REMOTE_PROTOCOL_FLAG_INTEGRITY,         L"Integrity" },
+        { trace::kernel::REMOTE_PROTOCOL_FLAG_MUTUAL_AUTH,       L"Mutual Auth" },
     };
 
     static_assert(CompositesPrecedeComponents(REMOTE_PROTOCOL_FLAG_NAMES), "composite entry after its components in REMOTE_PROTOCOL_FLAG_NAMES");
 
     constexpr FlagName DISPOSITION_FLAG_NAMES[]{
-        { log::kernel::FILE_DISPOSITION_DELETE,                    L"Delete" },
-        { log::kernel::FILE_DISPOSITION_POSIX_SEMANTICS,           L"POSIX Semantics" },
-        { log::kernel::FILE_DISPOSITION_FORCE_IMAGE_SECTION_CHECK, L"Force Image Section Check" },
-        { log::kernel::FILE_DISPOSITION_ON_CLOSE,                  L"On Close" },
-        { log::kernel::FILE_DISPOSITION_IGNORE_READONLY_ATTRIBUTE, L"Ignore Readonly Attribute" },
+        { trace::kernel::FILE_DISPOSITION_DELETE,                    L"Delete" },
+        { trace::kernel::FILE_DISPOSITION_POSIX_SEMANTICS,           L"POSIX Semantics" },
+        { trace::kernel::FILE_DISPOSITION_FORCE_IMAGE_SECTION_CHECK, L"Force Image Section Check" },
+        { trace::kernel::FILE_DISPOSITION_ON_CLOSE,                  L"On Close" },
+        { trace::kernel::FILE_DISPOSITION_IGNORE_READONLY_ATTRIBUTE, L"Ignore Readonly Attribute" },
     };
 
     static_assert(CompositesPrecedeComponents(DISPOSITION_FLAG_NAMES), "composite entry after its components in DISPOSITION_FLAG_NAMES");
 
     constexpr FlagName RENAME_FLAG_NAMES[]{
-        { log::kernel::FILE_RENAME_FORCE_RESIZE_SR,                      L"Force Resize SR" },
-        { log::kernel::FILE_RENAME_PRESERVE_AVAILABLE_SPACE,             L"Preserve Available Space" },
-        { log::kernel::FILE_RENAME_REPLACE_IF_EXISTS,                    L"Replace If Exists" },
-        { log::kernel::FILE_RENAME_POSIX_SEMANTICS,                      L"POSIX Semantics" },
-        { log::kernel::FILE_RENAME_SUPPRESS_PIN_STATE_INHERITANCE,       L"Suppress Pin State Inheritance" },
-        { log::kernel::FILE_RENAME_SUPPRESS_STORAGE_RESERVE_INHERITANCE, L"Suppress Storage Reserve Inheritance" },
-        { log::kernel::FILE_RENAME_NO_INCREASE_AVAILABLE_SPACE,          L"No Increase Available Space" },
-        { log::kernel::FILE_RENAME_NO_DECREASE_AVAILABLE_SPACE,          L"No Decrease Available Space" },
-        { log::kernel::FILE_RENAME_IGNORE_READONLY_ATTRIBUTE,            L"Ignore Readonly Attribute" },
-        { log::kernel::FILE_RENAME_FORCE_RESIZE_TARGET_SR,               L"Force Resize Target SR" },
-        { log::kernel::FILE_RENAME_FORCE_RESIZE_SOURCE_SR,               L"Force Resize Source SR" },
+        { trace::kernel::FILE_RENAME_FORCE_RESIZE_SR,                      L"Force Resize SR" },
+        { trace::kernel::FILE_RENAME_PRESERVE_AVAILABLE_SPACE,             L"Preserve Available Space" },
+        { trace::kernel::FILE_RENAME_REPLACE_IF_EXISTS,                    L"Replace If Exists" },
+        { trace::kernel::FILE_RENAME_POSIX_SEMANTICS,                      L"POSIX Semantics" },
+        { trace::kernel::FILE_RENAME_SUPPRESS_PIN_STATE_INHERITANCE,       L"Suppress Pin State Inheritance" },
+        { trace::kernel::FILE_RENAME_SUPPRESS_STORAGE_RESERVE_INHERITANCE, L"Suppress Storage Reserve Inheritance" },
+        { trace::kernel::FILE_RENAME_NO_INCREASE_AVAILABLE_SPACE,          L"No Increase Available Space" },
+        { trace::kernel::FILE_RENAME_NO_DECREASE_AVAILABLE_SPACE,          L"No Decrease Available Space" },
+        { trace::kernel::FILE_RENAME_IGNORE_READONLY_ATTRIBUTE,            L"Ignore Readonly Attribute" },
+        { trace::kernel::FILE_RENAME_FORCE_RESIZE_TARGET_SR,               L"Force Resize Target SR" },
+        { trace::kernel::FILE_RENAME_FORCE_RESIZE_SOURCE_SR,               L"Force Resize Source SR" },
     };
 
     static_assert(CompositesPrecedeComponents(RENAME_FLAG_NAMES), "composite entry after its components in RENAME_FLAG_NAMES");
@@ -227,9 +227,9 @@ namespace {
     static_assert(CompositesPrecedeComponents(FILE_SYSTEM_ATTRIBUTE_NAMES), "composite entry after its components in FILE_SYSTEM_ATTRIBUTE_NAMES");
 
     constexpr FlagName QUERY_DIRECTORY_FLAG_NAMES[]{
-        { log::kernel::SL_RESTART_SCAN,        L"Restart Scan" },
-        { log::kernel::SL_RETURN_SINGLE_ENTRY, L"Return Single Entry" },
-        { log::kernel::SL_INDEX_SPECIFIED,     L"Index Specified" },
+        { trace::kernel::SL_RESTART_SCAN,        L"Restart Scan" },
+        { trace::kernel::SL_RETURN_SINGLE_ENTRY, L"Return Single Entry" },
+        { trace::kernel::SL_INDEX_SPECIFIED,     L"Index Specified" },
     };
 
     static_assert(CompositesPrecedeComponents(QUERY_DIRECTORY_FLAG_NAMES), "composite entry after its components in QUERY_DIRECTORY_FLAG_NAMES");
@@ -242,11 +242,11 @@ namespace {
         { FILE_NOTIFY_CHANGE_LAST_WRITE,           L"FILE_NOTIFY_CHANGE_LAST_WRITE" },
         { FILE_NOTIFY_CHANGE_LAST_ACCESS,          L"FILE_NOTIFY_CHANGE_LAST_ACCESS" },
         { FILE_NOTIFY_CHANGE_CREATION,             L"FILE_NOTIFY_CHANGE_CREATION" },
-        { log::kernel::FILE_NOTIFY_CHANGE_EA,           L"FILE_NOTIFY_CHANGE_EA" },
+        { trace::kernel::FILE_NOTIFY_CHANGE_EA,           L"FILE_NOTIFY_CHANGE_EA" },
         { FILE_NOTIFY_CHANGE_SECURITY,             L"FILE_NOTIFY_CHANGE_SECURITY" },
-        { log::kernel::FILE_NOTIFY_CHANGE_STREAM_NAME,  L"FILE_NOTIFY_CHANGE_STREAM_NAME" },
-        { log::kernel::FILE_NOTIFY_CHANGE_STREAM_SIZE,  L"FILE_NOTIFY_CHANGE_STREAM_SIZE" },
-        { log::kernel::FILE_NOTIFY_CHANGE_STREAM_WRITE, L"FILE_NOTIFY_CHANGE_STREAM_WRITE" },
+        { trace::kernel::FILE_NOTIFY_CHANGE_STREAM_NAME,  L"FILE_NOTIFY_CHANGE_STREAM_NAME" },
+        { trace::kernel::FILE_NOTIFY_CHANGE_STREAM_SIZE,  L"FILE_NOTIFY_CHANGE_STREAM_SIZE" },
+        { trace::kernel::FILE_NOTIFY_CHANGE_STREAM_WRITE, L"FILE_NOTIFY_CHANGE_STREAM_WRITE" },
     };
 
     static_assert(CompositesPrecedeComponents(COMPLETION_FILTER_NAMES), "composite entry after its components in COMPLETION_FILTER_NAMES");
@@ -255,7 +255,7 @@ namespace {
 
 namespace mimo {
 
-    namespace log {
+    namespace trace {
 
         namespace names {
 

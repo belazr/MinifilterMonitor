@@ -1,6 +1,6 @@
 #include "filter.h"
 
-#include "log\format.h"
+#include "trace\format.h"
 
 #include "handle.h"
 #include "records.h"
@@ -196,11 +196,11 @@ namespace {
 
     std::unique_ptr<Sink> MakeSink(const Parameters& params) {
 
-        if (!params.file.has_value()) return std::make_unique<ConsoleSink>(std::cout, log::format::GetHeader());
+        if (!params.file.has_value()) return std::make_unique<ConsoleSink>(std::cout, trace::format::GetHeader());
 
         if (!DoesParentDirectoryExist(*params.file)) return nullptr;
 
-        return std::make_unique<FileSink>(*params.file, params.split, log::format::GetHeader());
+        return std::make_unique<FileSink>(*params.file, params.split, trace::format::GetHeader());
     }
 
 
@@ -259,7 +259,7 @@ namespace {
 
                 for (const protocol::Record& record : *records) {
 
-                    if (!sink.Write(record.data.altitude, log::format::Render(record))) {
+                    if (!sink.Write(record.data.altitude, trace::format::Render(record))) {
                         std::cerr << "Failed to write log records\n";
 
                         return false;

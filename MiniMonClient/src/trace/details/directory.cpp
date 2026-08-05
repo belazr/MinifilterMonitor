@@ -51,9 +51,9 @@ namespace {
             constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(Entry, FileName));
             Entry entry;
 
-            if (!log::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+            if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L"{}: {}, ", index, log::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
+            result += std::format(L"{}: {}, ", index, trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
             index++;
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
@@ -72,13 +72,13 @@ namespace {
     std::wstring RenderQueryDirectory(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
         const protocol::QueryDirectorySupplement& queryDirectorySupplement = data.supplement.queryDirectory;
-        std::wstring details = std::format(L"Class: {}, Length: {}", log::names::RenderFileInformationClass(parameters.queryDirectory.fileInformationClass), parameters.queryDirectory.length);
+        std::wstring details = std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(parameters.queryDirectory.fileInformationClass), parameters.queryDirectory.length);
 
-        if ((data.operationFlags & log::kernel::SL_INDEX_SPECIFIED) || parameters.queryDirectory.fileIndex) {
+        if ((data.operationFlags & trace::kernel::SL_INDEX_SPECIFIED) || parameters.queryDirectory.fileIndex) {
             details += std::format(L", FileIndex: {}", parameters.queryDirectory.fileIndex);
         }
 
-        const std::wstring flags = log::names::RenderQueryDirectoryFlags(data.operationFlags);
+        const std::wstring flags = trace::names::RenderQueryDirectoryFlags(data.operationFlags);
 
         if (!flags.empty()) {
             details += L", ";
@@ -97,33 +97,33 @@ namespace {
 
         switch (parameters.queryDirectory.fileInformationClass) {
 
-            case log::kernel::FileDirectoryInformation:
-                payloadText = RenderEntriesPayload<log::kernel::FILE_DIRECTORY_INFORMATION>(payload);
+            case trace::kernel::FileDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_DIRECTORY_INFORMATION>(payload);
 
                 break;
 
-            case log::kernel::FileFullDirectoryInformation:
-                payloadText = RenderEntriesPayload<log::kernel::FILE_FULL_DIR_INFORMATION>(payload);
+            case trace::kernel::FileFullDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_FULL_DIR_INFORMATION>(payload);
 
                 break;
 
-            case log::kernel::FileBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<log::kernel::FILE_BOTH_DIR_INFORMATION>(payload);
+            case trace::kernel::FileBothDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_BOTH_DIR_INFORMATION>(payload);
 
                 break;
 
-            case log::kernel::FileNamesInformation:
-                payloadText = RenderEntriesPayload<log::kernel::FILE_NAMES_INFORMATION>(payload);
+            case trace::kernel::FileNamesInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_NAMES_INFORMATION>(payload);
 
                 break;
 
-            case log::kernel::FileIdBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<log::kernel::FILE_ID_BOTH_DIR_INFORMATION>(payload);
+            case trace::kernel::FileIdBothDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_BOTH_DIR_INFORMATION>(payload);
 
                 break;
 
-            case log::kernel::FileIdFullDirectoryInformation:
-                payloadText = RenderEntriesPayload<log::kernel::FILE_ID_FULL_DIR_INFORMATION>(payload);
+            case trace::kernel::FileIdFullDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_FULL_DIR_INFORMATION>(payload);
 
                 break;
 
@@ -142,14 +142,14 @@ namespace {
         const protocol::FltParameters& parameters = data.parameters;
         std::wstring details;
 
-        const std::wstring completionFilter = log::names::RenderCompletionFilter(parameters.notifyDirectory.completionFilter);
+        const std::wstring completionFilter = trace::names::RenderCompletionFilter(parameters.notifyDirectory.completionFilter);
 
         if (!completionFilter.empty()) {
             details += std::format(L"Filter: {}, ", completionFilter);
         }
 
-        if (data.callbackMinorId == log::kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX) {
-            details += std::format(L"Class: {}, ", log::names::RenderDirectoryNotifyInformationClass(parameters.notifyDirectory.directoryNotifyInformationClass));
+        if (data.callbackMinorId == trace::kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX) {
+            details += std::format(L"Class: {}, ", trace::names::RenderDirectoryNotifyInformationClass(parameters.notifyDirectory.directoryNotifyInformationClass));
         }
 
         details += std::format(L"Length: {}", parameters.notifyDirectory.length);
@@ -161,7 +161,7 @@ namespace {
 
 namespace mimo {
 
-    namespace log {
+    namespace trace {
 
         namespace details {
 

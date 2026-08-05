@@ -27,61 +27,61 @@ namespace {
     }
 
 
-    std::wstring RenderVolumePayload(const log::kernel::FILE_FS_VOLUME_INFORMATION& payload, std::span<const uint8_t> labelData) {
+    std::wstring RenderVolumePayload(const trace::kernel::FILE_FS_VOLUME_INFORMATION& payload, std::span<const uint8_t> labelData) {
         std::wstring result;
 
         if (payload.VolumeCreationTime) {
-            result += std::format(L"VolumeCreationTime: {}, ", log::values::RenderFileTime(payload.VolumeCreationTime));
+            result += std::format(L"VolumeCreationTime: {}, ", trace::values::RenderFileTime(payload.VolumeCreationTime));
         }
 
         result += std::format(L"VolumeSerialNumber: {:04X}-{:04X}, SupportsObjects: {}", payload.VolumeSerialNumber >> 16, payload.VolumeSerialNumber & 0xFFFFu, payload.SupportsObjects ? L"True" : L"False");
 
         if (payload.VolumeLabelLength) {
-            result += std::format(L", VolumeLabel: {}", log::details::payload::RenderName(labelData, payload.VolumeLabelLength));
+            result += std::format(L", VolumeLabel: {}", trace::details::payload::RenderName(labelData, payload.VolumeLabelLength));
         }
 
         return result;
     }
 
 
-    std::wstring RenderLabelPayload(const log::kernel::FILE_FS_LABEL_INFORMATION& payload, std::span<const uint8_t> labelData) {
+    std::wstring RenderLabelPayload(const trace::kernel::FILE_FS_LABEL_INFORMATION& payload, std::span<const uint8_t> labelData) {
 
         if (!payload.VolumeLabelLength) return {};
 
-        return std::format(L"VolumeLabel: {}", log::details::payload::RenderName(labelData, payload.VolumeLabelLength));
+        return std::format(L"VolumeLabel: {}", trace::details::payload::RenderName(labelData, payload.VolumeLabelLength));
     }
 
 
-    std::wstring RenderSizePayload(const log::kernel::FILE_FS_SIZE_INFORMATION& payload) {
+    std::wstring RenderSizePayload(const trace::kernel::FILE_FS_SIZE_INFORMATION& payload) {
 
         return std::format(L"TotalAllocationUnits: {}, AvailableAllocationUnits: {}, SectorsPerAllocationUnit: {}, BytesPerSector: {}", payload.TotalAllocationUnits, payload.AvailableAllocationUnits, payload.SectorsPerAllocationUnit, payload.BytesPerSector);
     }
 
 
-    std::wstring RenderDevicePayload(const log::kernel::FILE_FS_DEVICE_INFORMATION& payload) {
+    std::wstring RenderDevicePayload(const trace::kernel::FILE_FS_DEVICE_INFORMATION& payload) {
 
         return std::format(L"DeviceType: {}, Characteristics: 0x{:X}", payload.DeviceType, payload.Characteristics);
     }
 
 
-    std::wstring RenderAttributePayload(const log::kernel::FILE_FS_ATTRIBUTE_INFORMATION& payload, std::span<const uint8_t> nameData) {
-        std::wstring result = std::format(L"FileSystemAttributes: {}, MaximumComponentNameLength: {}", log::names::RenderFileSystemAttributes(payload.FileSystemAttributes), payload.MaximumComponentNameLength);
+    std::wstring RenderAttributePayload(const trace::kernel::FILE_FS_ATTRIBUTE_INFORMATION& payload, std::span<const uint8_t> nameData) {
+        std::wstring result = std::format(L"FileSystemAttributes: {}, MaximumComponentNameLength: {}", trace::names::RenderFileSystemAttributes(payload.FileSystemAttributes), payload.MaximumComponentNameLength);
 
         if (payload.FileSystemNameLength) {
-            result += std::format(L", FileSystemName: {}", log::details::payload::RenderName(nameData, payload.FileSystemNameLength));
+            result += std::format(L", FileSystemName: {}", trace::details::payload::RenderName(nameData, payload.FileSystemNameLength));
         }
 
         return result;
     }
 
 
-    std::wstring RenderFullSizePayload(const log::kernel::FILE_FS_FULL_SIZE_INFORMATION& payload) {
+    std::wstring RenderFullSizePayload(const trace::kernel::FILE_FS_FULL_SIZE_INFORMATION& payload) {
 
         return std::format(L"TotalAllocationUnits: {}, CallerAvailableAllocationUnits: {}, ActualAvailableAllocationUnits: {}, SectorsPerAllocationUnit: {}, BytesPerSector: {}", payload.TotalAllocationUnits, payload.CallerAvailableAllocationUnits, payload.ActualAvailableAllocationUnits, payload.SectorsPerAllocationUnit, payload.BytesPerSector);
     }
 
 
-    std::wstring RenderSectorSizePayload(const log::kernel::FILE_FS_SECTOR_SIZE_INFORMATION& payload) {
+    std::wstring RenderSectorSizePayload(const trace::kernel::FILE_FS_SECTOR_SIZE_INFORMATION& payload) {
 
         return std::format(L"LogicalBytesPerSector: {}, PhysicalBytesPerSectorForAtomicity: {}, PhysicalBytesPerSectorForPerformance: {}, FileSystemEffectivePhysicalBytesPerSectorForAtomicity: {}, Flags: 0x{:X}, ByteOffsetForSectorAlignment: {}, ByteOffsetForPartitionAlignment: {}", payload.LogicalBytesPerSector, payload.PhysicalBytesPerSectorForAtomicity, payload.PhysicalBytesPerSectorForPerformance, payload.FileSystemEffectivePhysicalBytesPerSectorForAtomicity, payload.Flags, payload.ByteOffsetForSectorAlignment, payload.ByteOffsetForPartitionAlignment);
     }
@@ -90,7 +90,7 @@ namespace {
 
 namespace mimo {
 
-    namespace log {
+    namespace trace {
 
         namespace details {
 
