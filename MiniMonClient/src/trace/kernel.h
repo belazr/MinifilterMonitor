@@ -298,8 +298,8 @@ namespace mimo {
                 uint32_t FileAttributes;
             };
 
-            static_assert(sizeof(FILE_BASIC_INFORMATION) == 40u, "kernel::FILE_BASIC_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_BASIC_INFORMATION, FileAttributes) == 32u, "kernel::FILE_BASIC_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_BASIC_INFORMATION) == 40u, "trace::kernel::FILE_BASIC_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_BASIC_INFORMATION, FileAttributes) == 32u, "trace::kernel::FILE_BASIC_INFORMATION x64 layout drift");
 
             struct FILE_STANDARD_INFORMATION {
                 int64_t AllocationSize;
@@ -309,52 +309,52 @@ namespace mimo {
                 uint8_t Directory;
             };
 
-            static_assert(sizeof(FILE_STANDARD_INFORMATION) == 24u, "kernel::FILE_STANDARD_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_STANDARD_INFORMATION, DeletePending) == 20u, "kernel::FILE_STANDARD_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_STANDARD_INFORMATION) == 24u, "trace::kernel::FILE_STANDARD_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_STANDARD_INFORMATION, DeletePending) == 20u, "trace::kernel::FILE_STANDARD_INFORMATION x64 layout drift");
 
             struct FILE_INTERNAL_INFORMATION {
                 int64_t IndexNumber;
             };
 
-            static_assert(sizeof(FILE_INTERNAL_INFORMATION) == 8u, "kernel::FILE_INTERNAL_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_INTERNAL_INFORMATION) == 8u, "trace::kernel::FILE_INTERNAL_INFORMATION x64 layout drift");
 
             struct FILE_EA_INFORMATION {
                 uint32_t EaSize;
             };
 
-            static_assert(sizeof(FILE_EA_INFORMATION) == 4u, "kernel::FILE_EA_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_EA_INFORMATION) == 4u, "trace::kernel::FILE_EA_INFORMATION x64 layout drift");
 
             struct FILE_ACCESS_INFORMATION {
                 uint32_t AccessFlags;
             };
 
-            static_assert(sizeof(FILE_ACCESS_INFORMATION) == 4u, "kernel::FILE_ACCESS_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_ACCESS_INFORMATION) == 4u, "trace::kernel::FILE_ACCESS_INFORMATION x64 layout drift");
 
             struct FILE_NAME_INFORMATION {
                 uint32_t FileNameLength;
                 wchar_t FileName[1u];
             };
 
-            static_assert(sizeof(FILE_NAME_INFORMATION) == 8u, "kernel::FILE_NAME_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_NAME_INFORMATION, FileName) == 4u, "kernel::FILE_NAME_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_NAME_INFORMATION) == 8u, "trace::kernel::FILE_NAME_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_NAME_INFORMATION, FileName) == 4u, "trace::kernel::FILE_NAME_INFORMATION x64 layout drift");
 
             struct FILE_POSITION_INFORMATION {
                 int64_t CurrentByteOffset;
             };
 
-            static_assert(sizeof(FILE_POSITION_INFORMATION) == 8u, "kernel::FILE_POSITION_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_POSITION_INFORMATION) == 8u, "trace::kernel::FILE_POSITION_INFORMATION x64 layout drift");
 
             struct FILE_MODE_INFORMATION {
                 uint32_t Mode;
             };
 
-            static_assert(sizeof(FILE_MODE_INFORMATION) == 4u, "kernel::FILE_MODE_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_MODE_INFORMATION) == 4u, "trace::kernel::FILE_MODE_INFORMATION x64 layout drift");
 
             struct FILE_ALIGNMENT_INFORMATION {
                 uint32_t AlignmentRequirement;
             };
 
-            static_assert(sizeof(FILE_ALIGNMENT_INFORMATION) == 4u, "kernel::FILE_ALIGNMENT_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_ALIGNMENT_INFORMATION) == 4u, "trace::kernel::FILE_ALIGNMENT_INFORMATION x64 layout drift");
 
             struct FILE_ALL_INFORMATION {
                 FILE_BASIC_INFORMATION BasicInformation;
@@ -368,11 +368,11 @@ namespace mimo {
                 FILE_NAME_INFORMATION NameInformation;
             };
 
-            static_assert(sizeof(FILE_ALL_INFORMATION) == 104u, "kernel::FILE_ALL_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_ALL_INFORMATION, StandardInformation) == 40u, "kernel::FILE_ALL_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_ALL_INFORMATION, PositionInformation) == 80u, "kernel::FILE_ALL_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_ALL_INFORMATION, NameInformation) == 96u, "kernel::FILE_ALL_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_ALL_INFORMATION, NameInformation.FileName) == 100u, "kernel::FILE_ALL_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_ALL_INFORMATION) == 104u, "trace::kernel::FILE_ALL_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ALL_INFORMATION, StandardInformation) == 40u, "trace::kernel::FILE_ALL_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ALL_INFORMATION, PositionInformation) == 80u, "trace::kernel::FILE_ALL_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ALL_INFORMATION, NameInformation) == 96u, "trace::kernel::FILE_ALL_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ALL_INFORMATION, NameInformation.FileName) == 100u, "trace::kernel::FILE_ALL_INFORMATION x64 layout drift");
 
             struct FILE_STREAM_INFORMATION {
                 uint32_t NextEntryOffset;
@@ -382,8 +382,8 @@ namespace mimo {
                 wchar_t StreamName[1u];
             };
 
-            static_assert(sizeof(FILE_STREAM_INFORMATION) == 32u, "kernel::FILE_STREAM_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_STREAM_INFORMATION, StreamName) == 24u, "kernel::FILE_STREAM_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_STREAM_INFORMATION) == 32u, "trace::kernel::FILE_STREAM_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_STREAM_INFORMATION, StreamName) == 24u, "trace::kernel::FILE_STREAM_INFORMATION x64 layout drift");
 
             struct FILE_COMPRESSION_INFORMATION {
                 int64_t CompressedFileSize;
@@ -394,8 +394,8 @@ namespace mimo {
                 uint8_t Reserved[3u];
             };
 
-            static_assert(sizeof(FILE_COMPRESSION_INFORMATION) == 16u, "kernel::FILE_COMPRESSION_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_COMPRESSION_INFORMATION, CompressionFormat) == 8u, "kernel::FILE_COMPRESSION_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_COMPRESSION_INFORMATION) == 16u, "trace::kernel::FILE_COMPRESSION_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_COMPRESSION_INFORMATION, CompressionFormat) == 8u, "trace::kernel::FILE_COMPRESSION_INFORMATION x64 layout drift");
 
             struct FILE_NETWORK_OPEN_INFORMATION {
                 int64_t CreationTime;
@@ -407,15 +407,15 @@ namespace mimo {
                 uint32_t FileAttributes;
             };
 
-            static_assert(sizeof(FILE_NETWORK_OPEN_INFORMATION) == 56u, "kernel::FILE_NETWORK_OPEN_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_NETWORK_OPEN_INFORMATION, FileAttributes) == 48u, "kernel::FILE_NETWORK_OPEN_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_NETWORK_OPEN_INFORMATION) == 56u, "trace::kernel::FILE_NETWORK_OPEN_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_NETWORK_OPEN_INFORMATION, FileAttributes) == 48u, "trace::kernel::FILE_NETWORK_OPEN_INFORMATION x64 layout drift");
 
             struct FILE_ATTRIBUTE_TAG_INFORMATION {
                 uint32_t FileAttributes;
                 uint32_t ReparseTag;
             };
 
-            static_assert(sizeof(FILE_ATTRIBUTE_TAG_INFORMATION) == 8u, "kernel::FILE_ATTRIBUTE_TAG_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_ATTRIBUTE_TAG_INFORMATION) == 8u, "trace::kernel::FILE_ATTRIBUTE_TAG_INFORMATION x64 layout drift");
 
             struct FILE_LINK_ENTRY_INFORMATION {
                 uint32_t NextEntryOffset;
@@ -424,9 +424,9 @@ namespace mimo {
                 wchar_t FileName[1u];
             };
 
-            static_assert(sizeof(FILE_LINK_ENTRY_INFORMATION) == 24u, "kernel::FILE_LINK_ENTRY_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_LINK_ENTRY_INFORMATION, ParentFileId) == 8u, "kernel::FILE_LINK_ENTRY_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_LINK_ENTRY_INFORMATION, FileName) == 20u, "kernel::FILE_LINK_ENTRY_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_LINK_ENTRY_INFORMATION) == 24u, "trace::kernel::FILE_LINK_ENTRY_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_LINK_ENTRY_INFORMATION, ParentFileId) == 8u, "trace::kernel::FILE_LINK_ENTRY_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_LINK_ENTRY_INFORMATION, FileName) == 20u, "trace::kernel::FILE_LINK_ENTRY_INFORMATION x64 layout drift");
 
             struct FILE_LINKS_INFORMATION {
                 uint32_t BytesNeeded;
@@ -434,8 +434,8 @@ namespace mimo {
                 FILE_LINK_ENTRY_INFORMATION Entry;
             };
 
-            static_assert(sizeof(FILE_LINKS_INFORMATION) == 32u, "kernel::FILE_LINKS_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_LINKS_INFORMATION, Entry) == 8u, "kernel::FILE_LINKS_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_LINKS_INFORMATION) == 32u, "trace::kernel::FILE_LINKS_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_LINKS_INFORMATION, Entry) == 8u, "trace::kernel::FILE_LINKS_INFORMATION x64 layout drift");
 
             struct FILE_REMOTE_PROTOCOL_INFORMATION {
                 uint16_t StructureVersion;
@@ -450,17 +450,17 @@ namespace mimo {
                 uint32_t ProtocolSpecific[16u];    // Smb2 capability union in the kernel
             };
 
-            static_assert(sizeof(FILE_REMOTE_PROTOCOL_INFORMATION) == 116u, "kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_REMOTE_PROTOCOL_INFORMATION, Flags) == 16u, "kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_REMOTE_PROTOCOL_INFORMATION, GenericReserved) == 20u, "kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_REMOTE_PROTOCOL_INFORMATION) == 116u, "trace::kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_REMOTE_PROTOCOL_INFORMATION, Flags) == 16u, "trace::kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_REMOTE_PROTOCOL_INFORMATION, GenericReserved) == 20u, "trace::kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
 
             struct FILE_ID_INFORMATION {
                 uint64_t VolumeSerialNumber;
                 uint8_t FileId[16u];
             };
 
-            static_assert(sizeof(FILE_ID_INFORMATION) == 24u, "kernel::FILE_ID_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_ID_INFORMATION, FileId) == 8u, "kernel::FILE_ID_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_ID_INFORMATION) == 24u, "trace::kernel::FILE_ID_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_INFORMATION, FileId) == 8u, "trace::kernel::FILE_ID_INFORMATION x64 layout drift");
 
             struct FILE_STAT_INFORMATION {
                 int64_t FileId;
@@ -476,8 +476,8 @@ namespace mimo {
                 uint32_t EffectiveAccess;
             };
 
-            static_assert(sizeof(FILE_STAT_INFORMATION) == 72u, "kernel::FILE_STAT_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_STAT_INFORMATION, FileAttributes) == 56u, "kernel::FILE_STAT_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_STAT_INFORMATION) == 72u, "trace::kernel::FILE_STAT_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_STAT_INFORMATION, FileAttributes) == 56u, "trace::kernel::FILE_STAT_INFORMATION x64 layout drift");
 
             struct FILE_STAT_LX_INFORMATION {
                 int64_t FileId;
@@ -499,14 +499,14 @@ namespace mimo {
                 uint32_t LxDeviceIdMinor;
             };
 
-            static_assert(sizeof(FILE_STAT_LX_INFORMATION) == 96u, "kernel::FILE_STAT_LX_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_STAT_LX_INFORMATION, LxFlags) == sizeof(FILE_STAT_INFORMATION), "kernel::FILE_STAT_LX_INFORMATION does not extend FILE_STAT_INFORMATION");
+            static_assert(sizeof(FILE_STAT_LX_INFORMATION) == 96u, "trace::kernel::FILE_STAT_LX_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_STAT_LX_INFORMATION, LxFlags) == sizeof(FILE_STAT_INFORMATION), "trace::kernel::FILE_STAT_LX_INFORMATION does not extend FILE_STAT_INFORMATION");
 
             struct FILE_CASE_SENSITIVE_INFORMATION {
                 uint32_t Flags;
             };
 
-            static_assert(sizeof(FILE_CASE_SENSITIVE_INFORMATION) == 4u, "kernel::FILE_CASE_SENSITIVE_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_CASE_SENSITIVE_INFORMATION) == 4u, "trace::kernel::FILE_CASE_SENSITIVE_INFORMATION x64 layout drift");
 
             struct FILE_STAT_BASIC_INFORMATION {
                 int64_t FileId;
@@ -526,9 +526,9 @@ namespace mimo {
                 uint8_t FileId128[16u];
             };
 
-            static_assert(sizeof(FILE_STAT_BASIC_INFORMATION) == 104u, "kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_STAT_BASIC_INFORMATION, DeviceType) == 68u, "kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_STAT_BASIC_INFORMATION, FileId128) == 88u, "kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_STAT_BASIC_INFORMATION) == 104u, "trace::kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_STAT_BASIC_INFORMATION, DeviceType) == 68u, "trace::kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_STAT_BASIC_INFORMATION, FileId128) == 88u, "trace::kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
 
             // FILE_LINK_INFORMATION shares this layout
             struct FILE_RENAME_INFORMATION {
@@ -538,40 +538,40 @@ namespace mimo {
                 wchar_t FileName[1u];
             };
 
-            static_assert(sizeof(FILE_RENAME_INFORMATION) == 24u, "kernel::FILE_RENAME_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_RENAME_INFORMATION, RootDirectory) == 8u, "kernel::FILE_RENAME_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_RENAME_INFORMATION, FileNameLength) == 16u, "kernel::FILE_RENAME_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_RENAME_INFORMATION, FileName) == 20u, "kernel::FILE_RENAME_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_RENAME_INFORMATION) == 24u, "trace::kernel::FILE_RENAME_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_RENAME_INFORMATION, RootDirectory) == 8u, "trace::kernel::FILE_RENAME_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_RENAME_INFORMATION, FileNameLength) == 16u, "trace::kernel::FILE_RENAME_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_RENAME_INFORMATION, FileName) == 20u, "trace::kernel::FILE_RENAME_INFORMATION x64 layout drift");
 
             struct FILE_DISPOSITION_INFORMATION {
                 uint8_t DeletePending;      // MS-FSCC spelling, the ntifs.h member name DeleteFile is a winbase.h macro
             };
 
-            static_assert(sizeof(FILE_DISPOSITION_INFORMATION) == 1u, "kernel::FILE_DISPOSITION_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_DISPOSITION_INFORMATION) == 1u, "trace::kernel::FILE_DISPOSITION_INFORMATION x64 layout drift");
 
             struct FILE_ALLOCATION_INFORMATION {
                 int64_t AllocationSize;
             };
 
-            static_assert(sizeof(FILE_ALLOCATION_INFORMATION) == 8u, "kernel::FILE_ALLOCATION_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_ALLOCATION_INFORMATION) == 8u, "trace::kernel::FILE_ALLOCATION_INFORMATION x64 layout drift");
 
             struct FILE_END_OF_FILE_INFORMATION {
                 int64_t EndOfFile;
             };
 
-            static_assert(sizeof(FILE_END_OF_FILE_INFORMATION) == 8u, "kernel::FILE_END_OF_FILE_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_END_OF_FILE_INFORMATION) == 8u, "trace::kernel::FILE_END_OF_FILE_INFORMATION x64 layout drift");
 
             struct FILE_VALID_DATA_LENGTH_INFORMATION {
                 int64_t ValidDataLength;
             };
 
-            static_assert(sizeof(FILE_VALID_DATA_LENGTH_INFORMATION) == 8u, "kernel::FILE_VALID_DATA_LENGTH_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_VALID_DATA_LENGTH_INFORMATION) == 8u, "trace::kernel::FILE_VALID_DATA_LENGTH_INFORMATION x64 layout drift");
 
             struct FILE_DISPOSITION_INFORMATION_EX {
                 uint32_t Flags;
             };
 
-            static_assert(sizeof(FILE_DISPOSITION_INFORMATION_EX) == 4u, "kernel::FILE_DISPOSITION_INFORMATION_EX x64 layout drift");
+            static_assert(sizeof(FILE_DISPOSITION_INFORMATION_EX) == 4u, "trace::kernel::FILE_DISPOSITION_INFORMATION_EX x64 layout drift");
 
             // FILE_LINK_INFORMATION_EX shares this layout
             struct FILE_RENAME_INFORMATION_EX {
@@ -581,10 +581,10 @@ namespace mimo {
                 wchar_t FileName[1u];
             };
 
-            static_assert(sizeof(FILE_RENAME_INFORMATION_EX) == 24u, "kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
-            static_assert(offsetof(FILE_RENAME_INFORMATION_EX, RootDirectory) == 8u, "kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
-            static_assert(offsetof(FILE_RENAME_INFORMATION_EX, FileNameLength) == 16u, "kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
-            static_assert(offsetof(FILE_RENAME_INFORMATION_EX, FileName) == 20u, "kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
+            static_assert(sizeof(FILE_RENAME_INFORMATION_EX) == 24u, "trace::kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
+            static_assert(offsetof(FILE_RENAME_INFORMATION_EX, RootDirectory) == 8u, "trace::kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
+            static_assert(offsetof(FILE_RENAME_INFORMATION_EX, FileNameLength) == 16u, "trace::kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
+            static_assert(offsetof(FILE_RENAME_INFORMATION_EX, FileName) == 20u, "trace::kernel::FILE_RENAME_INFORMATION_EX x64 layout drift");
 
             inline constexpr uint32_t REMOTE_PROTOCOL_FLAG_LOOPBACK          = 0x00000001u;
             inline constexpr uint32_t REMOTE_PROTOCOL_FLAG_OFFLINE           = 0x00000002u;
@@ -641,16 +641,16 @@ namespace mimo {
                 wchar_t VolumeLabel[1u];
             };
 
-            static_assert(sizeof(FILE_FS_VOLUME_INFORMATION) == 24u, "kernel::FILE_FS_VOLUME_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_FS_VOLUME_INFORMATION, VolumeLabel) == 18u, "kernel::FILE_FS_VOLUME_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_FS_VOLUME_INFORMATION) == 24u, "trace::kernel::FILE_FS_VOLUME_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_FS_VOLUME_INFORMATION, VolumeLabel) == 18u, "trace::kernel::FILE_FS_VOLUME_INFORMATION x64 layout drift");
 
             struct FILE_FS_LABEL_INFORMATION {
                 uint32_t VolumeLabelLength;
                 wchar_t VolumeLabel[1u];
             };
 
-            static_assert(sizeof(FILE_FS_LABEL_INFORMATION) == 8u, "kernel::FILE_FS_LABEL_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_FS_LABEL_INFORMATION, VolumeLabel) == 4u, "kernel::FILE_FS_LABEL_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_FS_LABEL_INFORMATION) == 8u, "trace::kernel::FILE_FS_LABEL_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_FS_LABEL_INFORMATION, VolumeLabel) == 4u, "trace::kernel::FILE_FS_LABEL_INFORMATION x64 layout drift");
 
             struct FILE_FS_SIZE_INFORMATION {
                 int64_t TotalAllocationUnits;
@@ -659,14 +659,14 @@ namespace mimo {
                 uint32_t BytesPerSector;
             };
 
-            static_assert(sizeof(FILE_FS_SIZE_INFORMATION) == 24u, "kernel::FILE_FS_SIZE_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_FS_SIZE_INFORMATION) == 24u, "trace::kernel::FILE_FS_SIZE_INFORMATION x64 layout drift");
 
             struct FILE_FS_DEVICE_INFORMATION {
                 uint32_t DeviceType;
                 uint32_t Characteristics;
             };
 
-            static_assert(sizeof(FILE_FS_DEVICE_INFORMATION) == 8u, "kernel::FILE_FS_DEVICE_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_FS_DEVICE_INFORMATION) == 8u, "trace::kernel::FILE_FS_DEVICE_INFORMATION x64 layout drift");
 
             struct FILE_FS_ATTRIBUTE_INFORMATION {
                 uint32_t FileSystemAttributes;
@@ -675,8 +675,8 @@ namespace mimo {
                 wchar_t FileSystemName[1u];
             };
 
-            static_assert(sizeof(FILE_FS_ATTRIBUTE_INFORMATION) == 16u, "kernel::FILE_FS_ATTRIBUTE_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_FS_ATTRIBUTE_INFORMATION, FileSystemName) == 12u, "kernel::FILE_FS_ATTRIBUTE_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_FS_ATTRIBUTE_INFORMATION) == 16u, "trace::kernel::FILE_FS_ATTRIBUTE_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_FS_ATTRIBUTE_INFORMATION, FileSystemName) == 12u, "trace::kernel::FILE_FS_ATTRIBUTE_INFORMATION x64 layout drift");
 
             struct FILE_FS_FULL_SIZE_INFORMATION {
                 int64_t TotalAllocationUnits;
@@ -686,7 +686,7 @@ namespace mimo {
                 uint32_t BytesPerSector;
             };
 
-            static_assert(sizeof(FILE_FS_FULL_SIZE_INFORMATION) == 32u, "kernel::FILE_FS_FULL_SIZE_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_FS_FULL_SIZE_INFORMATION) == 32u, "trace::kernel::FILE_FS_FULL_SIZE_INFORMATION x64 layout drift");
 
             struct FILE_FS_SECTOR_SIZE_INFORMATION {
                 uint32_t LogicalBytesPerSector;
@@ -698,7 +698,7 @@ namespace mimo {
                 uint32_t ByteOffsetForPartitionAlignment;
             };
 
-            static_assert(sizeof(FILE_FS_SECTOR_SIZE_INFORMATION) == 28u, "kernel::FILE_FS_SECTOR_SIZE_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_FS_SECTOR_SIZE_INFORMATION) == 28u, "trace::kernel::FILE_FS_SECTOR_SIZE_INFORMATION x64 layout drift");
 
             // completion filter values
             inline constexpr uint32_t FILE_NOTIFY_CHANGE_EA           = 0x00000080u;
@@ -727,8 +727,8 @@ namespace mimo {
                 wchar_t FileName[1u];
             };
 
-            static_assert(sizeof(FILE_DIRECTORY_INFORMATION) == 72u, "kernel::FILE_DIRECTORY_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_DIRECTORY_INFORMATION, FileName) == 64u, "kernel::FILE_DIRECTORY_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_DIRECTORY_INFORMATION) == 72u, "trace::kernel::FILE_DIRECTORY_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_DIRECTORY_INFORMATION, FileName) == 64u, "trace::kernel::FILE_DIRECTORY_INFORMATION x64 layout drift");
 
             struct FILE_FULL_DIR_INFORMATION {
                 uint32_t NextEntryOffset;
@@ -745,8 +745,8 @@ namespace mimo {
                 wchar_t FileName[1u];
             };
 
-            static_assert(sizeof(FILE_FULL_DIR_INFORMATION) == 72u, "kernel::FILE_FULL_DIR_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_FULL_DIR_INFORMATION, FileName) == 68u, "kernel::FILE_FULL_DIR_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_FULL_DIR_INFORMATION) == 72u, "trace::kernel::FILE_FULL_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_FULL_DIR_INFORMATION, FileName) == 68u, "trace::kernel::FILE_FULL_DIR_INFORMATION x64 layout drift");
 
             struct FILE_BOTH_DIR_INFORMATION {
                 uint32_t NextEntryOffset;
@@ -765,8 +765,8 @@ namespace mimo {
                 wchar_t FileName[1u];
             };
 
-            static_assert(sizeof(FILE_BOTH_DIR_INFORMATION) == 96u, "kernel::FILE_BOTH_DIR_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_BOTH_DIR_INFORMATION, FileName) == 94u, "kernel::FILE_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_BOTH_DIR_INFORMATION) == 96u, "trace::kernel::FILE_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_BOTH_DIR_INFORMATION, FileName) == 94u, "trace::kernel::FILE_BOTH_DIR_INFORMATION x64 layout drift");
 
             struct FILE_NAMES_INFORMATION {
                 uint32_t NextEntryOffset;
@@ -775,8 +775,8 @@ namespace mimo {
                 wchar_t FileName[1u];
             };
 
-            static_assert(sizeof(FILE_NAMES_INFORMATION) == 16u, "kernel::FILE_NAMES_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_NAMES_INFORMATION, FileName) == 12u, "kernel::FILE_NAMES_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_NAMES_INFORMATION) == 16u, "trace::kernel::FILE_NAMES_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_NAMES_INFORMATION, FileName) == 12u, "trace::kernel::FILE_NAMES_INFORMATION x64 layout drift");
 
             struct FILE_ID_BOTH_DIR_INFORMATION {
                 uint32_t NextEntryOffset;
@@ -796,9 +796,9 @@ namespace mimo {
                 wchar_t FileName[1u];
             };
 
-            static_assert(sizeof(FILE_ID_BOTH_DIR_INFORMATION) == 112u, "kernel::FILE_ID_BOTH_DIR_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileId) == 96u, "kernel::FILE_ID_BOTH_DIR_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileName) == 104u, "kernel::FILE_ID_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_ID_BOTH_DIR_INFORMATION) == 112u, "trace::kernel::FILE_ID_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileId) == 96u, "trace::kernel::FILE_ID_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileName) == 104u, "trace::kernel::FILE_ID_BOTH_DIR_INFORMATION x64 layout drift");
 
             struct FILE_ID_FULL_DIR_INFORMATION {
                 uint32_t NextEntryOffset;
@@ -816,9 +816,9 @@ namespace mimo {
                 wchar_t FileName[1u];
             };
 
-            static_assert(sizeof(FILE_ID_FULL_DIR_INFORMATION) == 88u, "kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileId) == 72u, "kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileName) == 80u, "kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
+            static_assert(sizeof(FILE_ID_FULL_DIR_INFORMATION) == 88u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileId) == 72u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileName) == 80u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
 
         }
 
