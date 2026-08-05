@@ -1,6 +1,7 @@
 #include "transaction.h"
 
-#include "capture.h"
+#include "trace\capture.h"
+
 #include "records.h"
 
 #include <fltKernel.h>
@@ -88,7 +89,7 @@ namespace mimo {
 
             if (!pEntry) return STATUS_SUCCESS;
 
-            capture::PopulateTransactionEventRecordData(&pEntry->record.data, pFltObjects, notificationMask, pCtx->sequence);
+            trace::capture::PopulateTransactionEventRecordData(&pEntry->record.data, pFltObjects, notificationMask, pCtx->sequence);
             records::Append(pEntry);
 
             return STATUS_SUCCESS;

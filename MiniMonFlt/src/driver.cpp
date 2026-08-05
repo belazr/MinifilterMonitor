@@ -1,8 +1,9 @@
 #include "driver.h"
 
+#include "trace\modules.h"
+
 #include "config.h"
 #include "dispatch.h"
-#include "modules.h"
 #include "port.h"
 #include "records.h"
 #include "transaction.h"
@@ -116,7 +117,7 @@ namespace {
         port::Close();
         FltUnregisterFilter(driver::Filter);
 
-        modules::Delete();
+        trace::modules::Delete();
         records::Delete();
 
         return STATUS_SUCCESS;
@@ -255,7 +256,7 @@ extern "C" NTSTATUS DriverEntry(DRIVER_OBJECT* pDriverObject, UNICODE_STRING* pR
     NTSTATUS status = STATUS_SUCCESS;
 
     records::Create();
-    modules::Create();
+    trace::modules::Create();
     config::Create(pRegistryPath);
 
     status = FltRegisterFilter(pDriverObject, &FilterRegistration, &driver::Filter);
@@ -266,7 +267,7 @@ extern "C" NTSTATUS DriverEntry(DRIVER_OBJECT* pDriverObject, UNICODE_STRING* pR
 
     if (!NT_SUCCESS(status)) goto done;
 
-    status = modules::Init();
+    status = trace::modules::Init();
 
     if (!NT_SUCCESS(status)) goto done;
 
@@ -281,7 +282,7 @@ done:
             FltUnregisterFilter(driver::Filter);
         }
 
-        modules::Delete();
+        trace::modules::Delete();
         records::Delete();
     }
 

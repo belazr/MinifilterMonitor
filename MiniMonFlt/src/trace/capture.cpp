@@ -1,11 +1,11 @@
 #include "capture.h"
 
-#include "driver.h"
+#include "..\driver.h"
 #include "ecp.h"
 #include "name.h"
 #include "stack.h"
 
-#include "..\..\inc\protocol.h"
+#include "..\..\..\inc\protocol.h"
 
 #include <fltKernel.h>
 #include <ntstrsafe.h>
@@ -116,7 +116,7 @@ namespace {
         }
 
         ULONG stackFrameCount = 0u;
-        stack::CaptureStackTrace(pRecordData->stackTrace, protocol::STACK_TRACE_FRAMES, &stackFrameCount);
+        trace::stack::CaptureStackTrace(pRecordData->stackTrace, protocol::STACK_TRACE_FRAMES, &stackFrameCount);
         pRecordData->stackFrameCount = stackFrameCount;
 
         LARGE_INTEGER originatingTime{};
@@ -163,7 +163,7 @@ namespace {
         UNICODE_STRING ecpText{};
         RtlInitEmptyUnicodeString(&ecpText, pSupplement->ecpText, sizeof(pSupplement->ecpText));
 
-        if (ecp::FormatEcps(pData, &ecpText) == STATUS_BUFFER_OVERFLOW) {
+        if (trace::ecp::FormatEcps(pData, &ecpText) == STATUS_BUFFER_OVERFLOW) {
             pSupplement->captured |= protocol::CREATE_TRUNCATED_ECP_TEXT;
         }
 
@@ -197,7 +197,7 @@ namespace {
         UNICODE_STRING targetName{};
         RtlInitEmptyUnicodeString(&targetName, pSupplement->targetName, sizeof(pSupplement->targetName));
 
-        const NTSTATUS status = name::FormatTargetFileName(pData, pFltObjects, &targetName);
+        const NTSTATUS status = trace::name::FormatTargetFileName(pData, pFltObjects, &targetName);
 
         if (!NT_SUCCESS(status) && status != STATUS_BUFFER_OVERFLOW) return;
 
@@ -383,136 +383,140 @@ namespace {
 
 namespace mimo {
 
-    namespace capture {
+    namespace trace {
 
-        _Use_decl_annotations_
-        void PopulatePreOperationRecordData(
-            protocol::RecordData* pRecordData,
-            FLT_CALLBACK_DATA* pData,
-            const FLT_RELATED_OBJECTS* pFltObjects
-        ) {
-            PopulateOriginRecordData(pRecordData, pFltObjects);
+        namespace capture {
 
-            pRecordData->callbackMajorId = pData->Iopb->MajorFunction;
-            pRecordData->callbackMinorId = pData->Iopb->MinorFunction;
-            pRecordData->operationFlags  = pData->Iopb->OperationFlags;
-            pRecordData->irpFlags        = pData->Iopb->IrpFlags;
-            pRecordData->flags           = pData->Flags;
-            pRecordData->operationId     = reinterpret_cast<protocol::ObjectId>(pData);
-            pRecordData->topLevelIrp     = reinterpret_cast<protocol::ObjectId>(IoGetTopLevelIrp());
+            _Use_decl_annotations_
+            void PopulatePreOperationRecordData(
+                protocol::RecordData* pRecordData,
+                FLT_CALLBACK_DATA* pData,
+                const FLT_RELATED_OBJECTS* pFltObjects
+            ) {
+                PopulateOriginRecordData(pRecordData, pFltObjects);
 
-            RtlCopyMemory(&pRecordData->parameters, &pData->Iopb->Parameters, sizeof(pRecordData->parameters));
+                pRecordData->callbackMajorId = pData->Iopb->MajorFunction;
+                pRecordData->callbackMinorId = pData->Iopb->MinorFunction;
+                pRecordData->operationFlags  = pData->Iopb->OperationFlags;
+                pRecordData->irpFlags        = pData->Iopb->IrpFlags;
+                pRecordData->flags           = pData->Flags;
+                pRecordData->operationId     = reinterpret_cast<protocol::ObjectId>(pData);
+                pRecordData->topLevelIrp     = reinterpret_cast<protocol::ObjectId>(IoGetTopLevelIrp());
 
-            UNICODE_STRING fileName{};
-            RtlInitEmptyUnicodeString(&fileName, pRecordData->name, sizeof(pRecordData->name));
+                RtlCopyMemory(&pRecordData->parameters, &pData->Iopb->Parameters, sizeof(pRecordData->parameters));
 
-            if (name::FormatFileName(pData, pFltObjects, &fileName) == STATUS_BUFFER_OVERFLOW) {
-                pRecordData->truncated |= protocol::TRUNCATED_NAME;
+                UNICODE_STRING fileName{};
+                RtlInitEmptyUnicodeString(&fileName, pRecordData->name, sizeof(pRecordData->name));
+
+                if (name::FormatFileName(pData, pFltObjects, &fileName) == STATUS_BUFFER_OVERFLOW) {
+                    pRecordData->truncated |= protocol::TRUNCATED_NAME;
+                }
+
+                switch (pData->Iopb->MajorFunction) {
+
+                    case IRP_MJ_CREATE:
+
+                        if (KeGetCurrentIrql() == PASSIVE_LEVEL) {
+                            PopulateCreateSupplement(&pRecordData->supplement.create, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_SET_INFORMATION:
+
+                        if (KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.SetFileInformation.InfoBuffer) {
+                            PopulateSetInfoSupplement(&pRecordData->supplement.setInfo, pData, pFltObjects);
+                        }
+
+                        break;
+
+                    case IRP_MJ_SET_VOLUME_INFORMATION:
+
+                        if (KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer) {
+                            PopulateSetVolumeInfoSupplement(&pRecordData->supplement.volumeInfo, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_DIRECTORY_CONTROL:
+
+                        if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName) {
+                            PopulateQueryDirectoryFileName(&pRecordData->supplement.queryDirectory, pData);
+                        }
+
+                        break;
+
+                }
+
+                return;
             }
 
-            switch (pData->Iopb->MajorFunction) {
 
-                case IRP_MJ_CREATE:
+            _Use_decl_annotations_
+            void PopulatePostOperationRecordData(
+                protocol::RecordData* pRecordData,
+                const FLT_CALLBACK_DATA* pData,
+                ULONG transactionSequence
+            ) {
+                pRecordData->status = pData->IoStatus.Status;
+                pRecordData->information = pData->IoStatus.Information;
+                pRecordData->transactionSequence = transactionSequence;
 
-                    if (KeGetCurrentIrql() == PASSIVE_LEVEL) {
-                        PopulateCreateSupplement(&pRecordData->supplement.create, pData);
-                    }
+                if (pData->TagData) {
+                    pRecordData->reparseTag = pData->TagData->FileTag;
+                }
 
-                    break;
+                switch (pData->Iopb->MajorFunction) {
 
-                case IRP_MJ_SET_INFORMATION:
+                    case IRP_MJ_QUERY_INFORMATION:
 
-                    if (KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.SetFileInformation.InfoBuffer) {
-                        PopulateSetInfoSupplement(&pRecordData->supplement.setInfo, pData, pFltObjects);
-                    }
+                        if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryFileInformation.InfoBuffer) {
+                            PopulateQueryInfoSupplement(&pRecordData->supplement.queryInfo, pData);
+                        }
 
-                    break;
+                        break;
 
-                case IRP_MJ_SET_VOLUME_INFORMATION:
+                    case IRP_MJ_QUERY_VOLUME_INFORMATION:
 
-                    if (KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer) {
-                        PopulateSetVolumeInfoSupplement(&pRecordData->supplement.volumeInfo, pData);
-                    }
+                        if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer) {
+                            PopulateQueryVolumeInfoSupplement(&pRecordData->supplement.volumeInfo, pData);
+                        }
 
-                    break;
+                        break;
 
-                case IRP_MJ_DIRECTORY_CONTROL:
+                    case IRP_MJ_DIRECTORY_CONTROL:
 
-                    if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName) {
-                        PopulateQueryDirectoryFileName(&pRecordData->supplement.queryDirectory, pData);
-                    }
+                        if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && (NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer) {
+                            PopulateQueryDirectoryPayload(&pRecordData->supplement.queryDirectory, pData);
+                        }
 
-                    break;
+                        break;
 
+                }
+
+                LARGE_INTEGER completionTime{};
+                KeQuerySystemTimePrecise(&completionTime);
+                pRecordData->completionTime = completionTime.QuadPart;
+
+                return;
             }
 
-            return;
-        }
 
+            _Use_decl_annotations_
+            void PopulateTransactionEventRecordData(
+                protocol::RecordData* pRecordData,
+                const FLT_RELATED_OBJECTS* pFltObjects,
+                ULONG notificationMask,
+                ULONG transactionSequence
+            ) {
+                PopulateOriginRecordData(pRecordData, pFltObjects);
 
-        _Use_decl_annotations_
-        void PopulatePostOperationRecordData(
-            protocol::RecordData* pRecordData,
-            const FLT_CALLBACK_DATA* pData,
-            ULONG transactionSequence
-        ) {
-            pRecordData->status = pData->IoStatus.Status;
-            pRecordData->information = pData->IoStatus.Information;
-            pRecordData->transactionSequence = transactionSequence;
+                pRecordData->transactionNotify = notificationMask;
+                pRecordData->transactionSequence = transactionSequence;
 
-            if (pData->TagData) {
-                pRecordData->reparseTag = pData->TagData->FileTag;
+                return;
             }
 
-            switch (pData->Iopb->MajorFunction) {
-
-                case IRP_MJ_QUERY_INFORMATION:
-
-                    if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryFileInformation.InfoBuffer) {
-                        PopulateQueryInfoSupplement(&pRecordData->supplement.queryInfo, pData);
-                    }
-
-                    break;
-
-                case IRP_MJ_QUERY_VOLUME_INFORMATION:
-
-                    if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer) {
-                        PopulateQueryVolumeInfoSupplement(&pRecordData->supplement.volumeInfo, pData);
-                    }
-
-                    break;
-
-                case IRP_MJ_DIRECTORY_CONTROL:
-
-                    if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && (NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer) {
-                        PopulateQueryDirectoryPayload(&pRecordData->supplement.queryDirectory, pData);
-                    }
-
-                    break;
-
-            }
-
-            LARGE_INTEGER completionTime{};
-            KeQuerySystemTimePrecise(&completionTime);
-            pRecordData->completionTime = completionTime.QuadPart;
-
-            return;
-        }
-
-
-        _Use_decl_annotations_
-        void PopulateTransactionEventRecordData(
-            protocol::RecordData* pRecordData,
-            const FLT_RELATED_OBJECTS* pFltObjects,
-            ULONG notificationMask,
-            ULONG transactionSequence
-        ) {
-            PopulateOriginRecordData(pRecordData, pFltObjects);
-
-            pRecordData->transactionNotify = notificationMask;
-            pRecordData->transactionSequence = transactionSequence;
-
-            return;
         }
 
     }

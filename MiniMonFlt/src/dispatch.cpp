@@ -1,6 +1,7 @@
 #include "dispatch.h"
 
-#include "capture.h"
+#include "trace\capture.h"
+
 #include "records.h"
 #include "transaction.h"
 
@@ -20,7 +21,7 @@ namespace mimo {
 
             if (!pEntry) return FLT_PREOP_SUCCESS_NO_CALLBACK;
 
-            capture::PopulatePreOperationRecordData(&pEntry->record.data, pData, pFltObjects);
+            trace::capture::PopulatePreOperationRecordData(&pEntry->record.data, pData, pFltObjects);
 
             if (pData->Iopb->MajorFunction == IRP_MJ_SHUTDOWN) {
                 PostOperationCallback(pData, pFltObjects, pEntry, 0u);
@@ -55,7 +56,7 @@ namespace mimo {
                 transactionSequence = transaction::Enlist(pFltObjects);
             }
 
-            capture::PopulatePostOperationRecordData(&pEntry->record.data, pData, transactionSequence);
+            trace::capture::PopulatePostOperationRecordData(&pEntry->record.data, pData, transactionSequence);
             records::Append(pEntry);
 
             return FLT_POSTOP_FINISHED_PROCESSING;

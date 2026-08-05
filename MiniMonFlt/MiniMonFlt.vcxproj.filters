@@ -27,31 +27,31 @@
     <ClCompile Include="src\dispatch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\capture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\driver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ecp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\records.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\modules.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\name.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\port.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\stack.cpp">
+    <ClCompile Include="src\trace\capture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trace\ecp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trace\modules.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trace\name.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\trace\stack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\transaction.cpp">
@@ -62,31 +62,31 @@
     <ClInclude Include="src\dispatch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\capture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\driver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ecp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\records.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\modules.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\name.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\port.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\stack.h">
+    <ClInclude Include="src\trace\capture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\ecp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\modules.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\name.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\stack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\transaction.h">

@@ -2,7 +2,7 @@
 
 #include "ecp.h"
 
-#include "driver.h"
+#include "..\driver.h"
 
 #include <fltKernel.h>
 #include <ntstrsafe.h>
@@ -217,45 +217,49 @@ namespace {
 
 namespace mimo {
 
-    namespace ecp {
+    namespace trace {
 
-        __declspec(code_seg("PAGE"))
-        _Use_decl_annotations_
-        NTSTATUS FormatEcps(FLT_CALLBACK_DATA* pData, UNICODE_STRING* pEcpString) {
-            PAGED_CODE();
+        namespace ecp {
 
-            ECP_LIST* pEcpList = nullptr;
+            __declspec(code_seg("PAGE"))
+            _Use_decl_annotations_
+            NTSTATUS FormatEcps(FLT_CALLBACK_DATA* pData, UNICODE_STRING* pEcpString) {
+                PAGED_CODE();
 
-            if (!NT_SUCCESS(FltGetEcpListFromCallbackData(driver::Filter, pData, &pEcpList)) || !pEcpList) return STATUS_SUCCESS;
+                ECP_LIST* pEcpList = nullptr;
 
-            EcpWriter writer{ pEcpString->Buffer, pEcpString->MaximumLength };
-            ULONG total = 0u;
-            ULONG recognized = 0u;
-            void* pContext = nullptr;
-            GUID guid{};
-            ULONG contextSize = 0u;
+                if (!NT_SUCCESS(FltGetEcpListFromCallbackData(driver::Filter, pData, &pEcpList)) || !pEcpList) return STATUS_SUCCESS;
 
-            while (NT_SUCCESS(FltGetNextExtraCreateParameter(driver::Filter, pEcpList, pContext, &guid, &pContext, &contextSize))) {
-                total++;
+                EcpWriter writer{ pEcpString->Buffer, pEcpString->MaximumLength };
+                ULONG total = 0u;
+                ULONG recognized = 0u;
+                void* pContext = nullptr;
+                GUID guid{};
+                ULONG contextSize = 0u;
 
-                if (FltIsEcpFromUserMode(driver::Filter, pContext)) continue;
+                while (NT_SUCCESS(FltGetNextExtraCreateParameter(driver::Filter, pEcpList, pContext, &guid, &pContext, &contextSize))) {
+                    total++;
 
-                if (AppendEcp(&writer, guid, pContext)) recognized++;
+                    if (FltIsEcpFromUserMode(driver::Filter, pContext)) continue;
 
+                    if (AppendEcp(&writer, guid, pContext)) recognized++;
+
+                }
+
+                if (recognized < total) {
+                    AppendText(&writer, L"unknown=%lu ", total - recognized);
+                }
+
+                pEcpString->Length = static_cast<USHORT>(pEcpString->MaximumLength - writer.bytesLeft);
+
+                if (pEcpString->Length >= sizeof(WCHAR) && pEcpString->Buffer[pEcpString->Length / sizeof(WCHAR) - 1u] == L' ') {
+                    pEcpString->Length -= sizeof(WCHAR);
+                    pEcpString->Buffer[pEcpString->Length / sizeof(WCHAR)] = L'\0';
+                }
+
+                return writer.truncated ? STATUS_BUFFER_OVERFLOW : STATUS_SUCCESS;
             }
 
-            if (recognized < total) {
-                AppendText(&writer, L"unknown=%lu ", total - recognized);
-            }
-
-            pEcpString->Length = static_cast<USHORT>(pEcpString->MaximumLength - writer.bytesLeft);
-
-            if (pEcpString->Length >= sizeof(WCHAR) && pEcpString->Buffer[pEcpString->Length / sizeof(WCHAR) - 1u] == L' ') {
-                pEcpString->Length -= sizeof(WCHAR);
-                pEcpString->Buffer[pEcpString->Length / sizeof(WCHAR)] = L'\0';
-            }
-
-            return writer.truncated ? STATUS_BUFFER_OVERFLOW : STATUS_SUCCESS;
         }
 
     }

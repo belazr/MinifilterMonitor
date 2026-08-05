@@ -93,30 +93,30 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\capture.cpp" />
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\dispatch.cpp" />
     <ClCompile Include="src\driver.cpp" />
-    <ClCompile Include="src\ecp.cpp" />
-    <ClCompile Include="src\modules.cpp" />
-    <ClCompile Include="src\name.cpp" />
     <ClCompile Include="src\port.cpp" />
     <ClCompile Include="src\records.cpp" />
-    <ClCompile Include="src\stack.cpp" />
+    <ClCompile Include="src\trace\capture.cpp" />
+    <ClCompile Include="src\trace\ecp.cpp" />
+    <ClCompile Include="src\trace\modules.cpp" />
+    <ClCompile Include="src\trace\name.cpp" />
+    <ClCompile Include="src\trace\stack.cpp" />
     <ClCompile Include="src\transaction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\protocol.h" />
-    <ClInclude Include="src\capture.h" />
     <ClInclude Include="src\config.h" />
     <ClInclude Include="src\dispatch.h" />
     <ClInclude Include="src\driver.h" />
-    <ClInclude Include="src\ecp.h" />
-    <ClInclude Include="src\modules.h" />
-    <ClInclude Include="src\name.h" />
     <ClInclude Include="src\port.h" />
     <ClInclude Include="src\records.h" />
-    <ClInclude Include="src\stack.h" />
+    <ClInclude Include="src\trace\capture.h" />
+    <ClInclude Include="src\trace\ecp.h" />
+    <ClInclude Include="src\trace\modules.h" />
+    <ClInclude Include="src\trace\name.h" />
+    <ClInclude Include="src\trace\stack.h" />
     <ClInclude Include="src\transaction.h" />
   </ItemGroup>
   <ItemGroup>
