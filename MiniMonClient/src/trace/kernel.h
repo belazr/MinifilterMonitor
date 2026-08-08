@@ -522,7 +522,7 @@ namespace mimo {
                 uint32_t DeviceType;
                 uint32_t DeviceCharacteristics;
                 uint32_t Reserved;
-                int64_t VolumeSerialNumber;
+                uint64_t VolumeSerialNumber;
                 uint8_t FileId128[16u];
             };
 

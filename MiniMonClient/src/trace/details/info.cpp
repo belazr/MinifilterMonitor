@@ -359,7 +359,7 @@ namespace {
             result += std::format(L", ReparseTag: {}", trace::names::RenderReparseTag(payload.ReparseTag));
         }
 
-        result += std::format(L", NumberOfLinks: {}, DeviceType: {}, DeviceCharacteristics: 0x{:X}, VolumeSerialNumber: 0x{:X}, FileId128: {}", payload.NumberOfLinks, payload.DeviceType, payload.DeviceCharacteristics, static_cast<ULONGLONG>(payload.VolumeSerialNumber), RenderFileId(payload.FileId128));
+        result += std::format(L", NumberOfLinks: {}, DeviceType: {}, DeviceCharacteristics: 0x{:X}, VolumeSerialNumber: 0x{:X}, FileId128: {}", payload.NumberOfLinks, payload.DeviceType, payload.DeviceCharacteristics, payload.VolumeSerialNumber, RenderFileId(payload.FileId128));
 
         return result;
     }
