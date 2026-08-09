@@ -240,7 +240,7 @@ namespace {
     }
 
 
-    std::wstring RenderFileId(std::span<const UCHAR, 16u> fileId) {
+    std::wstring RenderFileId(std::span<const uint8_t, 16u> fileId) {
         ULONGLONG low;
         ULONGLONG high;
 
