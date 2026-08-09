@@ -13,6 +13,12 @@ namespace mimo {
 
         namespace values {
 
+            std::wstring RenderBoolean(bool value) {
+
+                return value ? L"True" : L"False";
+            }
+
+
             std::wstring RenderByteOffset(int64_t byteOffset) {
 
                 if (byteOffset == kernel::FILE_WRITE_TO_END_OF_FILE) return L"EOF";

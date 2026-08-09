@@ -77,7 +77,7 @@ namespace {
 
     std::wstring RenderStandardPayload(const trace::kernel::FILE_STANDARD_INFORMATION& payload) {
 
-        return std::format(L"AllocationSize: {}, EndOfFile: {}, NumberOfLinks: {}, DeletePending: {}, Directory: {}", payload.AllocationSize, payload.EndOfFile, payload.NumberOfLinks, payload.DeletePending ? L"True" : L"False", payload.Directory ? L"True" : L"False");
+        return std::format(L"AllocationSize: {}, EndOfFile: {}, NumberOfLinks: {}, DeletePending: {}, Directory: {}", payload.AllocationSize, payload.EndOfFile, payload.NumberOfLinks, trace::values::RenderBoolean(payload.DeletePending), trace::values::RenderBoolean(payload.Directory));
     }
 
 
@@ -326,7 +326,7 @@ namespace {
 
     std::wstring RenderCaseSensitivePayload(const trace::kernel::FILE_CASE_SENSITIVE_INFORMATION& payload) {
 
-        return std::format(L"CaseSensitiveDir: {}", (payload.Flags & FILE_CS_FLAG_CASE_SENSITIVE_DIR) ? L"True" : L"False");
+        return std::format(L"CaseSensitiveDir: {}", trace::values::RenderBoolean(payload.Flags & FILE_CS_FLAG_CASE_SENSITIVE_DIR));
     }
 
 
@@ -367,7 +367,7 @@ namespace {
 
     std::wstring RenderRenameParameters(const protocol::FltParameters& parameters) {
 
-        return std::format(L"ReplaceIfExists: {}", parameters.setFileInformation.flags.replaceIfExists ? L"True" : L"False");
+        return std::format(L"ReplaceIfExists: {}", trace::values::RenderBoolean(parameters.setFileInformation.flags.replaceIfExists));
     }
 
 
@@ -381,7 +381,7 @@ namespace {
 
     std::wstring RenderDispositionPayload(const trace::kernel::FILE_DISPOSITION_INFORMATION& payload) {
 
-        return std::format(L"Delete: {}", payload.DeletePending ? L"True" : L"False");
+        return std::format(L"Delete: {}", trace::values::RenderBoolean(payload.DeletePending));
     }
 
 

@@ -34,7 +34,7 @@ namespace {
             result += std::format(L"VolumeCreationTime: {}, ", trace::values::RenderFileTime(payload.VolumeCreationTime));
         }
 
-        result += std::format(L"VolumeSerialNumber: {:04X}-{:04X}, SupportsObjects: {}", payload.VolumeSerialNumber >> 16, payload.VolumeSerialNumber & 0xFFFFu, payload.SupportsObjects ? L"True" : L"False");
+        result += std::format(L"VolumeSerialNumber: {:04X}-{:04X}, SupportsObjects: {}", payload.VolumeSerialNumber >> 16, payload.VolumeSerialNumber & 0xFFFFu, trace::values::RenderBoolean(payload.SupportsObjects));
 
         if (payload.VolumeLabelLength) {
             result += std::format(L", VolumeLabel: {}", trace::details::payload::RenderName(labelData, payload.VolumeLabelLength));

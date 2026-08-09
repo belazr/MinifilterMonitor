@@ -4,6 +4,7 @@
 
 #include "..\kernel.h"
 #include "..\names.h"
+#include "..\values.h"
 
 #include "..\..\..\..\inc\protocol.h"
 
@@ -178,7 +179,7 @@ namespace {
 
     std::wstring RenderSparsePayload(const trace::kernel::FILE_SET_SPARSE_BUFFER& payload) {
 
-        return std::format(L"SetSparse: {}", payload.SetSparse ? L"True" : L"False");
+        return std::format(L"SetSparse: {}", trace::values::RenderBoolean(payload.SetSparse));
     }
 
 
