@@ -2,6 +2,7 @@
 
 #include "supplement\create.h"
 #include "supplement\directory.h"
+#include "supplement\fscontrol.h"
 #include "supplement\info.h"
 #include "supplement\volume.h"
 
@@ -56,6 +57,14 @@ namespace mimo {
 
                         break;
 
+                    case IRP_MJ_FILE_SYSTEM_CONTROL:
+
+                        if ((pData->Iopb->MinorFunction == IRP_MN_USER_FS_REQUEST || pData->Iopb->MinorFunction == IRP_MN_KERNEL_CALL) && KeGetCurrentIrql() < DISPATCH_LEVEL && (pData->Iopb->Parameters.FileSystemControl.Common.InputBufferLength || (METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode) == METHOD_IN_DIRECT && pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength))) {
+                            fscontrol::PopulateInput(&pSupplement->fsControl, pData);
+                        }
+
+                        break;
+
                 }
 
                 return;
@@ -87,6 +96,14 @@ namespace mimo {
 
                         if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && (NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer) {
                             directory::PopulatePayload(&pSupplement->queryDirectory, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_FILE_SYSTEM_CONTROL:
+
+                        if ((pData->Iopb->MinorFunction == IRP_MN_USER_FS_REQUEST || pData->Iopb->MinorFunction == IRP_MN_KERNEL_CALL) && (NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength) {
+                            fscontrol::PopulateOutput(&pSupplement->fsControl, pData);
                         }
 
                         break;

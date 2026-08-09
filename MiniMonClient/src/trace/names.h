@@ -53,6 +53,20 @@ namespace mimo {
 
             std::wstring RenderDirectoryNotifyInformationClass(uint32_t directoryNotifyInformationClass);
 
+            std::wstring RenderFsControlCode(uint32_t fsControlCode);
+
+            std::wstring RenderSymlinkFlags(uint32_t flags);
+
+            std::wstring RenderFileSystemStatisticsType(uint16_t type);
+
+            std::wstring RenderOplockLevel(uint32_t level);
+
+            std::wstring RenderOplockInputFlags(uint32_t flags);
+
+            std::wstring RenderOplockOutputFlags(uint32_t flags);
+
+            std::wstring RenderFileRegionUsage(uint32_t usage);
+
         }
 
     }

@@ -87,6 +87,38 @@ static_assert(
     "FLT_PARAMETERS NotifyDirectory and NotifyDirectoryEx diverge: split protocol::FltParameters notifyDirectory"
 );
 
+MIRROR_ASSERT(fileSystemControl.outputBufferLength, FileSystemControl.Neither.OutputBufferLength);
+MIRROR_ASSERT(fileSystemControl.inputBufferLength,  FileSystemControl.Neither.InputBufferLength);
+MIRROR_ASSERT(fileSystemControl.fsControlCode,      FileSystemControl.Neither.FsControlCode);
+MIRROR_ASSERT(fileSystemControl.inputBuffer,        FileSystemControl.Neither.InputBuffer);
+MIRROR_ASSERT(fileSystemControl.outputBuffer,       FileSystemControl.Neither.OutputBuffer);
+MIRROR_ASSERT(fileSystemControl.outputMdlAddress,   FileSystemControl.Neither.OutputMdlAddress);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, FileSystemControl.Common.OutputBufferLength) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.OutputBufferLength)
+    && offsetof(FLT_PARAMETERS, FileSystemControl.Common.InputBufferLength) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.InputBufferLength)
+    && offsetof(FLT_PARAMETERS, FileSystemControl.Common.FsControlCode) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.FsControlCode),
+    "FLT_PARAMETERS FileSystemControl.Common and FileSystemControl.Neither diverge: split protocol::FltParameters fileSystemControl"
+);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, FileSystemControl.Buffered.OutputBufferLength) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.OutputBufferLength)
+    && offsetof(FLT_PARAMETERS, FileSystemControl.Buffered.InputBufferLength) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.InputBufferLength)
+    && offsetof(FLT_PARAMETERS, FileSystemControl.Buffered.FsControlCode) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.FsControlCode)
+    && offsetof(FLT_PARAMETERS, FileSystemControl.Buffered.SystemBuffer) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.InputBuffer),
+    "FLT_PARAMETERS FileSystemControl.Buffered and FileSystemControl.Neither diverge: split protocol::FltParameters fileSystemControl"
+);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, FileSystemControl.Direct.OutputBufferLength) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.OutputBufferLength)
+    && offsetof(FLT_PARAMETERS, FileSystemControl.Direct.InputBufferLength) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.InputBufferLength)
+    && offsetof(FLT_PARAMETERS, FileSystemControl.Direct.FsControlCode) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.FsControlCode)
+    && offsetof(FLT_PARAMETERS, FileSystemControl.Direct.InputSystemBuffer) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.InputBuffer)
+    && offsetof(FLT_PARAMETERS, FileSystemControl.Direct.OutputBuffer) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.OutputBuffer)
+    && offsetof(FLT_PARAMETERS, FileSystemControl.Direct.OutputMdlAddress) == offsetof(FLT_PARAMETERS, FileSystemControl.Neither.OutputMdlAddress),
+    "FLT_PARAMETERS FileSystemControl.Direct and FileSystemControl.Neither diverge: split protocol::FltParameters fileSystemControl"
+);
+
 namespace {
 
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {

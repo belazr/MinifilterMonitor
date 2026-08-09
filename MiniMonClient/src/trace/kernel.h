@@ -90,7 +90,7 @@ namespace mimo {
             inline constexpr uint8_t IRP_MN_MOUNT_VOLUME     = 0x01u;
             inline constexpr uint8_t IRP_MN_VERIFY_VOLUME    = 0x02u;
             inline constexpr uint8_t IRP_MN_LOAD_FILE_SYSTEM = 0x03u;
-            inline constexpr uint8_t IRP_MN_TRACK_LINK       = 0x04u;
+            inline constexpr uint8_t IRP_MN_KERNEL_CALL      = 0x04u;
 
             // lock control
             inline constexpr uint8_t IRP_MN_LOCK              = 0x01u;
@@ -819,6 +819,222 @@ namespace mimo {
             static_assert(sizeof(FILE_ID_FULL_DIR_INFORMATION) == 88u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileId) == 72u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileName) == 80u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
+
+            // FSCTL payload layouts
+
+            struct FILESYSTEM_STATISTICS {
+                uint16_t FileSystemType;
+                uint16_t Version;
+                uint32_t SizeOfCompleteStructure;
+                uint32_t UserFileReads;
+                uint32_t UserFileReadBytes;
+                uint32_t UserDiskReads;
+                uint32_t UserFileWrites;
+                uint32_t UserFileWriteBytes;
+                uint32_t UserDiskWrites;
+                uint32_t MetaDataReads;
+                uint32_t MetaDataReadBytes;
+                uint32_t MetaDataDiskReads;
+                uint32_t MetaDataWrites;
+                uint32_t MetaDataWriteBytes;
+                uint32_t MetaDataDiskWrites;
+            };
+
+            static_assert(sizeof(FILESYSTEM_STATISTICS) == 56u, "trace::kernel::FILESYSTEM_STATISTICS x64 layout drift");
+            static_assert(offsetof(FILESYSTEM_STATISTICS, UserFileReads) == 8u, "trace::kernel::FILESYSTEM_STATISTICS x64 layout drift");
+
+            struct NTFS_VOLUME_DATA_BUFFER {
+                uint64_t VolumeSerialNumber;
+                int64_t NumberSectors;
+                int64_t TotalClusters;
+                int64_t FreeClusters;
+                int64_t TotalReserved;
+                uint32_t BytesPerSector;
+                uint32_t BytesPerCluster;
+                uint32_t BytesPerFileRecordSegment;
+                uint32_t ClustersPerFileRecordSegment;
+                int64_t MftValidDataLength;
+                int64_t MftStartLcn;
+                int64_t Mft2StartLcn;
+                int64_t MftZoneStart;
+                int64_t MftZoneEnd;
+            };
+
+            static_assert(sizeof(NTFS_VOLUME_DATA_BUFFER) == 96u, "trace::kernel::NTFS_VOLUME_DATA_BUFFER x64 layout drift");
+            static_assert(offsetof(NTFS_VOLUME_DATA_BUFFER, MftValidDataLength) == 56u, "trace::kernel::NTFS_VOLUME_DATA_BUFFER x64 layout drift");
+
+            struct MOVE_FILE_DATA {
+                uint64_t FileHandle;    // HANDLE in the kernel
+                int64_t StartingVcn;
+                int64_t StartingLcn;
+                uint32_t ClusterCount;
+            };
+
+            static_assert(sizeof(MOVE_FILE_DATA) == 32u, "trace::kernel::MOVE_FILE_DATA x64 layout drift");
+            static_assert(offsetof(MOVE_FILE_DATA, ClusterCount) == 24u, "trace::kernel::MOVE_FILE_DATA x64 layout drift");
+
+            struct FILE_OBJECTID_BUFFER {
+                uint8_t ObjectId[16u];
+                uint8_t BirthVolumeId[16u];
+                uint8_t BirthObjectId[16u];
+                uint8_t DomainId[16u];
+            };
+
+            static_assert(sizeof(FILE_OBJECTID_BUFFER) == 64u, "trace::kernel::FILE_OBJECTID_BUFFER x64 layout drift");
+            static_assert(offsetof(FILE_OBJECTID_BUFFER, BirthVolumeId) == 16u, "trace::kernel::FILE_OBJECTID_BUFFER x64 layout drift");
+
+            // symbolic link reparse point flag
+            inline constexpr uint32_t SYMLINK_FLAG_RELATIVE = 0x00000001u;
+
+            struct REPARSE_DATA_BUFFER {
+                uint32_t ReparseTag;
+                uint16_t ReparseDataLength;
+                uint16_t Reserved;
+                union {
+                    struct {
+                        uint16_t SubstituteNameOffset;
+                        uint16_t SubstituteNameLength;
+                        uint16_t PrintNameOffset;
+                        uint16_t PrintNameLength;
+                        uint32_t Flags;
+                        wchar_t PathBuffer[1u];
+                    } SymbolicLinkReparseBuffer;
+                    struct {
+                        uint16_t SubstituteNameOffset;
+                        uint16_t SubstituteNameLength;
+                        uint16_t PrintNameOffset;
+                        uint16_t PrintNameLength;
+                        wchar_t PathBuffer[1u];
+                    } MountPointReparseBuffer;
+                    struct {
+                        uint8_t DataBuffer[1u];
+                    } GenericReparseBuffer;
+                };
+            };
+
+            static_assert(sizeof(REPARSE_DATA_BUFFER) == 24u, "trace::kernel::REPARSE_DATA_BUFFER x64 layout drift");
+            static_assert(offsetof(REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer) == 8u, "trace::kernel::REPARSE_DATA_BUFFER x64 layout drift");
+            static_assert(offsetof(REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer) == 20u, "trace::kernel::REPARSE_DATA_BUFFER x64 layout drift");
+            static_assert(offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer) == 16u, "trace::kernel::REPARSE_DATA_BUFFER x64 layout drift");
+
+            struct FILE_SET_SPARSE_BUFFER {
+                uint8_t SetSparse;      // BOOLEAN in the kernel
+            };
+
+            static_assert(sizeof(FILE_SET_SPARSE_BUFFER) == 1u, "trace::kernel::FILE_SET_SPARSE_BUFFER x64 layout drift");
+
+            struct FILE_ZERO_DATA_INFORMATION {
+                int64_t FileOffset;
+                int64_t BeyondFinalZero;
+            };
+
+            static_assert(sizeof(FILE_ZERO_DATA_INFORMATION) == 16u, "trace::kernel::FILE_ZERO_DATA_INFORMATION x64 layout drift");
+
+            struct FILE_ALLOCATED_RANGE_BUFFER {
+                int64_t FileOffset;
+                int64_t Length;
+            };
+
+            static_assert(sizeof(FILE_ALLOCATED_RANGE_BUFFER) == 16u, "trace::kernel::FILE_ALLOCATED_RANGE_BUFFER x64 layout drift");
+
+            struct FILE_LEVEL_TRIM_RANGE {
+                uint64_t Offset;
+                uint64_t Length;
+            };
+
+            static_assert(sizeof(FILE_LEVEL_TRIM_RANGE) == 16u, "trace::kernel::FILE_LEVEL_TRIM_RANGE x64 layout drift");
+
+            struct FILE_LEVEL_TRIM {
+                uint32_t Key;
+                uint32_t NumRanges;
+                FILE_LEVEL_TRIM_RANGE Ranges[1u];
+            };
+
+            static_assert(sizeof(FILE_LEVEL_TRIM) == 24u, "trace::kernel::FILE_LEVEL_TRIM x64 layout drift");
+            static_assert(offsetof(FILE_LEVEL_TRIM, Ranges) == 8u, "trace::kernel::FILE_LEVEL_TRIM x64 layout drift");
+
+            struct REQUEST_OPLOCK_INPUT_BUFFER {
+                uint16_t StructureVersion;
+                uint16_t StructureLength;
+                uint32_t RequestedOplockLevel;
+                uint32_t Flags;
+            };
+
+            static_assert(sizeof(REQUEST_OPLOCK_INPUT_BUFFER) == 12u, "trace::kernel::REQUEST_OPLOCK_INPUT_BUFFER x64 layout drift");
+            static_assert(offsetof(REQUEST_OPLOCK_INPUT_BUFFER, RequestedOplockLevel) == 4u, "trace::kernel::REQUEST_OPLOCK_INPUT_BUFFER x64 layout drift");
+
+            struct REQUEST_OPLOCK_OUTPUT_BUFFER {
+                uint16_t StructureVersion;
+                uint16_t StructureLength;
+                uint32_t OriginalOplockLevel;
+                uint32_t NewOplockLevel;
+                uint32_t Flags;
+                uint32_t AccessMode;    // ACCESS_MASK in the kernel
+                uint16_t ShareMode;
+            };
+
+            static_assert(sizeof(REQUEST_OPLOCK_OUTPUT_BUFFER) == 24u, "trace::kernel::REQUEST_OPLOCK_OUTPUT_BUFFER x64 layout drift");
+            static_assert(offsetof(REQUEST_OPLOCK_OUTPUT_BUFFER, AccessMode) == 16u, "trace::kernel::REQUEST_OPLOCK_OUTPUT_BUFFER x64 layout drift");
+
+            struct FILE_REGION_INPUT {
+                int64_t FileOffset;
+                int64_t Length;
+                uint32_t DesiredUsage;
+            };
+
+            static_assert(sizeof(FILE_REGION_INPUT) == 24u, "trace::kernel::FILE_REGION_INPUT x64 layout drift");
+            static_assert(offsetof(FILE_REGION_INPUT, DesiredUsage) == 16u, "trace::kernel::FILE_REGION_INPUT x64 layout drift");
+
+            struct FILE_REGION_INFO {
+                int64_t FileOffset;
+                int64_t Length;
+                uint32_t Usage;
+                uint32_t Reserved;
+            };
+
+            static_assert(sizeof(FILE_REGION_INFO) == 24u, "trace::kernel::FILE_REGION_INFO x64 layout drift");
+
+            struct FILE_REGION_OUTPUT {
+                uint32_t Flags;
+                uint32_t TotalRegionEntryCount;
+                uint32_t RegionEntryCount;
+                uint32_t Reserved;
+                FILE_REGION_INFO Region[1u];
+            };
+
+            static_assert(sizeof(FILE_REGION_OUTPUT) == 40u, "trace::kernel::FILE_REGION_OUTPUT x64 layout drift");
+            static_assert(offsetof(FILE_REGION_OUTPUT, Region) == 16u, "trace::kernel::FILE_REGION_OUTPUT x64 layout drift");
+
+            struct DUPLICATE_EXTENTS_DATA {
+                uint64_t FileHandle;    // HANDLE in the kernel
+                int64_t SourceFileOffset;
+                int64_t TargetFileOffset;
+                int64_t ByteCount;
+            };
+
+            static_assert(sizeof(DUPLICATE_EXTENTS_DATA) == 32u, "trace::kernel::DUPLICATE_EXTENTS_DATA x64 layout drift");
+            static_assert(offsetof(DUPLICATE_EXTENTS_DATA, SourceFileOffset) == 8u, "trace::kernel::DUPLICATE_EXTENTS_DATA x64 layout drift");
+
+            struct FILESYSTEM_STATISTICS_EX {
+                uint16_t FileSystemType;
+                uint16_t Version;
+                uint32_t SizeOfCompleteStructure;
+                uint64_t UserFileReads;
+                uint64_t UserFileReadBytes;
+                uint64_t UserDiskReads;
+                uint64_t UserFileWrites;
+                uint64_t UserFileWriteBytes;
+                uint64_t UserDiskWrites;
+                uint64_t MetaDataReads;
+                uint64_t MetaDataReadBytes;
+                uint64_t MetaDataDiskReads;
+                uint64_t MetaDataWrites;
+                uint64_t MetaDataWriteBytes;
+                uint64_t MetaDataDiskWrites;
+            };
+
+            static_assert(sizeof(FILESYSTEM_STATISTICS_EX) == 104u, "trace::kernel::FILESYSTEM_STATISTICS_EX x64 layout drift");
+            static_assert(offsetof(FILESYSTEM_STATISTICS_EX, UserFileReads) == 8u, "trace::kernel::FILESYSTEM_STATISTICS_EX x64 layout drift");
 
         }
 

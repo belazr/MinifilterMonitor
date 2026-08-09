@@ -26,6 +26,7 @@
     <ClCompile Include="src\trace\details.cpp" />
     <ClCompile Include="src\trace\details\create.cpp" />
     <ClCompile Include="src\trace\details\directory.cpp" />
+    <ClCompile Include="src\trace\details\fscontrol.cpp" />
     <ClCompile Include="src\trace\details\info.cpp" />
     <ClCompile Include="src\trace\details\readwrite.cpp" />
     <ClCompile Include="src\trace\details\volume.cpp" />
@@ -44,6 +45,7 @@
     <ClInclude Include="src\trace\details.h" />
     <ClInclude Include="src\trace\details\create.h" />
     <ClInclude Include="src\trace\details\directory.h" />
+    <ClInclude Include="src\trace\details\fscontrol.h" />
     <ClInclude Include="src\trace\details\info.h" />
     <ClInclude Include="src\trace\details\payload.h" />
     <ClInclude Include="src\trace\details\readwrite.h" />

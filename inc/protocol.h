@@ -126,6 +126,19 @@ namespace mimo {
                 uint64_t mdlAddress;
             } notifyDirectory;
 
+            // IRP_MJ_FILE_SYSTEM_CONTROL / IRP_MN_USER_FS_REQUEST / IRP_MN_KERNEL_CALL
+            struct {
+                uint32_t outputBufferLength;
+                uint8_t reserved1[4u];
+                uint32_t inputBufferLength;
+                uint8_t reserved2[4u];
+                uint32_t fsControlCode;
+                uint8_t reserved3[4u];
+                uint64_t inputBuffer;       // METHOD_BUFFERED: the shared input/output system buffer
+                uint64_t outputBuffer;
+                uint64_t outputMdlAddress;
+            } fileSystemControl;
+
             struct {
                 uint64_t argument1;
                 uint64_t argument2;
@@ -167,6 +180,11 @@ namespace mimo {
         static_assert(offsetof(FltParameters, notifyDirectory.directoryNotifyInformationClass) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, notifyDirectory.directoryBuffer) == 32u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, notifyDirectory.mdlAddress) == 40u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, fileSystemControl.inputBufferLength) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, fileSystemControl.fsControlCode) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, fileSystemControl.inputBuffer) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, fileSystemControl.outputBuffer) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, fileSystemControl.outputMdlAddress) == 40u, "protocol::FltParameters layout drift");
 
         inline constexpr uint32_t STACK_TRACE_FRAMES      = 8u;
         inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;
@@ -276,12 +294,33 @@ namespace mimo {
         static_assert(offsetof(QueryDirectorySupplement, payload) == 8u, "protocol::QueryDirectorySupplement layout drift");
         static_assert(offsetof(QueryDirectorySupplement, fileName) == 8u + QUERY_DIRECTORY_PAYLOAD_BYTES, "protocol::QueryDirectorySupplement layout drift");
 
+        // IRP_MJ_FILE_SYSTEM_CONTROL
+
+        // capture bits for FsControlSupplement::captured
+        inline constexpr uint32_t FS_CONTROL_CAPTURED_INPUT  = 0x00000001u;
+        inline constexpr uint32_t FS_CONTROL_CAPTURED_OUTPUT = 0x00000002u;
+
+        inline constexpr uint32_t FS_CONTROL_INPUT_PAYLOAD_BYTES  = 544u;
+        inline constexpr uint32_t FS_CONTROL_OUTPUT_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 3u * sizeof(uint32_t) - FS_CONTROL_INPUT_PAYLOAD_BYTES;
+
+        struct FsControlSupplement {
+            uint32_t captured;
+            uint32_t capturedInputBytes;
+            uint32_t capturedOutputBytes;
+            uint8_t inputPayload[FS_CONTROL_INPUT_PAYLOAD_BYTES];
+            uint8_t outputPayload[FS_CONTROL_OUTPUT_PAYLOAD_BYTES];    // METHOD_IN_DIRECT: the second input buffer, captured pre-operation
+        };
+
+        static_assert(offsetof(FsControlSupplement, inputPayload) == 12u, "protocol::FsControlSupplement layout drift");
+        static_assert(offsetof(FsControlSupplement, outputPayload) == 12u + FS_CONTROL_INPUT_PAYLOAD_BYTES, "protocol::FsControlSupplement layout drift");
+
         union Supplement {
             CreateSupplement create;
             QueryInfoSupplement queryInfo;
             SetInfoSupplement setInfo;
             VolumeInfoSupplement volumeInfo;
             QueryDirectorySupplement queryDirectory;
+            FsControlSupplement fsControl;
         };
 
         static_assert(sizeof(CreateSupplement) == SUPPLEMENT_BYTES, "protocol::CreateSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
@@ -289,6 +328,7 @@ namespace mimo {
         static_assert(sizeof(SetInfoSupplement) == SUPPLEMENT_BYTES, "protocol::SetInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(VolumeInfoSupplement) == SUPPLEMENT_BYTES, "protocol::VolumeInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(QueryDirectorySupplement) == SUPPLEMENT_BYTES, "protocol::QueryDirectorySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
+        static_assert(sizeof(FsControlSupplement) == SUPPLEMENT_BYTES, "protocol::FsControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(Supplement) == SUPPLEMENT_BYTES, "protocol::Supplement layout drift");
 
         // truncation bit for RecordData::truncated

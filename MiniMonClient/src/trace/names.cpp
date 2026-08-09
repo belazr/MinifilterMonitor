@@ -3,6 +3,7 @@
 #include "kernel.h"
 
 #include <Windows.h>
+#include <winioctl.h>
 #include <wnnc.h>
 
 #include <cstddef>
@@ -251,6 +252,163 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(COMPLETION_FILTER_NAMES), "composite entry after its components in COMPLETION_FILTER_NAMES");
 
+    std::wstring RenderDeviceType(ULONG deviceType) {
+
+        switch (deviceType) {
+            case FILE_DEVICE_BEEP:                 return L"FILE_DEVICE_BEEP";
+            case FILE_DEVICE_CD_ROM:               return L"FILE_DEVICE_CD_ROM";
+            case FILE_DEVICE_CD_ROM_FILE_SYSTEM:   return L"FILE_DEVICE_CD_ROM_FILE_SYSTEM";
+            case FILE_DEVICE_CONTROLLER:           return L"FILE_DEVICE_CONTROLLER";
+            case FILE_DEVICE_DATALINK:             return L"FILE_DEVICE_DATALINK";
+            case FILE_DEVICE_DFS:                  return L"FILE_DEVICE_DFS";
+            case FILE_DEVICE_DISK:                 return L"FILE_DEVICE_DISK";
+            case FILE_DEVICE_DISK_FILE_SYSTEM:     return L"FILE_DEVICE_DISK_FILE_SYSTEM";
+            case FILE_DEVICE_FILE_SYSTEM:          return L"FILE_DEVICE_FILE_SYSTEM";
+            case FILE_DEVICE_INPORT_PORT:          return L"FILE_DEVICE_INPORT_PORT";
+            case FILE_DEVICE_KEYBOARD:             return L"FILE_DEVICE_KEYBOARD";
+            case FILE_DEVICE_MAILSLOT:             return L"FILE_DEVICE_MAILSLOT";
+            case FILE_DEVICE_MIDI_IN:              return L"FILE_DEVICE_MIDI_IN";
+            case FILE_DEVICE_MIDI_OUT:             return L"FILE_DEVICE_MIDI_OUT";
+            case FILE_DEVICE_MOUSE:                return L"FILE_DEVICE_MOUSE";
+            case FILE_DEVICE_MULTI_UNC_PROVIDER:   return L"FILE_DEVICE_MULTI_UNC_PROVIDER";
+            case FILE_DEVICE_NAMED_PIPE:           return L"FILE_DEVICE_NAMED_PIPE";
+            case FILE_DEVICE_NETWORK:              return L"FILE_DEVICE_NETWORK";
+            case FILE_DEVICE_NETWORK_BROWSER:      return L"FILE_DEVICE_NETWORK_BROWSER";
+            case FILE_DEVICE_NETWORK_FILE_SYSTEM:  return L"FILE_DEVICE_NETWORK_FILE_SYSTEM";
+            case FILE_DEVICE_NULL:                 return L"FILE_DEVICE_NULL";
+            case FILE_DEVICE_PARALLEL_PORT:        return L"FILE_DEVICE_PARALLEL_PORT";
+            case FILE_DEVICE_PHYSICAL_NETCARD:     return L"FILE_DEVICE_PHYSICAL_NETCARD";
+            case FILE_DEVICE_PRINTER:              return L"FILE_DEVICE_PRINTER";
+            case FILE_DEVICE_SCANNER:              return L"FILE_DEVICE_SCANNER";
+            case FILE_DEVICE_SERIAL_MOUSE_PORT:    return L"FILE_DEVICE_SERIAL_MOUSE_PORT";
+            case FILE_DEVICE_SERIAL_PORT:          return L"FILE_DEVICE_SERIAL_PORT";
+            case FILE_DEVICE_SCREEN:               return L"FILE_DEVICE_SCREEN";
+            case FILE_DEVICE_SOUND:                return L"FILE_DEVICE_SOUND";
+            case FILE_DEVICE_STREAMS:              return L"FILE_DEVICE_STREAMS";
+            case FILE_DEVICE_TAPE:                 return L"FILE_DEVICE_TAPE";
+            case FILE_DEVICE_TAPE_FILE_SYSTEM:     return L"FILE_DEVICE_TAPE_FILE_SYSTEM";
+            case FILE_DEVICE_TRANSPORT:            return L"FILE_DEVICE_TRANSPORT";
+            case FILE_DEVICE_UNKNOWN:              return L"FILE_DEVICE_UNKNOWN";
+            case FILE_DEVICE_VIDEO:                return L"FILE_DEVICE_VIDEO";
+            case FILE_DEVICE_VIRTUAL_DISK:         return L"FILE_DEVICE_VIRTUAL_DISK";
+            case FILE_DEVICE_WAVE_IN:              return L"FILE_DEVICE_WAVE_IN";
+            case FILE_DEVICE_WAVE_OUT:             return L"FILE_DEVICE_WAVE_OUT";
+            case FILE_DEVICE_8042_PORT:            return L"FILE_DEVICE_8042_PORT";
+            case FILE_DEVICE_NETWORK_REDIRECTOR:   return L"FILE_DEVICE_NETWORK_REDIRECTOR";
+            case FILE_DEVICE_BATTERY:              return L"FILE_DEVICE_BATTERY";
+            case FILE_DEVICE_BUS_EXTENDER:         return L"FILE_DEVICE_BUS_EXTENDER";
+            case FILE_DEVICE_MODEM:                return L"FILE_DEVICE_MODEM";
+            case FILE_DEVICE_VDM:                  return L"FILE_DEVICE_VDM";
+            case FILE_DEVICE_MASS_STORAGE:         return L"FILE_DEVICE_MASS_STORAGE";
+            case FILE_DEVICE_SMB:                  return L"FILE_DEVICE_SMB";
+            case FILE_DEVICE_KS:                   return L"FILE_DEVICE_KS";
+            case FILE_DEVICE_CHANGER:              return L"FILE_DEVICE_CHANGER";
+            case FILE_DEVICE_SMARTCARD:            return L"FILE_DEVICE_SMARTCARD";
+            case FILE_DEVICE_ACPI:                 return L"FILE_DEVICE_ACPI";
+            case FILE_DEVICE_DVD:                  return L"FILE_DEVICE_DVD";
+            case FILE_DEVICE_FULLSCREEN_VIDEO:     return L"FILE_DEVICE_FULLSCREEN_VIDEO";
+            case FILE_DEVICE_DFS_FILE_SYSTEM:      return L"FILE_DEVICE_DFS_FILE_SYSTEM";
+            case FILE_DEVICE_DFS_VOLUME:           return L"FILE_DEVICE_DFS_VOLUME";
+            case FILE_DEVICE_SERENUM:              return L"FILE_DEVICE_SERENUM";
+            case FILE_DEVICE_TERMSRV:              return L"FILE_DEVICE_TERMSRV";
+            case FILE_DEVICE_KSEC:                 return L"FILE_DEVICE_KSEC";
+            case FILE_DEVICE_FIPS:                 return L"FILE_DEVICE_FIPS";
+            case FILE_DEVICE_INFINIBAND:           return L"FILE_DEVICE_INFINIBAND";
+            case FILE_DEVICE_VMBUS:                return L"FILE_DEVICE_VMBUS";
+            case FILE_DEVICE_CRYPT_PROVIDER:       return L"FILE_DEVICE_CRYPT_PROVIDER";
+            case FILE_DEVICE_WPD:                  return L"FILE_DEVICE_WPD";
+            case FILE_DEVICE_BLUETOOTH:            return L"FILE_DEVICE_BLUETOOTH";
+            case FILE_DEVICE_MT_COMPOSITE:         return L"FILE_DEVICE_MT_COMPOSITE";
+            case FILE_DEVICE_MT_TRANSPORT:         return L"FILE_DEVICE_MT_TRANSPORT";
+            case FILE_DEVICE_BIOMETRIC:            return L"FILE_DEVICE_BIOMETRIC";
+            case FILE_DEVICE_PMI:                  return L"FILE_DEVICE_PMI";
+            case FILE_DEVICE_EHSTOR:               return L"FILE_DEVICE_EHSTOR";
+            case FILE_DEVICE_DEVAPI:               return L"FILE_DEVICE_DEVAPI";
+            case FILE_DEVICE_GPIO:                 return L"FILE_DEVICE_GPIO";
+            case FILE_DEVICE_USBEX:                return L"FILE_DEVICE_USBEX";
+            case FILE_DEVICE_CONSOLE:              return L"FILE_DEVICE_CONSOLE";
+            case FILE_DEVICE_NFP:                  return L"FILE_DEVICE_NFP";
+            case FILE_DEVICE_SYSENV:               return L"FILE_DEVICE_SYSENV";
+            case FILE_DEVICE_VIRTUAL_BLOCK:        return L"FILE_DEVICE_VIRTUAL_BLOCK";
+            case FILE_DEVICE_POINT_OF_SERVICE:     return L"FILE_DEVICE_POINT_OF_SERVICE";
+            case FILE_DEVICE_STORAGE_REPLICATION:  return L"FILE_DEVICE_STORAGE_REPLICATION";
+            case FILE_DEVICE_TRUST_ENV:            return L"FILE_DEVICE_TRUST_ENV";
+            case FILE_DEVICE_UCM:                  return L"FILE_DEVICE_UCM";
+            case FILE_DEVICE_UCMTCPCI:             return L"FILE_DEVICE_UCMTCPCI";
+            case FILE_DEVICE_PERSISTENT_MEMORY:    return L"FILE_DEVICE_PERSISTENT_MEMORY";
+            case FILE_DEVICE_NVDIMM:               return L"FILE_DEVICE_NVDIMM";
+            case FILE_DEVICE_HOLOGRAPHIC:          return L"FILE_DEVICE_HOLOGRAPHIC";
+            case FILE_DEVICE_SDFXHCI:              return L"FILE_DEVICE_SDFXHCI";
+            case FILE_DEVICE_UCMUCSI:              return L"FILE_DEVICE_UCMUCSI";
+            case FILE_DEVICE_PRM:                  return L"FILE_DEVICE_PRM";
+            case FILE_DEVICE_EVENT_COLLECTOR:      return L"FILE_DEVICE_EVENT_COLLECTOR";
+            case FILE_DEVICE_USB4:                 return L"FILE_DEVICE_USB4";
+            case FILE_DEVICE_SOUNDWIRE:            return L"FILE_DEVICE_SOUNDWIRE";
+            case FILE_DEVICE_FABRIC_NVME:          return L"FILE_DEVICE_FABRIC_NVME";
+            case FILE_DEVICE_SVM:                  return L"FILE_DEVICE_SVM";
+            case FILE_DEVICE_HARDWARE_ACCELERATOR: return L"FILE_DEVICE_HARDWARE_ACCELERATOR";
+            case FILE_DEVICE_I3C:                  return L"FILE_DEVICE_I3C";
+            case FILE_DEVICE_MULTITIER_MEMORY:     return L"FILE_DEVICE_MULTITIER_MEMORY";
+            case FILE_DEVICE_CXL_TYPE3:            return L"FILE_DEVICE_CXL_TYPE3";
+        }
+
+        return std::format(L"0x{:X}", deviceType);
+    }
+
+
+    constexpr const wchar_t* CONTROL_METHOD_NAMES[]{ L"METHOD_BUFFERED", L"METHOD_IN_DIRECT", L"METHOD_OUT_DIRECT", L"METHOD_NEITHER" };
+
+    constexpr const wchar_t* CONTROL_ACCESS_NAMES[]{ L"FILE_ANY_ACCESS", L"FILE_READ_ACCESS", L"FILE_WRITE_ACCESS", L"FILE_READ_ACCESS|FILE_WRITE_ACCESS" };
+
+    std::wstring RenderControlCode(ULONG controlCode) {
+
+        return std::format(L"0x{:X} (Device: {}, Function: {}, Method: {}, Access: {})", controlCode, RenderDeviceType(controlCode >> 16), (controlCode >> 2) & 0xFFFu, CONTROL_METHOD_NAMES[controlCode & 3u], CONTROL_ACCESS_NAMES[(controlCode >> 14) & 3u]);
+    }
+
+
+    constexpr FlagName SYMLINK_FLAG_NAMES[]{
+        { trace::kernel::SYMLINK_FLAG_RELATIVE, L"SYMLINK_FLAG_RELATIVE" },
+    };
+
+    static_assert(CompositesPrecedeComponents(SYMLINK_FLAG_NAMES), "composite entry after its components in SYMLINK_FLAG_NAMES");
+
+    constexpr FlagName OPLOCK_LEVEL_NAMES[]{
+        { OPLOCK_LEVEL_CACHE_READ,   L"OPLOCK_LEVEL_CACHE_READ" },
+        { OPLOCK_LEVEL_CACHE_HANDLE, L"OPLOCK_LEVEL_CACHE_HANDLE" },
+        { OPLOCK_LEVEL_CACHE_WRITE,  L"OPLOCK_LEVEL_CACHE_WRITE" },
+    };
+
+    static_assert(CompositesPrecedeComponents(OPLOCK_LEVEL_NAMES), "composite entry after its components in OPLOCK_LEVEL_NAMES");
+
+    constexpr FlagName OPLOCK_INPUT_FLAG_NAMES[]{
+        { REQUEST_OPLOCK_INPUT_FLAG_REQUEST,                   L"REQUEST_OPLOCK_INPUT_FLAG_REQUEST" },
+        { REQUEST_OPLOCK_INPUT_FLAG_ACK,                       L"REQUEST_OPLOCK_INPUT_FLAG_ACK" },
+        { REQUEST_OPLOCK_INPUT_FLAG_COMPLETE_ACK_ON_CLOSE,     L"REQUEST_OPLOCK_INPUT_FLAG_COMPLETE_ACK_ON_CLOSE" },
+        { REQUEST_OPLOCK_INPUT_FLAG_RH_ALWAYS_BLOCK_UNTIL_ACK, L"REQUEST_OPLOCK_INPUT_FLAG_RH_ALWAYS_BLOCK_UNTIL_ACK" },
+        { REQUEST_OPLOCK_INPUT_FLAG_RH_IGNORE_WRITES,          L"REQUEST_OPLOCK_INPUT_FLAG_RH_IGNORE_WRITES" },
+        { REQUEST_OPLOCK_INPUT_FLAG_RH_NO_NON_CACHED_IO,       L"REQUEST_OPLOCK_INPUT_FLAG_RH_NO_NON_CACHED_IO" },
+    };
+
+    static_assert(CompositesPrecedeComponents(OPLOCK_INPUT_FLAG_NAMES), "composite entry after its components in OPLOCK_INPUT_FLAG_NAMES");
+
+    constexpr FlagName OPLOCK_OUTPUT_FLAG_NAMES[]{
+        { REQUEST_OPLOCK_OUTPUT_FLAG_ACK_REQUIRED,   L"REQUEST_OPLOCK_OUTPUT_FLAG_ACK_REQUIRED" },
+        { REQUEST_OPLOCK_OUTPUT_FLAG_MODES_PROVIDED, L"REQUEST_OPLOCK_OUTPUT_FLAG_MODES_PROVIDED" },
+    };
+
+    static_assert(CompositesPrecedeComponents(OPLOCK_OUTPUT_FLAG_NAMES), "composite entry after its components in OPLOCK_OUTPUT_FLAG_NAMES");
+
+    constexpr FlagName FILE_REGION_USAGE_NAMES[]{
+        { FILE_REGION_USAGE_VALID_CACHED_DATA,    L"FILE_REGION_USAGE_VALID_CACHED_DATA" },
+        { FILE_REGION_USAGE_VALID_NONCACHED_DATA, L"FILE_REGION_USAGE_VALID_NONCACHED_DATA" },
+        { FILE_REGION_USAGE_OTHER_PAGE_ALIGNMENT, L"FILE_REGION_USAGE_OTHER_PAGE_ALIGNMENT" },
+        { FILE_REGION_USAGE_LARGE_PAGE_ALIGNMENT, L"FILE_REGION_USAGE_LARGE_PAGE_ALIGNMENT" },
+        // the macro is _WIN64-only in winioctl.h; spelled by value so the x86 client renders x64 records identically
+        { 0x00000010u,                            L"FILE_REGION_USAGE_HUGE_PAGE_ALIGNMENT" },
+    };
+
+    static_assert(CompositesPrecedeComponents(FILE_REGION_USAGE_NAMES), "composite entry after its components in FILE_REGION_USAGE_NAMES");
+
 }
 
 namespace mimo {
@@ -340,7 +498,7 @@ namespace mimo {
                             case kernel::IRP_MN_MOUNT_VOLUME:     return L"IRP_MN_MOUNT_VOLUME";
                             case kernel::IRP_MN_VERIFY_VOLUME:    return L"IRP_MN_VERIFY_VOLUME";
                             case kernel::IRP_MN_LOAD_FILE_SYSTEM: return L"IRP_MN_LOAD_FILE_SYSTEM";
-                            case kernel::IRP_MN_TRACK_LINK:       return L"IRP_MN_TRACK_LINK";
+                            case kernel::IRP_MN_KERNEL_CALL:      return L"IRP_MN_KERNEL_CALL";
                         }
                         break;
 
@@ -748,6 +906,293 @@ namespace mimo {
                 }
 
                 return std::to_wstring(directoryNotifyInformationClass);
+            }
+
+
+            std::wstring RenderFsControlCode(uint32_t fsControlCode) {
+
+                switch (fsControlCode) {
+                    case FSCTL_REQUEST_OPLOCK_LEVEL_1:                           return L"FSCTL_REQUEST_OPLOCK_LEVEL_1";
+                    case FSCTL_REQUEST_OPLOCK_LEVEL_2:                           return L"FSCTL_REQUEST_OPLOCK_LEVEL_2";
+                    case FSCTL_REQUEST_BATCH_OPLOCK:                             return L"FSCTL_REQUEST_BATCH_OPLOCK";
+                    case FSCTL_OPLOCK_BREAK_ACKNOWLEDGE:                         return L"FSCTL_OPLOCK_BREAK_ACKNOWLEDGE";
+                    case FSCTL_OPBATCH_ACK_CLOSE_PENDING:                        return L"FSCTL_OPBATCH_ACK_CLOSE_PENDING";
+                    case FSCTL_OPLOCK_BREAK_NOTIFY:                              return L"FSCTL_OPLOCK_BREAK_NOTIFY";
+                    case FSCTL_LOCK_VOLUME:                                      return L"FSCTL_LOCK_VOLUME";
+                    case FSCTL_UNLOCK_VOLUME:                                    return L"FSCTL_UNLOCK_VOLUME";
+                    case FSCTL_DISMOUNT_VOLUME:                                  return L"FSCTL_DISMOUNT_VOLUME";
+                    case FSCTL_IS_VOLUME_MOUNTED:                                return L"FSCTL_IS_VOLUME_MOUNTED";
+                    case FSCTL_IS_PATHNAME_VALID:                                return L"FSCTL_IS_PATHNAME_VALID";
+                    case FSCTL_MARK_VOLUME_DIRTY:                                return L"FSCTL_MARK_VOLUME_DIRTY";
+                    case FSCTL_QUERY_RETRIEVAL_POINTERS:                         return L"FSCTL_QUERY_RETRIEVAL_POINTERS";
+                    case FSCTL_GET_COMPRESSION:                                  return L"FSCTL_GET_COMPRESSION";
+                    case FSCTL_SET_COMPRESSION:                                  return L"FSCTL_SET_COMPRESSION";
+                    case FSCTL_SET_BOOTLOADER_ACCESSED:                          return L"FSCTL_SET_BOOTLOADER_ACCESSED";
+                    case FSCTL_OPLOCK_BREAK_ACK_NO_2:                            return L"FSCTL_OPLOCK_BREAK_ACK_NO_2";
+                    case FSCTL_INVALIDATE_VOLUMES:                               return L"FSCTL_INVALIDATE_VOLUMES";
+                    case FSCTL_QUERY_FAT_BPB:                                    return L"FSCTL_QUERY_FAT_BPB";
+                    case FSCTL_REQUEST_FILTER_OPLOCK:                            return L"FSCTL_REQUEST_FILTER_OPLOCK";
+                    case FSCTL_FILESYSTEM_GET_STATISTICS:                        return L"FSCTL_FILESYSTEM_GET_STATISTICS";
+                    case FSCTL_GET_NTFS_VOLUME_DATA:                             return L"FSCTL_GET_NTFS_VOLUME_DATA";
+                    case FSCTL_GET_NTFS_FILE_RECORD:                             return L"FSCTL_GET_NTFS_FILE_RECORD";
+                    case FSCTL_GET_VOLUME_BITMAP:                                return L"FSCTL_GET_VOLUME_BITMAP";
+                    case FSCTL_GET_RETRIEVAL_POINTERS:                           return L"FSCTL_GET_RETRIEVAL_POINTERS";
+                    case FSCTL_MOVE_FILE:                                        return L"FSCTL_MOVE_FILE";
+                    case FSCTL_IS_VOLUME_DIRTY:                                  return L"FSCTL_IS_VOLUME_DIRTY";
+                    case FSCTL_ALLOW_EXTENDED_DASD_IO:                           return L"FSCTL_ALLOW_EXTENDED_DASD_IO";
+                    case FSCTL_FIND_FILES_BY_SID:                                return L"FSCTL_FIND_FILES_BY_SID";
+                    case FSCTL_SET_OBJECT_ID:                                    return L"FSCTL_SET_OBJECT_ID";
+                    case FSCTL_GET_OBJECT_ID:                                    return L"FSCTL_GET_OBJECT_ID";
+                    case FSCTL_DELETE_OBJECT_ID:                                 return L"FSCTL_DELETE_OBJECT_ID";
+                    case FSCTL_SET_REPARSE_POINT:                                return L"FSCTL_SET_REPARSE_POINT";
+                    case FSCTL_GET_REPARSE_POINT:                                return L"FSCTL_GET_REPARSE_POINT";
+                    case FSCTL_DELETE_REPARSE_POINT:                             return L"FSCTL_DELETE_REPARSE_POINT";
+                    case FSCTL_ENUM_USN_DATA:                                    return L"FSCTL_ENUM_USN_DATA";
+                    case FSCTL_SECURITY_ID_CHECK:                                return L"FSCTL_SECURITY_ID_CHECK";
+                    case FSCTL_READ_USN_JOURNAL:                                 return L"FSCTL_READ_USN_JOURNAL";
+                    case FSCTL_SET_OBJECT_ID_EXTENDED:                           return L"FSCTL_SET_OBJECT_ID_EXTENDED";
+                    case FSCTL_CREATE_OR_GET_OBJECT_ID:                          return L"FSCTL_CREATE_OR_GET_OBJECT_ID";
+                    case FSCTL_SET_SPARSE:                                       return L"FSCTL_SET_SPARSE";
+                    case FSCTL_SET_ZERO_DATA:                                    return L"FSCTL_SET_ZERO_DATA";
+                    case FSCTL_QUERY_ALLOCATED_RANGES:                           return L"FSCTL_QUERY_ALLOCATED_RANGES";
+                    case FSCTL_ENABLE_UPGRADE:                                   return L"FSCTL_ENABLE_UPGRADE";
+                    case FSCTL_SET_ENCRYPTION:                                   return L"FSCTL_SET_ENCRYPTION";
+                    case FSCTL_ENCRYPTION_FSCTL_IO:                              return L"FSCTL_ENCRYPTION_FSCTL_IO";
+                    case FSCTL_WRITE_RAW_ENCRYPTED:                              return L"FSCTL_WRITE_RAW_ENCRYPTED";
+                    case FSCTL_READ_RAW_ENCRYPTED:                               return L"FSCTL_READ_RAW_ENCRYPTED";
+                    case FSCTL_CREATE_USN_JOURNAL:                               return L"FSCTL_CREATE_USN_JOURNAL";
+                    case FSCTL_READ_FILE_USN_DATA:                               return L"FSCTL_READ_FILE_USN_DATA";
+                    case FSCTL_WRITE_USN_CLOSE_RECORD:                           return L"FSCTL_WRITE_USN_CLOSE_RECORD";
+                    case FSCTL_EXTEND_VOLUME:                                    return L"FSCTL_EXTEND_VOLUME";
+                    case FSCTL_QUERY_USN_JOURNAL:                                return L"FSCTL_QUERY_USN_JOURNAL";
+                    case FSCTL_DELETE_USN_JOURNAL:                               return L"FSCTL_DELETE_USN_JOURNAL";
+                    case FSCTL_MARK_HANDLE:                                      return L"FSCTL_MARK_HANDLE";
+                    case FSCTL_SIS_COPYFILE:                                     return L"FSCTL_SIS_COPYFILE";
+                    case FSCTL_SIS_LINK_FILES:                                   return L"FSCTL_SIS_LINK_FILES";
+                    case FSCTL_RECALL_FILE:                                      return L"FSCTL_RECALL_FILE";
+                    case FSCTL_READ_FROM_PLEX:                                   return L"FSCTL_READ_FROM_PLEX";
+                    case FSCTL_FILE_PREFETCH:                                    return L"FSCTL_FILE_PREFETCH";
+                    case FSCTL_MAKE_MEDIA_COMPATIBLE:                            return L"FSCTL_MAKE_MEDIA_COMPATIBLE";
+                    case FSCTL_SET_DEFECT_MANAGEMENT:                            return L"FSCTL_SET_DEFECT_MANAGEMENT";
+                    case FSCTL_QUERY_SPARING_INFO:                               return L"FSCTL_QUERY_SPARING_INFO";
+                    case FSCTL_QUERY_ON_DISK_VOLUME_INFO:                        return L"FSCTL_QUERY_ON_DISK_VOLUME_INFO";
+                    case FSCTL_SET_VOLUME_COMPRESSION_STATE:                     return L"FSCTL_SET_VOLUME_COMPRESSION_STATE";
+                    case FSCTL_TXFS_MODIFY_RM:                                   return L"FSCTL_TXFS_MODIFY_RM";
+                    case FSCTL_TXFS_QUERY_RM_INFORMATION:                        return L"FSCTL_TXFS_QUERY_RM_INFORMATION";
+                    case FSCTL_TXFS_ROLLFORWARD_REDO:                            return L"FSCTL_TXFS_ROLLFORWARD_REDO";
+                    case FSCTL_TXFS_ROLLFORWARD_UNDO:                            return L"FSCTL_TXFS_ROLLFORWARD_UNDO";
+                    case FSCTL_TXFS_START_RM:                                    return L"FSCTL_TXFS_START_RM";
+                    case FSCTL_TXFS_SHUTDOWN_RM:                                 return L"FSCTL_TXFS_SHUTDOWN_RM";
+                    case FSCTL_TXFS_READ_BACKUP_INFORMATION:                     return L"FSCTL_TXFS_READ_BACKUP_INFORMATION";
+                    case FSCTL_TXFS_WRITE_BACKUP_INFORMATION:                    return L"FSCTL_TXFS_WRITE_BACKUP_INFORMATION";
+                    case FSCTL_TXFS_CREATE_SECONDARY_RM:                         return L"FSCTL_TXFS_CREATE_SECONDARY_RM";
+                    case FSCTL_TXFS_GET_METADATA_INFO:                           return L"FSCTL_TXFS_GET_METADATA_INFO";
+                    case FSCTL_TXFS_GET_TRANSACTED_VERSION:                      return L"FSCTL_TXFS_GET_TRANSACTED_VERSION";
+                    case FSCTL_TXFS_SAVEPOINT_INFORMATION:                       return L"FSCTL_TXFS_SAVEPOINT_INFORMATION";
+                    case FSCTL_TXFS_CREATE_MINIVERSION:                          return L"FSCTL_TXFS_CREATE_MINIVERSION";
+                    case FSCTL_TXFS_TRANSACTION_ACTIVE:                          return L"FSCTL_TXFS_TRANSACTION_ACTIVE";
+                    case FSCTL_SET_ZERO_ON_DEALLOCATION:                         return L"FSCTL_SET_ZERO_ON_DEALLOCATION";
+                    case FSCTL_SET_REPAIR:                                       return L"FSCTL_SET_REPAIR";
+                    case FSCTL_GET_REPAIR:                                       return L"FSCTL_GET_REPAIR";
+                    case FSCTL_WAIT_FOR_REPAIR:                                  return L"FSCTL_WAIT_FOR_REPAIR";
+                    case FSCTL_INITIATE_REPAIR:                                  return L"FSCTL_INITIATE_REPAIR";
+                    case FSCTL_CSC_INTERNAL:                                     return L"FSCTL_CSC_INTERNAL";
+                    case FSCTL_SHRINK_VOLUME:                                    return L"FSCTL_SHRINK_VOLUME";
+                    case FSCTL_SET_SHORT_NAME_BEHAVIOR:                          return L"FSCTL_SET_SHORT_NAME_BEHAVIOR";
+                    case FSCTL_DFSR_SET_GHOST_HANDLE_STATE:                      return L"FSCTL_DFSR_SET_GHOST_HANDLE_STATE";
+                    case FSCTL_TXFS_LIST_TRANSACTIONS:                           return L"FSCTL_TXFS_LIST_TRANSACTIONS";
+                    case FSCTL_QUERY_PAGEFILE_ENCRYPTION:                        return L"FSCTL_QUERY_PAGEFILE_ENCRYPTION";
+                    case FSCTL_RESET_VOLUME_ALLOCATION_HINTS:                    return L"FSCTL_RESET_VOLUME_ALLOCATION_HINTS";
+                    case FSCTL_QUERY_DEPENDENT_VOLUME:                           return L"FSCTL_QUERY_DEPENDENT_VOLUME";
+                    case FSCTL_SD_GLOBAL_CHANGE:                                 return L"FSCTL_SD_GLOBAL_CHANGE";
+                    case FSCTL_TXFS_READ_BACKUP_INFORMATION2:                    return L"FSCTL_TXFS_READ_BACKUP_INFORMATION2";
+                    case FSCTL_LOOKUP_STREAM_FROM_CLUSTER:                       return L"FSCTL_LOOKUP_STREAM_FROM_CLUSTER";
+                    case FSCTL_TXFS_WRITE_BACKUP_INFORMATION2:                   return L"FSCTL_TXFS_WRITE_BACKUP_INFORMATION2";
+                    case FSCTL_FILE_TYPE_NOTIFICATION:                           return L"FSCTL_FILE_TYPE_NOTIFICATION";
+                    case FSCTL_FILE_LEVEL_TRIM:                                  return L"FSCTL_FILE_LEVEL_TRIM";
+                    case FSCTL_GET_BOOT_AREA_INFO:                               return L"FSCTL_GET_BOOT_AREA_INFO";
+                    case FSCTL_GET_RETRIEVAL_POINTER_BASE:                       return L"FSCTL_GET_RETRIEVAL_POINTER_BASE";
+                    case FSCTL_SET_PERSISTENT_VOLUME_STATE:                      return L"FSCTL_SET_PERSISTENT_VOLUME_STATE";
+                    case FSCTL_QUERY_PERSISTENT_VOLUME_STATE:                    return L"FSCTL_QUERY_PERSISTENT_VOLUME_STATE";
+                    case FSCTL_REQUEST_OPLOCK:                                   return L"FSCTL_REQUEST_OPLOCK";
+                    case FSCTL_CSV_TUNNEL_REQUEST:                               return L"FSCTL_CSV_TUNNEL_REQUEST";
+                    case FSCTL_IS_CSV_FILE:                                      return L"FSCTL_IS_CSV_FILE";
+                    case FSCTL_QUERY_FILE_SYSTEM_RECOGNITION:                    return L"FSCTL_QUERY_FILE_SYSTEM_RECOGNITION";
+                    case FSCTL_CSV_GET_VOLUME_PATH_NAME:                         return L"FSCTL_CSV_GET_VOLUME_PATH_NAME";
+                    case FSCTL_CSV_GET_VOLUME_NAME_FOR_VOLUME_MOUNT_POINT:       return L"FSCTL_CSV_GET_VOLUME_NAME_FOR_VOLUME_MOUNT_POINT";
+                    case FSCTL_CSV_GET_VOLUME_PATH_NAMES_FOR_VOLUME_NAME:        return L"FSCTL_CSV_GET_VOLUME_PATH_NAMES_FOR_VOLUME_NAME";
+                    case FSCTL_IS_FILE_ON_CSV_VOLUME:                            return L"FSCTL_IS_FILE_ON_CSV_VOLUME";
+                    case FSCTL_CORRUPTION_HANDLING:                              return L"FSCTL_CORRUPTION_HANDLING";
+                    case FSCTL_OFFLOAD_READ:                                     return L"FSCTL_OFFLOAD_READ";
+                    case FSCTL_OFFLOAD_WRITE:                                    return L"FSCTL_OFFLOAD_WRITE";
+                    case FSCTL_CSV_INTERNAL:                                     return L"FSCTL_CSV_INTERNAL";
+                    case FSCTL_SET_PURGE_FAILURE_MODE:                           return L"FSCTL_SET_PURGE_FAILURE_MODE";
+                    case FSCTL_QUERY_FILE_LAYOUT:                                return L"FSCTL_QUERY_FILE_LAYOUT";
+                    case FSCTL_IS_VOLUME_OWNED_BYCSVFS:                          return L"FSCTL_IS_VOLUME_OWNED_BYCSVFS";
+                    case FSCTL_GET_INTEGRITY_INFORMATION:                        return L"FSCTL_GET_INTEGRITY_INFORMATION";
+                    case FSCTL_SET_INTEGRITY_INFORMATION:                        return L"FSCTL_SET_INTEGRITY_INFORMATION";
+                    case FSCTL_QUERY_FILE_REGIONS:                               return L"FSCTL_QUERY_FILE_REGIONS";
+                    case FSCTL_RKF_INTERNAL:                                     return L"FSCTL_RKF_INTERNAL";
+                    case FSCTL_SCRUB_DATA:                                       return L"FSCTL_SCRUB_DATA";
+                    case FSCTL_REPAIR_COPIES:                                    return L"FSCTL_REPAIR_COPIES";
+                    case FSCTL_DISABLE_LOCAL_BUFFERING:                          return L"FSCTL_DISABLE_LOCAL_BUFFERING";
+                    case FSCTL_CSV_MGMT_LOCK:                                    return L"FSCTL_CSV_MGMT_LOCK";
+                    case FSCTL_CSV_QUERY_DOWN_LEVEL_FILE_SYSTEM_CHARACTERISTICS: return L"FSCTL_CSV_QUERY_DOWN_LEVEL_FILE_SYSTEM_CHARACTERISTICS";
+                    case FSCTL_ADVANCE_FILE_ID:                                  return L"FSCTL_ADVANCE_FILE_ID";
+                    case FSCTL_CSV_SYNC_TUNNEL_REQUEST:                          return L"FSCTL_CSV_SYNC_TUNNEL_REQUEST";
+                    case FSCTL_CSV_QUERY_VETO_FILE_DIRECT_IO:                    return L"FSCTL_CSV_QUERY_VETO_FILE_DIRECT_IO";
+                    case FSCTL_WRITE_USN_REASON:                                 return L"FSCTL_WRITE_USN_REASON";
+                    case FSCTL_CSV_CONTROL:                                      return L"FSCTL_CSV_CONTROL";
+                    case FSCTL_GET_REFS_VOLUME_DATA:                             return L"FSCTL_GET_REFS_VOLUME_DATA";
+                    case FSCTL_CSV_H_BREAKING_SYNC_TUNNEL_REQUEST:               return L"FSCTL_CSV_H_BREAKING_SYNC_TUNNEL_REQUEST";
+                    case FSCTL_QUERY_STORAGE_CLASSES:                            return L"FSCTL_QUERY_STORAGE_CLASSES";
+                    case FSCTL_QUERY_REGION_INFO:                                return L"FSCTL_QUERY_REGION_INFO";
+                    case FSCTL_USN_TRACK_MODIFIED_RANGES:                        return L"FSCTL_USN_TRACK_MODIFIED_RANGES";
+                    case FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT:                return L"FSCTL_QUERY_SHARED_VIRTUAL_DISK_SUPPORT";
+                    case FSCTL_SVHDX_SYNC_TUNNEL_REQUEST:                        return L"FSCTL_SVHDX_SYNC_TUNNEL_REQUEST";
+                    case FSCTL_SVHDX_SET_INITIATOR_INFORMATION:                  return L"FSCTL_SVHDX_SET_INITIATOR_INFORMATION";
+                    case FSCTL_SET_EXTERNAL_BACKING:                             return L"FSCTL_SET_EXTERNAL_BACKING";
+                    case FSCTL_GET_EXTERNAL_BACKING:                             return L"FSCTL_GET_EXTERNAL_BACKING";
+                    case FSCTL_DELETE_EXTERNAL_BACKING:                          return L"FSCTL_DELETE_EXTERNAL_BACKING";
+                    case FSCTL_ENUM_EXTERNAL_BACKING:                            return L"FSCTL_ENUM_EXTERNAL_BACKING";
+                    case FSCTL_ENUM_OVERLAY:                                     return L"FSCTL_ENUM_OVERLAY";
+                    case FSCTL_ADD_OVERLAY:                                      return L"FSCTL_ADD_OVERLAY";
+                    case FSCTL_REMOVE_OVERLAY:                                   return L"FSCTL_REMOVE_OVERLAY";
+                    case FSCTL_UPDATE_OVERLAY:                                   return L"FSCTL_UPDATE_OVERLAY";
+                    case FSCTL_SHUFFLE_FILE:                                     return L"FSCTL_SHUFFLE_FILE";
+                    case FSCTL_DUPLICATE_EXTENTS_TO_FILE:                        return L"FSCTL_DUPLICATE_EXTENTS_TO_FILE";
+                    case FSCTL_SPARSE_OVERALLOCATE:                              return L"FSCTL_SPARSE_OVERALLOCATE";
+                    case FSCTL_STORAGE_QOS_CONTROL:                              return L"FSCTL_STORAGE_QOS_CONTROL";
+                    case FSCTL_INITIATE_FILE_METADATA_OPTIMIZATION:              return L"FSCTL_INITIATE_FILE_METADATA_OPTIMIZATION";
+                    case FSCTL_QUERY_FILE_METADATA_OPTIMIZATION:                 return L"FSCTL_QUERY_FILE_METADATA_OPTIMIZATION";
+                    case FSCTL_SVHDX_ASYNC_TUNNEL_REQUEST:                       return L"FSCTL_SVHDX_ASYNC_TUNNEL_REQUEST";
+                    case FSCTL_GET_WOF_VERSION:                                  return L"FSCTL_GET_WOF_VERSION";
+                    case FSCTL_HCS_SYNC_TUNNEL_REQUEST:                          return L"FSCTL_HCS_SYNC_TUNNEL_REQUEST";
+                    case FSCTL_HCS_ASYNC_TUNNEL_REQUEST:                         return L"FSCTL_HCS_ASYNC_TUNNEL_REQUEST";
+                    case FSCTL_QUERY_EXTENT_READ_CACHE_INFO:                     return L"FSCTL_QUERY_EXTENT_READ_CACHE_INFO";
+                    case FSCTL_QUERY_REFS_VOLUME_COUNTER_INFO:                   return L"FSCTL_QUERY_REFS_VOLUME_COUNTER_INFO";
+                    case FSCTL_CLEAN_VOLUME_METADATA:                            return L"FSCTL_CLEAN_VOLUME_METADATA";
+                    case FSCTL_SET_INTEGRITY_INFORMATION_EX:                     return L"FSCTL_SET_INTEGRITY_INFORMATION_EX";
+                    case FSCTL_SUSPEND_OVERLAY:                                  return L"FSCTL_SUSPEND_OVERLAY";
+                    case FSCTL_VIRTUAL_STORAGE_QUERY_PROPERTY:                   return L"FSCTL_VIRTUAL_STORAGE_QUERY_PROPERTY";
+                    case FSCTL_FILESYSTEM_GET_STATISTICS_EX:                     return L"FSCTL_FILESYSTEM_GET_STATISTICS_EX";
+                    case FSCTL_QUERY_VOLUME_CONTAINER_STATE:                     return L"FSCTL_QUERY_VOLUME_CONTAINER_STATE";
+                    case FSCTL_SET_LAYER_ROOT:                                   return L"FSCTL_SET_LAYER_ROOT";
+                    case FSCTL_QUERY_DIRECT_ACCESS_EXTENTS:                      return L"FSCTL_QUERY_DIRECT_ACCESS_EXTENTS";
+                    case FSCTL_NOTIFY_STORAGE_SPACE_ALLOCATION:                  return L"FSCTL_NOTIFY_STORAGE_SPACE_ALLOCATION";
+                    case FSCTL_SSDI_STORAGE_REQUEST:                             return L"FSCTL_SSDI_STORAGE_REQUEST";
+                    case FSCTL_QUERY_DIRECT_IMAGE_ORIGINAL_BASE:                 return L"FSCTL_QUERY_DIRECT_IMAGE_ORIGINAL_BASE";
+                    case FSCTL_READ_UNPRIVILEGED_USN_JOURNAL:                    return L"FSCTL_READ_UNPRIVILEGED_USN_JOURNAL";
+                    case FSCTL_GHOST_FILE_EXTENTS:                               return L"FSCTL_GHOST_FILE_EXTENTS";
+                    case FSCTL_QUERY_GHOSTED_FILE_EXTENTS:                       return L"FSCTL_QUERY_GHOSTED_FILE_EXTENTS";
+                    case FSCTL_UNMAP_SPACE:                                      return L"FSCTL_UNMAP_SPACE";
+                    case FSCTL_HCS_SYNC_NO_WRITE_TUNNEL_REQUEST:                 return L"FSCTL_HCS_SYNC_NO_WRITE_TUNNEL_REQUEST";
+                    case FSCTL_START_VIRTUALIZATION_INSTANCE:                    return L"FSCTL_START_VIRTUALIZATION_INSTANCE";
+                    case FSCTL_STREAMS_QUERY_PARAMETERS:                         return L"FSCTL_STREAMS_QUERY_PARAMETERS";
+                    case FSCTL_STREAMS_ASSOCIATE_ID:                             return L"FSCTL_STREAMS_ASSOCIATE_ID";
+                    case FSCTL_STREAMS_QUERY_ID:                                 return L"FSCTL_STREAMS_QUERY_ID";
+                    case FSCTL_GET_RETRIEVAL_POINTERS_AND_REFCOUNT:              return L"FSCTL_GET_RETRIEVAL_POINTERS_AND_REFCOUNT";
+                    case FSCTL_QUERY_VOLUME_NUMA_INFO:                           return L"FSCTL_QUERY_VOLUME_NUMA_INFO";
+                    case FSCTL_REFS_DEALLOCATE_RANGES:                           return L"FSCTL_REFS_DEALLOCATE_RANGES";
+                    case FSCTL_QUERY_REFS_SMR_VOLUME_INFO:                       return L"FSCTL_QUERY_REFS_SMR_VOLUME_INFO";
+                    case FSCTL_SET_REFS_SMR_VOLUME_GC_PARAMETERS:                return L"FSCTL_SET_REFS_SMR_VOLUME_GC_PARAMETERS";
+                    case FSCTL_SET_REFS_FILE_STRICTLY_SEQUENTIAL:                return L"FSCTL_SET_REFS_FILE_STRICTLY_SEQUENTIAL";
+                    case FSCTL_DUPLICATE_EXTENTS_TO_FILE_EX:                     return L"FSCTL_DUPLICATE_EXTENTS_TO_FILE_EX";
+                    case FSCTL_QUERY_BAD_RANGES:                                 return L"FSCTL_QUERY_BAD_RANGES";
+                    case FSCTL_SET_DAX_ALLOC_ALIGNMENT_HINT:                     return L"FSCTL_SET_DAX_ALLOC_ALIGNMENT_HINT";
+                    case FSCTL_DELETE_CORRUPTED_REFS_CONTAINER:                  return L"FSCTL_DELETE_CORRUPTED_REFS_CONTAINER";
+                    case FSCTL_SCRUB_UNDISCOVERABLE_ID:                          return L"FSCTL_SCRUB_UNDISCOVERABLE_ID";
+                    case FSCTL_NOTIFY_DATA_CHANGE:                               return L"FSCTL_NOTIFY_DATA_CHANGE";
+                    case FSCTL_START_VIRTUALIZATION_INSTANCE_EX:                 return L"FSCTL_START_VIRTUALIZATION_INSTANCE_EX";
+                    case FSCTL_ENCRYPTION_KEY_CONTROL:                           return L"FSCTL_ENCRYPTION_KEY_CONTROL";
+                    case FSCTL_VIRTUAL_STORAGE_SET_BEHAVIOR:                     return L"FSCTL_VIRTUAL_STORAGE_SET_BEHAVIOR";
+                    case FSCTL_SET_REPARSE_POINT_EX:                             return L"FSCTL_SET_REPARSE_POINT_EX";
+                    case FSCTL_REARRANGE_FILE:                                   return L"FSCTL_REARRANGE_FILE";
+                    case FSCTL_VIRTUAL_STORAGE_PASSTHROUGH:                      return L"FSCTL_VIRTUAL_STORAGE_PASSTHROUGH";
+                    case FSCTL_GET_RETRIEVAL_POINTER_COUNT:                      return L"FSCTL_GET_RETRIEVAL_POINTER_COUNT";
+                    case FSCTL_QUERY_ASYNC_DUPLICATE_EXTENTS_STATUS:             return L"FSCTL_QUERY_ASYNC_DUPLICATE_EXTENTS_STATUS";
+                    case FSCTL_SMB_SHARE_FLUSH_AND_PURGE:                        return L"FSCTL_SMB_SHARE_FLUSH_AND_PURGE";
+                    case FSCTL_REFS_STREAM_SNAPSHOT_MANAGEMENT:                  return L"FSCTL_REFS_STREAM_SNAPSHOT_MANAGEMENT";
+                    case FSCTL_MANAGE_BYPASS_IO:                                 return L"FSCTL_MANAGE_BYPASS_IO";
+                    case FSCTL_REFS_DEALLOCATE_RANGES_EX:                        return L"FSCTL_REFS_DEALLOCATE_RANGES_EX";
+                    case FSCTL_SET_CACHED_RUNS_STATE:                            return L"FSCTL_SET_CACHED_RUNS_STATE";
+                    case FSCTL_REFS_SET_VOLUME_COMPRESSION_INFO:                 return L"FSCTL_REFS_SET_VOLUME_COMPRESSION_INFO";
+                    case FSCTL_REFS_QUERY_VOLUME_COMPRESSION_INFO:               return L"FSCTL_REFS_QUERY_VOLUME_COMPRESSION_INFO";
+                    case FSCTL_DUPLICATE_CLUSTER:                                return L"FSCTL_DUPLICATE_CLUSTER";
+                    case FSCTL_CREATE_LCN_WEAK_REFERENCE:                        return L"FSCTL_CREATE_LCN_WEAK_REFERENCE";
+                    case FSCTL_CLEAR_LCN_WEAK_REFERENCE:                         return L"FSCTL_CLEAR_LCN_WEAK_REFERENCE";
+                    case FSCTL_QUERY_LCN_WEAK_REFERENCE:                         return L"FSCTL_QUERY_LCN_WEAK_REFERENCE";
+                    case FSCTL_CLEAR_ALL_LCN_WEAK_REFERENCES:                    return L"FSCTL_CLEAR_ALL_LCN_WEAK_REFERENCES";
+                    case FSCTL_REFS_SET_VOLUME_DEDUP_INFO:                       return L"FSCTL_REFS_SET_VOLUME_DEDUP_INFO";
+                    case FSCTL_REFS_QUERY_VOLUME_DEDUP_INFO:                     return L"FSCTL_REFS_QUERY_VOLUME_DEDUP_INFO";
+                    case FSCTL_LMR_QUERY_INFO:                                   return L"FSCTL_LMR_QUERY_INFO";
+                    case FSCTL_REFS_CHECKPOINT_VOLUME:                           return L"FSCTL_REFS_CHECKPOINT_VOLUME";
+                    case FSCTL_REFS_QUERY_VOLUME_TOTAL_SHARED_LCNS:              return L"FSCTL_REFS_QUERY_VOLUME_TOTAL_SHARED_LCNS";
+                    case FSCTL_UPGRADE_VOLUME:                                   return L"FSCTL_UPGRADE_VOLUME";
+                    case FSCTL_REFS_SET_VOLUME_IO_METRICS_INFO:                  return L"FSCTL_REFS_SET_VOLUME_IO_METRICS_INFO";
+                    case FSCTL_REFS_QUERY_VOLUME_IO_METRICS_INFO:                return L"FSCTL_REFS_QUERY_VOLUME_IO_METRICS_INFO";
+                    case FSCTL_REFS_SET_ROLLBACK_PROTECTION_INFO:                return L"FSCTL_REFS_SET_ROLLBACK_PROTECTION_INFO";
+                    case FSCTL_REFS_QUERY_ROLLBACK_PROTECTION_INFO:              return L"FSCTL_REFS_QUERY_ROLLBACK_PROTECTION_INFO";
+                    case FSCTL_FILE_SOV_CHECK_RANGE:                             return L"FSCTL_FILE_SOV_CHECK_RANGE";
+                    case FSCTL_CASCADES_REFS_SET_FILE_REMOTE:                    return L"FSCTL_CASCADES_REFS_SET_FILE_REMOTE";
+                    case FSCTL_CIMFS_QUERY_BACKING_REGION_NAMES:                 return L"FSCTL_CIMFS_QUERY_BACKING_REGION_NAMES";
+                    case FSCTL_REFS_VOLUME_ATTESTATION_PREPARE_TO_SIGN:          return L"FSCTL_REFS_VOLUME_ATTESTATION_PREPARE_TO_SIGN";
+                    case FSCTL_REFS_VOLUME_ATTESTATION_INJECT_CERTIFICATE:       return L"FSCTL_REFS_VOLUME_ATTESTATION_INJECT_CERTIFICATE";
+                    case FSCTL_REFS_VOLUME_ATTESTATION_QUERY_STATUS:             return L"FSCTL_REFS_VOLUME_ATTESTATION_QUERY_STATUS";
+                }
+
+                return RenderControlCode(fsControlCode);
+            }
+
+
+            std::wstring RenderSymlinkFlags(uint32_t flags) {
+
+                return RenderFlags(flags, SYMLINK_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderFileSystemStatisticsType(uint16_t type) {
+
+                switch (type) {
+                    case FILESYSTEM_STATISTICS_TYPE_NTFS:  return L"NTFS";
+                    case FILESYSTEM_STATISTICS_TYPE_FAT:   return L"FAT";
+                    case FILESYSTEM_STATISTICS_TYPE_EXFAT: return L"EXFAT";
+                    case FILESYSTEM_STATISTICS_TYPE_REFS:  return L"REFS";
+                }
+
+                return std::to_wstring(type);
+            }
+
+
+            std::wstring RenderOplockLevel(uint32_t level) {
+
+                if (!level) return L"None";
+
+                return RenderFlags(level, OPLOCK_LEVEL_NAMES, L"|");
+            }
+
+
+            std::wstring RenderOplockInputFlags(uint32_t flags) {
+
+                if (!flags) return L"None";
+
+                return RenderFlags(flags, OPLOCK_INPUT_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderOplockOutputFlags(uint32_t flags) {
+
+                if (!flags) return L"None";
+
+                return RenderFlags(flags, OPLOCK_OUTPUT_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderFileRegionUsage(uint32_t usage) {
+
+                if (!usage) return L"None";
+
+                return RenderFlags(usage, FILE_REGION_USAGE_NAMES, L"|");
             }
 
         }
