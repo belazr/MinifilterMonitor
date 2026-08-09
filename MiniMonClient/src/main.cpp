@@ -305,7 +305,6 @@ int wmain(int argc, wchar_t* argv[]) {
         const HRESULT hRes = filter::Attach(*params->attach);
         const int result = ReportResult(hRes, "Failed to attach to volume");
 
-        // the only privilege the client adjusts is SE_LOAD_DRIVER_NAME, so this code always means "not elevated"
         if (hRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED)) {
             DisplayAdminRightsError();
         }
