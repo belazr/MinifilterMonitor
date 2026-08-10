@@ -8,9 +8,8 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
-#include <Windows.h>
-
 #include <cstddef>
+#include <cstdint>
 #include <format>
 #include <span>
 #include <string>
@@ -105,7 +104,7 @@ namespace mimo {
                     switch (parameters.volumeInformation.fsInformationClass) {
 
                         case kernel::FileFsVolumeInformation: {
-                            constexpr ULONG LABEL_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_FS_VOLUME_INFORMATION, VolumeLabel));
+                            constexpr size_t LABEL_OFFSET = offsetof(kernel::FILE_FS_VOLUME_INFORMATION, VolumeLabel);
                             kernel::FILE_FS_VOLUME_INFORMATION volume;
 
                             if (payload::ReadHeader(payload, volume, LABEL_OFFSET)) {
@@ -116,7 +115,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsLabelInformation: {
-                            constexpr ULONG LABEL_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_FS_LABEL_INFORMATION, VolumeLabel));
+                            constexpr size_t LABEL_OFFSET = offsetof(kernel::FILE_FS_LABEL_INFORMATION, VolumeLabel);
                             kernel::FILE_FS_LABEL_INFORMATION label;
 
                             if (payload::ReadHeader(payload, label, LABEL_OFFSET)) {
@@ -147,7 +146,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsAttributeInformation: {
-                            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_FS_ATTRIBUTE_INFORMATION, FileSystemName));
+                            constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_FS_ATTRIBUTE_INFORMATION, FileSystemName);
                             kernel::FILE_FS_ATTRIBUTE_INFORMATION attribute;
 
                             if (payload::ReadHeader(payload, attribute, NAME_OFFSET)) {

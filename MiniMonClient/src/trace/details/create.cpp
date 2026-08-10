@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include <sddl.h>
 
+#include <cstdint>
 #include <format>
 #include <map>
 #include <string>
@@ -20,7 +21,7 @@ using namespace mimo;
 
 namespace {
 
-    constexpr DWORD ACCOUNT_NAME_CHARS = 256u;
+    constexpr uint32_t ACCOUNT_NAME_CHARS = 256u;
 
     std::map<std::wstring, std::wstring> accountNames;
 
@@ -39,8 +40,8 @@ namespace {
 
         wchar_t name[ACCOUNT_NAME_CHARS]{};
         wchar_t domain[ACCOUNT_NAME_CHARS]{};
-        DWORD nameChars = ACCOUNT_NAME_CHARS;
-        DWORD domainChars = ACCOUNT_NAME_CHARS;
+        DWORD nameChars = static_cast<DWORD>(ACCOUNT_NAME_CHARS);
+        DWORD domainChars = static_cast<DWORD>(ACCOUNT_NAME_CHARS);
         SID_NAME_USE use{};
 
         if (LookupAccountSidW(nullptr, pSid, name, &nameChars, domain, &domainChars, &use)) {
@@ -72,8 +73,8 @@ namespace mimo {
                         result += std::format(L"Desired Access: {}, ", names::RenderDesiredAccess(createSupplement.desiredAccess));
                     }
 
-                    const ULONG disposition = parameters.create.options >> 24;
-                    const ULONG createOptions = parameters.create.options & 0x00FFFFFFu;
+                    const uint32_t disposition = parameters.create.options >> 24;
+                    const uint32_t createOptions = parameters.create.options & 0x00FFFFFFu;
 
                     result += std::format(L"Disposition: {}, ", names::RenderCreateDisposition(disposition));
 

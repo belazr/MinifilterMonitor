@@ -4,6 +4,7 @@
 
 #include <Windows.h>
 
+#include <cstdint>
 #include <format>
 #include <string>
 
@@ -33,7 +34,7 @@ namespace mimo {
 
                 if (fileTime < 0) return std::to_wstring(fileTime);
 
-                const ULONGLONG ticks = static_cast<ULONGLONG>(fileTime);
+                const uint64_t ticks = static_cast<uint64_t>(fileTime);
 
                 FILETIME systemFileTime{};
                 systemFileTime.dwLowDateTime = static_cast<DWORD>(ticks);

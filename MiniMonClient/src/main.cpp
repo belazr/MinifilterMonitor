@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <cstdint>
 #include <cstdlib>
 #include <cwctype>
 #include <filesystem>
@@ -147,10 +148,10 @@ namespace {
 
 
     void DisplayError(HRESULT code) {
-        std::cerr << std::format("Error: 0x{:08X}, ", static_cast<ULONG>(code));
+        std::cerr << std::format("Error: 0x{:08X}, ", static_cast<uint32_t>(code));
 
         std::array<wchar_t, 1024u> buffer{};
-        const DWORD count = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, code, 0u, buffer.data(), static_cast<DWORD>(buffer.size()), nullptr);
+        const DWORD count = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, static_cast<DWORD>(code), 0u, buffer.data(), static_cast<DWORD>(buffer.size()), nullptr);
 
         if (count) {
             std::cerr << text::ConvertToUtf8(buffer.data());

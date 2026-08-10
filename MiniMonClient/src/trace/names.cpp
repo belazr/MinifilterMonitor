@@ -7,6 +7,7 @@
 #include <wnnc.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <format>
 #include <span>
 #include <string>
@@ -17,7 +18,7 @@ using namespace mimo;
 namespace {
 
     struct FlagName {
-        ULONG flag;
+        uint32_t flag;
         const wchar_t* name;
     };
 
@@ -37,7 +38,7 @@ namespace {
 
 
     std::wstring RenderFlags(
-        ULONG flags,
+        uint32_t flags,
         std::span<const FlagName> names,
         std::wstring_view separator
     ) {
@@ -252,7 +253,7 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(COMPLETION_FILTER_NAMES), "composite entry after its components in COMPLETION_FILTER_NAMES");
 
-    std::wstring RenderDeviceType(ULONG deviceType) {
+    std::wstring RenderDeviceType(uint32_t deviceType) {
 
         switch (deviceType) {
             case FILE_DEVICE_BEEP:                 return L"FILE_DEVICE_BEEP";
@@ -360,7 +361,7 @@ namespace {
 
     constexpr const wchar_t* CONTROL_ACCESS_NAMES[]{ L"FILE_ANY_ACCESS", L"FILE_READ_ACCESS", L"FILE_WRITE_ACCESS", L"FILE_READ_ACCESS|FILE_WRITE_ACCESS" };
 
-    std::wstring RenderControlCode(ULONG controlCode) {
+    std::wstring RenderControlCode(uint32_t controlCode) {
 
         return std::format(L"0x{:X} (Device: {}, Function: {}, Method: {}, Access: {})", controlCode, RenderDeviceType(controlCode >> 16), (controlCode >> 2) & 0xFFFu, CONTROL_METHOD_NAMES[controlCode & 3u], CONTROL_ACCESS_NAMES[(controlCode >> 14) & 3u]);
     }
@@ -477,7 +478,7 @@ namespace mimo {
                     case kernel::IRP_MJ_VOLUME_DISMOUNT:                     return L"IRP_MJ_VOLUME_DISMOUNT";
                 }
 
-                return std::format(L"{:02X}", static_cast<ULONG>(major));
+                return std::format(L"{:02X}", static_cast<uint32_t>(major));
             }
 
 
@@ -589,7 +590,7 @@ namespace mimo {
                 // a zero minor with no name is an operation that has no minor function
                 if (minor == 0u) return L"";
 
-                return std::format(L"{:02X}", static_cast<ULONG>(minor));
+                return std::format(L"{:02X}", static_cast<uint32_t>(minor));
             }
 
 

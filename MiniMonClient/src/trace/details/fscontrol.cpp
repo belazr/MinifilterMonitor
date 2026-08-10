@@ -12,6 +12,7 @@
 #include <winioctl.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <format>
 #include <span>
@@ -129,7 +130,7 @@ namespace {
 
 
     std::wstring RenderReparsePayload(std::span<const uint8_t> payload) {
-        constexpr ULONG HEADER_BYTES = static_cast<ULONG>(offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer));
+        constexpr size_t HEADER_BYTES = offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer);
         trace::kernel::REPARSE_DATA_BUFFER reparse;
 
         if (!trace::details::payload::ReadHeader(payload, reparse, HEADER_BYTES)) return {};
@@ -142,7 +143,7 @@ namespace {
         switch (reparse.ReparseTag) {
 
             case IO_REPARSE_TAG_SYMLINK: {
-                constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer));
+                constexpr size_t NAME_OFFSET = offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer);
 
                 if (trace::details::payload::ReadHeader(payload, reparse, NAME_OFFSET)) {
                     tagText = RenderSymlinkPayload(reparse, payload.subspan(NAME_OFFSET));
@@ -152,7 +153,7 @@ namespace {
             }
 
             case IO_REPARSE_TAG_MOUNT_POINT: {
-                constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(trace::kernel::REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer));
+                constexpr size_t NAME_OFFSET = offsetof(trace::kernel::REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer);
 
                 if (trace::details::payload::ReadHeader(payload, reparse, NAME_OFFSET)) {
                     tagText = RenderMountPointPayload(reparse, payload.subspan(NAME_OFFSET));
@@ -196,14 +197,14 @@ namespace {
 
 
     std::wstring RenderTrimPayload(std::span<const uint8_t> payload) {
-        constexpr ULONG RANGES_OFFSET = static_cast<ULONG>(offsetof(trace::kernel::FILE_LEVEL_TRIM, Ranges));
+        constexpr size_t RANGES_OFFSET = offsetof(trace::kernel::FILE_LEVEL_TRIM, Ranges);
         trace::kernel::FILE_LEVEL_TRIM trim;
 
         if (!trace::details::payload::ReadHeader(payload, trim, RANGES_OFFSET)) return {};
 
         std::wstring result = std::format(L"Key: {}, NumRanges: {}", trim.Key, trim.NumRanges);
-        ULONG offset = RANGES_OFFSET;
-        ULONG index = 1u;
+        size_t offset = RANGES_OFFSET;
+        uint32_t index = 1u;
 
         while (index <= trim.NumRanges) {
             trace::kernel::FILE_LEVEL_TRIM_RANGE range;
@@ -211,7 +212,7 @@ namespace {
             if (!trace::details::payload::ReadValue(payload, range, offset)) break;
 
             result += std::format(L", {}: Offset: {}, Length: {}", index, range.Offset, range.Length);
-            offset += static_cast<ULONG>(sizeof(range));
+            offset += sizeof(range);
             index++;
         }
 
@@ -360,14 +361,14 @@ namespace {
 
 
     std::wstring RenderFileRegionOutputPayload(std::span<const uint8_t> payload) {
-        constexpr ULONG REGION_OFFSET = static_cast<ULONG>(offsetof(trace::kernel::FILE_REGION_OUTPUT, Region));
+        constexpr size_t REGION_OFFSET = offsetof(trace::kernel::FILE_REGION_OUTPUT, Region);
         trace::kernel::FILE_REGION_OUTPUT regions;
 
         if (!trace::details::payload::ReadHeader(payload, regions, REGION_OFFSET)) return {};
 
         std::wstring result = std::format(L"TotalRegionEntryCount: {}, RegionEntryCount: {}", regions.TotalRegionEntryCount, regions.RegionEntryCount);
-        ULONG offset = REGION_OFFSET;
-        ULONG index = 1u;
+        size_t offset = REGION_OFFSET;
+        uint32_t index = 1u;
 
         while (index <= regions.RegionEntryCount) {
             trace::kernel::FILE_REGION_INFO region;
@@ -375,7 +376,7 @@ namespace {
             if (!trace::details::payload::ReadValue(payload, region, offset)) break;
 
             result += std::format(L", {}: FileOffset: {}, Length: {}, Usage: {}", index, region.FileOffset, region.Length, trace::names::RenderFileRegionUsage(region.Usage));
-            offset += static_cast<ULONG>(sizeof(region));
+            offset += sizeof(region);
             index++;
         }
 

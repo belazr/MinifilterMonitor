@@ -8,6 +8,8 @@
 #include <fltUser.h>
 
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <format>
 #include <iostream>
 #include <string>
@@ -86,7 +88,7 @@ namespace {
 
             if (status != ERROR_SUCCESS) break;
 
-            names.emplace_back(buffer.data(), len);
+            names.emplace_back(buffer.data(), static_cast<size_t>(len));
         }
 
         return names;
@@ -141,7 +143,7 @@ namespace mimo {
 
                 if (hRes == ERROR_FLT_INSTANCE_ALTITUDE_COLLISION) continue;
 
-                std::cerr << std::format("  Failed to attach instance: {} 0x{:08X}\n", text::ConvertToUtf8(name), static_cast<ULONG>(hRes));
+                std::cerr << std::format("  Failed to attach instance: {} 0x{:08X}\n", text::ConvertToUtf8(name), static_cast<uint32_t>(hRes));
                 hLastRes = hRes;
             }
 
@@ -173,7 +175,7 @@ namespace mimo {
             cmdMsg.command = protocol::Command::GetRecords;
             DWORD bytesRet = 0u;
 
-            const HRESULT hRes = FilterSendMessage(port.Get(), &cmdMsg, sizeof(cmdMsg), records.Data(), records.Size(), &bytesRet);
+            const HRESULT hRes = FilterSendMessage(port.Get(), &cmdMsg, static_cast<DWORD>(sizeof(cmdMsg)), records.Data(), static_cast<DWORD>(records.Size()), &bytesRet);
 
             // empty list on an idle volume: STATUS_NO_MORE_ENTRIES surfaces as ERROR_NO_MORE_ITEMS
             // report zero records and keep polling

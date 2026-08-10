@@ -9,9 +9,8 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
-#include <Windows.h>
-
 #include <cstddef>
+#include <cstdint>
 #include <format>
 #include <span>
 #include <string>
@@ -44,11 +43,11 @@ namespace {
     template <typename Entry>
     std::wstring RenderEntriesPayload(std::span<const uint8_t> payload) {
         std::wstring result;
-        ULONG offset = 0u;
-        ULONG index = 1u;
+        size_t offset = 0u;
+        uint32_t index = 1u;
 
         while (true) {
-            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(Entry, FileName));
+            constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
             Entry entry;
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;

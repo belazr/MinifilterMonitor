@@ -13,6 +13,7 @@
 #include <Windows.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <format>
 #include <span>
@@ -22,7 +23,7 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderInformationParameters(ULONG fileInformationClass, ULONG length) {
+    std::wstring RenderInformationParameters(uint32_t fileInformationClass, uint32_t length) {
 
         return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(fileInformationClass), length);
     }
@@ -83,7 +84,7 @@ namespace {
 
     std::wstring RenderInternalPayload(const trace::kernel::FILE_INTERNAL_INFORMATION& payload) {
 
-        return std::format(L"IndexNumber: 0x{:X}", static_cast<ULONGLONG>(payload.IndexNumber));
+        return std::format(L"IndexNumber: 0x{:X}", static_cast<uint64_t>(payload.IndexNumber));
     }
 
 
@@ -127,10 +128,10 @@ namespace {
 
     std::wstring RenderStreamsPayload(std::span<const uint8_t> payload) {
         std::wstring result;
-        ULONG offset = 0u;
+        size_t offset = 0u;
 
         while (true) {
-            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(trace::kernel::FILE_STREAM_INFORMATION, StreamName));
+            constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_STREAM_INFORMATION, StreamName);
             trace::kernel::FILE_STREAM_INFORMATION entry;
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
@@ -202,21 +203,21 @@ namespace {
 
 
     std::wstring RenderHardLinksPayload(std::span<const uint8_t> payload) {
-        ULONG bytesNeeded;
-        ULONG entriesReturned;
+        uint32_t bytesNeeded;
+        uint32_t entriesReturned;
 
         if (!trace::details::payload::ReadValue(payload, bytesNeeded) || !trace::details::payload::ReadValue(payload, entriesReturned, offsetof(trace::kernel::FILE_LINKS_INFORMATION, EntriesReturned))) return {};
 
         std::wstring result = std::format(L"BytesNeeded: {}, EntriesReturned: {}", bytesNeeded, entriesReturned);
-        ULONG offset = static_cast<ULONG>(offsetof(trace::kernel::FILE_LINKS_INFORMATION, Entry));
+        size_t offset = offsetof(trace::kernel::FILE_LINKS_INFORMATION, Entry);
 
         while (true) {
-            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(trace::kernel::FILE_LINK_ENTRY_INFORMATION, FileName));
+            constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_LINK_ENTRY_INFORMATION, FileName);
             trace::kernel::FILE_LINK_ENTRY_INFORMATION entry;
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L", ParentFileId: 0x{:X}, FileName: {}", static_cast<ULONGLONG>(entry.ParentFileId), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
+            result += std::format(L", ParentFileId: 0x{:X}, FileName: {}", static_cast<uint64_t>(entry.ParentFileId), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
 
             if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
 
@@ -241,8 +242,8 @@ namespace {
 
 
     std::wstring RenderFileId(std::span<const uint8_t, 16u> fileId) {
-        ULONGLONG low;
-        ULONGLONG high;
+        uint64_t low;
+        uint64_t high;
 
         std::memcpy(&low, fileId.data(), sizeof(low));
         std::memcpy(&high, fileId.data() + sizeof(low), sizeof(high));
@@ -260,7 +261,7 @@ namespace {
 
 
     std::wstring RenderStatPayload(const trace::kernel::FILE_STAT_INFORMATION& payload) {
-        std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<ULONGLONG>(payload.FileId));
+        std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<uint64_t>(payload.FileId));
 
         if (payload.CreationTime) {
             result += std::format(L", CreationTime: {}", trace::values::RenderFileTime(payload.CreationTime));
@@ -331,7 +332,7 @@ namespace {
 
 
     std::wstring RenderStatBasicPayload(const trace::kernel::FILE_STAT_BASIC_INFORMATION& payload) {
-        std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<ULONGLONG>(payload.FileId));
+        std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<uint64_t>(payload.FileId));
 
         if (payload.CreationTime) {
             result += std::format(L", CreationTime: {}", trace::values::RenderFileTime(payload.CreationTime));
@@ -500,7 +501,7 @@ namespace mimo {
                         case kernel::FileAlternateNameInformation:
                         case kernel::FileNormalizedNameInformation:
                         case kernel::FileNetworkPhysicalNameInformation: {
-                            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_NAME_INFORMATION, FileName));
+                            constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_NAME_INFORMATION, FileName);
                             kernel::FILE_NAME_INFORMATION name;
 
                             if (payload::ReadHeader(payload, name, NAME_OFFSET)) {
@@ -521,7 +522,7 @@ namespace mimo {
                         }
 
                         case kernel::FileAllInformation: {
-                            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_ALL_INFORMATION, NameInformation.FileName));
+                            constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_ALL_INFORMATION, NameInformation.FileName);
                             kernel::FILE_ALL_INFORMATION all;
 
                             if (payload::ReadHeader(payload, all, NAME_OFFSET)) {
@@ -720,7 +721,7 @@ namespace mimo {
                         }
 
                         case kernel::FileShortNameInformation: {
-                            constexpr ULONG NAME_OFFSET = static_cast<ULONG>(offsetof(kernel::FILE_NAME_INFORMATION, FileName));
+                            constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_NAME_INFORMATION, FileName);
                             kernel::FILE_NAME_INFORMATION shortName;
 
                             if (payload::ReadHeader(payload, shortName, NAME_OFFSET)) {
