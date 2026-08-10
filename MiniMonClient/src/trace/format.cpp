@@ -10,7 +10,7 @@
 #include <Windows.h>
 
 #include <array>
-#include <cstddef>
+#include <cstdint>
 #include <format>
 #include <string>
 #include <string_view>
@@ -138,27 +138,31 @@ namespace {
 
 
     std::wstring EscapeCsvField(std::wstring_view value) {
-        constexpr std::wstring_view SPECIALS = L";\"\n\r";
+        std::wstring escaped;
+        bool quoted = false;
 
-        if (value.find_first_of(SPECIALS) == std::wstring_view::npos) return std::wstring{ value };
+        for (const wchar_t character : value) {
 
-        std::wstring inner;
-
-        while (true) {
-            const size_t quote = value.find(L'"');
-
-            if (quote == std::wstring_view::npos) {
-                inner.append(value);
-
-                break;
+            if (character == L'"') {
+                escaped.append(LR"("")");
+                quoted = true;
+            }
+            else if (character == L';') {
+                escaped.push_back(character);
+                quoted = true;
+            }
+            else if (character < L' ' || character == L'\x7F') {
+                escaped.append(std::format(LR"(\x{:02X})", static_cast<uint16_t>(character)));
+            }
+            else {
+                escaped.push_back(character);
             }
 
-            inner.append(value.substr(0u, quote));
-            inner.append(LR"("")");
-            value.remove_prefix(quote + 1u);
         }
 
-        return std::format(LR"("{}")", inner);
+        if (quoted) return std::format(LR"("{}")", escaped);
+
+        return escaped;
     }
 
 }
