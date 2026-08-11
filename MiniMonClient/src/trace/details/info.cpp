@@ -452,7 +452,9 @@ namespace mimo {
                 std::wstring RenderQuery(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = RenderInformationParameters(parameters.queryFileInformation.fileInformationClass, parameters.queryFileInformation.length);
+                    
                     const std::span<const uint8_t> payload = ExtractPayload(data.supplement.queryInfo);
+                    
                     std::wstring payloadText;
 
                     switch (parameters.queryFileInformation.fileInformationClass) {
@@ -645,9 +647,11 @@ namespace mimo {
 
                 std::wstring RenderSet(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    const protocol::SetInfoSupplement& setInfoSupplement = data.supplement.setInfo;
                     std::wstring details = RenderInformationParameters(parameters.setFileInformation.fileInformationClass, parameters.setFileInformation.length);
+                    
+                    const protocol::SetInfoSupplement& setInfoSupplement = data.supplement.setInfo;
                     const std::span<const uint8_t> payload = ExtractPayload(setInfoSupplement);
+
                     std::wstring parametersText;
                     std::wstring payloadText;
                     std::wstring targetText;
