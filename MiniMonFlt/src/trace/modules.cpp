@@ -175,7 +175,6 @@ namespace mimo {
                 ULONG bufferSize = 0u;
                 AUX_MODULE_EXTENDED_INFO* pModules = nullptr;
                 ULONG moduleCount = 0u;
-                ULONG i = 0u;
                 ANSI_STRING ansiName{};
                 UNICODE_STRING unicodeName{};
                 WCHAR wideBuffer[MODULE_NAME_WCHARS]{};
@@ -217,7 +216,7 @@ namespace mimo {
 
                 moduleCount = bufferSize / sizeof(AUX_MODULE_EXTENDED_INFO);
 
-                for (i = 0u; i < moduleCount; i++) {
+                for (ULONG i = 0u; i < moduleCount; i++) {
                     pBaseName = pModules[i].FullPathName + pModules[i].FileNameOffset;
                     remaining = static_cast<USHORT>(AUX_KLIB_MODULE_PATH_LEN - pModules[i].FileNameOffset);
                     ansiCount = 0u;

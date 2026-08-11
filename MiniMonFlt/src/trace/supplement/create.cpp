@@ -17,10 +17,9 @@ namespace {
         PAGED_CODE();
 
         TOKEN_USER* pTokenUser = nullptr;
+        ULONG sidSize = 0u;
 
         if (!NT_SUCCESS(SeQueryInformationToken(pClientToken, TokenUser, reinterpret_cast<void**>(&pTokenUser)))) goto done;
-
-        ULONG sidSize;
 
         if (!RtlValidSid(pTokenUser->User.Sid)) goto done;
 
