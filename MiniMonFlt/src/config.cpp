@@ -31,7 +31,7 @@ namespace mimo {
 
             if (!NT_SUCCESS(status)) goto done;
 
-            status = ZwQueryValueKey(hKey, &MaxMemoryName, KeyValuePartialInformation, buffer, sizeof(buffer), &resultLength);
+            status = ZwQueryValueKey(hKey, &MaxMemoryName, KeyValuePartialInformation, buffer, static_cast<ULONG>(sizeof(buffer)), &resultLength);
 
             if (!NT_SUCCESS(status)) goto done;
 

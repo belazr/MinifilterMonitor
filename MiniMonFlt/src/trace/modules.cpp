@@ -40,7 +40,7 @@ namespace {
         pNewEntry->pBase = pBase;
         pNewEntry->size = size;
 
-        USHORT copyChars = pName->Length / sizeof(WCHAR);
+        size_t copyChars = pName->Length / sizeof(WCHAR);
 
         if (copyChars >= MODULE_NAME_WCHARS) {
             copyChars = MODULE_NAME_WCHARS - 1u;
@@ -90,8 +90,8 @@ namespace {
 
         if (!pFullImageName || !pFullImageName->Buffer || pFullImageName->Length == 0u) return;
 
-        const USHORT charCount = pFullImageName->Length / sizeof(WCHAR);
-        USHORT i = charCount;
+        const size_t charCount = pFullImageName->Length / sizeof(WCHAR);
+        size_t i = charCount;
 
         while (i > 0u && pFullImageName->Buffer[i - 1u] != L'\\') {
             i--;
@@ -128,7 +128,7 @@ namespace {
 
             if (offset >= pEntry->size) continue;
 
-            USHORT copyChars = 0u;
+            size_t copyChars = 0u;
 
             while (copyChars < protocol::STACK_FRAME_NAME_WCHARS - 1u && pEntry->name[copyChars] != L'\0') {
                 pNameBuffer[copyChars] = pEntry->name[copyChars];
@@ -174,7 +174,7 @@ namespace mimo {
                 NTSTATUS status = STATUS_SUCCESS;
                 ULONG bufferSize = 0u;
                 AUX_MODULE_EXTENDED_INFO* pModules = nullptr;
-                ULONG moduleCount = 0u;
+                size_t moduleCount = 0u;
                 ANSI_STRING ansiName{};
                 UNICODE_STRING unicodeName{};
                 WCHAR wideBuffer[MODULE_NAME_WCHARS]{};
@@ -198,7 +198,7 @@ namespace mimo {
 
                 if (!NT_SUCCESS(status)) goto done;
 
-                status = AuxKlibQueryModuleInformation(&bufferSize, sizeof(AUX_MODULE_EXTENDED_INFO), nullptr);
+                status = AuxKlibQueryModuleInformation(&bufferSize, static_cast<ULONG>(sizeof(AUX_MODULE_EXTENDED_INFO)), nullptr);
 
                 if (!NT_SUCCESS(status) || bufferSize == 0u) goto done;
 
@@ -210,13 +210,13 @@ namespace mimo {
                     goto done;
                 }
 
-                status = AuxKlibQueryModuleInformation(&bufferSize, sizeof(AUX_MODULE_EXTENDED_INFO), pModules);
+                status = AuxKlibQueryModuleInformation(&bufferSize, static_cast<ULONG>(sizeof(AUX_MODULE_EXTENDED_INFO)), pModules);
 
                 if (!NT_SUCCESS(status)) goto done;
 
                 moduleCount = bufferSize / sizeof(AUX_MODULE_EXTENDED_INFO);
 
-                for (ULONG i = 0u; i < moduleCount; i++) {
+                for (size_t i = 0u; i < moduleCount; i++) {
                     pBaseName = pModules[i].FullPathName + pModules[i].FileNameOffset;
                     remaining = static_cast<USHORT>(AUX_KLIB_MODULE_PATH_LEN - pModules[i].FileNameOffset);
                     ansiCount = 0u;
@@ -233,7 +233,7 @@ namespace mimo {
 
                     unicodeName.Buffer = wideBuffer;
                     unicodeName.Length = 0u;
-                    unicodeName.MaximumLength = sizeof(wideBuffer);
+                    unicodeName.MaximumLength = static_cast<USHORT>(sizeof(wideBuffer));
 
                     if (!NT_SUCCESS(RtlAnsiStringToUnicodeString(&unicodeName, &ansiName, FALSE))) continue;
 

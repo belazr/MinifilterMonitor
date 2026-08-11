@@ -141,13 +141,13 @@ namespace {
         driver::InstanceContext* pInstanceContext = nullptr;
 
         if (pFltObjects->Instance && NT_SUCCESS(FltGetInstanceContext(pFltObjects->Instance, reinterpret_cast<PFLT_CONTEXT*>(&pInstanceContext)))) {
-            pRecordData->altitude = pInstanceContext->altitude;
+            pRecordData->altitude = static_cast<uint32_t>(pInstanceContext->altitude);
             FltReleaseContext(pInstanceContext);
         }
 
         ULONG stackFrameCount = 0u;
-        trace::stack::CaptureStackTrace(pRecordData->stackTrace, protocol::STACK_TRACE_FRAMES, &stackFrameCount);
-        pRecordData->stackFrameCount = stackFrameCount;
+        trace::stack::CaptureStackTrace(pRecordData->stackTrace, static_cast<ULONG>(protocol::STACK_TRACE_FRAMES), &stackFrameCount);
+        pRecordData->stackFrameCount = static_cast<uint32_t>(stackFrameCount);
 
         LARGE_INTEGER originatingTime{};
         KeQuerySystemTimePrecise(&originatingTime);
@@ -175,15 +175,15 @@ namespace mimo {
                 pRecordData->callbackMajorId = pData->Iopb->MajorFunction;
                 pRecordData->callbackMinorId = pData->Iopb->MinorFunction;
                 pRecordData->operationFlags  = pData->Iopb->OperationFlags;
-                pRecordData->irpFlags        = pData->Iopb->IrpFlags;
-                pRecordData->flags           = pData->Flags;
+                pRecordData->irpFlags        = static_cast<uint32_t>(pData->Iopb->IrpFlags);
+                pRecordData->flags           = static_cast<uint32_t>(pData->Flags);
                 pRecordData->operationId     = reinterpret_cast<protocol::ObjectId>(pData);
                 pRecordData->topLevelIrp     = reinterpret_cast<protocol::ObjectId>(IoGetTopLevelIrp());
 
                 RtlCopyMemory(&pRecordData->parameters, &pData->Iopb->Parameters, sizeof(pRecordData->parameters));
 
                 UNICODE_STRING fileName{};
-                RtlInitEmptyUnicodeString(&fileName, pRecordData->name, sizeof(pRecordData->name));
+                RtlInitEmptyUnicodeString(&fileName, pRecordData->name, static_cast<USHORT>(sizeof(pRecordData->name)));
 
                 if (name::FormatFileName(pData, pFltObjects, &fileName) == STATUS_BUFFER_OVERFLOW) {
                     pRecordData->truncated |= protocol::TRUNCATED_NAME;
@@ -201,12 +201,12 @@ namespace mimo {
                 const FLT_CALLBACK_DATA* pData,
                 ULONG transactionSequence
             ) {
-                pRecordData->status = pData->IoStatus.Status;
+                pRecordData->status = static_cast<int32_t>(pData->IoStatus.Status);
                 pRecordData->information = pData->IoStatus.Information;
-                pRecordData->transactionSequence = transactionSequence;
+                pRecordData->transactionSequence = static_cast<uint32_t>(transactionSequence);
 
                 if (pData->TagData) {
-                    pRecordData->reparseTag = pData->TagData->FileTag;
+                    pRecordData->reparseTag = static_cast<uint32_t>(pData->TagData->FileTag);
                 }
 
                 supplement::PopulatePostOperation(&pRecordData->supplement, pData);
@@ -228,8 +228,8 @@ namespace mimo {
             ) {
                 PopulateOriginRecordData(pRecordData, pFltObjects);
 
-                pRecordData->transactionNotify = notificationMask;
-                pRecordData->transactionSequence = transactionSequence;
+                pRecordData->transactionNotify = static_cast<uint32_t>(notificationMask);
+                pRecordData->transactionSequence = static_cast<uint32_t>(transactionSequence);
 
                 return;
             }

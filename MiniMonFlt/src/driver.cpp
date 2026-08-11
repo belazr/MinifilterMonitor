@@ -131,7 +131,7 @@ namespace {
         WCHAR volumeNameBuffer[128u]{};
         UNICODE_STRING volumeName{};
         volumeName.Buffer = volumeNameBuffer;
-        volumeName.MaximumLength = sizeof(volumeNameBuffer);
+        volumeName.MaximumLength = static_cast<USHORT>(sizeof(volumeNameBuffer));
 
         if (!NT_SUCCESS(FltGetVolumeName(pFltObjects->Volume, &volumeName, nullptr))) return 0u;
 
@@ -139,7 +139,7 @@ namespace {
 
         for (ULONG index = 0u; ; index++) {
             ULONG bytesReturned = 0u;
-            const NTSTATUS status = FltEnumerateInstanceInformationByFilter(pFltObjects->Filter, index, InstanceFullInformation, infoBuffer, sizeof(infoBuffer), &bytesReturned);
+            const NTSTATUS status = FltEnumerateInstanceInformationByFilter(pFltObjects->Filter, index, InstanceFullInformation, infoBuffer, static_cast<ULONG>(sizeof(infoBuffer)), &bytesReturned);
 
             // this volume's entries always fit: its name fit above and instance names cap at INSTANCE_NAME_MAX_CHARS
             if (status == STATUS_BUFFER_TOO_SMALL) continue;

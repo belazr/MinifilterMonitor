@@ -55,7 +55,7 @@ namespace mimo {
                     PAGED_CODE();
 
                     UNICODE_STRING ecpText{};
-                    RtlInitEmptyUnicodeString(&ecpText, pSupplement->ecpText, sizeof(pSupplement->ecpText));
+                    RtlInitEmptyUnicodeString(&ecpText, pSupplement->ecpText, static_cast<USHORT>(sizeof(pSupplement->ecpText)));
 
                     if (ecp::FormatEcps(pData, &ecpText) == STATUS_BUFFER_OVERFLOW) {
                         pSupplement->captured |= protocol::CREATE_TRUNCATED_ECP_TEXT;
@@ -65,7 +65,7 @@ namespace mimo {
 
                     if (!pSecurityContext) return;
 
-                    pSupplement->desiredAccess = pSecurityContext->DesiredAccess;
+                    pSupplement->desiredAccess = static_cast<uint32_t>(pSecurityContext->DesiredAccess);
                     pSupplement->captured |= protocol::CREATE_CAPTURED_DESIRED_ACCESS;
 
                     if (!pSecurityContext->AccessState) return;

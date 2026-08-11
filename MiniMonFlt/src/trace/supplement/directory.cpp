@@ -19,7 +19,7 @@ namespace mimo {
                     PAGED_CODE();
 
                     UNICODE_STRING fileName{};
-                    RtlInitEmptyUnicodeString(&fileName, pSupplement->fileName, sizeof(pSupplement->fileName));
+                    RtlInitEmptyUnicodeString(&fileName, pSupplement->fileName, static_cast<USHORT>(sizeof(pSupplement->fileName)));
 
                     NTSTATUS status = STATUS_UNSUCCESSFUL;
 
@@ -61,7 +61,7 @@ namespace mimo {
                         return;
                     }
 
-                    pSupplement->capturedBytes = copySize;
+                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_DIRECTORY_CAPTURED_PAYLOAD;
 
                     return;

@@ -157,7 +157,7 @@ namespace mimo {
                         return GetExceptionCode();
                     }
 
-                    *pBytesWritten = sizeof(protocol::Version);
+                    *pBytesWritten = static_cast<ULONG>(sizeof(protocol::Version));
                     status = STATUS_SUCCESS;
 
                     break;

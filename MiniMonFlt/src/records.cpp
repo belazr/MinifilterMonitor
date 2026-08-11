@@ -106,7 +106,7 @@ namespace mimo {
             }
 
             RtlZeroMemory(&pEntry->record, sizeof(pEntry->record));
-            pEntry->record.sequenceNumber = InterlockedIncrement(&RecordSequenceNumber);
+            pEntry->record.sequenceNumber = static_cast<uint32_t>(InterlockedIncrement(&RecordSequenceNumber));
 
             return pEntry;
         }
@@ -125,7 +125,7 @@ namespace mimo {
             KIRQL oldIrql{};
             KeAcquireSpinLock(&RecordListLock, &oldIrql);
 
-            pEntry->record.droppedRecords = DroppedRecords;
+            pEntry->record.droppedRecords = static_cast<uint32_t>(DroppedRecords);
             InsertTailList(&RecordList, &pEntry->list);
 
             KeReleaseSpinLock(&RecordListLock, oldIrql);

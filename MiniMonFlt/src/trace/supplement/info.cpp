@@ -19,7 +19,7 @@ namespace {
         PAGED_CODE();
 
         UNICODE_STRING targetName{};
-        RtlInitEmptyUnicodeString(&targetName, pSupplement->targetName, sizeof(pSupplement->targetName));
+        RtlInitEmptyUnicodeString(&targetName, pSupplement->targetName, static_cast<USHORT>(sizeof(pSupplement->targetName)));
 
         const NTSTATUS status = trace::name::FormatTargetFileName(pData, pFltObjects, &targetName);
 
@@ -64,7 +64,7 @@ namespace mimo {
                         return;
                     }
 
-                    pSupplement->capturedBytes = copySize;
+                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::SET_INFO_CAPTURED_PAYLOAD;
 
                     switch (pData->Iopb->Parameters.SetFileInformation.FileInformationClass) {
@@ -109,7 +109,7 @@ namespace mimo {
                         return;
                     }
 
-                    pSupplement->capturedBytes = copySize;
+                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;
 
                     return;

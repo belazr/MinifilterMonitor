@@ -28,7 +28,7 @@ namespace mimo {
                         return;
                     }
 
-                    pSupplement->capturedBytes = copySize;
+                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;
 
                     return;
@@ -53,7 +53,7 @@ namespace mimo {
                         return;
                     }
 
-                    pSupplement->capturedBytes = copySize;
+                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;
 
                     return;

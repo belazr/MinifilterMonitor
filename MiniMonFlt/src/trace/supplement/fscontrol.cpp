@@ -29,7 +29,7 @@ namespace {
             return;
         }
 
-        pSupplement->capturedOutputBytes = copySize;
+        pSupplement->capturedOutputBytes = static_cast<uint32_t>(copySize);
         pSupplement->captured |= protocol::FS_CONTROL_CAPTURED_OUTPUT;
 
         return;
@@ -89,7 +89,7 @@ namespace mimo {
 
                             RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
 
-                            pSupplement->capturedInputBytes = copySize;
+                            pSupplement->capturedInputBytes = static_cast<uint32_t>(copySize);
                             pSupplement->captured |= protocol::FS_CONTROL_CAPTURED_INPUT;
                         }
                         __except (EXCEPTION_EXECUTE_HANDLER) {}
@@ -153,7 +153,7 @@ namespace mimo {
                         return;
                     }
 
-                    pSupplement->capturedOutputBytes = copySize;
+                    pSupplement->capturedOutputBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::FS_CONTROL_CAPTURED_OUTPUT;
 
                     return;
