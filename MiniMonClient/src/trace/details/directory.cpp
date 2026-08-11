@@ -20,6 +20,12 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderQueryParameters(uint32_t fileInformationClass, uint32_t length) {
+
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(fileInformationClass), length);
+    }
+
+
     std::wstring RenderFileName(const protocol::QueryDirectorySupplement& supplement) {
 
         if (!(supplement.captured & protocol::QUERY_DIRECTORY_CAPTURED_FILE_NAME)) return {};
@@ -68,10 +74,9 @@ namespace {
     }
 
 
-    std::wstring RenderQueryDirectory(const protocol::RecordData& data) {
+    std::wstring RenderQuery(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
-        const protocol::QueryDirectorySupplement& queryDirectorySupplement = data.supplement.queryDirectory;
-        std::wstring details = std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(parameters.queryDirectory.fileInformationClass), parameters.queryDirectory.length);
+        std::wstring details = RenderQueryParameters(parameters.queryDirectory.fileInformationClass, parameters.queryDirectory.length);
 
         if ((data.operationFlags & trace::kernel::SL_INDEX_SPECIFIED) || parameters.queryDirectory.fileIndex) {
             details += std::format(L", FileIndex: {}", parameters.queryDirectory.fileIndex);
@@ -84,6 +89,7 @@ namespace {
             details += flags;
         }
 
+        const protocol::QueryDirectorySupplement& queryDirectorySupplement = data.supplement.queryDirectory;
         const std::wstring fileNameText = RenderFileName(queryDirectorySupplement);
 
         if (!fileNameText.empty()) {
@@ -137,21 +143,38 @@ namespace {
     }
 
 
-    std::wstring RenderNotifyDirectory(const protocol::RecordData& data) {
+    std::wstring RenderNotifyParameters(uint32_t length) {
+
+        return std::format(L"Length: {}", length);
+    }
+
+
+    std::wstring RenderNotifyExParameters(uint32_t directoryNotifyInformationClass, uint32_t length) {
+
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderDirectoryNotifyInformationClass(directoryNotifyInformationClass), length);
+    }
+
+
+    std::wstring RenderNotify(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
         std::wstring details;
+
+        if (data.callbackMinorId == trace::kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY) {
+            details = RenderNotifyParameters(parameters.notifyDirectory.length);
+        }
+        else {
+            details = RenderNotifyExParameters(parameters.notifyDirectory.directoryNotifyInformationClass, parameters.notifyDirectory.length);
+        }
+
+        if (data.operationFlags & trace::kernel::SL_WATCH_TREE) {
+            details += L", Watch Tree";
+        }
 
         const std::wstring completionFilter = trace::names::RenderCompletionFilter(parameters.notifyDirectory.completionFilter);
 
         if (!completionFilter.empty()) {
-            details += std::format(L"Filter: {}, ", completionFilter);
+            details += std::format(L", Filter: {}", completionFilter);
         }
-
-        if (data.callbackMinorId == trace::kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX) {
-            details += std::format(L"Class: {}, ", trace::names::RenderDirectoryNotifyInformationClass(parameters.notifyDirectory.directoryNotifyInformationClass));
-        }
-
-        details += std::format(L"Length: {}", parameters.notifyDirectory.length);
 
         return details;
     }
@@ -172,12 +195,12 @@ namespace mimo {
 
                         case kernel::IRP_MN_QUERY_DIRECTORY:
 
-                            return RenderQueryDirectory(data);
+                            return RenderQuery(data);
 
                         case kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY:
                         case kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX:
 
-                            return RenderNotifyDirectory(data);
+                            return RenderNotify(data);
 
                     }
 

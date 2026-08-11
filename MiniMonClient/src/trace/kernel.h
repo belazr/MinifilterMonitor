@@ -24,10 +24,13 @@ namespace mimo {
             inline constexpr uint8_t SL_KEY_SPECIFIED = 0x01u;
             inline constexpr uint8_t SL_WRITE_THROUGH = 0x04u;
 
-            // directory control stack-location SL_* flags carried in RecordData::operationFlags
+            // directory control query stack-location SL_* flags carried in RecordData::operationFlags
             inline constexpr uint8_t SL_RESTART_SCAN        = 0x01u;
             inline constexpr uint8_t SL_RETURN_SINGLE_ENTRY = 0x02u;
             inline constexpr uint8_t SL_INDEX_SPECIFIED     = 0x04u;
+
+            // directory control notify stack-location SL_* flag carried in RecordData::operationFlags
+            inline constexpr uint8_t SL_WATCH_TREE = 0x01u;
 
             // standard IRP major codes
             inline constexpr uint8_t IRP_MJ_CREATE                   = 0x00u;
