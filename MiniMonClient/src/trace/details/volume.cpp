@@ -18,6 +18,12 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderInformationParameters(uint32_t fsInformationClass, uint32_t length) {
+
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderFsInformationClass(fsInformationClass), length);
+    }
+
+
     std::span<const uint8_t> ExtractPayload(const protocol::VolumeInfoSupplement& supplement) {
 
         if (!(supplement.captured & protocol::VOLUME_INFO_CAPTURED_PAYLOAD)) return {};
@@ -97,7 +103,8 @@ namespace mimo {
 
                 std::wstring Render(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Class: {}, Length: {}", names::RenderFsInformationClass(parameters.volumeInformation.fsInformationClass), parameters.volumeInformation.length);
+                    std::wstring details = RenderInformationParameters(parameters.volumeInformation.fsInformationClass, parameters.volumeInformation.length);
+                    
                     const std::span<const uint8_t> payload = ExtractPayload(data.supplement.volumeInfo);
                     std::wstring payloadText;
 
