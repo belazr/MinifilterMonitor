@@ -6,11 +6,14 @@
 #include "..\names.h"
 #include "..\values.h"
 
+#include "..\..\text.h"
+
 #include "..\..\..\..\inc\protocol.h"
 
 #include <Windows.h>
 #include <winioctl.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -268,6 +271,7 @@ namespace {
 
             case FSCTL_SET_REPARSE_POINT:
             case FSCTL_DELETE_REPARSE_POINT:
+
                 return RenderReparsePayload(input);
 
             case FSCTL_SET_SPARSE: {
@@ -296,6 +300,7 @@ namespace {
             }
 
             case FSCTL_FILE_LEVEL_TRIM:
+
                 return RenderTrimPayload(input);
 
             case FSCTL_REQUEST_OPLOCK: {
@@ -346,6 +351,26 @@ namespace {
     std::wstring RenderNtfsVolumeDataPayload(const trace::kernel::NTFS_VOLUME_DATA_BUFFER& payload) {
 
         return std::format(L"VolumeSerialNumber: 0x{:X}, NumberSectors: {}, TotalClusters: {}, FreeClusters: {}, TotalReserved: {}, BytesPerSector: {}, BytesPerCluster: {}, BytesPerFileRecordSegment: {}, ClustersPerFileRecordSegment: {}, MftValidDataLength: {}, MftStartLcn: {}, Mft2StartLcn: {}, MftZoneStart: {}, MftZoneEnd: {}", payload.VolumeSerialNumber, payload.NumberSectors, payload.TotalClusters, payload.FreeClusters, payload.TotalReserved, payload.BytesPerSector, payload.BytesPerCluster, payload.BytesPerFileRecordSegment, payload.ClustersPerFileRecordSegment, payload.MftValidDataLength, payload.MftStartLcn, payload.Mft2StartLcn, payload.MftZoneStart, payload.MftZoneEnd);
+    }
+
+
+    std::wstring RenderAllocatedRangesPayload(std::span<const uint8_t> payload) {
+        std::wstring result;
+        size_t offset = 0u;
+        uint32_t index = 1u;
+        trace::kernel::FILE_ALLOCATED_RANGE_BUFFER range;
+
+        while (trace::details::payload::ReadValue(payload, range, offset)) {
+            result += std::format(L"{}: {}, ", index, RenderAllocatedRangePayload(range));
+            offset += sizeof(range);
+            index++;
+        }
+
+        if (!result.empty()) {
+            result.resize(result.size() - 2u);
+        }
+
+        return result;
     }
 
 
@@ -422,7 +447,12 @@ namespace {
             }
 
             case FSCTL_GET_REPARSE_POINT:
+
                 return RenderReparsePayload(output);
+
+            case FSCTL_QUERY_ALLOCATED_RANGES:
+
+                return RenderAllocatedRangesPayload(output);
 
             case FSCTL_REQUEST_OPLOCK: {
                 trace::kernel::REQUEST_OPLOCK_OUTPUT_BUFFER oplock;
@@ -433,6 +463,7 @@ namespace {
             }
 
             case FSCTL_QUERY_FILE_REGIONS:
+
                 return RenderFileRegionOutputPayload(output);
 
             case FSCTL_FILESYSTEM_GET_STATISTICS_EX: {
@@ -475,8 +506,10 @@ namespace mimo {
                     const std::wstring outputText = RenderOutput(parameters.fileSystemControl.fsControlCode, ExtractOutput(fsControlSupplement));
 
                     if (!outputText.empty()) {
+                        const uint64_t writtenBytes = std::min<uint64_t>(data.information, parameters.fileSystemControl.outputBufferLength);
+
                         details += L", ";
-                        details += outputText;
+                        details += text::MarkTruncated(outputText, fsControlSupplement.capturedOutputBytes < writtenBytes);
                     }
 
                     return details;

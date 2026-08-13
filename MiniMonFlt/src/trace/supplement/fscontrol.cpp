@@ -9,13 +9,33 @@ using namespace mimo;
 namespace {
 
     __declspec(code_seg("PAGE"))
+    const void* MapOutputMdl(_In_opt_ MDL* pMdl, _In_opt_ const void* pExpectedAddress, _Inout_ ULONG* pBufferSize) {
+        PAGED_CODE();
+
+        if (!pMdl) return nullptr;
+
+        if (pExpectedAddress && MmGetMdlVirtualAddress(pMdl) != pExpectedAddress) return nullptr;
+
+        const void* pBuffer = MmGetSystemAddressForMdlSafe(pMdl, NormalPagePriority | MdlMappingNoExecute);
+
+        if (!pBuffer) return nullptr;
+
+        const ULONG mdlSize = MmGetMdlByteCount(pMdl);
+
+        if (mdlSize < *pBufferSize) {
+            *pBufferSize = mdlSize;
+        }
+
+        return pBuffer;
+    }
+
+
+    __declspec(code_seg("PAGE"))
     void PopulateSecondInput(_Inout_ protocol::FsControlSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
         PAGED_CODE();
 
-        const void* pSecondInput = MmGetSystemAddressForMdlSafe(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, NormalPagePriority | MdlMappingNoExecute);
-        const ULONG bufferSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
-        const ULONG mdlSize = MmGetMdlByteCount(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress);
-        const ULONG dataSize = bufferSize < mdlSize ? bufferSize : mdlSize;
+        ULONG dataSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
+        const void* pSecondInput = MapOutputMdl(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &dataSize);
 
         if (!pSecondInput || !dataSize) return;
 
@@ -53,7 +73,7 @@ namespace mimo {
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode);
 
                     const void* pInputBuffer = nullptr;
-                    bool rawRequestorBuffer = false;
+                    bool isRawUserBuffer = false;
 
                     switch (method) {
 
@@ -68,11 +88,19 @@ namespace mimo {
 
                             break;
 
-                        case METHOD_NEITHER:
-                            pInputBuffer = pData->Iopb->Parameters.FileSystemControl.Neither.InputBuffer;
-                            rawRequestorBuffer = true;
+                        case METHOD_NEITHER: {
+                            const void* pRawBuffer = pData->Iopb->Parameters.FileSystemControl.Neither.InputBuffer;
+
+                            if (pData->RequestorMode == KernelMode && reinterpret_cast<ULONG_PTR>(pRawBuffer) >= reinterpret_cast<ULONG_PTR>(MmSystemRangeStart)) {
+                                pInputBuffer = pRawBuffer;
+                            }
+                            else if (pData->Thread && IoThreadToProcess(pData->Thread) == PsGetCurrentProcess()) {
+                                pInputBuffer = pRawBuffer;
+                                isRawUserBuffer = true;
+                            }
 
                             break;
+                        }
 
                     }
 
@@ -82,8 +110,7 @@ namespace mimo {
                         const ULONG copySize = size < protocol::FS_CONTROL_INPUT_PAYLOAD_BYTES ? size : protocol::FS_CONTROL_INPUT_PAYLOAD_BYTES;
 
                         __try {
-                            // METHOD_NEITHER hands over the requestor's raw address unchecked
-                            if (rawRequestorBuffer && pData->RequestorMode != KernelMode) {
+                            if (isRawUserBuffer) {
                                 ProbeForRead(const_cast<void*>(pInputBuffer), copySize, 1u);
                             }
 
@@ -110,7 +137,10 @@ namespace mimo {
                 void PopulateOutput(protocol::FsControlSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
+                    if (!pData->IoStatus.Information) return;
+
                     const void* pOutputBuffer = nullptr;
+                    bool isRawUserBuffer = false;
                     ULONG bufferSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
 
                     switch (METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode)) {
@@ -121,21 +151,28 @@ namespace mimo {
                             break;
 
                         case METHOD_OUT_DIRECT:
+                            pOutputBuffer = MapOutputMdl(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &bufferSize);
 
-                            if (pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress) {
-                                pOutputBuffer = MmGetSystemAddressForMdlSafe(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, NormalPagePriority | MdlMappingNoExecute);
-                                const ULONG mdlSize = MmGetMdlByteCount(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress);
+                            break;
 
-                                if (mdlSize < bufferSize) {
-                                    bufferSize = mdlSize;
+                        case METHOD_NEITHER:
+                            pOutputBuffer = MapOutputMdl(pData->Iopb->Parameters.FileSystemControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer, &bufferSize);
+
+                            if (!pOutputBuffer) {
+                                const void* pRawBuffer = pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer;
+
+                                if (pData->RequestorMode == KernelMode && reinterpret_cast<ULONG_PTR>(pRawBuffer) >= reinterpret_cast<ULONG_PTR>(MmSystemRangeStart)) {
+                                    pOutputBuffer = pRawBuffer;
                                 }
-
+                                else if (pData->Thread && IoThreadToProcess(pData->Thread) == PsGetCurrentProcess()) {
+                                    pOutputBuffer = pRawBuffer;
+                                    isRawUserBuffer = true;
+                                }
                             }
 
                             break;
 
                         // METHOD_IN_DIRECT: the direct buffer is a second input, not a result
-                        // METHOD_NEITHER: a raw requestor-space address, possibly wrong-process in the completion context
 
                     }
 
@@ -146,6 +183,10 @@ namespace mimo {
                     const ULONG copySize = dataSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES ? dataSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES;
 
                     __try {
+                        if (isRawUserBuffer) {
+                            ProbeForRead(const_cast<void*>(pOutputBuffer), copySize, 1u);
+                        }
+
                         RtlCopyMemory(pSupplement->outputPayload, pOutputBuffer, copySize);
                     }
                     __except (EXCEPTION_EXECUTE_HANDLER) {

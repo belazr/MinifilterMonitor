@@ -11,6 +11,8 @@ namespace mimo {
 
         ULONG GetMaxMemoryKb();
 
+        bool GetLockUserBuffers();
+
     }
 
 }
