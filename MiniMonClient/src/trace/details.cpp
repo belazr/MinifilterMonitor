@@ -1,6 +1,7 @@
 #include "details.h"
 
 #include "details\create.h"
+#include "details\deviceio.h"
 #include "details\directory.h"
 #include "details\filesystem.h"
 #include "details\info.h"
@@ -54,6 +55,11 @@ namespace mimo {
                     case kernel::IRP_MJ_FILE_SYSTEM_CONTROL:
 
                         return filesystem::Render(data);
+
+                    case kernel::IRP_MJ_DEVICE_CONTROL:
+                    case kernel::IRP_MJ_INTERNAL_DEVICE_CONTROL:
+
+                        return deviceio::Render(data);
 
                 }
 

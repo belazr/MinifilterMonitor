@@ -55,6 +55,8 @@ namespace mimo {
 
             std::wstring RenderFsControlCode(uint32_t fsControlCode);
 
+            std::wstring RenderIoControlCode(uint32_t ioControlCode);
+
             std::wstring RenderSymlinkFlags(uint32_t flags);
 
             std::wstring RenderFileSystemStatisticsType(uint16_t type);

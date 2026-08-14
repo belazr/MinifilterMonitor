@@ -119,6 +119,47 @@ static_assert(
     "FLT_PARAMETERS FileSystemControl.Direct and FileSystemControl.Neither diverge: split protocol::FltParameters fileSystemControl"
 );
 
+MIRROR_ASSERT(deviceIoControl.outputBufferLength, DeviceIoControl.Neither.OutputBufferLength);
+MIRROR_ASSERT(deviceIoControl.inputBufferLength,  DeviceIoControl.Neither.InputBufferLength);
+MIRROR_ASSERT(deviceIoControl.ioControlCode,      DeviceIoControl.Neither.IoControlCode);
+MIRROR_ASSERT(deviceIoControl.inputBuffer,        DeviceIoControl.Neither.InputBuffer);
+MIRROR_ASSERT(deviceIoControl.outputBuffer,       DeviceIoControl.Neither.OutputBuffer);
+MIRROR_ASSERT(deviceIoControl.outputMdlAddress,   DeviceIoControl.Neither.OutputMdlAddress);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, DeviceIoControl.Common.OutputBufferLength) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.OutputBufferLength)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.Common.InputBufferLength) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.InputBufferLength)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.Common.IoControlCode) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.IoControlCode),
+    "FLT_PARAMETERS DeviceIoControl.Common and DeviceIoControl.Neither diverge: split protocol::FltParameters deviceIoControl"
+);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, DeviceIoControl.Buffered.OutputBufferLength) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.OutputBufferLength)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.Buffered.InputBufferLength) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.InputBufferLength)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.Buffered.IoControlCode) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.IoControlCode)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.Buffered.SystemBuffer) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.InputBuffer),
+    "FLT_PARAMETERS DeviceIoControl.Buffered and DeviceIoControl.Neither diverge: split protocol::FltParameters deviceIoControl"
+);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, DeviceIoControl.Direct.OutputBufferLength) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.OutputBufferLength)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.Direct.InputBufferLength) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.InputBufferLength)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.Direct.IoControlCode) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.IoControlCode)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.Direct.InputSystemBuffer) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.InputBuffer)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.Direct.OutputBuffer) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.OutputBuffer)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.Direct.OutputMdlAddress) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.OutputMdlAddress),
+    "FLT_PARAMETERS DeviceIoControl.Direct and DeviceIoControl.Neither diverge: split protocol::FltParameters deviceIoControl"
+);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, DeviceIoControl.FastIo.OutputBufferLength) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.OutputBufferLength)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.FastIo.InputBufferLength) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.InputBufferLength)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.FastIo.IoControlCode) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.IoControlCode)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.FastIo.InputBuffer) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.InputBuffer)
+    && offsetof(FLT_PARAMETERS, DeviceIoControl.FastIo.OutputBuffer) == offsetof(FLT_PARAMETERS, DeviceIoControl.Neither.OutputBuffer),
+    "FLT_PARAMETERS DeviceIoControl.FastIo and DeviceIoControl.Neither diverge: split protocol::FltParameters deviceIoControl"
+);
+
 namespace {
 
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {

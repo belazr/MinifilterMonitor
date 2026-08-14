@@ -25,6 +25,7 @@
     <ClCompile Include="src\text.cpp" />
     <ClCompile Include="src\trace\details.cpp" />
     <ClCompile Include="src\trace\details\create.cpp" />
+    <ClCompile Include="src\trace\details\deviceio.cpp" />
     <ClCompile Include="src\trace\details\directory.cpp" />
     <ClCompile Include="src\trace\details\filesystem.cpp" />
     <ClCompile Include="src\trace\details\info.cpp" />
@@ -44,6 +45,7 @@
     <ClInclude Include="src\text.h" />
     <ClInclude Include="src\trace\details.h" />
     <ClInclude Include="src\trace\details\create.h" />
+    <ClInclude Include="src\trace\details\deviceio.h" />
     <ClInclude Include="src\trace\details\directory.h" />
     <ClInclude Include="src\trace\details\filesystem.h" />
     <ClInclude Include="src\trace\details\info.h" />

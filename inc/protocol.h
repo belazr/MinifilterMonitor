@@ -139,6 +139,19 @@ namespace mimo {
                 uint64_t outputMdlAddress;
             } fileSystemControl;
 
+            // IRP_MJ_DEVICE_CONTROL / IRP_MJ_INTERNAL_DEVICE_CONTROL
+            struct {
+                uint32_t outputBufferLength;
+                uint8_t reserved1[4u];
+                uint32_t inputBufferLength;
+                uint8_t reserved2[4u];
+                uint32_t ioControlCode;
+                uint8_t reserved3[4u];
+                uint64_t inputBuffer;       // METHOD_BUFFERED: the shared input/output system buffer
+                uint64_t outputBuffer;
+                uint64_t outputMdlAddress;
+            } deviceIoControl;
+
             struct {
                 uint64_t argument1;
                 uint64_t argument2;
@@ -185,6 +198,11 @@ namespace mimo {
         static_assert(offsetof(FltParameters, fileSystemControl.inputBuffer) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, fileSystemControl.outputBuffer) == 32u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, fileSystemControl.outputMdlAddress) == 40u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, deviceIoControl.inputBufferLength) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, deviceIoControl.ioControlCode) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, deviceIoControl.inputBuffer) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, deviceIoControl.outputBuffer) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, deviceIoControl.outputMdlAddress) == 40u, "protocol::FltParameters layout drift");
 
         inline constexpr uint32_t STACK_TRACE_FRAMES      = 8u;
         inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;
