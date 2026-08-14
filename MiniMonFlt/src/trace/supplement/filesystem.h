@@ -10,7 +10,7 @@ namespace mimo {
 
         namespace supplement {
 
-            namespace fscontrol {
+            namespace filesystem {
 
                 __declspec(code_seg("PAGE"))
                 void PopulateInput(_Inout_ protocol::FsControlSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData);

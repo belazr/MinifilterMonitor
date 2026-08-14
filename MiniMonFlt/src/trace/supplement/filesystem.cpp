@@ -1,4 +1,4 @@
-#include "fscontrol.h"
+#include "filesystem.h"
 
 #include "..\..\mdl.h"
 
@@ -43,7 +43,7 @@ namespace mimo {
 
         namespace supplement {
 
-            namespace fscontrol {
+            namespace filesystem {
 
                 __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_

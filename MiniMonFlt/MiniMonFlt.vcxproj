@@ -107,7 +107,7 @@
     <ClCompile Include="src\trace\supplement.cpp" />
     <ClCompile Include="src\trace\supplement\create.cpp" />
     <ClCompile Include="src\trace\supplement\directory.cpp" />
-    <ClCompile Include="src\trace\supplement\fscontrol.cpp" />
+    <ClCompile Include="src\trace\supplement\filesystem.cpp" />
     <ClCompile Include="src\trace\supplement\info.cpp" />
     <ClCompile Include="src\trace\supplement\volume.cpp" />
     <ClCompile Include="src\transaction.cpp" />
@@ -128,7 +128,7 @@
     <ClInclude Include="src\trace\supplement.h" />
     <ClInclude Include="src\trace\supplement\create.h" />
     <ClInclude Include="src\trace\supplement\directory.h" />
-    <ClInclude Include="src\trace\supplement\fscontrol.h" />
+    <ClInclude Include="src\trace\supplement\filesystem.h" />
     <ClInclude Include="src\trace\supplement\info.h" />
     <ClInclude Include="src\trace\supplement\volume.h" />
     <ClInclude Include="src\transaction.h" />

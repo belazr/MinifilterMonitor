@@ -2,7 +2,7 @@
 
 #include "details\create.h"
 #include "details\directory.h"
-#include "details\fscontrol.h"
+#include "details\filesystem.h"
 #include "details\info.h"
 #include "details\readwrite.h"
 #include "details\volume.h"
@@ -53,7 +53,7 @@ namespace mimo {
 
                     case kernel::IRP_MJ_FILE_SYSTEM_CONTROL:
 
-                        return fscontrol::Render(data);
+                        return filesystem::Render(data);
 
                 }
 

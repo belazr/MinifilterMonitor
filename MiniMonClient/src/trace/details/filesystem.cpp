@@ -1,4 +1,4 @@
-#include "fscontrol.h"
+#include "filesystem.h"
 
 #include "payload.h"
 
@@ -572,7 +572,7 @@ namespace mimo {
 
         namespace details {
 
-            namespace fscontrol {
+            namespace filesystem {
 
                 std::wstring Render(const protocol::RecordData& data) {
 

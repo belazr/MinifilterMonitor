@@ -36,7 +36,7 @@
     <ClCompile Include="src\trace\details\directory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\trace\details\fscontrol.cpp">
+    <ClCompile Include="src\trace\details\filesystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\trace\details\info.cpp">
@@ -89,7 +89,7 @@
     <ClInclude Include="src\trace\details\directory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\trace\details\fscontrol.h">
+    <ClInclude Include="src\trace\details\filesystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\details\info.h">
