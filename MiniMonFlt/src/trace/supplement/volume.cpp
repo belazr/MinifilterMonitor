@@ -40,6 +40,8 @@ namespace mimo {
                 void PopulateQuery(protocol::VolumeInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
+                    if (!pData->IoStatus.Information) return;
+
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryVolumeInformation.Length;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
