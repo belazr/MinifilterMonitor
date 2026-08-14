@@ -9,6 +9,7 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <format>
@@ -135,8 +136,10 @@ namespace {
         }
 
         if (!payloadText.empty()) {
+            const uint64_t writtenBytes = std::min<uint64_t>(data.information, parameters.queryDirectory.length);
+
             details += L", ";
-            details += payloadText;
+            details += text::MarkTruncated(payloadText, queryDirectorySupplement.capturedBytes < writtenBytes);
         }
 
         return details;
