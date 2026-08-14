@@ -94,7 +94,7 @@ namespace mimo {
 
                     case IRP_MJ_DIRECTORY_CONTROL:
 
-                        if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && (NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer) {
+                        if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && (NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length) {
                             directory::PopulatePayload(&pSupplement->queryDirectory, pData);
                         }
 

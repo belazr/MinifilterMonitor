@@ -1,5 +1,7 @@
 #include "directory.h"
 
+#include "..\..\mdl.h"
+
 #include "..\..\..\..\inc\protocol.h"
 
 #include <fltKernel.h>
@@ -48,13 +50,36 @@ namespace mimo {
                 void PopulatePayload(protocol::QueryDirectorySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
-                    const ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
+                    if (!pData->IoStatus.Information) return;
+
+                    ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
+                    const void* pDirectoryBuffer = mdl::Map(pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &bufferSize);
+                    bool isRawUserBuffer = false;
+
+                    if (!pDirectoryBuffer) {
+                        const void* pRawBuffer = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer;
+
+                        if (pData->RequestorMode == KernelMode && reinterpret_cast<ULONG_PTR>(pRawBuffer) >= reinterpret_cast<ULONG_PTR>(MmSystemRangeStart)) {
+                            pDirectoryBuffer = pRawBuffer;
+                        }
+                        else if (pData->Thread && IoThreadToProcess(pData->Thread) == PsGetCurrentProcess()) {
+                            pDirectoryBuffer = pRawBuffer;
+                            isRawUserBuffer = true;
+                        }
+                    }
+
+                    if (!pDirectoryBuffer) return;
+
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     const ULONG copySize = dataSize < protocol::QUERY_DIRECTORY_PAYLOAD_BYTES ? dataSize : protocol::QUERY_DIRECTORY_PAYLOAD_BYTES;
 
                     __try {
-                        RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, copySize);
+                        if (isRawUserBuffer) {
+                            ProbeForRead(const_cast<void*>(pDirectoryBuffer), copySize, 1u);
+                        }
+
+                        RtlCopyMemory(pSupplement->payload, pDirectoryBuffer, copySize);
                     }
                     __except (EXCEPTION_EXECUTE_HANDLER) {
 

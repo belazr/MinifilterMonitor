@@ -33,6 +33,9 @@
     <ClCompile Include="src\driver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\mdl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\port.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -87,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\driver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mdl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\port.h">

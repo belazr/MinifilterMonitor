@@ -1,5 +1,7 @@
 #include "fscontrol.h"
 
+#include "..\..\mdl.h"
+
 #include "..\..\..\..\inc\protocol.h"
 
 #include <fltKernel.h>
@@ -9,33 +11,11 @@ using namespace mimo;
 namespace {
 
     __declspec(code_seg("PAGE"))
-    const void* MapOutputMdl(_In_opt_ MDL* pMdl, _In_opt_ const void* pExpectedAddress, _Inout_ ULONG* pBufferSize) {
-        PAGED_CODE();
-
-        if (!pMdl) return nullptr;
-
-        if (pExpectedAddress && MmGetMdlVirtualAddress(pMdl) != pExpectedAddress) return nullptr;
-
-        const void* pBuffer = MmGetSystemAddressForMdlSafe(pMdl, NormalPagePriority | MdlMappingNoExecute);
-
-        if (!pBuffer) return nullptr;
-
-        const ULONG mdlSize = MmGetMdlByteCount(pMdl);
-
-        if (mdlSize < *pBufferSize) {
-            *pBufferSize = mdlSize;
-        }
-
-        return pBuffer;
-    }
-
-
-    __declspec(code_seg("PAGE"))
     void PopulateSecondInput(_Inout_ protocol::FsControlSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
         PAGED_CODE();
 
         ULONG dataSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
-        const void* pSecondInput = MapOutputMdl(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &dataSize);
+        const void* pSecondInput = mdl::Map(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &dataSize);
 
         if (!pSecondInput || !dataSize) return;
 
@@ -151,12 +131,12 @@ namespace mimo {
                             break;
 
                         case METHOD_OUT_DIRECT:
-                            pOutputBuffer = MapOutputMdl(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &bufferSize);
+                            pOutputBuffer = mdl::Map(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &bufferSize);
 
                             break;
 
                         case METHOD_NEITHER:
-                            pOutputBuffer = MapOutputMdl(pData->Iopb->Parameters.FileSystemControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer, &bufferSize);
+                            pOutputBuffer = mdl::Map(pData->Iopb->Parameters.FileSystemControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer, &bufferSize);
 
                             if (!pOutputBuffer) {
                                 const void* pRawBuffer = pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer;

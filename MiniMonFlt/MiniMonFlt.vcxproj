@@ -96,6 +96,7 @@
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\dispatch.cpp" />
     <ClCompile Include="src\driver.cpp" />
+    <ClCompile Include="src\mdl.cpp" />
     <ClCompile Include="src\port.cpp" />
     <ClCompile Include="src\records.cpp" />
     <ClCompile Include="src\trace\capture.cpp" />
@@ -116,6 +117,7 @@
     <ClInclude Include="src\config.h" />
     <ClInclude Include="src\dispatch.h" />
     <ClInclude Include="src\driver.h" />
+    <ClInclude Include="src\mdl.h" />
     <ClInclude Include="src\port.h" />
     <ClInclude Include="src\records.h" />
     <ClInclude Include="src\trace\capture.h" />
