@@ -67,6 +67,8 @@ namespace mimo {
 
             std::wstring RenderFileRegionUsage(uint32_t usage);
 
+            std::wstring RenderUsnReason(uint32_t reason);
+
         }
 
     }

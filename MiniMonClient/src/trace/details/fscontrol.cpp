@@ -181,6 +181,12 @@ namespace {
     }
 
 
+    std::wstring RenderReadUsnJournalPayload(const trace::kernel::READ_USN_JOURNAL_DATA_V0& payload) {
+
+        return std::format(L"StartUsn: {}, ReasonMask: {}, ReturnOnlyOnClose: {}, Timeout: {}, BytesToWaitFor: {}, UsnJournalID: 0x{:X}", payload.StartUsn, trace::names::RenderUsnReason(payload.ReasonMask), trace::values::RenderBoolean(payload.ReturnOnlyOnClose), payload.Timeout, payload.BytesToWaitFor, payload.UsnJournalID);
+    }
+
+
     std::wstring RenderSparsePayload(const trace::kernel::FILE_SET_SPARSE_BUFFER& payload) {
 
         return std::format(L"SetSparse: {}", trace::values::RenderBoolean(payload.SetSparse));
@@ -196,6 +202,12 @@ namespace {
     std::wstring RenderAllocatedRangePayload(const trace::kernel::FILE_ALLOCATED_RANGE_BUFFER& payload) {
 
         return std::format(L"FileOffset: {}, Length: {}", payload.FileOffset, payload.Length);
+    }
+
+
+    std::wstring RenderCreateUsnJournalPayload(const trace::kernel::CREATE_USN_JOURNAL_DATA& payload) {
+
+        return std::format(L"MaximumSize: {}, AllocationDelta: {}", payload.MaximumSize, payload.AllocationDelta);
     }
 
 
@@ -274,6 +286,14 @@ namespace {
 
                 return RenderReparsePayload(input);
 
+            case FSCTL_READ_USN_JOURNAL: {
+                trace::kernel::READ_USN_JOURNAL_DATA_V0 readUsn;
+
+                if (trace::details::payload::ReadValue(input, readUsn)) return RenderReadUsnJournalPayload(readUsn);
+
+                break;
+            }
+
             case FSCTL_SET_SPARSE: {
                 // a missing/zero-length input buffer means SetSparse = TRUE (documented default)
                 trace::kernel::FILE_SET_SPARSE_BUFFER sparse{ 1u };
@@ -295,6 +315,14 @@ namespace {
                 trace::kernel::FILE_ALLOCATED_RANGE_BUFFER range;
 
                 if (trace::details::payload::ReadValue(input, range)) return RenderAllocatedRangePayload(range);
+
+                break;
+            }
+
+            case FSCTL_CREATE_USN_JOURNAL: {
+                trace::kernel::CREATE_USN_JOURNAL_DATA createUsn;
+
+                if (trace::details::payload::ReadValue(input, createUsn)) return RenderCreateUsnJournalPayload(createUsn);
 
                 break;
             }
@@ -354,6 +382,45 @@ namespace {
     }
 
 
+    std::wstring RenderUsnRecordPayload(const trace::kernel::USN_RECORD_V2& record, std::span<const uint8_t> nameData) {
+
+        return std::format(L"FileName: {}, Reason: {}, Usn: {}, TimeStamp: {}, FileReferenceNumber: 0x{:X}, ParentFileReferenceNumber: 0x{:X}", trace::details::payload::RenderName(nameData, record.FileNameLength), trace::names::RenderUsnReason(record.Reason), record.Usn, trace::values::RenderFileTime(record.TimeStamp), record.FileReferenceNumber, record.ParentFileReferenceNumber);
+    }
+
+
+    std::wstring RenderUsnRecordsPayload(std::span<const uint8_t> payload) {
+        constexpr size_t HEADER_BYTES = offsetof(trace::kernel::USN_RECORD_V2, FileName);
+        int64_t nextUsn;
+
+        if (!trace::details::payload::ReadValue(payload, nextUsn)) return {};
+
+        std::wstring result = std::format(L"NextUsn: {}", nextUsn);
+        size_t offset = sizeof(nextUsn);
+        uint32_t index = 1u;
+
+        while (true) {
+            trace::kernel::USN_RECORD_V2 record;
+
+            if (!trace::details::payload::ReadHeader(payload, record, HEADER_BYTES, offset)) break;
+
+            if (record.RecordLength < HEADER_BYTES) break;
+
+            if (record.MajorVersion == 2u) {
+                const size_t nameStart = offset + record.FileNameOffset < payload.size() ? offset + record.FileNameOffset : payload.size();
+                result += std::format(L", {}: {}", index, RenderUsnRecordPayload(record, payload.subspan(nameStart)));
+            }
+            else {
+                result += std::format(L", {}: MajorVersion: {}", index, record.MajorVersion);
+            }
+
+            offset += record.RecordLength;
+            index++;
+        }
+
+        return result;
+    }
+
+
     std::wstring RenderAllocatedRangesPayload(std::span<const uint8_t> payload) {
         std::wstring result;
         size_t offset = 0u;
@@ -371,6 +438,12 @@ namespace {
         }
 
         return result;
+    }
+
+
+    std::wstring RenderUsnJournalDataPayload(const trace::kernel::USN_JOURNAL_DATA_V0& payload) {
+
+        return std::format(L"UsnJournalID: 0x{:X}, FirstUsn: {}, NextUsn: {}, LowestValidUsn: {}, MaxUsn: {}, MaximumSize: {}, AllocationDelta: {}", payload.UsnJournalID, payload.FirstUsn, payload.NextUsn, payload.LowestValidUsn, payload.MaxUsn, payload.MaximumSize, payload.AllocationDelta);
     }
 
 
@@ -450,9 +523,21 @@ namespace {
 
                 return RenderReparsePayload(output);
 
+            case FSCTL_READ_USN_JOURNAL:
+
+                return RenderUsnRecordsPayload(output);
+
             case FSCTL_QUERY_ALLOCATED_RANGES:
 
                 return RenderAllocatedRangesPayload(output);
+
+            case FSCTL_QUERY_USN_JOURNAL: {
+                trace::kernel::USN_JOURNAL_DATA_V0 journalData;
+
+                if (trace::details::payload::ReadValue(output, journalData)) return RenderUsnJournalDataPayload(journalData);
+
+                break;
+            }
 
             case FSCTL_REQUEST_OPLOCK: {
                 trace::kernel::REQUEST_OPLOCK_OUTPUT_BUFFER oplock;

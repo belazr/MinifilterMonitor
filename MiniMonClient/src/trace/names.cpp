@@ -410,6 +410,35 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(FILE_REGION_USAGE_NAMES), "composite entry after its components in FILE_REGION_USAGE_NAMES");
 
+    constexpr FlagName USN_REASON_NAMES[]{
+        { USN_REASON_DATA_OVERWRITE,               L"USN_REASON_DATA_OVERWRITE" },
+        { USN_REASON_DATA_EXTEND,                  L"USN_REASON_DATA_EXTEND" },
+        { USN_REASON_DATA_TRUNCATION,              L"USN_REASON_DATA_TRUNCATION" },
+        { USN_REASON_NAMED_DATA_OVERWRITE,         L"USN_REASON_NAMED_DATA_OVERWRITE" },
+        { USN_REASON_NAMED_DATA_EXTEND,            L"USN_REASON_NAMED_DATA_EXTEND" },
+        { USN_REASON_NAMED_DATA_TRUNCATION,        L"USN_REASON_NAMED_DATA_TRUNCATION" },
+        { USN_REASON_FILE_CREATE,                  L"USN_REASON_FILE_CREATE" },
+        { USN_REASON_FILE_DELETE,                  L"USN_REASON_FILE_DELETE" },
+        { USN_REASON_EA_CHANGE,                    L"USN_REASON_EA_CHANGE" },
+        { USN_REASON_SECURITY_CHANGE,              L"USN_REASON_SECURITY_CHANGE" },
+        { USN_REASON_RENAME_OLD_NAME,              L"USN_REASON_RENAME_OLD_NAME" },
+        { USN_REASON_RENAME_NEW_NAME,              L"USN_REASON_RENAME_NEW_NAME" },
+        { USN_REASON_INDEXABLE_CHANGE,             L"USN_REASON_INDEXABLE_CHANGE" },
+        { USN_REASON_BASIC_INFO_CHANGE,            L"USN_REASON_BASIC_INFO_CHANGE" },
+        { USN_REASON_HARD_LINK_CHANGE,             L"USN_REASON_HARD_LINK_CHANGE" },
+        { USN_REASON_COMPRESSION_CHANGE,           L"USN_REASON_COMPRESSION_CHANGE" },
+        { USN_REASON_ENCRYPTION_CHANGE,            L"USN_REASON_ENCRYPTION_CHANGE" },
+        { USN_REASON_OBJECT_ID_CHANGE,             L"USN_REASON_OBJECT_ID_CHANGE" },
+        { USN_REASON_REPARSE_POINT_CHANGE,         L"USN_REASON_REPARSE_POINT_CHANGE" },
+        { USN_REASON_STREAM_CHANGE,                L"USN_REASON_STREAM_CHANGE" },
+        { USN_REASON_TRANSACTED_CHANGE,            L"USN_REASON_TRANSACTED_CHANGE" },
+        { USN_REASON_INTEGRITY_CHANGE,             L"USN_REASON_INTEGRITY_CHANGE" },
+        { USN_REASON_DESIRED_STORAGE_CLASS_CHANGE, L"USN_REASON_DESIRED_STORAGE_CLASS_CHANGE" },
+        { USN_REASON_CLOSE,                        L"USN_REASON_CLOSE" },
+    };
+
+    static_assert(CompositesPrecedeComponents(USN_REASON_NAMES), "composite entry after its components in USN_REASON_NAMES");
+
 }
 
 namespace mimo {
@@ -1194,6 +1223,12 @@ namespace mimo {
                 if (!usage) return L"None";
 
                 return RenderFlags(usage, FILE_REGION_USAGE_NAMES, L"|");
+            }
+
+
+            std::wstring RenderUsnReason(uint32_t reason) {
+
+                return RenderFlags(reason, USN_REASON_NAMES, L"|");
             }
 
         }
