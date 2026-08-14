@@ -585,7 +585,7 @@ namespace mimo {
 
                     if (!inputText.empty()) {
                         details += L", ";
-                        details += inputText;
+                        details += text::MarkTruncated(inputText, fsControlSupplement.capturedInputBytes < parameters.fileSystemControl.inputBufferLength);
                     }
 
                     const std::wstring outputText = RenderOutput(parameters.fileSystemControl.fsControlCode, ExtractOutput(fsControlSupplement));
