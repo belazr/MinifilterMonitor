@@ -253,11 +253,13 @@ extern "C" DRIVER_INITIALIZE DriverEntry;
 __declspec(code_seg("INIT"))
 _Use_decl_annotations_
 extern "C" NTSTATUS DriverEntry(DRIVER_OBJECT* pDriverObject, UNICODE_STRING* pRegistryPath) {
+    UNREFERENCED_PARAMETER(pRegistryPath);
+
     NTSTATUS status = STATUS_SUCCESS;
 
     records::Create();
     trace::modules::Create();
-    config::Create(pRegistryPath);
+    config::Create(pDriverObject);
 
     status = FltRegisterFilter(pDriverObject, &FilterRegistration, &driver::Filter);
 

@@ -18,16 +18,14 @@ namespace mimo {
 
         __declspec(code_seg("INIT"))
         _Use_decl_annotations_
-        void Create(UNICODE_STRING* pRegistryPath) {
-            OBJECT_ATTRIBUTES objAttribs{};
+        void Create(DRIVER_OBJECT* pDriverObject) {
             HANDLE hKey = nullptr;
             NTSTATUS status = STATUS_SUCCESS;
             ULONG resultLength = 0u;
             const KEY_VALUE_PARTIAL_INFORMATION* pValuePartialInfo = nullptr;
             UCHAR buffer[sizeof(KEY_VALUE_PARTIAL_INFORMATION) + sizeof(ULONG)]{};
 
-            InitializeObjectAttributes(&objAttribs, pRegistryPath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, nullptr, nullptr);
-            status = ZwOpenKey(&hKey, KEY_READ, &objAttribs);
+            status = IoOpenDriverRegistryKey(pDriverObject, DriverRegKeyParameters, KEY_READ, 0u, &hKey);
 
             if (!NT_SUCCESS(status)) goto done;
 

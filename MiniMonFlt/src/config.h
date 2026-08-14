@@ -7,7 +7,7 @@ namespace mimo {
     namespace config {
 
         __declspec(code_seg("INIT"))
-        void Create(_In_ UNICODE_STRING* pRegistryPath);
+        void Create(_In_ DRIVER_OBJECT* pDriverObject);
 
         ULONG GetMaxMemoryKb();
 

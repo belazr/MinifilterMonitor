@@ -47,6 +47,7 @@ AddReg           = MiniMonFlt.AddRegistry
 
 [MiniMonFlt.AddRegistry]
 HKR,"Parameters","SupportedFeatures",0x00010001,0x3
+HKR,"Parameters","MaxMemoryKB",0x00010003,0xC800	;NOCLOBBER, 51200 KB
 HKR,"Parameters\Instances","DefaultInstance",0x00000000,%DefaultInstance%
 HKR,"Parameters\Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
 HKR,"Parameters\Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
@@ -95,6 +96,7 @@ AddReg           = MiniMonFltDownlevel.AddRegistry
 
 [MiniMonFltDownlevel.AddRegistry]
 HKR,,"SupportedFeatures",0x00010001,0x3
+HKR,,"MaxMemoryKB",0x00010003,0xC800	;NOCLOBBER, 51200 KB
 HKR,"Instances","DefaultInstance",0x00000000,%DefaultInstance%
 HKR,"Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
 HKR,"Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
