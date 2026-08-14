@@ -10,10 +10,6 @@ namespace {
     UNICODE_STRING MaxMemoryName = RTL_CONSTANT_STRING(L"MaxMemoryKB");
     ULONG MaxMemoryKb = DEFAULT_MAX_MEMORY_KB;
 
-    constexpr bool DEFAULT_LOCK_USER_BUFFERS = true;
-    UNICODE_STRING LockUserBuffersName = RTL_CONSTANT_STRING(L"LockUserBuffers");
-    bool LockUserBuffers = DEFAULT_LOCK_USER_BUFFERS;
-
 }
 
 namespace mimo {
@@ -42,12 +38,6 @@ namespace mimo {
                 MaxMemoryKb = *reinterpret_cast<const ULONG*>(&pValuePartialInfo->Data);
             }
 
-            status = ZwQueryValueKey(hKey, &LockUserBuffersName, KeyValuePartialInformation, buffer, static_cast<ULONG>(sizeof(buffer)), &resultLength);
-
-            if (NT_SUCCESS(status) && pValuePartialInfo->Type == REG_DWORD) {
-                LockUserBuffers = *reinterpret_cast<const ULONG*>(&pValuePartialInfo->Data) != 0u;
-            }
-
         done:
 
             if (hKey) {
@@ -61,12 +51,6 @@ namespace mimo {
         ULONG GetMaxMemoryKb() {
 
             return MaxMemoryKb;
-        }
-
-
-        bool GetLockUserBuffers() {
-
-            return LockUserBuffers;
         }
 
     }
