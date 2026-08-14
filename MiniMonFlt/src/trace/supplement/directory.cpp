@@ -1,6 +1,6 @@
 #include "directory.h"
 
-#include "..\..\mdl.h"
+#include "..\..\memory.h"
 
 #include "..\..\..\..\inc\protocol.h"
 
@@ -53,18 +53,13 @@ namespace mimo {
                     if (!pData->IoStatus.Information) return;
 
                     ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
-                    const void* pDirectoryBuffer = mdl::Map(pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &bufferSize);
-                    bool isRawUserBuffer = false;
+                    const void* pDirectoryBuffer = memory::MapMdl(pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &bufferSize);
 
                     if (!pDirectoryBuffer) {
                         const void* pRawBuffer = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer;
 
-                        if (pData->RequestorMode == KernelMode && reinterpret_cast<ULONG_PTR>(pRawBuffer) >= reinterpret_cast<ULONG_PTR>(MmSystemRangeStart)) {
+                        if (memory::IsRawBufferReadable(pData, pRawBuffer, bufferSize)) {
                             pDirectoryBuffer = pRawBuffer;
-                        }
-                        else if (pData->Thread && IoThreadToProcess(pData->Thread) == PsGetCurrentProcess()) {
-                            pDirectoryBuffer = pRawBuffer;
-                            isRawUserBuffer = true;
                         }
                     }
 
@@ -75,10 +70,6 @@ namespace mimo {
                     const ULONG copySize = dataSize < protocol::QUERY_DIRECTORY_PAYLOAD_BYTES ? dataSize : protocol::QUERY_DIRECTORY_PAYLOAD_BYTES;
 
                     __try {
-                        if (isRawUserBuffer) {
-                            ProbeForRead(const_cast<void*>(pDirectoryBuffer), copySize, 1u);
-                        }
-
                         RtlCopyMemory(pSupplement->payload, pDirectoryBuffer, copySize);
                     }
                     __except (EXCEPTION_EXECUTE_HANDLER) {
