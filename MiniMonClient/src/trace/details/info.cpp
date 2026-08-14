@@ -12,6 +12,7 @@
 
 #include <Windows.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -452,9 +453,9 @@ namespace mimo {
                 std::wstring RenderQuery(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = RenderInformationParameters(parameters.queryFileInformation.fileInformationClass, parameters.queryFileInformation.length);
-                    
+
                     const std::span<const uint8_t> payload = ExtractPayload(data.supplement.queryInfo);
-                    
+
                     std::wstring payloadText;
 
                     switch (parameters.queryFileInformation.fileInformationClass) {
@@ -637,8 +638,10 @@ namespace mimo {
                     }
 
                     if (!payloadText.empty()) {
+                        const uint64_t writtenBytes = std::min<uint64_t>(data.information, parameters.queryFileInformation.length);
+
                         details += L", ";
-                        details += payloadText;
+                        details += text::MarkTruncated(payloadText, data.supplement.queryInfo.capturedBytes < writtenBytes);
                     }
 
                     return details;
@@ -648,7 +651,7 @@ namespace mimo {
                 std::wstring RenderSet(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = RenderInformationParameters(parameters.setFileInformation.fileInformationClass, parameters.setFileInformation.length);
-                    
+
                     const protocol::SetInfoSupplement& setInfoSupplement = data.supplement.setInfo;
                     const std::span<const uint8_t> payload = ExtractPayload(setInfoSupplement);
 
