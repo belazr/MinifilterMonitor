@@ -14,12 +14,15 @@ namespace {
     void PopulateSecondInput(_Inout_ protocol::FsControlSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
         PAGED_CODE();
 
-        ULONG dataSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
-        const void* pSecondInput = memory::MapMdl(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &dataSize);
+        ULONG bufferSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
 
-        if (!pSecondInput || !dataSize) return;
+        if (!bufferSize) return;
 
-        const ULONG copySize = dataSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES ? dataSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES;
+        const void* pSecondInput = memory::MapMdl(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &bufferSize);
+
+        if (!pSecondInput || !bufferSize) return;
+
+        const ULONG copySize = bufferSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES ? bufferSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES;
 
         __try {
             RtlCopyMemory(pSupplement->outputPayload, pSecondInput, copySize);
@@ -50,10 +53,15 @@ namespace mimo {
                 void PopulateInput(protocol::FsControlSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
+                    const ULONG inSize = pData->Iopb->Parameters.FileSystemControl.Common.InputBufferLength;
+                    const ULONG outSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
+
+                    if (!inSize && !outSize) return;
+
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode);
-                    const ULONG size = pData->Iopb->Parameters.FileSystemControl.Common.InputBufferLength;
 
                     const void* pInputBuffer = nullptr;
+                    const void* pRawBuffer = nullptr;
 
                     switch (method) {
 
@@ -68,20 +76,19 @@ namespace mimo {
 
                             break;
 
-                        case METHOD_NEITHER: {
-                            const void* pRawBuffer = pData->Iopb->Parameters.FileSystemControl.Neither.InputBuffer;
-
-                            if (memory::IsRawBufferReadable(pData, pRawBuffer, size)) {
-                                pInputBuffer = pRawBuffer;
-                            }
+                        case METHOD_NEITHER:
+                            pRawBuffer = pData->Iopb->Parameters.FileSystemControl.Neither.InputBuffer;
 
                             break;
-                        }
 
                     }
 
-                    if (pInputBuffer && size) {
-                        const ULONG copySize = size < protocol::FS_CONTROL_INPUT_PAYLOAD_BYTES ? size : protocol::FS_CONTROL_INPUT_PAYLOAD_BYTES;
+                    if (pRawBuffer && memory::IsRawBufferReadable(pData, pRawBuffer, inSize)) {
+                        pInputBuffer = pRawBuffer;
+                    }
+
+                    if (pInputBuffer && inSize) {
+                        const ULONG copySize = inSize < protocol::FS_CONTROL_INPUT_PAYLOAD_BYTES ? inSize : protocol::FS_CONTROL_INPUT_PAYLOAD_BYTES;
 
                         __try {
                             RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
@@ -93,8 +100,8 @@ namespace mimo {
 
                     }
 
-                    // METHOD_IN_DIRECT: direct buffer is a second input, not a result
-                    if (method == METHOD_IN_DIRECT && pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress) {
+                    // METHOD_IN_DIRECT: output buffer is a second input, not a result
+                    if (method == METHOD_IN_DIRECT) {
                         PopulateSecondInput(pSupplement, pData);
                     }
 
@@ -107,12 +114,15 @@ namespace mimo {
                 void PopulateOutput(protocol::FsControlSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
-                    if (!pData->IoStatus.Information) return;
-
-                    const void* pOutputBuffer = nullptr;
+                    const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode);
                     ULONG bufferSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
 
-                    switch (METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode)) {
+                    if (!pData->IoStatus.Information || method == METHOD_IN_DIRECT || !bufferSize) return;
+
+                    const void* pOutputBuffer = nullptr;
+                    const void* pRawBuffer = nullptr;
+
+                    switch (method) {
 
                         case METHOD_BUFFERED:
                             pOutputBuffer = pData->Iopb->Parameters.FileSystemControl.Buffered.SystemBuffer;
@@ -128,20 +138,20 @@ namespace mimo {
                             pOutputBuffer = memory::MapMdl(pData->Iopb->Parameters.FileSystemControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer, &bufferSize);
 
                             if (!pOutputBuffer) {
-                                const void* pRawBuffer = pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer;
-
-                                if (memory::IsRawBufferReadable(pData, pRawBuffer, bufferSize)) {
-                                    pOutputBuffer = pRawBuffer;
-                                }
+                                pRawBuffer = pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer;
                             }
 
                             break;
 
-                        // METHOD_IN_DIRECT: the direct buffer is a second input, not a result
+                        // METHOD_IN_DIRECT: the output buffer is a second input, not a result
 
                     }
 
-                    if (!pOutputBuffer) return;
+                    if (pRawBuffer && memory::IsRawBufferReadable(pData, pRawBuffer, bufferSize)) {
+                        pOutputBuffer = pRawBuffer;
+                    }
+
+                    if (!pOutputBuffer || !bufferSize) return;
 
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;

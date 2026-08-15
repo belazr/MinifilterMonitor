@@ -60,7 +60,7 @@ namespace mimo {
 
                     case IRP_MJ_FILE_SYSTEM_CONTROL:
 
-                        if ((pData->Iopb->MinorFunction == IRP_MN_USER_FS_REQUEST || pData->Iopb->MinorFunction == IRP_MN_KERNEL_CALL) && KeGetCurrentIrql() < DISPATCH_LEVEL && (pData->Iopb->Parameters.FileSystemControl.Common.InputBufferLength || (METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode) == METHOD_IN_DIRECT && pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength))) {
+                        if ((pData->Iopb->MinorFunction == IRP_MN_USER_FS_REQUEST || pData->Iopb->MinorFunction == IRP_MN_KERNEL_CALL) && KeGetCurrentIrql() < DISPATCH_LEVEL && (pData->Iopb->Parameters.FileSystemControl.Common.InputBufferLength || pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength)) {
                             filesystem::PopulateInput(&pSupplement->fsControl, pData);
                         }
 
