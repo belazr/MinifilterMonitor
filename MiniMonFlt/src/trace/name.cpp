@@ -27,6 +27,12 @@ namespace mimo {
                     goto done;
                 }
 
+                if (KeGetCurrentIrql() >= DISPATCH_LEVEL) {
+                    formatStatus = RtlUnicodeStringCopyString(pName, L"[name unavailable: dispatch level]");
+
+                    goto done;
+                }
+
                 normalizedStatus = FltGetFileNameInformation(pData, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_ALWAYS_ALLOW_CACHE_LOOKUP, &pNormalizedInfo);
 
                 if (NT_SUCCESS(normalizedStatus)) {
