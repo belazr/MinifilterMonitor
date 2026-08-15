@@ -57,6 +57,26 @@ namespace mimo {
             return true;
         }
 
+
+        __declspec(code_seg("PAGE"))
+        _Use_decl_annotations_
+        const void* GetReadableBuffer(
+            const FLT_CALLBACK_DATA* pData,
+            MDL* pMdl,
+            const void* pRawBuffer,
+            ULONG* pBufferSize
+        ) {
+            PAGED_CODE();
+
+            const void* pBuffer = MapMdl(pMdl, pRawBuffer, pBufferSize);
+
+            if (pBuffer) return pBuffer;
+
+            if (pRawBuffer && IsRawBufferReadable(pData, pRawBuffer, *pBufferSize)) return pRawBuffer;
+
+            return nullptr;
+        }
+
     }
 
 }

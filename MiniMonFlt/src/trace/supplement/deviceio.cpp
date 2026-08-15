@@ -22,15 +22,7 @@ namespace {
         MDL* pMdl = isFastIo ? nullptr : pData->Iopb->Parameters.DeviceIoControl.Direct.OutputMdlAddress;
         const void* pRawBuffer = isFastIo ? pData->Iopb->Parameters.DeviceIoControl.FastIo.OutputBuffer : pData->Iopb->Parameters.DeviceIoControl.Direct.OutputBuffer;
 
-        const void* pSecondInput = nullptr;
-
-        if (pMdl) {
-            pSecondInput = memory::MapMdl(pMdl, pRawBuffer, &bufferSize);
-        }
-
-        if (!pSecondInput && memory::IsRawBufferReadable(pData, pRawBuffer, bufferSize)) {
-            pSecondInput = pRawBuffer;
-        }
+        const void* pSecondInput = memory::GetReadableBuffer(pData, pMdl, pRawBuffer, &bufferSize);
 
         if (!pSecondInput || !bufferSize) return;
 
@@ -140,10 +132,9 @@ namespace mimo {
                     if (!pData->IoStatus.Information || method == METHOD_IN_DIRECT || !bufferSize) return;
 
                     const void* pOutputBuffer = nullptr;
-                    const void* pRawBuffer = nullptr;
 
                     if (FLT_IS_FASTIO_OPERATION(pData)) {
-                        pRawBuffer = pData->Iopb->Parameters.DeviceIoControl.FastIo.OutputBuffer;
+                        pOutputBuffer = memory::GetReadableBuffer(pData, nullptr, pData->Iopb->Parameters.DeviceIoControl.FastIo.OutputBuffer, &bufferSize);
                     }
                     else {
 
@@ -160,11 +151,7 @@ namespace mimo {
                                 break;
 
                             case METHOD_NEITHER:
-                                pOutputBuffer = memory::MapMdl(pData->Iopb->Parameters.DeviceIoControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.DeviceIoControl.Neither.OutputBuffer, &bufferSize);
-
-                                if (!pOutputBuffer) {
-                                    pRawBuffer = pData->Iopb->Parameters.DeviceIoControl.Neither.OutputBuffer;
-                                }
+                                pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DeviceIoControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.DeviceIoControl.Neither.OutputBuffer, &bufferSize);
 
                                 break;
 
@@ -172,10 +159,6 @@ namespace mimo {
 
                         }
 
-                    }
-
-                    if (pRawBuffer && memory::IsRawBufferReadable(pData, pRawBuffer, bufferSize)) {
-                        pOutputBuffer = pRawBuffer;
                     }
 
                     if (!pOutputBuffer || !bufferSize) return;

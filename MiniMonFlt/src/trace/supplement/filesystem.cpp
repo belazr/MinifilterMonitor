@@ -120,7 +120,6 @@ namespace mimo {
                     if (!pData->IoStatus.Information || method == METHOD_IN_DIRECT || !bufferSize) return;
 
                     const void* pOutputBuffer = nullptr;
-                    const void* pRawBuffer = nullptr;
 
                     switch (method) {
 
@@ -135,20 +134,12 @@ namespace mimo {
                             break;
 
                         case METHOD_NEITHER:
-                            pOutputBuffer = memory::MapMdl(pData->Iopb->Parameters.FileSystemControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer, &bufferSize);
-
-                            if (!pOutputBuffer) {
-                                pRawBuffer = pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer;
-                            }
+                            pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer, &bufferSize);
 
                             break;
 
                         // METHOD_IN_DIRECT: the output buffer is a second input, not a result
 
-                    }
-
-                    if (pRawBuffer && memory::IsRawBufferReadable(pData, pRawBuffer, bufferSize)) {
-                        pOutputBuffer = pRawBuffer;
                     }
 
                     if (!pOutputBuffer || !bufferSize) return;

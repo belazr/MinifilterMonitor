@@ -53,15 +53,7 @@ namespace mimo {
                     if (!pData->IoStatus.Information) return;
 
                     ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
-                    const void* pDirectoryBuffer = memory::MapMdl(pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &bufferSize);
-
-                    if (!pDirectoryBuffer) {
-                        const void* pRawBuffer = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer;
-
-                        if (memory::IsRawBufferReadable(pData, pRawBuffer, bufferSize)) {
-                            pDirectoryBuffer = pRawBuffer;
-                        }
-                    }
+                    const void* pDirectoryBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &bufferSize);
 
                     if (!pDirectoryBuffer) return;
 

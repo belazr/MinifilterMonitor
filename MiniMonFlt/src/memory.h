@@ -20,6 +20,14 @@ namespace mimo {
             _In_ ULONG bufferSize
         );
 
+        __declspec(code_seg("PAGE"))
+        const void* GetReadableBuffer(
+            _In_ const FLT_CALLBACK_DATA* pData,
+            _In_opt_ MDL* pMdl,
+            _In_opt_ const void* pRawBuffer,
+            _Inout_ ULONG* pBufferSize
+        );
+
     }
 
 }
