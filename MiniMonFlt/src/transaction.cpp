@@ -23,6 +23,8 @@ namespace mimo {
         ULONG Enlist(const FLT_RELATED_OBJECTS* pFltObjects) {
             PAGED_CODE();
 
+            if (!pFltObjects->Transaction || KeGetCurrentIrql() != PASSIVE_LEVEL) return 0u;
+
             Context* pContext = nullptr;
             NTSTATUS status = STATUS_SUCCESS;
             Context* pOldContext = nullptr;

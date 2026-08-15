@@ -52,7 +52,7 @@ namespace mimo {
 
             ULONG transactionSequence = 0u;
 
-            if (pFltObjects->Transaction && KeGetCurrentIrql() == PASSIVE_LEVEL) {
+            if (pFltObjects->Transaction && KeGetCurrentIrql() < DISPATCH_LEVEL) {
                 transactionSequence = transaction::Enlist(pFltObjects);
             }
 
