@@ -18,7 +18,7 @@ namespace {
 
         if (!bufferSize) return;
 
-        const void* pSecondInput = memory::MapMdl(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &bufferSize);
+        const void* pSecondInput = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &bufferSize);
 
         if (!pSecondInput || !bufferSize) return;
 
@@ -129,7 +129,7 @@ namespace mimo {
                             break;
 
                         case METHOD_OUT_DIRECT:
-                            pOutputBuffer = memory::MapMdl(pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &bufferSize);
+                            pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &bufferSize);
 
                             break;
 

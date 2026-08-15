@@ -146,7 +146,7 @@ namespace mimo {
                                 break;
 
                             case METHOD_OUT_DIRECT:
-                                pOutputBuffer = memory::MapMdl(pData->Iopb->Parameters.DeviceIoControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.DeviceIoControl.Direct.OutputBuffer, &bufferSize);
+                                pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DeviceIoControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.DeviceIoControl.Direct.OutputBuffer, &bufferSize);
 
                                 break;
 
