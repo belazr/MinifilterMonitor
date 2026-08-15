@@ -63,6 +63,9 @@
     <ClCompile Include="src\trace\supplement\create.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\trace\supplement\deviceio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\trace\supplement\directory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,6 +123,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\supplement\create.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\supplement\deviceio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\supplement\directory.h">

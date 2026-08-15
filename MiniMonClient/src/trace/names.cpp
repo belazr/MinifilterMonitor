@@ -253,117 +253,13 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(COMPLETION_FILTER_NAMES), "composite entry after its components in COMPLETION_FILTER_NAMES");
 
-    std::wstring RenderDeviceType(uint32_t deviceType) {
-
-        switch (deviceType) {
-            case FILE_DEVICE_BEEP:                 return L"FILE_DEVICE_BEEP";
-            case FILE_DEVICE_CD_ROM:               return L"FILE_DEVICE_CD_ROM";
-            case FILE_DEVICE_CD_ROM_FILE_SYSTEM:   return L"FILE_DEVICE_CD_ROM_FILE_SYSTEM";
-            case FILE_DEVICE_CONTROLLER:           return L"FILE_DEVICE_CONTROLLER";
-            case FILE_DEVICE_DATALINK:             return L"FILE_DEVICE_DATALINK";
-            case FILE_DEVICE_DFS:                  return L"FILE_DEVICE_DFS";
-            case FILE_DEVICE_DISK:                 return L"FILE_DEVICE_DISK";
-            case FILE_DEVICE_DISK_FILE_SYSTEM:     return L"FILE_DEVICE_DISK_FILE_SYSTEM";
-            case FILE_DEVICE_FILE_SYSTEM:          return L"FILE_DEVICE_FILE_SYSTEM";
-            case FILE_DEVICE_INPORT_PORT:          return L"FILE_DEVICE_INPORT_PORT";
-            case FILE_DEVICE_KEYBOARD:             return L"FILE_DEVICE_KEYBOARD";
-            case FILE_DEVICE_MAILSLOT:             return L"FILE_DEVICE_MAILSLOT";
-            case FILE_DEVICE_MIDI_IN:              return L"FILE_DEVICE_MIDI_IN";
-            case FILE_DEVICE_MIDI_OUT:             return L"FILE_DEVICE_MIDI_OUT";
-            case FILE_DEVICE_MOUSE:                return L"FILE_DEVICE_MOUSE";
-            case FILE_DEVICE_MULTI_UNC_PROVIDER:   return L"FILE_DEVICE_MULTI_UNC_PROVIDER";
-            case FILE_DEVICE_NAMED_PIPE:           return L"FILE_DEVICE_NAMED_PIPE";
-            case FILE_DEVICE_NETWORK:              return L"FILE_DEVICE_NETWORK";
-            case FILE_DEVICE_NETWORK_BROWSER:      return L"FILE_DEVICE_NETWORK_BROWSER";
-            case FILE_DEVICE_NETWORK_FILE_SYSTEM:  return L"FILE_DEVICE_NETWORK_FILE_SYSTEM";
-            case FILE_DEVICE_NULL:                 return L"FILE_DEVICE_NULL";
-            case FILE_DEVICE_PARALLEL_PORT:        return L"FILE_DEVICE_PARALLEL_PORT";
-            case FILE_DEVICE_PHYSICAL_NETCARD:     return L"FILE_DEVICE_PHYSICAL_NETCARD";
-            case FILE_DEVICE_PRINTER:              return L"FILE_DEVICE_PRINTER";
-            case FILE_DEVICE_SCANNER:              return L"FILE_DEVICE_SCANNER";
-            case FILE_DEVICE_SERIAL_MOUSE_PORT:    return L"FILE_DEVICE_SERIAL_MOUSE_PORT";
-            case FILE_DEVICE_SERIAL_PORT:          return L"FILE_DEVICE_SERIAL_PORT";
-            case FILE_DEVICE_SCREEN:               return L"FILE_DEVICE_SCREEN";
-            case FILE_DEVICE_SOUND:                return L"FILE_DEVICE_SOUND";
-            case FILE_DEVICE_STREAMS:              return L"FILE_DEVICE_STREAMS";
-            case FILE_DEVICE_TAPE:                 return L"FILE_DEVICE_TAPE";
-            case FILE_DEVICE_TAPE_FILE_SYSTEM:     return L"FILE_DEVICE_TAPE_FILE_SYSTEM";
-            case FILE_DEVICE_TRANSPORT:            return L"FILE_DEVICE_TRANSPORT";
-            case FILE_DEVICE_UNKNOWN:              return L"FILE_DEVICE_UNKNOWN";
-            case FILE_DEVICE_VIDEO:                return L"FILE_DEVICE_VIDEO";
-            case FILE_DEVICE_VIRTUAL_DISK:         return L"FILE_DEVICE_VIRTUAL_DISK";
-            case FILE_DEVICE_WAVE_IN:              return L"FILE_DEVICE_WAVE_IN";
-            case FILE_DEVICE_WAVE_OUT:             return L"FILE_DEVICE_WAVE_OUT";
-            case FILE_DEVICE_8042_PORT:            return L"FILE_DEVICE_8042_PORT";
-            case FILE_DEVICE_NETWORK_REDIRECTOR:   return L"FILE_DEVICE_NETWORK_REDIRECTOR";
-            case FILE_DEVICE_BATTERY:              return L"FILE_DEVICE_BATTERY";
-            case FILE_DEVICE_BUS_EXTENDER:         return L"FILE_DEVICE_BUS_EXTENDER";
-            case FILE_DEVICE_MODEM:                return L"FILE_DEVICE_MODEM";
-            case FILE_DEVICE_VDM:                  return L"FILE_DEVICE_VDM";
-            case FILE_DEVICE_MASS_STORAGE:         return L"FILE_DEVICE_MASS_STORAGE";
-            case FILE_DEVICE_SMB:                  return L"FILE_DEVICE_SMB";
-            case FILE_DEVICE_KS:                   return L"FILE_DEVICE_KS";
-            case FILE_DEVICE_CHANGER:              return L"FILE_DEVICE_CHANGER";
-            case FILE_DEVICE_SMARTCARD:            return L"FILE_DEVICE_SMARTCARD";
-            case FILE_DEVICE_ACPI:                 return L"FILE_DEVICE_ACPI";
-            case FILE_DEVICE_DVD:                  return L"FILE_DEVICE_DVD";
-            case FILE_DEVICE_FULLSCREEN_VIDEO:     return L"FILE_DEVICE_FULLSCREEN_VIDEO";
-            case FILE_DEVICE_DFS_FILE_SYSTEM:      return L"FILE_DEVICE_DFS_FILE_SYSTEM";
-            case FILE_DEVICE_DFS_VOLUME:           return L"FILE_DEVICE_DFS_VOLUME";
-            case FILE_DEVICE_SERENUM:              return L"FILE_DEVICE_SERENUM";
-            case FILE_DEVICE_TERMSRV:              return L"FILE_DEVICE_TERMSRV";
-            case FILE_DEVICE_KSEC:                 return L"FILE_DEVICE_KSEC";
-            case FILE_DEVICE_FIPS:                 return L"FILE_DEVICE_FIPS";
-            case FILE_DEVICE_INFINIBAND:           return L"FILE_DEVICE_INFINIBAND";
-            case FILE_DEVICE_VMBUS:                return L"FILE_DEVICE_VMBUS";
-            case FILE_DEVICE_CRYPT_PROVIDER:       return L"FILE_DEVICE_CRYPT_PROVIDER";
-            case FILE_DEVICE_WPD:                  return L"FILE_DEVICE_WPD";
-            case FILE_DEVICE_BLUETOOTH:            return L"FILE_DEVICE_BLUETOOTH";
-            case FILE_DEVICE_MT_COMPOSITE:         return L"FILE_DEVICE_MT_COMPOSITE";
-            case FILE_DEVICE_MT_TRANSPORT:         return L"FILE_DEVICE_MT_TRANSPORT";
-            case FILE_DEVICE_BIOMETRIC:            return L"FILE_DEVICE_BIOMETRIC";
-            case FILE_DEVICE_PMI:                  return L"FILE_DEVICE_PMI";
-            case FILE_DEVICE_EHSTOR:               return L"FILE_DEVICE_EHSTOR";
-            case FILE_DEVICE_DEVAPI:               return L"FILE_DEVICE_DEVAPI";
-            case FILE_DEVICE_GPIO:                 return L"FILE_DEVICE_GPIO";
-            case FILE_DEVICE_USBEX:                return L"FILE_DEVICE_USBEX";
-            case FILE_DEVICE_CONSOLE:              return L"FILE_DEVICE_CONSOLE";
-            case FILE_DEVICE_NFP:                  return L"FILE_DEVICE_NFP";
-            case FILE_DEVICE_SYSENV:               return L"FILE_DEVICE_SYSENV";
-            case FILE_DEVICE_VIRTUAL_BLOCK:        return L"FILE_DEVICE_VIRTUAL_BLOCK";
-            case FILE_DEVICE_POINT_OF_SERVICE:     return L"FILE_DEVICE_POINT_OF_SERVICE";
-            case FILE_DEVICE_STORAGE_REPLICATION:  return L"FILE_DEVICE_STORAGE_REPLICATION";
-            case FILE_DEVICE_TRUST_ENV:            return L"FILE_DEVICE_TRUST_ENV";
-            case FILE_DEVICE_UCM:                  return L"FILE_DEVICE_UCM";
-            case FILE_DEVICE_UCMTCPCI:             return L"FILE_DEVICE_UCMTCPCI";
-            case FILE_DEVICE_PERSISTENT_MEMORY:    return L"FILE_DEVICE_PERSISTENT_MEMORY";
-            case FILE_DEVICE_NVDIMM:               return L"FILE_DEVICE_NVDIMM";
-            case FILE_DEVICE_HOLOGRAPHIC:          return L"FILE_DEVICE_HOLOGRAPHIC";
-            case FILE_DEVICE_SDFXHCI:              return L"FILE_DEVICE_SDFXHCI";
-            case FILE_DEVICE_UCMUCSI:              return L"FILE_DEVICE_UCMUCSI";
-            case FILE_DEVICE_PRM:                  return L"FILE_DEVICE_PRM";
-            case FILE_DEVICE_EVENT_COLLECTOR:      return L"FILE_DEVICE_EVENT_COLLECTOR";
-            case FILE_DEVICE_USB4:                 return L"FILE_DEVICE_USB4";
-            case FILE_DEVICE_SOUNDWIRE:            return L"FILE_DEVICE_SOUNDWIRE";
-            case FILE_DEVICE_FABRIC_NVME:          return L"FILE_DEVICE_FABRIC_NVME";
-            case FILE_DEVICE_SVM:                  return L"FILE_DEVICE_SVM";
-            case FILE_DEVICE_HARDWARE_ACCELERATOR: return L"FILE_DEVICE_HARDWARE_ACCELERATOR";
-            case FILE_DEVICE_I3C:                  return L"FILE_DEVICE_I3C";
-            case FILE_DEVICE_MULTITIER_MEMORY:     return L"FILE_DEVICE_MULTITIER_MEMORY";
-            case FILE_DEVICE_CXL_TYPE3:            return L"FILE_DEVICE_CXL_TYPE3";
-        }
-
-        return std::format(L"0x{:X}", deviceType);
-    }
-
-
     constexpr const wchar_t* CONTROL_METHOD_NAMES[]{ L"METHOD_BUFFERED", L"METHOD_IN_DIRECT", L"METHOD_OUT_DIRECT", L"METHOD_NEITHER" };
 
     constexpr const wchar_t* CONTROL_ACCESS_NAMES[]{ L"FILE_ANY_ACCESS", L"FILE_READ_ACCESS", L"FILE_WRITE_ACCESS", L"FILE_READ_ACCESS|FILE_WRITE_ACCESS" };
 
     std::wstring RenderControlCode(uint32_t controlCode) {
 
-        return std::format(L"0x{:X} (Device: {}, Function: {}, Method: {}, Access: {})", controlCode, RenderDeviceType(controlCode >> 16), (controlCode >> 2) & 0xFFFu, CONTROL_METHOD_NAMES[controlCode & 3u], CONTROL_ACCESS_NAMES[(controlCode >> 14) & 3u]);
+        return std::format(L"0x{:X} (Device: {}, Function: {}, Method: {}, Access: {})", controlCode, trace::names::RenderDeviceType(controlCode >> 16), (controlCode >> 2) & 0xFFFu, CONTROL_METHOD_NAMES[controlCode & 3u], CONTROL_ACCESS_NAMES[(controlCode >> 14) & 3u]);
     }
 
 
@@ -1330,6 +1226,110 @@ namespace mimo {
             }
 
 
+            std::wstring RenderDeviceType(uint32_t deviceType) {
+
+                switch (deviceType) {
+                    case FILE_DEVICE_BEEP:                 return L"FILE_DEVICE_BEEP";
+                    case FILE_DEVICE_CD_ROM:               return L"FILE_DEVICE_CD_ROM";
+                    case FILE_DEVICE_CD_ROM_FILE_SYSTEM:   return L"FILE_DEVICE_CD_ROM_FILE_SYSTEM";
+                    case FILE_DEVICE_CONTROLLER:           return L"FILE_DEVICE_CONTROLLER";
+                    case FILE_DEVICE_DATALINK:             return L"FILE_DEVICE_DATALINK";
+                    case FILE_DEVICE_DFS:                  return L"FILE_DEVICE_DFS";
+                    case FILE_DEVICE_DISK:                 return L"FILE_DEVICE_DISK";
+                    case FILE_DEVICE_DISK_FILE_SYSTEM:     return L"FILE_DEVICE_DISK_FILE_SYSTEM";
+                    case FILE_DEVICE_FILE_SYSTEM:          return L"FILE_DEVICE_FILE_SYSTEM";
+                    case FILE_DEVICE_INPORT_PORT:          return L"FILE_DEVICE_INPORT_PORT";
+                    case FILE_DEVICE_KEYBOARD:             return L"FILE_DEVICE_KEYBOARD";
+                    case FILE_DEVICE_MAILSLOT:             return L"FILE_DEVICE_MAILSLOT";
+                    case FILE_DEVICE_MIDI_IN:              return L"FILE_DEVICE_MIDI_IN";
+                    case FILE_DEVICE_MIDI_OUT:             return L"FILE_DEVICE_MIDI_OUT";
+                    case FILE_DEVICE_MOUSE:                return L"FILE_DEVICE_MOUSE";
+                    case FILE_DEVICE_MULTI_UNC_PROVIDER:   return L"FILE_DEVICE_MULTI_UNC_PROVIDER";
+                    case FILE_DEVICE_NAMED_PIPE:           return L"FILE_DEVICE_NAMED_PIPE";
+                    case FILE_DEVICE_NETWORK:              return L"FILE_DEVICE_NETWORK";
+                    case FILE_DEVICE_NETWORK_BROWSER:      return L"FILE_DEVICE_NETWORK_BROWSER";
+                    case FILE_DEVICE_NETWORK_FILE_SYSTEM:  return L"FILE_DEVICE_NETWORK_FILE_SYSTEM";
+                    case FILE_DEVICE_NULL:                 return L"FILE_DEVICE_NULL";
+                    case FILE_DEVICE_PARALLEL_PORT:        return L"FILE_DEVICE_PARALLEL_PORT";
+                    case FILE_DEVICE_PHYSICAL_NETCARD:     return L"FILE_DEVICE_PHYSICAL_NETCARD";
+                    case FILE_DEVICE_PRINTER:              return L"FILE_DEVICE_PRINTER";
+                    case FILE_DEVICE_SCANNER:              return L"FILE_DEVICE_SCANNER";
+                    case FILE_DEVICE_SERIAL_MOUSE_PORT:    return L"FILE_DEVICE_SERIAL_MOUSE_PORT";
+                    case FILE_DEVICE_SERIAL_PORT:          return L"FILE_DEVICE_SERIAL_PORT";
+                    case FILE_DEVICE_SCREEN:               return L"FILE_DEVICE_SCREEN";
+                    case FILE_DEVICE_SOUND:                return L"FILE_DEVICE_SOUND";
+                    case FILE_DEVICE_STREAMS:              return L"FILE_DEVICE_STREAMS";
+                    case FILE_DEVICE_TAPE:                 return L"FILE_DEVICE_TAPE";
+                    case FILE_DEVICE_TAPE_FILE_SYSTEM:     return L"FILE_DEVICE_TAPE_FILE_SYSTEM";
+                    case FILE_DEVICE_TRANSPORT:            return L"FILE_DEVICE_TRANSPORT";
+                    case FILE_DEVICE_UNKNOWN:              return L"FILE_DEVICE_UNKNOWN";
+                    case FILE_DEVICE_VIDEO:                return L"FILE_DEVICE_VIDEO";
+                    case FILE_DEVICE_VIRTUAL_DISK:         return L"FILE_DEVICE_VIRTUAL_DISK";
+                    case FILE_DEVICE_WAVE_IN:              return L"FILE_DEVICE_WAVE_IN";
+                    case FILE_DEVICE_WAVE_OUT:             return L"FILE_DEVICE_WAVE_OUT";
+                    case FILE_DEVICE_8042_PORT:            return L"FILE_DEVICE_8042_PORT";
+                    case FILE_DEVICE_NETWORK_REDIRECTOR:   return L"FILE_DEVICE_NETWORK_REDIRECTOR";
+                    case FILE_DEVICE_BATTERY:              return L"FILE_DEVICE_BATTERY";
+                    case FILE_DEVICE_BUS_EXTENDER:         return L"FILE_DEVICE_BUS_EXTENDER";
+                    case FILE_DEVICE_MODEM:                return L"FILE_DEVICE_MODEM";
+                    case FILE_DEVICE_VDM:                  return L"FILE_DEVICE_VDM";
+                    case FILE_DEVICE_MASS_STORAGE:         return L"FILE_DEVICE_MASS_STORAGE";
+                    case FILE_DEVICE_SMB:                  return L"FILE_DEVICE_SMB";
+                    case FILE_DEVICE_KS:                   return L"FILE_DEVICE_KS";
+                    case FILE_DEVICE_CHANGER:              return L"FILE_DEVICE_CHANGER";
+                    case FILE_DEVICE_SMARTCARD:            return L"FILE_DEVICE_SMARTCARD";
+                    case FILE_DEVICE_ACPI:                 return L"FILE_DEVICE_ACPI";
+                    case FILE_DEVICE_DVD:                  return L"FILE_DEVICE_DVD";
+                    case FILE_DEVICE_FULLSCREEN_VIDEO:     return L"FILE_DEVICE_FULLSCREEN_VIDEO";
+                    case FILE_DEVICE_DFS_FILE_SYSTEM:      return L"FILE_DEVICE_DFS_FILE_SYSTEM";
+                    case FILE_DEVICE_DFS_VOLUME:           return L"FILE_DEVICE_DFS_VOLUME";
+                    case FILE_DEVICE_SERENUM:              return L"FILE_DEVICE_SERENUM";
+                    case FILE_DEVICE_TERMSRV:              return L"FILE_DEVICE_TERMSRV";
+                    case FILE_DEVICE_KSEC:                 return L"FILE_DEVICE_KSEC";
+                    case FILE_DEVICE_FIPS:                 return L"FILE_DEVICE_FIPS";
+                    case FILE_DEVICE_INFINIBAND:           return L"FILE_DEVICE_INFINIBAND";
+                    case FILE_DEVICE_VMBUS:                return L"FILE_DEVICE_VMBUS";
+                    case FILE_DEVICE_CRYPT_PROVIDER:       return L"FILE_DEVICE_CRYPT_PROVIDER";
+                    case FILE_DEVICE_WPD:                  return L"FILE_DEVICE_WPD";
+                    case FILE_DEVICE_BLUETOOTH:            return L"FILE_DEVICE_BLUETOOTH";
+                    case FILE_DEVICE_MT_COMPOSITE:         return L"FILE_DEVICE_MT_COMPOSITE";
+                    case FILE_DEVICE_MT_TRANSPORT:         return L"FILE_DEVICE_MT_TRANSPORT";
+                    case FILE_DEVICE_BIOMETRIC:            return L"FILE_DEVICE_BIOMETRIC";
+                    case FILE_DEVICE_PMI:                  return L"FILE_DEVICE_PMI";
+                    case FILE_DEVICE_EHSTOR:               return L"FILE_DEVICE_EHSTOR";
+                    case FILE_DEVICE_DEVAPI:               return L"FILE_DEVICE_DEVAPI";
+                    case FILE_DEVICE_GPIO:                 return L"FILE_DEVICE_GPIO";
+                    case FILE_DEVICE_USBEX:                return L"FILE_DEVICE_USBEX";
+                    case FILE_DEVICE_CONSOLE:              return L"FILE_DEVICE_CONSOLE";
+                    case FILE_DEVICE_NFP:                  return L"FILE_DEVICE_NFP";
+                    case FILE_DEVICE_SYSENV:               return L"FILE_DEVICE_SYSENV";
+                    case FILE_DEVICE_VIRTUAL_BLOCK:        return L"FILE_DEVICE_VIRTUAL_BLOCK";
+                    case FILE_DEVICE_POINT_OF_SERVICE:     return L"FILE_DEVICE_POINT_OF_SERVICE";
+                    case FILE_DEVICE_STORAGE_REPLICATION:  return L"FILE_DEVICE_STORAGE_REPLICATION";
+                    case FILE_DEVICE_TRUST_ENV:            return L"FILE_DEVICE_TRUST_ENV";
+                    case FILE_DEVICE_UCM:                  return L"FILE_DEVICE_UCM";
+                    case FILE_DEVICE_UCMTCPCI:             return L"FILE_DEVICE_UCMTCPCI";
+                    case FILE_DEVICE_PERSISTENT_MEMORY:    return L"FILE_DEVICE_PERSISTENT_MEMORY";
+                    case FILE_DEVICE_NVDIMM:               return L"FILE_DEVICE_NVDIMM";
+                    case FILE_DEVICE_HOLOGRAPHIC:          return L"FILE_DEVICE_HOLOGRAPHIC";
+                    case FILE_DEVICE_SDFXHCI:              return L"FILE_DEVICE_SDFXHCI";
+                    case FILE_DEVICE_UCMUCSI:              return L"FILE_DEVICE_UCMUCSI";
+                    case FILE_DEVICE_PRM:                  return L"FILE_DEVICE_PRM";
+                    case FILE_DEVICE_EVENT_COLLECTOR:      return L"FILE_DEVICE_EVENT_COLLECTOR";
+                    case FILE_DEVICE_USB4:                 return L"FILE_DEVICE_USB4";
+                    case FILE_DEVICE_SOUNDWIRE:            return L"FILE_DEVICE_SOUNDWIRE";
+                    case FILE_DEVICE_FABRIC_NVME:          return L"FILE_DEVICE_FABRIC_NVME";
+                    case FILE_DEVICE_SVM:                  return L"FILE_DEVICE_SVM";
+                    case FILE_DEVICE_HARDWARE_ACCELERATOR: return L"FILE_DEVICE_HARDWARE_ACCELERATOR";
+                    case FILE_DEVICE_I3C:                  return L"FILE_DEVICE_I3C";
+                    case FILE_DEVICE_MULTITIER_MEMORY:     return L"FILE_DEVICE_MULTITIER_MEMORY";
+                    case FILE_DEVICE_CXL_TYPE3:            return L"FILE_DEVICE_CXL_TYPE3";
+                }
+
+                return std::format(L"0x{:X}", deviceType);
+            }
+
+
             std::wstring RenderSymlinkFlags(uint32_t flags) {
 
                 return RenderFlags(flags, SYMLINK_FLAG_NAMES, L"|");
@@ -1384,6 +1384,102 @@ namespace mimo {
             std::wstring RenderUsnReason(uint32_t reason) {
 
                 return RenderFlags(reason, USN_REASON_NAMES, L"|");
+            }
+
+
+            std::wstring RenderStoragePropertyId(uint32_t propertyId) {
+
+                switch (propertyId) {
+                    case StorageDeviceProperty:                    return L"StorageDeviceProperty";
+                    case StorageAdapterProperty:                   return L"StorageAdapterProperty";
+                    case StorageDeviceIdProperty:                  return L"StorageDeviceIdProperty";
+                    case StorageDeviceUniqueIdProperty:            return L"StorageDeviceUniqueIdProperty";
+                    case StorageDeviceWriteCacheProperty:          return L"StorageDeviceWriteCacheProperty";
+                    case StorageMiniportProperty:                  return L"StorageMiniportProperty";
+                    case StorageAccessAlignmentProperty:           return L"StorageAccessAlignmentProperty";
+                    case StorageDeviceSeekPenaltyProperty:         return L"StorageDeviceSeekPenaltyProperty";
+                    case StorageDeviceTrimProperty:                return L"StorageDeviceTrimProperty";
+                    case StorageDeviceWriteAggregationProperty:    return L"StorageDeviceWriteAggregationProperty";
+                    case StorageDeviceDeviceTelemetryProperty:     return L"StorageDeviceDeviceTelemetryProperty";
+                    case StorageDeviceLBProvisioningProperty:      return L"StorageDeviceLBProvisioningProperty";
+                    case StorageDevicePowerProperty:               return L"StorageDevicePowerProperty";
+                    case StorageDeviceCopyOffloadProperty:         return L"StorageDeviceCopyOffloadProperty";
+                    case StorageDeviceResiliencyProperty:          return L"StorageDeviceResiliencyProperty";
+                    case StorageDeviceMediumProductType:           return L"StorageDeviceMediumProductType";
+                    case StorageAdapterRpmbProperty:               return L"StorageAdapterRpmbProperty";
+                    case StorageAdapterCryptoProperty:             return L"StorageAdapterCryptoProperty";
+                    case StorageDeviceIoCapabilityProperty:        return L"StorageDeviceIoCapabilityProperty";
+                    case StorageAdapterProtocolSpecificProperty:   return L"StorageAdapterProtocolSpecificProperty";
+                    case StorageDeviceProtocolSpecificProperty:    return L"StorageDeviceProtocolSpecificProperty";
+                    case StorageAdapterTemperatureProperty:        return L"StorageAdapterTemperatureProperty";
+                    case StorageDeviceTemperatureProperty:         return L"StorageDeviceTemperatureProperty";
+                    case StorageAdapterPhysicalTopologyProperty:   return L"StorageAdapterPhysicalTopologyProperty";
+                    case StorageDevicePhysicalTopologyProperty:    return L"StorageDevicePhysicalTopologyProperty";
+                    case StorageDeviceAttributesProperty:          return L"StorageDeviceAttributesProperty";
+                    case StorageDeviceManagementStatus:            return L"StorageDeviceManagementStatus";
+                    case StorageAdapterSerialNumberProperty:       return L"StorageAdapterSerialNumberProperty";
+                    case StorageDeviceLocationProperty:            return L"StorageDeviceLocationProperty";
+                    case StorageDeviceNumaProperty:                return L"StorageDeviceNumaProperty";
+                    case StorageDeviceZonedDeviceProperty:         return L"StorageDeviceZonedDeviceProperty";
+                    case StorageDeviceUnsafeShutdownCount:         return L"StorageDeviceUnsafeShutdownCount";
+                    case StorageDeviceEnduranceProperty:           return L"StorageDeviceEnduranceProperty";
+                    case StorageDeviceLedStateProperty:            return L"StorageDeviceLedStateProperty";
+                    case StorageDeviceSelfEncryptionProperty:      return L"StorageDeviceSelfEncryptionProperty";
+                    case StorageFruIdProperty:                     return L"StorageFruIdProperty";
+                    case StorageStackProperty:                     return L"StorageStackProperty";
+                    case StorageAdapterProtocolSpecificPropertyEx: return L"StorageAdapterProtocolSpecificPropertyEx";
+                    case StorageDeviceProtocolSpecificPropertyEx:  return L"StorageDeviceProtocolSpecificPropertyEx";
+                    case StorageHwCryptoProperty:                  return L"StorageHwCryptoProperty";
+                }
+
+                return std::to_wstring(propertyId);
+            }
+
+
+            std::wstring RenderStorageQueryType(uint32_t queryType) {
+
+                switch (queryType) {
+                    case PropertyStandardQuery: return L"PropertyStandardQuery";
+                    case PropertyExistsQuery:   return L"PropertyExistsQuery";
+                    case PropertyMaskQuery:     return L"PropertyMaskQuery";
+                }
+
+                return std::to_wstring(queryType);
+            }
+
+
+            std::wstring RenderMediaType(uint32_t mediaType) {
+
+                switch (mediaType) {
+                    case Unknown:        return L"Unknown";
+                    case F5_1Pt2_512:    return L"F5_1Pt2_512";
+                    case F3_1Pt44_512:   return L"F3_1Pt44_512";
+                    case F3_2Pt88_512:   return L"F3_2Pt88_512";
+                    case F3_20Pt8_512:   return L"F3_20Pt8_512";
+                    case F3_720_512:     return L"F3_720_512";
+                    case F5_360_512:     return L"F5_360_512";
+                    case F5_320_512:     return L"F5_320_512";
+                    case F5_320_1024:    return L"F5_320_1024";
+                    case F5_180_512:     return L"F5_180_512";
+                    case F5_160_512:     return L"F5_160_512";
+                    case RemovableMedia: return L"RemovableMedia";
+                    case FixedMedia:     return L"FixedMedia";
+                    case F3_120M_512:    return L"F3_120M_512";
+                    case F3_640_512:     return L"F3_640_512";
+                    case F5_640_512:     return L"F5_640_512";
+                    case F5_720_512:     return L"F5_720_512";
+                    case F3_1Pt2_512:    return L"F3_1Pt2_512";
+                    case F3_1Pt23_1024:  return L"F3_1Pt23_1024";
+                    case F5_1Pt23_1024:  return L"F5_1Pt23_1024";
+                    case F3_128Mb_512:   return L"F3_128Mb_512";
+                    case F3_230Mb_512:   return L"F3_230Mb_512";
+                    case F8_256_128:     return L"F8_256_128";
+                    case F3_200Mb_512:   return L"F3_200Mb_512";
+                    case F3_240M_512:    return L"F3_240M_512";
+                    case F3_32M_512:     return L"F3_32M_512";
+                }
+
+                return std::to_wstring(mediaType);
             }
 
         }

@@ -57,6 +57,8 @@ namespace mimo {
 
             std::wstring RenderIoControlCode(uint32_t ioControlCode);
 
+            std::wstring RenderDeviceType(uint32_t deviceType);
+
             std::wstring RenderSymlinkFlags(uint32_t flags);
 
             std::wstring RenderFileSystemStatisticsType(uint16_t type);
@@ -70,6 +72,12 @@ namespace mimo {
             std::wstring RenderFileRegionUsage(uint32_t usage);
 
             std::wstring RenderUsnReason(uint32_t reason);
+
+            std::wstring RenderStoragePropertyId(uint32_t propertyId);
+
+            std::wstring RenderStorageQueryType(uint32_t queryType);
+
+            std::wstring RenderMediaType(uint32_t mediaType);
 
         }
 

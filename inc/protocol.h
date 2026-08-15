@@ -332,6 +332,26 @@ namespace mimo {
         static_assert(offsetof(FsControlSupplement, inputPayload) == 12u, "protocol::FsControlSupplement layout drift");
         static_assert(offsetof(FsControlSupplement, outputPayload) == 12u + FS_CONTROL_INPUT_PAYLOAD_BYTES, "protocol::FsControlSupplement layout drift");
 
+        // IRP_MJ_DEVICE_CONTROL / IRP_MJ_INTERNAL_DEVICE_CONTROL
+
+        // capture bits for DeviceIoControlSupplement::captured
+        inline constexpr uint32_t DEVICE_IO_CONTROL_CAPTURED_INPUT  = 0x00000001u;
+        inline constexpr uint32_t DEVICE_IO_CONTROL_CAPTURED_OUTPUT = 0x00000002u;
+
+        inline constexpr uint32_t DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES  = 544u;
+        inline constexpr uint32_t DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 3u * sizeof(uint32_t) - DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES;
+
+        struct DeviceIoControlSupplement {
+            uint32_t captured;
+            uint32_t capturedInputBytes;
+            uint32_t capturedOutputBytes;
+            uint8_t inputPayload[DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES];
+            uint8_t outputPayload[DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES];    // METHOD_IN_DIRECT: the second input buffer, captured pre-operation
+        };
+
+        static_assert(offsetof(DeviceIoControlSupplement, inputPayload) == 12u, "protocol::DeviceIoControlSupplement layout drift");
+        static_assert(offsetof(DeviceIoControlSupplement, outputPayload) == 12u + DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES, "protocol::DeviceIoControlSupplement layout drift");
+
         union Supplement {
             CreateSupplement create;
             QueryInfoSupplement queryInfo;
@@ -339,6 +359,7 @@ namespace mimo {
             VolumeInfoSupplement volumeInfo;
             QueryDirectorySupplement queryDirectory;
             FsControlSupplement fsControl;
+            DeviceIoControlSupplement deviceIoControl;
         };
 
         static_assert(sizeof(CreateSupplement) == SUPPLEMENT_BYTES, "protocol::CreateSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
@@ -347,6 +368,7 @@ namespace mimo {
         static_assert(sizeof(VolumeInfoSupplement) == SUPPLEMENT_BYTES, "protocol::VolumeInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(QueryDirectorySupplement) == SUPPLEMENT_BYTES, "protocol::QueryDirectorySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(FsControlSupplement) == SUPPLEMENT_BYTES, "protocol::FsControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
+        static_assert(sizeof(DeviceIoControlSupplement) == SUPPLEMENT_BYTES, "protocol::DeviceIoControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(Supplement) == SUPPLEMENT_BYTES, "protocol::Supplement layout drift");
 
         // truncation bit for RecordData::truncated

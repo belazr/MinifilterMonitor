@@ -1091,6 +1091,76 @@ namespace mimo {
             static_assert(sizeof(FILESYSTEM_STATISTICS_EX) == 104u, "trace::kernel::FILESYSTEM_STATISTICS_EX x64 layout drift");
             static_assert(offsetof(FILESYSTEM_STATISTICS_EX, UserFileReads) == 8u, "trace::kernel::FILESYSTEM_STATISTICS_EX x64 layout drift");
 
+            // IOCTL payload layouts
+
+            struct DISK_GEOMETRY {
+                int64_t Cylinders;
+                uint32_t MediaType;
+                uint32_t TracksPerCylinder;
+                uint32_t SectorsPerTrack;
+                uint32_t BytesPerSector;
+            };
+
+            static_assert(sizeof(DISK_GEOMETRY) == 24u, "trace::kernel::DISK_GEOMETRY x64 layout drift");
+            static_assert(offsetof(DISK_GEOMETRY, MediaType) == 8u, "trace::kernel::DISK_GEOMETRY x64 layout drift");
+
+            struct DISK_GEOMETRY_EX {
+                DISK_GEOMETRY Geometry;
+                int64_t DiskSize;
+                uint8_t Data[1u];
+            };
+
+            static_assert(sizeof(DISK_GEOMETRY_EX) == 40u, "trace::kernel::DISK_GEOMETRY_EX x64 layout drift");
+            static_assert(offsetof(DISK_GEOMETRY_EX, DiskSize) == 24u, "trace::kernel::DISK_GEOMETRY_EX x64 layout drift");
+            static_assert(offsetof(DISK_GEOMETRY_EX, Data) == 32u, "trace::kernel::DISK_GEOMETRY_EX x64 layout drift");
+
+            struct GET_LENGTH_INFORMATION {
+                int64_t Length;
+            };
+
+            static_assert(sizeof(GET_LENGTH_INFORMATION) == 8u, "trace::kernel::GET_LENGTH_INFORMATION x64 layout drift");
+
+            struct STORAGE_DEVICE_NUMBER {
+                uint32_t DeviceType;    // DEVICE_TYPE in the kernel
+                uint32_t DeviceNumber;
+                uint32_t PartitionNumber;
+            };
+
+            static_assert(sizeof(STORAGE_DEVICE_NUMBER) == 12u, "trace::kernel::STORAGE_DEVICE_NUMBER x64 layout drift");
+
+            struct STORAGE_PROPERTY_QUERY {
+                uint32_t PropertyId;
+                uint32_t QueryType;
+                uint8_t AdditionalParameters[1u];
+            };
+
+            static_assert(sizeof(STORAGE_PROPERTY_QUERY) == 12u, "trace::kernel::STORAGE_PROPERTY_QUERY x64 layout drift");
+            static_assert(offsetof(STORAGE_PROPERTY_QUERY, AdditionalParameters) == 8u, "trace::kernel::STORAGE_PROPERTY_QUERY x64 layout drift");
+
+            struct STORAGE_DESCRIPTOR_HEADER {
+                uint32_t Version;
+                uint32_t Size;
+            };
+
+            static_assert(sizeof(STORAGE_DESCRIPTOR_HEADER) == 8u, "trace::kernel::STORAGE_DESCRIPTOR_HEADER x64 layout drift");
+
+            struct DISK_EXTENT {
+                uint32_t DiskNumber;
+                int64_t StartingOffset;
+                int64_t ExtentLength;
+            };
+
+            static_assert(sizeof(DISK_EXTENT) == 24u, "trace::kernel::DISK_EXTENT x64 layout drift");
+            static_assert(offsetof(DISK_EXTENT, StartingOffset) == 8u, "trace::kernel::DISK_EXTENT x64 layout drift");
+
+            struct VOLUME_DISK_EXTENTS {
+                uint32_t NumberOfDiskExtents;
+                DISK_EXTENT Extents[1u];
+            };
+
+            static_assert(sizeof(VOLUME_DISK_EXTENTS) == 32u, "trace::kernel::VOLUME_DISK_EXTENTS x64 layout drift");
+            static_assert(offsetof(VOLUME_DISK_EXTENTS, Extents) == 8u, "trace::kernel::VOLUME_DISK_EXTENTS x64 layout drift");
+
         }
 
     }

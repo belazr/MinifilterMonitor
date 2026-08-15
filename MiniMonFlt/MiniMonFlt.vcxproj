@@ -106,6 +106,7 @@
     <ClCompile Include="src\trace\stack.cpp" />
     <ClCompile Include="src\trace\supplement.cpp" />
     <ClCompile Include="src\trace\supplement\create.cpp" />
+    <ClCompile Include="src\trace\supplement\deviceio.cpp" />
     <ClCompile Include="src\trace\supplement\directory.cpp" />
     <ClCompile Include="src\trace\supplement\filesystem.cpp" />
     <ClCompile Include="src\trace\supplement\info.cpp" />
@@ -127,6 +128,7 @@
     <ClInclude Include="src\trace\stack.h" />
     <ClInclude Include="src\trace\supplement.h" />
     <ClInclude Include="src\trace\supplement\create.h" />
+    <ClInclude Include="src\trace\supplement\deviceio.h" />
     <ClInclude Include="src\trace\supplement\directory.h" />
     <ClInclude Include="src\trace\supplement\filesystem.h" />
     <ClInclude Include="src\trace\supplement\info.h" />

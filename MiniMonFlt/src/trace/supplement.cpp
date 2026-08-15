@@ -1,6 +1,7 @@
 #include "supplement.h"
 
 #include "supplement\create.h"
+#include "supplement\deviceio.h"
 #include "supplement\directory.h"
 #include "supplement\filesystem.h"
 #include "supplement\info.h"
@@ -65,6 +66,15 @@ namespace mimo {
 
                         break;
 
+                    case IRP_MJ_DEVICE_CONTROL:
+                    case IRP_MJ_INTERNAL_DEVICE_CONTROL:
+
+                        if (KeGetCurrentIrql() < DISPATCH_LEVEL && (pData->Iopb->Parameters.DeviceIoControl.Common.InputBufferLength || pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength)) {
+                            deviceio::PopulateInput(&pSupplement->deviceIoControl, pData);
+                        }
+
+                        break;
+
                 }
 
                 return;
@@ -104,6 +114,15 @@ namespace mimo {
 
                         if ((pData->Iopb->MinorFunction == IRP_MN_USER_FS_REQUEST || pData->Iopb->MinorFunction == IRP_MN_KERNEL_CALL) && (NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength) {
                             filesystem::PopulateOutput(&pSupplement->fsControl, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_DEVICE_CONTROL:
+                    case IRP_MJ_INTERNAL_DEVICE_CONTROL:
+
+                        if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength) {
+                            deviceio::PopulateOutput(&pSupplement->deviceIoControl, pData);
                         }
 
                         break;
