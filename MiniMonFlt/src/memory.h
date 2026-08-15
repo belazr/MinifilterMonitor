@@ -16,7 +16,7 @@ namespace mimo {
         __declspec(code_seg("PAGE"))
         bool IsRawBufferReadable(
             _In_ const FLT_CALLBACK_DATA* pData,
-            _In_ const void* pRawBuffer,
+            _In_opt_ const void* pRawBuffer,
             _In_ ULONG bufferSize
         );
 

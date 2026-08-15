@@ -40,6 +40,8 @@ namespace mimo {
         ) {
             PAGED_CODE();
 
+            if (!pRawBuffer) return false;
+
             if (pData->RequestorMode == KernelMode && reinterpret_cast<ULONG_PTR>(pRawBuffer) >= reinterpret_cast<ULONG_PTR>(MmSystemRangeStart)) return true;
 
             if (!pData->Thread || IoThreadToProcess(pData->Thread) != PsGetCurrentProcess()) return false;
