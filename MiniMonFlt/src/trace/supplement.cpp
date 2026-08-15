@@ -23,12 +23,15 @@ namespace mimo {
                 FLT_CALLBACK_DATA* pData,
                 const FLT_RELATED_OBJECTS* pFltObjects
             ) {
+                const KIRQL irql = KeGetCurrentIrql();
+
+                if (irql >= DISPATCH_LEVEL) return;
 
                 switch (pData->Iopb->MajorFunction) {
 
                     case IRP_MJ_CREATE:
 
-                        if (KeGetCurrentIrql() == PASSIVE_LEVEL) {
+                        if (irql == PASSIVE_LEVEL) {
                             create::Populate(&pSupplement->create, pData);
                         }
 
@@ -36,7 +39,7 @@ namespace mimo {
 
                     case IRP_MJ_SET_INFORMATION:
 
-                        if (KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.SetFileInformation.InfoBuffer) {
+                        if (pData->Iopb->Parameters.SetFileInformation.InfoBuffer) {
                             info::PopulateSet(&pSupplement->setInfo, pData, pFltObjects);
                         }
 
@@ -44,7 +47,7 @@ namespace mimo {
 
                     case IRP_MJ_SET_VOLUME_INFORMATION:
 
-                        if (KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer) {
+                        if (pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer) {
                             volume::PopulateSet(&pSupplement->volumeInfo, pData);
                         }
 
@@ -52,7 +55,7 @@ namespace mimo {
 
                     case IRP_MJ_DIRECTORY_CONTROL:
 
-                        if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName) {
+                        if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName) {
                             directory::PopulateFileName(&pSupplement->queryDirectory, pData);
                         }
 
@@ -60,7 +63,7 @@ namespace mimo {
 
                     case IRP_MJ_FILE_SYSTEM_CONTROL:
 
-                        if ((pData->Iopb->MinorFunction == IRP_MN_USER_FS_REQUEST || pData->Iopb->MinorFunction == IRP_MN_KERNEL_CALL) && KeGetCurrentIrql() < DISPATCH_LEVEL && (pData->Iopb->Parameters.FileSystemControl.Common.InputBufferLength || pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength)) {
+                        if ((pData->Iopb->MinorFunction == IRP_MN_USER_FS_REQUEST || pData->Iopb->MinorFunction == IRP_MN_KERNEL_CALL) && (pData->Iopb->Parameters.FileSystemControl.Common.InputBufferLength || pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength)) {
                             filesystem::PopulateInput(&pSupplement->fsControl, pData);
                         }
 
@@ -69,7 +72,7 @@ namespace mimo {
                     case IRP_MJ_DEVICE_CONTROL:
                     case IRP_MJ_INTERNAL_DEVICE_CONTROL:
 
-                        if (KeGetCurrentIrql() < DISPATCH_LEVEL && (pData->Iopb->Parameters.DeviceIoControl.Common.InputBufferLength || pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength)) {
+                        if (pData->Iopb->Parameters.DeviceIoControl.Common.InputBufferLength || pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength) {
                             deviceio::PopulateInput(&pSupplement->deviceIoControl, pData);
                         }
 
@@ -83,12 +86,17 @@ namespace mimo {
 
             _Use_decl_annotations_
             void PopulatePostOperation(protocol::Supplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
+                const NTSTATUS status = pData->IoStatus.Status;
+
+                if (!NT_SUCCESS(status) && status != STATUS_BUFFER_OVERFLOW) return;
+
+                if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                 switch (pData->Iopb->MajorFunction) {
 
                     case IRP_MJ_QUERY_INFORMATION:
 
-                        if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryFileInformation.InfoBuffer) {
+                        if (pData->Iopb->Parameters.QueryFileInformation.InfoBuffer) {
                             info::PopulateQuery(&pSupplement->queryInfo, pData);
                         }
 
@@ -96,7 +104,7 @@ namespace mimo {
 
                     case IRP_MJ_QUERY_VOLUME_INFORMATION:
 
-                        if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer) {
+                        if (pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer) {
                             volume::PopulateQuery(&pSupplement->volumeInfo, pData);
                         }
 
@@ -104,7 +112,7 @@ namespace mimo {
 
                     case IRP_MJ_DIRECTORY_CONTROL:
 
-                        if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && (NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length) {
+                        if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length) {
                             directory::PopulatePayload(&pSupplement->queryDirectory, pData);
                         }
 
@@ -112,7 +120,7 @@ namespace mimo {
 
                     case IRP_MJ_FILE_SYSTEM_CONTROL:
 
-                        if ((pData->Iopb->MinorFunction == IRP_MN_USER_FS_REQUEST || pData->Iopb->MinorFunction == IRP_MN_KERNEL_CALL) && (NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength) {
+                        if ((pData->Iopb->MinorFunction == IRP_MN_USER_FS_REQUEST || pData->Iopb->MinorFunction == IRP_MN_KERNEL_CALL) && pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength) {
                             filesystem::PopulateOutput(&pSupplement->fsControl, pData);
                         }
 
@@ -121,7 +129,7 @@ namespace mimo {
                     case IRP_MJ_DEVICE_CONTROL:
                     case IRP_MJ_INTERNAL_DEVICE_CONTROL:
 
-                        if ((NT_SUCCESS(pData->IoStatus.Status) || pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW) && KeGetCurrentIrql() < DISPATCH_LEVEL && pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength) {
+                        if (pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength) {
                             deviceio::PopulateOutput(&pSupplement->deviceIoControl, pData);
                         }
 
