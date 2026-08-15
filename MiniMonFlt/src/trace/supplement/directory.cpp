@@ -50,12 +50,13 @@ namespace mimo {
                 void PopulatePayload(protocol::QueryDirectorySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
-                    if (!pData->IoStatus.Information) return;
-
                     ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
+
+                    if (!pData->IoStatus.Information || !bufferSize) return;
+
                     const void* pDirectoryBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &bufferSize);
 
-                    if (!pDirectoryBuffer) return;
+                    if (!pDirectoryBuffer || !bufferSize) return;
 
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;

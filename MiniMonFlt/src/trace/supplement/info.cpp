@@ -54,6 +54,9 @@ namespace mimo {
                     PAGED_CODE();
 
                     const ULONG size = pData->Iopb->Parameters.SetFileInformation.Length;
+
+                    if (!size) return;
+
                     const ULONG copySize = size < protocol::SET_INFO_PAYLOAD_BYTES ? size : protocol::SET_INFO_PAYLOAD_BYTES;
 
                     __try {
@@ -96,9 +99,10 @@ namespace mimo {
                 void PopulateQuery(protocol::QueryInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
-                    if (!pData->IoStatus.Information) return;
-
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryFileInformation.Length;
+
+                    if (!pData->IoStatus.Information || !bufferSize) return;
+
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     const ULONG copySize = dataSize < protocol::QUERY_INFO_PAYLOAD_BYTES ? dataSize : protocol::QUERY_INFO_PAYLOAD_BYTES;
