@@ -54,6 +54,8 @@ namespace mimo {
                 void Populate(protocol::CreateSupplement* pSupplement, FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
+                    if (KeGetCurrentIrql() != PASSIVE_LEVEL) return;
+
                     UNICODE_STRING ecpText{};
                     RtlInitEmptyUnicodeString(&ecpText, pSupplement->ecpText, static_cast<USHORT>(sizeof(pSupplement->ecpText)));
 

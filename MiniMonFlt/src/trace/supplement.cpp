@@ -23,17 +23,14 @@ namespace mimo {
                 FLT_CALLBACK_DATA* pData,
                 const FLT_RELATED_OBJECTS* pFltObjects
             ) {
-                const KIRQL irql = KeGetCurrentIrql();
 
-                if (irql >= DISPATCH_LEVEL) return;
+                if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                 switch (pData->Iopb->MajorFunction) {
 
                     case IRP_MJ_CREATE:
 
-                        if (irql == PASSIVE_LEVEL) {
-                            create::Populate(&pSupplement->create, pData);
-                        }
+                        create::Populate(&pSupplement->create, pData);
 
                         break;
 
