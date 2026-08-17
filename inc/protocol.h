@@ -152,6 +152,23 @@ namespace mimo {
                 uint64_t outputMdlAddress;
             } deviceIoControl;
 
+            // IRP_MJ_QUERY_SECURITY
+            struct {
+                uint32_t securityInformation;
+                uint8_t reserved1[4u];
+                uint32_t length;
+                uint8_t reserved2[4u];
+                uint64_t securityBuffer;
+                uint64_t mdlAddress;
+            } querySecurity;
+
+            // IRP_MJ_SET_SECURITY
+            struct {
+                uint32_t securityInformation;
+                uint8_t reserved1[4u];
+                uint64_t securityDescriptor;
+            } setSecurity;
+
             struct {
                 uint64_t argument1;
                 uint64_t argument2;
@@ -203,6 +220,10 @@ namespace mimo {
         static_assert(offsetof(FltParameters, deviceIoControl.inputBuffer) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, deviceIoControl.outputBuffer) == 32u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, deviceIoControl.outputMdlAddress) == 40u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, querySecurity.length) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, querySecurity.securityBuffer) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, querySecurity.mdlAddress) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setSecurity.securityDescriptor) == 8u, "protocol::FltParameters layout drift");
 
         inline constexpr uint32_t STACK_TRACE_FRAMES      = 8u;
         inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;

@@ -79,6 +79,8 @@ namespace mimo {
 
             std::wstring RenderMediaType(uint32_t mediaType);
 
+            std::wstring RenderSecurityInformation(uint32_t securityInformation);
+
         }
 
     }

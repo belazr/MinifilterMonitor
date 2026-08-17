@@ -160,6 +160,14 @@ static_assert(
     "FLT_PARAMETERS DeviceIoControl.FastIo and DeviceIoControl.Neither diverge: split protocol::FltParameters deviceIoControl"
 );
 
+MIRROR_ASSERT(querySecurity.securityInformation, QuerySecurity.SecurityInformation);
+MIRROR_ASSERT(querySecurity.length,              QuerySecurity.Length);
+MIRROR_ASSERT(querySecurity.securityBuffer,      QuerySecurity.SecurityBuffer);
+MIRROR_ASSERT(querySecurity.mdlAddress,          QuerySecurity.MdlAddress);
+
+MIRROR_ASSERT(setSecurity.securityInformation, SetSecurity.SecurityInformation);
+MIRROR_ASSERT(setSecurity.securityDescriptor,  SetSecurity.SecurityDescriptor);
+
 namespace {
 
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {

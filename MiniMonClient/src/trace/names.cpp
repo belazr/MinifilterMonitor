@@ -335,6 +335,25 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(USN_REASON_NAMES), "composite entry after its components in USN_REASON_NAMES");
 
+    constexpr FlagName SECURITY_INFORMATION_NAMES[]{
+        { OWNER_SECURITY_INFORMATION,               L"Owner" },
+        { GROUP_SECURITY_INFORMATION,               L"Group" },
+        { DACL_SECURITY_INFORMATION,                L"DACL" },
+        { SACL_SECURITY_INFORMATION,                L"SACL" },
+        { LABEL_SECURITY_INFORMATION,               L"Label" },
+        { ATTRIBUTE_SECURITY_INFORMATION,           L"Attribute" },
+        { SCOPE_SECURITY_INFORMATION,               L"Scope" },
+        { PROCESS_TRUST_LABEL_SECURITY_INFORMATION, L"Process Trust Label" },
+        { ACCESS_FILTER_SECURITY_INFORMATION,       L"Access Filter" },
+        { BACKUP_SECURITY_INFORMATION,              L"Backup" },
+        { PROTECTED_DACL_SECURITY_INFORMATION,      L"Protected DACL" },
+        { PROTECTED_SACL_SECURITY_INFORMATION,      L"Protected SACL" },
+        { UNPROTECTED_DACL_SECURITY_INFORMATION,    L"Unprotected DACL" },
+        { UNPROTECTED_SACL_SECURITY_INFORMATION,    L"Unprotected SACL" },
+    };
+
+    static_assert(CompositesPrecedeComponents(SECURITY_INFORMATION_NAMES), "composite entry after its components in SECURITY_INFORMATION_NAMES");
+
 }
 
 namespace mimo {
@@ -1480,6 +1499,14 @@ namespace mimo {
                 }
 
                 return std::to_wstring(mediaType);
+            }
+
+
+            std::wstring RenderSecurityInformation(uint32_t securityInformation) {
+
+                if (!securityInformation) return L"None";
+
+                return RenderFlags(securityInformation, SECURITY_INFORMATION_NAMES, L"|");
             }
 
         }
