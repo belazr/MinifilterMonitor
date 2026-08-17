@@ -86,7 +86,7 @@ namespace {
     ) {
         UNREFERENCED_PARAMETER(processId);
 
-        if (!pImageInfo || !pImageInfo->SystemModeImage) return;
+        if (!pImageInfo->SystemModeImage) return;
 
         if (!pFullImageName || !pFullImageName->Buffer || pFullImageName->Length == 0u) return;
 
