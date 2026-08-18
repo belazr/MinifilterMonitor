@@ -23,15 +23,7 @@ namespace mimo {
                     UNICODE_STRING fileName{};
                     RtlInitEmptyUnicodeString(&fileName, pSupplement->fileName, static_cast<USHORT>(sizeof(pSupplement->fileName)));
 
-                    NTSTATUS status = STATUS_UNSUCCESSFUL;
-
-                    __try {
-                        status = RtlUnicodeStringCopy(&fileName, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    const NTSTATUS status = RtlUnicodeStringCopy(&fileName, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName);
 
                     if (!NT_SUCCESS(status) && status != STATUS_BUFFER_OVERFLOW) return;
 

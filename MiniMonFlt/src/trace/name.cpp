@@ -83,19 +83,9 @@ namespace mimo {
 
                 // rename and link layouts agree on RootDirectory, FileNameLength and FileName
                 const FILE_RENAME_INFORMATION* const pInfo = static_cast<const FILE_RENAME_INFORMATION*>(pData->Iopb->Parameters.SetFileInformation.InfoBuffer);
-                HANDLE rootDirectory = nullptr;
-                PWSTR pFileName = nullptr;
-                ULONG fileNameSize = 0u;
-
-                __try {
-                    rootDirectory = pInfo->RootDirectory;
-                    pFileName = const_cast<PWSTR>(pInfo->FileName);
-                    fileNameSize = pInfo->FileNameLength;
-                }
-                __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                    return GetExceptionCode();
-                }
+                HANDLE const rootDirectory = pInfo->RootDirectory;
+                PWSTR const pFileName = const_cast<PWSTR>(pInfo->FileName);
+                const ULONG fileNameSize = pInfo->FileNameLength;
 
                 // copy source, defaulted to the raw, possibly relative name from the info buffer
                 UNICODE_STRING sourceName{};
@@ -109,14 +99,7 @@ namespace mimo {
                     sourceName = pTargetInfo->Name;
                 }
 
-                NTSTATUS copyStatus = STATUS_UNSUCCESSFUL;
-
-                __try {
-                    copyStatus = RtlUnicodeStringCopy(pName, &sourceName);
-                }
-                __except (EXCEPTION_EXECUTE_HANDLER) {
-                    copyStatus = GetExceptionCode();
-                }
+                const NTSTATUS copyStatus = RtlUnicodeStringCopy(pName, &sourceName);
 
                 if (pTargetInfo) {
                     FltReleaseFileNameInformation(pTargetInfo);

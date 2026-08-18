@@ -23,13 +23,7 @@ namespace mimo {
 
                     const ULONG copySize = size < protocol::VOLUME_INFO_PAYLOAD_BYTES ? size : protocol::VOLUME_INFO_PAYLOAD_BYTES;
 
-                    __try {
-                        RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer, copySize);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer, copySize);
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;
@@ -51,13 +45,7 @@ namespace mimo {
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     const ULONG copySize = dataSize < protocol::VOLUME_INFO_PAYLOAD_BYTES ? dataSize : protocol::VOLUME_INFO_PAYLOAD_BYTES;
 
-                    __try {
-                        RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer, copySize);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer, copySize);
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;
