@@ -5,6 +5,7 @@
 #include "supplement\directory.h"
 #include "supplement\filesystem.h"
 #include "supplement\info.h"
+#include "supplement\security.h"
 #include "supplement\volume.h"
 
 #include "..\..\..\inc\protocol.h"
@@ -75,6 +76,14 @@ namespace mimo {
 
                         break;
 
+                    case IRP_MJ_SET_SECURITY:
+
+                        if (pData->Iopb->Parameters.SetSecurity.SecurityDescriptor) {
+                            security::PopulateSet(&pSupplement->security, pData);
+                        }
+
+                        break;
+
                 }
 
                 return;
@@ -128,6 +137,14 @@ namespace mimo {
 
                         if (pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength) {
                             deviceio::PopulateOutput(&pSupplement->deviceIoControl, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_QUERY_SECURITY:
+
+                        if (pData->Iopb->Parameters.QuerySecurity.Length) {
+                            security::PopulateQuery(&pSupplement->security, pData);
                         }
 
                         break;

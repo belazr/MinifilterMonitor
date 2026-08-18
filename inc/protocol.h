@@ -373,6 +373,21 @@ namespace mimo {
         static_assert(offsetof(DeviceIoControlSupplement, inputPayload) == 12u, "protocol::DeviceIoControlSupplement layout drift");
         static_assert(offsetof(DeviceIoControlSupplement, outputPayload) == 12u + DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES, "protocol::DeviceIoControlSupplement layout drift");
 
+        // IRP_MJ_QUERY_SECURITY / IRP_MJ_SET_SECURITY
+
+        // capture bit for SecuritySupplement::captured
+        inline constexpr uint32_t SECURITY_CAPTURED_PAYLOAD = 0x00000001u;
+
+        inline constexpr uint32_t SECURITY_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 2u * sizeof(uint32_t);
+
+        struct SecuritySupplement {
+            uint32_t captured;
+            uint32_t capturedBytes;
+            uint8_t payload[SECURITY_PAYLOAD_BYTES];    // self-relative SECURITY_DESCRIPTOR, validated by the driver
+        };
+
+        static_assert(offsetof(SecuritySupplement, payload) == 8u, "protocol::SecuritySupplement layout drift");
+
         union Supplement {
             CreateSupplement create;
             QueryInfoSupplement queryInfo;
@@ -381,6 +396,7 @@ namespace mimo {
             QueryDirectorySupplement queryDirectory;
             FsControlSupplement fsControl;
             DeviceIoControlSupplement deviceIoControl;
+            SecuritySupplement security;
         };
 
         static_assert(sizeof(CreateSupplement) == SUPPLEMENT_BYTES, "protocol::CreateSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
@@ -390,6 +406,7 @@ namespace mimo {
         static_assert(sizeof(QueryDirectorySupplement) == SUPPLEMENT_BYTES, "protocol::QueryDirectorySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(FsControlSupplement) == SUPPLEMENT_BYTES, "protocol::FsControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(DeviceIoControlSupplement) == SUPPLEMENT_BYTES, "protocol::DeviceIoControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
+        static_assert(sizeof(SecuritySupplement) == SUPPLEMENT_BYTES, "protocol::SecuritySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(Supplement) == SUPPLEMENT_BYTES, "protocol::Supplement layout drift");
 
         // truncation bit for RecordData::truncated

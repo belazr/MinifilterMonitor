@@ -75,6 +75,9 @@
     <ClCompile Include="src\trace\supplement\info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\trace\supplement\security.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\trace\supplement\volume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -135,6 +138,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\supplement\info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\supplement\security.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\supplement\volume.h">
