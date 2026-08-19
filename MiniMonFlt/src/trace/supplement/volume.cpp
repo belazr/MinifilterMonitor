@@ -17,13 +17,14 @@ namespace mimo {
                 void PopulateSet(protocol::VolumeInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
+                    const void* const pVolumeBuffer = pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer;
                     const ULONG size = pData->Iopb->Parameters.SetVolumeInformation.Length;
 
-                    if (!size) return;
+                    if (!pVolumeBuffer || !size) return;
 
                     const ULONG copySize = size < protocol::VOLUME_INFO_PAYLOAD_BYTES ? size : protocol::VOLUME_INFO_PAYLOAD_BYTES;
 
-                    RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer, copySize);
+                    RtlCopyMemory(pSupplement->payload, pVolumeBuffer, copySize);
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;
@@ -37,15 +38,16 @@ namespace mimo {
                 void PopulateQuery(protocol::VolumeInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
+                    const void* const pVolumeBuffer = pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer;
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryVolumeInformation.Length;
 
-                    if (!pData->IoStatus.Information || !bufferSize) return;
+                    if (!pVolumeBuffer || !pData->IoStatus.Information || !bufferSize) return;
 
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     const ULONG copySize = dataSize < protocol::VOLUME_INFO_PAYLOAD_BYTES ? dataSize : protocol::VOLUME_INFO_PAYLOAD_BYTES;
 
-                    RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer, copySize);
+                    RtlCopyMemory(pSupplement->payload, pVolumeBuffer, copySize);
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;

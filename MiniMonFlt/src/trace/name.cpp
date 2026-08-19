@@ -83,6 +83,9 @@ namespace mimo {
 
                 // rename and link layouts agree on RootDirectory, FileNameLength and FileName
                 const FILE_RENAME_INFORMATION* const pInfo = static_cast<const FILE_RENAME_INFORMATION*>(pData->Iopb->Parameters.SetFileInformation.InfoBuffer);
+
+                if (!pInfo) return STATUS_INVALID_PARAMETER;
+
                 HANDLE const rootDirectory = pInfo->RootDirectory;
                 PWSTR const pFileName = const_cast<PWSTR>(pInfo->FileName);
                 const ULONG fileNameSize = pInfo->FileNameLength;

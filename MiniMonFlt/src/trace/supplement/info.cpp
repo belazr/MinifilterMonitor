@@ -53,13 +53,14 @@ namespace mimo {
                 ) {
                     PAGED_CODE();
 
+                    const void* const pInfoBuffer = pData->Iopb->Parameters.SetFileInformation.InfoBuffer;
                     const ULONG size = pData->Iopb->Parameters.SetFileInformation.Length;
 
-                    if (!size) return;
+                    if (!pInfoBuffer || !size) return;
 
                     const ULONG copySize = size < protocol::SET_INFO_PAYLOAD_BYTES ? size : protocol::SET_INFO_PAYLOAD_BYTES;
 
-                    RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.SetFileInformation.InfoBuffer, copySize);
+                    RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::SET_INFO_CAPTURED_PAYLOAD;
@@ -93,15 +94,16 @@ namespace mimo {
                 void PopulateQuery(protocol::QueryInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
+                    const void* const pInfoBuffer = pData->Iopb->Parameters.QueryFileInformation.InfoBuffer;
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryFileInformation.Length;
 
-                    if (!pData->IoStatus.Information || !bufferSize) return;
+                    if (!pInfoBuffer || !pData->IoStatus.Information || !bufferSize) return;
 
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     const ULONG copySize = dataSize < protocol::QUERY_INFO_PAYLOAD_BYTES ? dataSize : protocol::QUERY_INFO_PAYLOAD_BYTES;
 
-                    RtlCopyMemory(pSupplement->payload, pData->Iopb->Parameters.QueryFileInformation.InfoBuffer, copySize);
+                    RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;

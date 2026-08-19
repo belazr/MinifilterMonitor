@@ -22,6 +22,8 @@ namespace mimo {
                     PSECURITY_DESCRIPTOR const pSecurityDescriptor = pData->Iopb->Parameters.SetSecurity.SecurityDescriptor;
                     ULONG size = 0u;
 
+                    if (!pSecurityDescriptor) return;
+
                     // absolute and self-relative layouts agree on Control
                     if (static_cast<const SECURITY_DESCRIPTOR_RELATIVE*>(pSecurityDescriptor)->Control & SE_SELF_RELATIVE) {
                         size = RtlLengthSecurityDescriptor(pSecurityDescriptor);

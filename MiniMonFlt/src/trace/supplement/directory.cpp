@@ -20,10 +20,14 @@ namespace mimo {
                 void PopulateFileName(protocol::QueryDirectorySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
+                    const UNICODE_STRING* const pFileName = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName;
+
+                    if (!pFileName) return;
+
                     UNICODE_STRING fileName{};
                     RtlInitEmptyUnicodeString(&fileName, pSupplement->fileName, static_cast<USHORT>(sizeof(pSupplement->fileName)));
 
-                    const NTSTATUS status = RtlUnicodeStringCopy(&fileName, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName);
+                    const NTSTATUS status = RtlUnicodeStringCopy(&fileName, pFileName);
 
                     if (!NT_SUCCESS(status) && status != STATUS_BUFFER_OVERFLOW) return;
 
