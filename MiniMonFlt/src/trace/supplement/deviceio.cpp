@@ -63,12 +63,11 @@ namespace mimo {
                     if (!inSize && !outSize) return;
 
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.DeviceIoControl.Common.IoControlCode);
-                    const bool isFastIo = FLT_IS_FASTIO_OPERATION(pData);
 
                     const void* pInputBuffer = nullptr;
                     const void* pRawBuffer = nullptr;
 
-                    if (isFastIo) {
+                    if (FLT_IS_FASTIO_OPERATION(pData)) {
                         pRawBuffer = pData->Iopb->Parameters.DeviceIoControl.FastIo.InputBuffer;
                     }
                     else {
