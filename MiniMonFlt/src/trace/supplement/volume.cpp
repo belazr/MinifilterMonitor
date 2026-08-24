@@ -40,10 +40,10 @@ namespace mimo {
 
                     const void* const pVolumeBuffer = pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer;
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryVolumeInformation.Length;
-
-                    if (!pVolumeBuffer || !pData->IoStatus.Information || !bufferSize) return;
-
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
+
+                    if (!pVolumeBuffer || !bufferSize || !writtenSize) return;
+
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     const ULONG copySize = dataSize < protocol::VOLUME_INFO_PAYLOAD_BYTES ? dataSize : protocol::VOLUME_INFO_PAYLOAD_BYTES;
 

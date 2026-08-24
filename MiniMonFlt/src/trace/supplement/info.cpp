@@ -96,10 +96,10 @@ namespace mimo {
 
                     const void* const pInfoBuffer = pData->Iopb->Parameters.QueryFileInformation.InfoBuffer;
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryFileInformation.Length;
-
-                    if (!pInfoBuffer || !pData->IoStatus.Information || !bufferSize) return;
-
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
+
+                    if (!pInfoBuffer || !bufferSize || !writtenSize) return;
+
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     const ULONG copySize = dataSize < protocol::QUERY_INFO_PAYLOAD_BYTES ? dataSize : protocol::QUERY_INFO_PAYLOAD_BYTES;
 

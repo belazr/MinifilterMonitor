@@ -128,8 +128,9 @@ namespace mimo {
 
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.DeviceIoControl.Common.IoControlCode);
                     ULONG bufferSize = pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength;
+                    const ULONG_PTR writtenSize = pData->IoStatus.Information;
 
-                    if (!pData->IoStatus.Information || method == METHOD_IN_DIRECT || !bufferSize) return;
+                    if (method == METHOD_IN_DIRECT || !bufferSize || !writtenSize) return;
 
                     const void* pOutputBuffer = nullptr;
 
@@ -163,7 +164,6 @@ namespace mimo {
 
                     if (!pOutputBuffer || !bufferSize) return;
 
-                    const ULONG_PTR writtenSize = pData->IoStatus.Information;
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     const ULONG copySize = dataSize < protocol::DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES ? dataSize : protocol::DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES;
 

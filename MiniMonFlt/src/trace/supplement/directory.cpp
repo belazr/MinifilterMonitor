@@ -47,14 +47,14 @@ namespace mimo {
                     PAGED_CODE();
 
                     ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
+                    const ULONG_PTR writtenSize = pData->IoStatus.Information;
 
-                    if (!pData->IoStatus.Information || !bufferSize) return;
+                    if (!bufferSize || !writtenSize) return;
 
                     const void* pDirectoryBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &bufferSize);
 
                     if (!pDirectoryBuffer || !bufferSize) return;
 
-                    const ULONG_PTR writtenSize = pData->IoStatus.Information;
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     const ULONG copySize = dataSize < protocol::QUERY_DIRECTORY_PAYLOAD_BYTES ? dataSize : protocol::QUERY_DIRECTORY_PAYLOAD_BYTES;
 
