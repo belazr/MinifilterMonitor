@@ -300,7 +300,7 @@ namespace {
         { FILE_REGION_USAGE_VALID_NONCACHED_DATA, L"FILE_REGION_USAGE_VALID_NONCACHED_DATA" },
         { FILE_REGION_USAGE_OTHER_PAGE_ALIGNMENT, L"FILE_REGION_USAGE_OTHER_PAGE_ALIGNMENT" },
         { FILE_REGION_USAGE_LARGE_PAGE_ALIGNMENT, L"FILE_REGION_USAGE_LARGE_PAGE_ALIGNMENT" },
-        // the macro is _WIN64-only in winioctl.h; spelled by value so the x86 client renders x64 records identically
+        // the macro is _WIN64-only in winioctl.h, spelled by value so the x86 client renders x64 records identically
         { 0x00000010u,                            L"FILE_REGION_USAGE_HUGE_PAGE_ALIGNMENT" },
     };
 
