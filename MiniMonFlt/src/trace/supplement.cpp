@@ -96,6 +96,8 @@ namespace mimo {
 
                 if (!NT_SUCCESS(status) && status != STATUS_BUFFER_OVERFLOW) return;
 
+                if (!pData->IoStatus.Information) return;
+
                 if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                 switch (pData->Iopb->MajorFunction) {
