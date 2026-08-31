@@ -29,6 +29,7 @@
     <ClCompile Include="src\trace\details\directory.cpp" />
     <ClCompile Include="src\trace\details\filesystem.cpp" />
     <ClCompile Include="src\trace\details\info.cpp" />
+    <ClCompile Include="src\trace\details\lock.cpp" />
     <ClCompile Include="src\trace\details\readwrite.cpp" />
     <ClCompile Include="src\trace\details\security.cpp" />
     <ClCompile Include="src\trace\details\volume.cpp" />
@@ -50,6 +51,7 @@
     <ClInclude Include="src\trace\details\directory.h" />
     <ClInclude Include="src\trace\details\filesystem.h" />
     <ClInclude Include="src\trace\details\info.h" />
+    <ClInclude Include="src\trace\details\lock.h" />
     <ClInclude Include="src\trace\details\payload.h" />
     <ClInclude Include="src\trace\details\readwrite.h" />
     <ClInclude Include="src\trace\details\security.h" />

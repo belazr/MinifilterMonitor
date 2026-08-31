@@ -5,6 +5,7 @@
 #include "supplement\directory.h"
 #include "supplement\filesystem.h"
 #include "supplement\info.h"
+#include "supplement\lock.h"
 #include "supplement\security.h"
 #include "supplement\volume.h"
 
@@ -72,6 +73,14 @@ namespace mimo {
 
                         if (pData->Iopb->Parameters.DeviceIoControl.Common.InputBufferLength || pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength) {
                             deviceio::PopulateInput(&pSupplement->deviceIoControl, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_LOCK_CONTROL:
+
+                        if ((pData->Iopb->MinorFunction == IRP_MN_LOCK || pData->Iopb->MinorFunction == IRP_MN_UNLOCK_SINGLE) && pData->Iopb->Parameters.LockControl.Length) {
+                            lock::Populate(&pSupplement->lockControl, pData);
                         }
 
                         break;

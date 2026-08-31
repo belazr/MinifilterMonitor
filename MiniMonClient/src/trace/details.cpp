@@ -5,6 +5,7 @@
 #include "details\directory.h"
 #include "details\filesystem.h"
 #include "details\info.h"
+#include "details\lock.h"
 #include "details\readwrite.h"
 #include "details\security.h"
 #include "details\volume.h"
@@ -61,6 +62,10 @@ namespace mimo {
                     case kernel::IRP_MJ_INTERNAL_DEVICE_CONTROL:
 
                         return deviceio::Render(data);
+
+                    case kernel::IRP_MJ_LOCK_CONTROL:
+
+                        return lock::Render(data);
 
                     case kernel::IRP_MJ_QUERY_SECURITY:
 

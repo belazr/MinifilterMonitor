@@ -152,6 +152,17 @@ namespace mimo {
                 uint64_t outputMdlAddress;
             } deviceIoControl;
 
+            // IRP_MJ_LOCK_CONTROL
+            struct {
+                uint64_t length;
+                uint32_t key;
+                uint8_t reserved1[4u];
+                int64_t byteOffset;
+                uint64_t processId;         // fast I/O only
+                uint8_t failImmediately;    // fast I/O only (IRP operations carry SL_FAIL_IMMEDIATELY)
+                uint8_t exclusiveLock;      // fast I/O only (IRP operations carry SL_EXCLUSIVE_LOCK)
+            } lockControl;
+
             // IRP_MJ_QUERY_SECURITY
             struct {
                 uint32_t securityInformation;
@@ -220,6 +231,11 @@ namespace mimo {
         static_assert(offsetof(FltParameters, deviceIoControl.inputBuffer) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, deviceIoControl.outputBuffer) == 32u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, deviceIoControl.outputMdlAddress) == 40u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, lockControl.key) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, lockControl.byteOffset) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, lockControl.processId) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, lockControl.failImmediately) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, lockControl.exclusiveLock) == 33u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, querySecurity.length) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, querySecurity.securityBuffer) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, querySecurity.mdlAddress) == 24u, "protocol::FltParameters layout drift");
@@ -237,9 +253,9 @@ namespace mimo {
 
         // per-operation supplements: data the parameters mirror cannot provide
 
-        // every supplement exactly fills the union; the ecpText and payload capacities absorb
-        // the bytes the fixed members leave
-        inline constexpr uint32_t SUPPLEMENT_BYTES = 1100u;
+        // supplements with an elastic capacity fill the union exactly
+        // fixed-member-only supplements stay at their natural size
+        inline constexpr uint32_t SUPPLEMENT_BYTES = 1104u;
 
         // IRP_MJ_CREATE
 
@@ -339,7 +355,7 @@ namespace mimo {
         inline constexpr uint32_t FS_CONTROL_CAPTURED_INPUT  = 0x00000001u;
         inline constexpr uint32_t FS_CONTROL_CAPTURED_OUTPUT = 0x00000002u;
 
-        inline constexpr uint32_t FS_CONTROL_INPUT_PAYLOAD_BYTES  = 544u;
+        inline constexpr uint32_t FS_CONTROL_INPUT_PAYLOAD_BYTES  = 546u;
         inline constexpr uint32_t FS_CONTROL_OUTPUT_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 3u * sizeof(uint32_t) - FS_CONTROL_INPUT_PAYLOAD_BYTES;
 
         struct FsControlSupplement {
@@ -359,7 +375,7 @@ namespace mimo {
         inline constexpr uint32_t DEVICE_IO_CONTROL_CAPTURED_INPUT  = 0x00000001u;
         inline constexpr uint32_t DEVICE_IO_CONTROL_CAPTURED_OUTPUT = 0x00000002u;
 
-        inline constexpr uint32_t DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES  = 544u;
+        inline constexpr uint32_t DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES  = 546u;
         inline constexpr uint32_t DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 3u * sizeof(uint32_t) - DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES;
 
         struct DeviceIoControlSupplement {
@@ -372,6 +388,21 @@ namespace mimo {
 
         static_assert(offsetof(DeviceIoControlSupplement, inputPayload) == 12u, "protocol::DeviceIoControlSupplement layout drift");
         static_assert(offsetof(DeviceIoControlSupplement, outputPayload) == 12u + DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES, "protocol::DeviceIoControlSupplement layout drift");
+
+        // IRP_MJ_LOCK_CONTROL
+
+        // capture bit for LockControlSupplement::captured
+        inline constexpr uint32_t LOCK_CONTROL_CAPTURED_LENGTH = 0x00000001u;
+
+        struct LockControlSupplement {
+            uint32_t captured;
+            uint8_t reserved[4u];
+            int64_t length;
+        };
+
+        static_assert(offsetof(LockControlSupplement, length) == 8u, "protocol::LockControlSupplement layout drift");
+        static_assert(sizeof(LockControlSupplement) == 16u, "protocol::LockControlSupplement layout drift");
+        static_assert(sizeof(LockControlSupplement) <= SUPPLEMENT_BYTES, "protocol::LockControlSupplement exceeds the supplement union");
 
         // IRP_MJ_QUERY_SECURITY / IRP_MJ_SET_SECURITY
 
@@ -396,6 +427,7 @@ namespace mimo {
             QueryDirectorySupplement queryDirectory;
             FsControlSupplement fsControl;
             DeviceIoControlSupplement deviceIoControl;
+            LockControlSupplement lockControl;
             SecuritySupplement security;
         };
 

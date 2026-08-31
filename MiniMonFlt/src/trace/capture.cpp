@@ -160,6 +160,13 @@ static_assert(
     "FLT_PARAMETERS DeviceIoControl.FastIo and DeviceIoControl.Neither diverge: split protocol::FltParameters deviceIoControl"
 );
 
+MIRROR_ASSERT(lockControl.length,          LockControl.Length);
+MIRROR_ASSERT(lockControl.key,             LockControl.Key);
+MIRROR_ASSERT(lockControl.byteOffset,      LockControl.ByteOffset);
+MIRROR_ASSERT(lockControl.processId,       LockControl.ProcessId);
+MIRROR_ASSERT(lockControl.failImmediately, LockControl.FailImmediately);
+MIRROR_ASSERT(lockControl.exclusiveLock,   LockControl.ExclusiveLock);
+
 MIRROR_ASSERT(querySecurity.securityInformation, QuerySecurity.SecurityInformation);
 MIRROR_ASSERT(querySecurity.length,              QuerySecurity.Length);
 MIRROR_ASSERT(querySecurity.securityBuffer,      QuerySecurity.SecurityBuffer);

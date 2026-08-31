@@ -45,6 +45,9 @@
     <ClCompile Include="src\trace\details\info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\trace\details\lock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\trace\details\readwrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\details\info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\details\lock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\details\payload.h">
