@@ -33,7 +33,7 @@ namespace {
 
         if (!ConvertSecurityDescriptorToStringSecurityDescriptorW(pSecurityDescriptor, SDDL_REVISION_1, static_cast<DWORD>(securityInformation), &pText, nullptr)) return L"Descriptor: [invalid descriptor]";
 
-        const std::wstring descriptor = std::format(L"Descriptor: {}", pText);
+        const std::wstring descriptor = *pText ? std::format(L"Descriptor: {}", pText) : L"Descriptor: [no matching components]";
         LocalFree(pText);
 
         return descriptor;
