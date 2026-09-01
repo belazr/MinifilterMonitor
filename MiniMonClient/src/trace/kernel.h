@@ -707,7 +707,7 @@ namespace mimo {
 
             static_assert(sizeof(FILE_FS_SECTOR_SIZE_INFORMATION) == 28u, "trace::kernel::FILE_FS_SECTOR_SIZE_INFORMATION x64 layout drift");
 
-            // completion filter values
+            // completion filter flags
             inline constexpr uint32_t FILE_NOTIFY_CHANGE_EA           = 0x00000080u;
             inline constexpr uint32_t FILE_NOTIFY_CHANGE_STREAM_NAME  = 0x00000200u;
             inline constexpr uint32_t FILE_NOTIFY_CHANGE_STREAM_SIZE  = 0x00000400u;
