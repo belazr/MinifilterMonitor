@@ -20,7 +20,7 @@ namespace {
     }
 
 
-    std::wstring RenderRange(const protocol::RecordData& data) {
+    std::wstring RenderLockRange(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
         std::wstring details = std::format(L"Offset: {}", parameters.lockControl.byteOffset);
 
@@ -45,7 +45,7 @@ namespace {
         const bool exclusiveLock = fastIo ? parameters.lockControl.exclusiveLock : (data.operationFlags & trace::kernel::SL_EXCLUSIVE_LOCK);
         const bool failImmediately = fastIo ? parameters.lockControl.failImmediately : (data.operationFlags & trace::kernel::SL_FAIL_IMMEDIATELY);
 
-        return std::format(L"Exclusive: {}, {}, Fail Immediately: {}", trace::values::RenderBoolean(exclusiveLock), RenderRange(data), trace::values::RenderBoolean(failImmediately));
+        return std::format(L"Exclusive: {}, {}, Fail Immediately: {}", trace::values::RenderBoolean(exclusiveLock), RenderLockRange(data), trace::values::RenderBoolean(failImmediately));
     }
 
 }
@@ -68,7 +68,7 @@ namespace mimo {
 
                         case kernel::IRP_MN_UNLOCK_SINGLE:
 
-                            return RenderRange(data);
+                            return RenderLockRange(data);
 
                         case kernel::IRP_MN_UNLOCK_ALL_BY_KEY:
 

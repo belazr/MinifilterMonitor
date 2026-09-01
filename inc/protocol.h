@@ -189,6 +189,37 @@ namespace mimo {
                 uint32_t allocationAttributes;    // SyncTypeCreateSection only
             } acquireForSectionSynchronization;
 
+            // IRP_MJ_FAST_IO_CHECK_IF_POSSIBLE
+            struct {
+                int64_t fileOffset;
+                uint32_t length;
+                uint8_t reserved1[4u];
+                uint32_t lockKey;
+                uint8_t reserved2[4u];
+                uint8_t checkForReadOperation;
+            } fastIoCheckIfPossible;
+
+            // IRP_MJ_MDL_READ / IRP_MJ_PREPARE_MDL_WRITE
+            struct {
+                int64_t fileOffset;
+                uint32_t length;
+                uint8_t reserved1[4u];
+                uint32_t key;
+                uint8_t reserved2[4u];
+                uint64_t mdlChain;
+            } mdlReadWrite;
+
+            // IRP_MJ_MDL_READ_COMPLETE
+            struct {
+                uint64_t mdlChain;
+            } mdlReadComplete;
+
+            // IRP_MJ_MDL_WRITE_COMPLETE
+            struct {
+                int64_t fileOffset;
+                uint64_t mdlChain;
+            } mdlWriteComplete;
+
             struct {
                 uint64_t argument1;
                 uint64_t argument2;
@@ -253,6 +284,13 @@ namespace mimo {
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.outputInformation) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.flags) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.allocationAttributes) == 20u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, fastIoCheckIfPossible.length) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, fastIoCheckIfPossible.lockKey) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, fastIoCheckIfPossible.checkForReadOperation) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, mdlReadWrite.length) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, mdlReadWrite.key) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, mdlReadWrite.mdlChain) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, mdlWriteComplete.mdlChain) == 8u, "protocol::FltParameters layout drift");
 
         inline constexpr uint32_t STACK_TRACE_FRAMES      = 8u;
         inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;

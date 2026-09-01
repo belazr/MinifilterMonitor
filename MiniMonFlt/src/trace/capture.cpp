@@ -181,6 +181,29 @@ MIRROR_ASSERT(acquireForSectionSynchronization.outputInformation,    AcquireForS
 MIRROR_ASSERT(acquireForSectionSynchronization.flags,                AcquireForSectionSynchronization.Flags);
 MIRROR_ASSERT(acquireForSectionSynchronization.allocationAttributes, AcquireForSectionSynchronization.AllocationAttributes);
 
+MIRROR_ASSERT(fastIoCheckIfPossible.fileOffset,            FastIoCheckIfPossible.FileOffset);
+MIRROR_ASSERT(fastIoCheckIfPossible.length,                FastIoCheckIfPossible.Length);
+MIRROR_ASSERT(fastIoCheckIfPossible.lockKey,               FastIoCheckIfPossible.LockKey);
+MIRROR_ASSERT(fastIoCheckIfPossible.checkForReadOperation, FastIoCheckIfPossible.CheckForReadOperation);
+
+MIRROR_ASSERT(mdlReadWrite.fileOffset, MdlRead.FileOffset);
+MIRROR_ASSERT(mdlReadWrite.length,     MdlRead.Length);
+MIRROR_ASSERT(mdlReadWrite.key,        MdlRead.Key);
+MIRROR_ASSERT(mdlReadWrite.mdlChain,   MdlRead.MdlChain);
+
+static_assert(
+    offsetof(FLT_PARAMETERS, PrepareMdlWrite.FileOffset) == offsetof(FLT_PARAMETERS, MdlRead.FileOffset)
+    && offsetof(FLT_PARAMETERS, PrepareMdlWrite.Length) == offsetof(FLT_PARAMETERS, MdlRead.Length)
+    && offsetof(FLT_PARAMETERS, PrepareMdlWrite.Key) == offsetof(FLT_PARAMETERS, MdlRead.Key)
+    && offsetof(FLT_PARAMETERS, PrepareMdlWrite.MdlChain) == offsetof(FLT_PARAMETERS, MdlRead.MdlChain),
+    "FLT_PARAMETERS MdlRead and PrepareMdlWrite diverge: split protocol::FltParameters mdlReadWrite"
+);
+
+MIRROR_ASSERT(mdlReadComplete.mdlChain, MdlReadComplete.MdlChain);
+
+MIRROR_ASSERT(mdlWriteComplete.fileOffset, MdlWriteComplete.FileOffset);
+MIRROR_ASSERT(mdlWriteComplete.mdlChain,   MdlWriteComplete.MdlChain);
+
 namespace {
 
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {

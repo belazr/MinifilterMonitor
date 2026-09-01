@@ -5,6 +5,7 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
+#include <cstdint>
 #include <format>
 #include <string>
 
@@ -41,6 +42,17 @@ namespace {
         return ioFlags;
     }
 
+
+    std::wstring RenderRange(int64_t fileOffset, uint32_t length, uint32_t key) {
+        std::wstring details = std::format(L"Offset: {}, Length: {}", fileOffset, length);
+
+        if (key) {
+            details += std::format(L", Key: 0x{:X}", key);
+        }
+
+        return details;
+    }
+
 }
 
 namespace mimo {
@@ -51,7 +63,7 @@ namespace mimo {
 
             namespace readwrite {
 
-                std::wstring Render(const protocol::RecordData& data) {
+                std::wstring RenderCopy(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
 
                     if (data.callbackMinorId & kernel::IRP_MN_COMPLETE) {
@@ -76,6 +88,45 @@ namespace mimo {
 
                     if (data.status >= 0 && data.information != parameters.readWrite.length) {
                         details += std::format(L", Transferred: {}", data.information);
+                    }
+
+                    return details;
+                }
+
+
+                std::wstring RenderCheckIfPossible(const protocol::RecordData& data) {
+                    const protocol::FltParameters& parameters = data.parameters;
+                    std::wstring details = std::format(L"Operation: {}", parameters.fastIoCheckIfPossible.checkForReadOperation ? L"Read" : L"Write");
+
+                    details += L", ";
+                    details += RenderRange(parameters.fastIoCheckIfPossible.fileOffset, parameters.fastIoCheckIfPossible.length, parameters.fastIoCheckIfPossible.lockKey);
+
+                    return details;
+                }
+
+
+                std::wstring RenderMdl(const protocol::RecordData& data) {
+                    const protocol::FltParameters& parameters = data.parameters;
+
+                    return RenderRange(parameters.mdlReadWrite.fileOffset, parameters.mdlReadWrite.length, parameters.mdlReadWrite.key);
+                }
+
+
+                std::wstring RenderMdlReadComplete(const protocol::RecordData& data) {
+                    const protocol::FltParameters& parameters = data.parameters;
+
+                    if (!parameters.mdlReadComplete.mdlChain) return {};
+
+                    return std::format(L"Mdl: 0x{:X}", parameters.mdlReadComplete.mdlChain);
+                }
+
+
+                std::wstring RenderMdlWriteComplete(const protocol::RecordData& data) {
+                    const protocol::FltParameters& parameters = data.parameters;
+                    std::wstring details = std::format(L"Offset: {}", parameters.mdlWriteComplete.fileOffset);
+
+                    if (parameters.mdlWriteComplete.mdlChain) {
+                        details += std::format(L", Mdl: 0x{:X}", parameters.mdlWriteComplete.mdlChain);
                     }
 
                     return details;

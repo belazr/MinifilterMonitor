@@ -36,7 +36,7 @@ namespace mimo {
                     case kernel::IRP_MJ_READ:
                     case kernel::IRP_MJ_WRITE:
 
-                        return readwrite::Render(data);
+                        return readwrite::RenderCopy(data);
 
                     case kernel::IRP_MJ_QUERY_INFORMATION:
 
@@ -79,6 +79,23 @@ namespace mimo {
                     case kernel::IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION:
 
                         return section::Render(data);
+
+                    case kernel::IRP_MJ_FAST_IO_CHECK_IF_POSSIBLE:
+
+                        return readwrite::RenderCheckIfPossible(data);
+
+                    case kernel::IRP_MJ_MDL_READ:
+                    case kernel::IRP_MJ_PREPARE_MDL_WRITE:
+
+                        return readwrite::RenderMdl(data);
+
+                    case kernel::IRP_MJ_MDL_READ_COMPLETE:
+
+                        return readwrite::RenderMdlReadComplete(data);
+
+                    case kernel::IRP_MJ_MDL_WRITE_COMPLETE:
+
+                        return readwrite::RenderMdlWriteComplete(data);
 
                 }
 
