@@ -354,6 +354,43 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(SECURITY_INFORMATION_NAMES), "composite entry after its components in SECURITY_INFORMATION_NAMES");
 
+    constexpr FlagName PAGE_PROTECTION_NAMES[]{
+        { PAGE_NOACCESS,          L"PAGE_NOACCESS" },
+        { PAGE_READONLY,          L"PAGE_READONLY" },
+        { PAGE_READWRITE,         L"PAGE_READWRITE" },
+        { PAGE_WRITECOPY,         L"PAGE_WRITECOPY" },
+        { PAGE_EXECUTE,           L"PAGE_EXECUTE" },
+        { PAGE_EXECUTE_READ,      L"PAGE_EXECUTE_READ" },
+        { PAGE_EXECUTE_READWRITE, L"PAGE_EXECUTE_READWRITE" },
+        { PAGE_EXECUTE_WRITECOPY, L"PAGE_EXECUTE_WRITECOPY" },
+        { PAGE_GUARD,             L"PAGE_GUARD" },
+        { PAGE_NOCACHE,           L"PAGE_NOCACHE" },
+        { PAGE_WRITECOMBINE,      L"PAGE_WRITECOMBINE" },
+    };
+
+    static_assert(CompositesPrecedeComponents(PAGE_PROTECTION_NAMES), "composite entry after its components in PAGE_PROTECTION_NAMES");
+
+    constexpr FlagName SECTION_SYNC_FLAG_NAMES[]{
+        { trace::kernel::FS_FILTER_SECTION_SYNC_IN_FLAG_DONT_UPDATE_LAST_ACCESS, L"FS_FILTER_SECTION_SYNC_IN_FLAG_DONT_UPDATE_LAST_ACCESS" },
+        { trace::kernel::FS_FILTER_SECTION_SYNC_IN_FLAG_DONT_UPDATE_LAST_WRITE,  L"FS_FILTER_SECTION_SYNC_IN_FLAG_DONT_UPDATE_LAST_WRITE" },
+    };
+
+    static_assert(CompositesPrecedeComponents(SECTION_SYNC_FLAG_NAMES), "composite entry after its components in SECTION_SYNC_FLAG_NAMES");
+
+    constexpr FlagName ALLOCATION_ATTRIBUTE_NAMES[]{
+        { SEC_IMAGE_NO_EXECUTE,   L"SEC_IMAGE_NO_EXECUTE" },
+        { SEC_FILE,               L"SEC_FILE" },
+        { SEC_IMAGE,              L"SEC_IMAGE" },
+        { SEC_PROTECTED_IMAGE,    L"SEC_PROTECTED_IMAGE" },
+        { SEC_RESERVE,            L"SEC_RESERVE" },
+        { SEC_COMMIT,             L"SEC_COMMIT" },
+        { SEC_NOCACHE,            L"SEC_NOCACHE" },
+        { SEC_WRITECOMBINE,       L"SEC_WRITECOMBINE" },
+        { SEC_LARGE_PAGES,        L"SEC_LARGE_PAGES" },
+    };
+
+    static_assert(CompositesPrecedeComponents(ALLOCATION_ATTRIBUTE_NAMES), "composite entry after its components in ALLOCATION_ATTRIBUTE_NAMES");
+
 }
 
 namespace mimo {
@@ -1507,6 +1544,35 @@ namespace mimo {
                 if (!securityInformation) return L"None";
 
                 return RenderFlags(securityInformation, SECURITY_INFORMATION_NAMES, L"|");
+            }
+
+
+            std::wstring RenderSectionSyncType(uint32_t syncType) {
+
+                switch (syncType) {
+                    case kernel::SyncTypeOther:         return L"SyncTypeOther";
+                    case kernel::SyncTypeCreateSection: return L"SyncTypeCreateSection";
+                }
+
+                return std::to_wstring(syncType);
+            }
+
+
+            std::wstring RenderPageProtection(uint32_t pageProtection) {
+
+                return RenderFlags(pageProtection, PAGE_PROTECTION_NAMES, L"|");
+            }
+
+
+            std::wstring RenderSectionSyncFlags(uint32_t flags) {
+
+                return RenderFlags(flags, SECTION_SYNC_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderAllocationAttributes(uint32_t allocationAttributes) {
+
+                return RenderFlags(allocationAttributes, ALLOCATION_ATTRIBUTE_NAMES, L"|");
             }
 
         }

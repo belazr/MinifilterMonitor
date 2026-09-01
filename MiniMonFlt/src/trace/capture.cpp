@@ -175,6 +175,12 @@ MIRROR_ASSERT(querySecurity.mdlAddress,          QuerySecurity.MdlAddress);
 MIRROR_ASSERT(setSecurity.securityInformation, SetSecurity.SecurityInformation);
 MIRROR_ASSERT(setSecurity.securityDescriptor,  SetSecurity.SecurityDescriptor);
 
+MIRROR_ASSERT(acquireForSectionSynchronization.syncType,             AcquireForSectionSynchronization.SyncType);
+MIRROR_ASSERT(acquireForSectionSynchronization.pageProtection,       AcquireForSectionSynchronization.PageProtection);
+MIRROR_ASSERT(acquireForSectionSynchronization.outputInformation,    AcquireForSectionSynchronization.OutputInformation);
+MIRROR_ASSERT(acquireForSectionSynchronization.flags,                AcquireForSectionSynchronization.Flags);
+MIRROR_ASSERT(acquireForSectionSynchronization.allocationAttributes, AcquireForSectionSynchronization.AllocationAttributes);
+
 namespace {
 
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {

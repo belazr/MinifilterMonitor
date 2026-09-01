@@ -7,6 +7,7 @@
 #include "details\info.h"
 #include "details\lock.h"
 #include "details\readwrite.h"
+#include "details\section.h"
 #include "details\security.h"
 #include "details\volume.h"
 
@@ -74,6 +75,10 @@ namespace mimo {
                     case kernel::IRP_MJ_SET_SECURITY:
 
                         return security::RenderSet(data);
+
+                    case kernel::IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION:
+
+                        return section::Render(data);
 
                 }
 

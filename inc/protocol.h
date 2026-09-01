@@ -180,6 +180,15 @@ namespace mimo {
                 uint64_t securityDescriptor;
             } setSecurity;
 
+            // IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION
+            struct {
+                uint32_t syncType;
+                uint32_t pageProtection;
+                uint64_t outputInformation;
+                uint32_t flags;
+                uint32_t allocationAttributes;    // SyncTypeCreateSection only
+            } acquireForSectionSynchronization;
+
             struct {
                 uint64_t argument1;
                 uint64_t argument2;
@@ -240,6 +249,10 @@ namespace mimo {
         static_assert(offsetof(FltParameters, querySecurity.securityBuffer) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, querySecurity.mdlAddress) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setSecurity.securityDescriptor) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, acquireForSectionSynchronization.pageProtection) == 4u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, acquireForSectionSynchronization.outputInformation) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, acquireForSectionSynchronization.flags) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, acquireForSectionSynchronization.allocationAttributes) == 20u, "protocol::FltParameters layout drift");
 
         inline constexpr uint32_t STACK_TRACE_FRAMES      = 8u;
         inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;

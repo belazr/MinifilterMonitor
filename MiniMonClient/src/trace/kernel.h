@@ -1165,6 +1165,14 @@ namespace mimo {
             static_assert(sizeof(VOLUME_DISK_EXTENTS) == 32u, "trace::kernel::VOLUME_DISK_EXTENTS x64 layout drift");
             static_assert(offsetof(VOLUME_DISK_EXTENTS, Extents) == 8u, "trace::kernel::VOLUME_DISK_EXTENTS x64 layout drift");
 
+            // FS_FILTER_SECTION_SYNC_TYPE values
+            inline constexpr uint32_t SyncTypeOther         = 0u;
+            inline constexpr uint32_t SyncTypeCreateSection = 1u;
+
+            // section synchronization input flags live in kernel-only ntifs.h
+            inline constexpr uint32_t FS_FILTER_SECTION_SYNC_IN_FLAG_DONT_UPDATE_LAST_ACCESS = 0x00000001u;
+            inline constexpr uint32_t FS_FILTER_SECTION_SYNC_IN_FLAG_DONT_UPDATE_LAST_WRITE  = 0x00000002u;
+
         }
 
     }

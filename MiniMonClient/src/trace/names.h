@@ -81,6 +81,14 @@ namespace mimo {
 
             std::wstring RenderSecurityInformation(uint32_t securityInformation);
 
+            std::wstring RenderSectionSyncType(uint32_t syncType);
+
+            std::wstring RenderPageProtection(uint32_t pageProtection);
+
+            std::wstring RenderSectionSyncFlags(uint32_t flags);
+
+            std::wstring RenderAllocationAttributes(uint32_t allocationAttributes);
+
         }
 
     }
