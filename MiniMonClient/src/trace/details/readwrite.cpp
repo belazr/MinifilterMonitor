@@ -13,6 +13,25 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderWriteComplete(int64_t byteOffset, uint64_t mdlAddress) {
+        std::wstring details = std::format(L"Offset: {}", byteOffset);
+
+        if (mdlAddress) {
+            details += std::format(L", Mdl: 0x{:X}", mdlAddress);
+        }
+
+        return details;
+    }
+
+
+    std::wstring RenderReadComplete(uint64_t mdlAddress) {
+
+        if (!mdlAddress) return {};
+
+        return std::format(L"Mdl: 0x{:X}", mdlAddress);
+    }
+
+
     std::wstring RenderIoFlags(const protocol::RecordData& data) {
         std::wstring ioFlags;
 
@@ -67,10 +86,9 @@ namespace mimo {
                     const protocol::FltParameters& parameters = data.parameters;
 
                     if (data.callbackMinorId & kernel::IRP_MN_COMPLETE) {
+                        const bool isWrite = (data.irpFlags & kernel::IRP_WRITE_OPERATION) || parameters.readWrite.byteOffset;
 
-                        if (!parameters.readWrite.mdlAddress) return {};
-
-                        return std::format(L"Mdl: 0x{:X}", parameters.readWrite.mdlAddress);
+                        return isWrite ? RenderWriteComplete(parameters.readWrite.byteOffset, parameters.readWrite.mdlAddress) : RenderReadComplete(parameters.readWrite.mdlAddress);
                     }
 
                     std::wstring details = std::format(L"Offset: {}, Length: {}", values::RenderByteOffset(parameters.readWrite.byteOffset), parameters.readWrite.length);
@@ -113,23 +131,15 @@ namespace mimo {
 
 
                 std::wstring RenderMdlReadComplete(const protocol::RecordData& data) {
-                    const protocol::FltParameters& parameters = data.parameters;
 
-                    if (!parameters.mdlReadComplete.mdlChain) return {};
-
-                    return std::format(L"Mdl: 0x{:X}", parameters.mdlReadComplete.mdlChain);
+                    return RenderReadComplete(data.parameters.mdlReadComplete.mdlChain);
                 }
 
 
                 std::wstring RenderMdlWriteComplete(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Offset: {}", parameters.mdlWriteComplete.fileOffset);
 
-                    if (parameters.mdlWriteComplete.mdlChain) {
-                        details += std::format(L", Mdl: 0x{:X}", parameters.mdlWriteComplete.mdlChain);
-                    }
-
-                    return details;
+                    return RenderWriteComplete(parameters.mdlWriteComplete.fileOffset, parameters.mdlWriteComplete.mdlChain);
                 }
 
             }

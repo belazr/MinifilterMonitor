@@ -19,6 +19,7 @@ namespace mimo {
             inline constexpr uint32_t IRP_PAGING_IO               = 0x00000002u;
             inline constexpr uint32_t IRP_SYNCHRONOUS_API         = 0x00000004u;
             inline constexpr uint32_t IRP_SYNCHRONOUS_PAGING_IO   = 0x00000040u;
+            inline constexpr uint32_t IRP_WRITE_OPERATION         = 0x00000200u;
 
             // read/write stack-location SL_* flags carried in RecordData::operationFlags
             inline constexpr uint8_t SL_KEY_SPECIFIED = 0x01u;
