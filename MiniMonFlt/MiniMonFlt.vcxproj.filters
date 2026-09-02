@@ -78,6 +78,9 @@
     <ClCompile Include="src\trace\supplement\lock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\trace\supplement\modwrite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\trace\supplement\security.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -144,6 +147,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\supplement\lock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\supplement\modwrite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\supplement\security.h">

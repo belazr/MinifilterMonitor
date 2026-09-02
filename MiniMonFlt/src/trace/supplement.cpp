@@ -6,6 +6,7 @@
 #include "supplement\filesystem.h"
 #include "supplement\info.h"
 #include "supplement\lock.h"
+#include "supplement\modwrite.h"
 #include "supplement\security.h"
 #include "supplement\volume.h"
 
@@ -89,6 +90,14 @@ namespace mimo {
 
                         if (pData->Iopb->Parameters.SetSecurity.SecurityDescriptor) {
                             security::PopulateSet(&pSupplement->security, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_ACQUIRE_FOR_MOD_WRITE:
+
+                        if (pData->Iopb->Parameters.AcquireForModifiedPageWriter.EndingOffset) {
+                            modwrite::Populate(&pSupplement->modWrite, pData);
                         }
 
                         break;

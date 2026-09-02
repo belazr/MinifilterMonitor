@@ -6,6 +6,7 @@
 #include "details\filesystem.h"
 #include "details\info.h"
 #include "details\lock.h"
+#include "details\modwrite.h"
 #include "details\readwrite.h"
 #include "details\section.h"
 #include "details\security.h"
@@ -79,6 +80,10 @@ namespace mimo {
                     case kernel::IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION:
 
                         return section::Render(data);
+
+                    case kernel::IRP_MJ_ACQUIRE_FOR_MOD_WRITE:
+
+                        return modwrite::Render(data);
 
                     case kernel::IRP_MJ_FAST_IO_CHECK_IF_POSSIBLE:
 

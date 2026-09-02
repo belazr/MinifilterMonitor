@@ -189,6 +189,12 @@ namespace mimo {
                 uint32_t allocationAttributes;    // SyncTypeCreateSection only
             } acquireForSectionSynchronization;
 
+            // IRP_MJ_ACQUIRE_FOR_MOD_WRITE
+            struct {
+                uint64_t endingOffset;
+                uint64_t resourceToRelease;
+            } acquireForModifiedPageWriter;
+
             // IRP_MJ_FAST_IO_CHECK_IF_POSSIBLE
             struct {
                 int64_t fileOffset;
@@ -284,6 +290,7 @@ namespace mimo {
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.outputInformation) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.flags) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.allocationAttributes) == 20u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, acquireForModifiedPageWriter.resourceToRelease) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, fastIoCheckIfPossible.length) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, fastIoCheckIfPossible.lockKey) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, fastIoCheckIfPossible.checkForReadOperation) == 24u, "protocol::FltParameters layout drift");
@@ -470,6 +477,21 @@ namespace mimo {
 
         static_assert(offsetof(SecuritySupplement, payload) == 8u, "protocol::SecuritySupplement layout drift");
 
+        // IRP_MJ_ACQUIRE_FOR_MOD_WRITE
+
+        // capture bit for ModWriteSupplement::captured
+        inline constexpr uint32_t MOD_WRITE_CAPTURED_ENDING_OFFSET = 0x00000001u;
+
+        struct ModWriteSupplement {
+            uint32_t captured;
+            uint8_t reserved[4u];
+            int64_t endingOffset;
+        };
+
+        static_assert(offsetof(ModWriteSupplement, endingOffset) == 8u, "protocol::ModWriteSupplement layout drift");
+        static_assert(sizeof(ModWriteSupplement) == 16u, "protocol::ModWriteSupplement layout drift");
+        static_assert(sizeof(ModWriteSupplement) <= SUPPLEMENT_BYTES, "protocol::ModWriteSupplement exceeds the supplement union");
+
         union Supplement {
             CreateSupplement create;
             QueryInfoSupplement queryInfo;
@@ -480,6 +502,7 @@ namespace mimo {
             DeviceIoControlSupplement deviceIoControl;
             LockControlSupplement lockControl;
             SecuritySupplement security;
+            ModWriteSupplement modWrite;
         };
 
         static_assert(sizeof(CreateSupplement) == SUPPLEMENT_BYTES, "protocol::CreateSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
