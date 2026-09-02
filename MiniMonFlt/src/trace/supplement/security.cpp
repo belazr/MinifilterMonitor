@@ -62,21 +62,21 @@ namespace mimo {
 
                     if (!pSecurityBuffer || !bufferSize) return;
 
-                    const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
+                    const ULONG copySize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
 
-                    if (dataSize > protocol::SECURITY_PAYLOAD_BYTES) return;
+                    if (copySize > protocol::SECURITY_PAYLOAD_BYTES) return;
 
                     __try {
-                        RtlCopyMemory(pSupplement->payload, pSecurityBuffer, dataSize);
+                        RtlCopyMemory(pSupplement->payload, pSecurityBuffer, copySize);
                     }
                     __except (EXCEPTION_EXECUTE_HANDLER) {
 
                         return;
                     }
 
-                    if (!RtlValidRelativeSecurityDescriptor(pSupplement->payload, dataSize, 0u)) return;
+                    if (!RtlValidRelativeSecurityDescriptor(pSupplement->payload, copySize, 0u)) return;
 
-                    pSupplement->capturedBytes = static_cast<uint32_t>(dataSize);
+                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::SECURITY_CAPTURED_PAYLOAD;
 
                     return;
