@@ -10,7 +10,6 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <format>
@@ -108,7 +107,8 @@ namespace mimo {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = RenderInformationParameters(parameters.volumeInformation.fsInformationClass, parameters.volumeInformation.length);
 
-                    const std::span<const uint8_t> payload = ExtractPayload(data.supplement.volumeInfo);
+                    const protocol::VolumeInfoSupplement& volumeInfoSupplement = data.supplement.volumeInfo;
+                    const std::span<const uint8_t> payload = ExtractPayload(volumeInfoSupplement);
                     std::wstring payloadText;
 
                     switch (parameters.volumeInformation.fsInformationClass) {
@@ -189,10 +189,8 @@ namespace mimo {
                     }
 
                     if (!payloadText.empty()) {
-                        const uint64_t writtenBytes = std::min<uint64_t>(data.information, parameters.volumeInformation.length);
-
                         details += L", ";
-                        details += text::MarkTruncated(payloadText, data.supplement.volumeInfo.capturedBytes < writtenBytes);
+                        details += text::MarkTruncated(payloadText, volumeInfoSupplement.captured & protocol::VOLUME_INFO_TRUNCATED_PAYLOAD);
                     }
 
                     return details;

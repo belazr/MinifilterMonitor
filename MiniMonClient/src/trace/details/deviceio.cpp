@@ -12,7 +12,6 @@
 #include <Windows.h>
 #include <winioctl.h>
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <format>
@@ -190,16 +189,14 @@ namespace mimo {
 
                     if (!inputText.empty()) {
                         details += L", ";
-                        details += text::MarkTruncated(inputText, deviceIoControlSupplement.capturedInputBytes < parameters.deviceIoControl.inputBufferLength);
+                        details += text::MarkTruncated(inputText, deviceIoControlSupplement.captured & protocol::DEVICE_IO_CONTROL_TRUNCATED_INPUT);
                     }
 
                     const std::wstring outputText = RenderOutput(parameters.deviceIoControl.ioControlCode, ExtractOutput(deviceIoControlSupplement));
 
                     if (!outputText.empty()) {
-                        const uint64_t writtenBytes = std::min<uint64_t>(data.information, parameters.deviceIoControl.outputBufferLength);
-
                         details += L", ";
-                        details += text::MarkTruncated(outputText, deviceIoControlSupplement.capturedOutputBytes < writtenBytes);
+                        details += text::MarkTruncated(outputText, deviceIoControlSupplement.captured & protocol::DEVICE_IO_CONTROL_TRUNCATED_OUTPUT);
                     }
 
                     return details;

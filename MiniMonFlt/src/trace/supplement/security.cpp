@@ -53,16 +53,17 @@ namespace mimo {
                 void PopulateQuery(protocol::SecuritySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
-                    ULONG bufferSize = pData->Iopb->Parameters.QuerySecurity.Length;
+                    const ULONG bufferSize = pData->Iopb->Parameters.QuerySecurity.Length;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
 
                     if (!bufferSize || !writtenSize) return;
 
-                    const void* pSecurityBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.QuerySecurity.MdlAddress, pData->Iopb->Parameters.QuerySecurity.SecurityBuffer, &bufferSize);
+                    ULONG readableSize = bufferSize;
+                    const void* pSecurityBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.QuerySecurity.MdlAddress, pData->Iopb->Parameters.QuerySecurity.SecurityBuffer, &readableSize);
 
-                    if (!pSecurityBuffer || !bufferSize) return;
+                    if (!pSecurityBuffer || !readableSize) return;
 
-                    const ULONG copySize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
+                    const ULONG copySize = writtenSize < readableSize ? static_cast<ULONG>(writtenSize) : readableSize;
 
                     if (copySize > protocol::SECURITY_PAYLOAD_BYTES) return;
 

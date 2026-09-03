@@ -13,7 +13,6 @@
 #include <Windows.h>
 #include <winioctl.h>
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -585,16 +584,14 @@ namespace mimo {
 
                     if (!inputText.empty()) {
                         details += L", ";
-                        details += text::MarkTruncated(inputText, fsControlSupplement.capturedInputBytes < parameters.fileSystemControl.inputBufferLength);
+                        details += text::MarkTruncated(inputText, fsControlSupplement.captured & protocol::FS_CONTROL_TRUNCATED_INPUT);
                     }
 
                     const std::wstring outputText = RenderOutput(parameters.fileSystemControl.fsControlCode, ExtractOutput(fsControlSupplement));
 
                     if (!outputText.empty()) {
-                        const uint64_t writtenBytes = std::min<uint64_t>(data.information, parameters.fileSystemControl.outputBufferLength);
-
                         details += L", ";
-                        details += text::MarkTruncated(outputText, fsControlSupplement.capturedOutputBytes < writtenBytes);
+                        details += text::MarkTruncated(outputText, fsControlSupplement.captured & protocol::FS_CONTROL_TRUNCATED_OUTPUT);
                     }
 
                     return details;

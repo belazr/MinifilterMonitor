@@ -14,15 +14,16 @@ namespace {
     void PopulateSecondInput(_Inout_ protocol::FsControlSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
         PAGED_CODE();
 
-        ULONG bufferSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
+        const ULONG bufferSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
 
         if (!bufferSize) return;
 
-        const void* pSecondInput = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &bufferSize);
+        ULONG readableSize = bufferSize;
+        const void* pSecondInput = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &readableSize);
 
-        if (!pSecondInput || !bufferSize) return;
+        if (!pSecondInput || !readableSize) return;
 
-        const ULONG copySize = bufferSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES ? bufferSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES;
+        const ULONG copySize = readableSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES ? readableSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES;
 
         __try {
             RtlCopyMemory(pSupplement->outputPayload, pSecondInput, copySize);
@@ -30,6 +31,10 @@ namespace {
         __except (EXCEPTION_EXECUTE_HANDLER) {
 
             return;
+        }
+
+        if (copySize < bufferSize) {
+            pSupplement->captured |= protocol::FS_CONTROL_TRUNCATED_OUTPUT;
         }
 
         pSupplement->capturedOutputBytes = static_cast<uint32_t>(copySize);
@@ -93,6 +98,10 @@ namespace mimo {
                         __try {
                             RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
 
+                            if (copySize < inSize) {
+                                pSupplement->captured |= protocol::FS_CONTROL_TRUNCATED_INPUT;
+                            }
+
                             pSupplement->capturedInputBytes = static_cast<uint32_t>(copySize);
                             pSupplement->captured |= protocol::FS_CONTROL_CAPTURED_INPUT;
                         }
@@ -115,11 +124,13 @@ namespace mimo {
                     PAGED_CODE();
 
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode);
-                    ULONG bufferSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
+                    const ULONG bufferSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
 
                     if (method == METHOD_IN_DIRECT || !bufferSize || !writtenSize) return;
 
+                    const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
+                    ULONG readableSize = dataSize;
                     const void* pOutputBuffer = nullptr;
 
                     switch (method) {
@@ -130,12 +141,12 @@ namespace mimo {
                             break;
 
                         case METHOD_OUT_DIRECT:
-                            pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &bufferSize);
+                            pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &readableSize);
 
                             break;
 
                         case METHOD_NEITHER:
-                            pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer, &bufferSize);
+                            pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer, &readableSize);
 
                             break;
 
@@ -143,10 +154,9 @@ namespace mimo {
 
                     }
 
-                    if (!pOutputBuffer || !bufferSize) return;
+                    if (!pOutputBuffer || !readableSize) return;
 
-                    const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
-                    const ULONG copySize = dataSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES ? dataSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES;
+                    const ULONG copySize = readableSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES ? readableSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES;
 
                     __try {
                         RtlCopyMemory(pSupplement->outputPayload, pOutputBuffer, copySize);
@@ -154,6 +164,10 @@ namespace mimo {
                     __except (EXCEPTION_EXECUTE_HANDLER) {
 
                         return;
+                    }
+
+                    if (copySize < dataSize) {
+                        pSupplement->captured |= protocol::FS_CONTROL_TRUNCATED_OUTPUT;
                     }
 
                     pSupplement->capturedOutputBytes = static_cast<uint32_t>(copySize);

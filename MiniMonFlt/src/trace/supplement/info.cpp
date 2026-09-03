@@ -56,13 +56,17 @@ namespace mimo {
                     PAGED_CODE();
 
                     const void* const pInfoBuffer = pData->Iopb->Parameters.SetFileInformation.InfoBuffer;
-                    const ULONG size = pData->Iopb->Parameters.SetFileInformation.Length;
+                    const ULONG bufferSize = pData->Iopb->Parameters.SetFileInformation.Length;
 
-                    if (!pInfoBuffer || !size) return;
+                    if (!pInfoBuffer || !bufferSize) return;
 
-                    const ULONG copySize = size < protocol::SET_INFO_PAYLOAD_BYTES ? size : protocol::SET_INFO_PAYLOAD_BYTES;
+                    const ULONG copySize = bufferSize < protocol::SET_INFO_PAYLOAD_BYTES ? bufferSize : protocol::SET_INFO_PAYLOAD_BYTES;
 
                     RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
+
+                    if (copySize < bufferSize) {
+                        pSupplement->captured |= protocol::SET_INFO_TRUNCATED_PAYLOAD;
+                    }
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::SET_INFO_CAPTURED_PAYLOAD;
@@ -106,6 +110,10 @@ namespace mimo {
                     const ULONG copySize = dataSize < protocol::QUERY_INFO_PAYLOAD_BYTES ? dataSize : protocol::QUERY_INFO_PAYLOAD_BYTES;
 
                     RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
+
+                    if (copySize < dataSize) {
+                        pSupplement->captured |= protocol::QUERY_INFO_TRUNCATED_PAYLOAD;
+                    }
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;

@@ -46,17 +46,18 @@ namespace mimo {
                 void PopulatePayload(protocol::QueryDirectorySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
-                    ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
+                    const ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
 
                     if (!bufferSize || !writtenSize) return;
 
-                    const void* pDirectoryBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &bufferSize);
-
-                    if (!pDirectoryBuffer || !bufferSize) return;
-
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
-                    const ULONG copySize = dataSize < protocol::QUERY_DIRECTORY_PAYLOAD_BYTES ? dataSize : protocol::QUERY_DIRECTORY_PAYLOAD_BYTES;
+                    ULONG readableSize = dataSize;
+                    const void* pDirectoryBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &readableSize);
+
+                    if (!pDirectoryBuffer || !readableSize) return;
+
+                    const ULONG copySize = readableSize < protocol::QUERY_DIRECTORY_PAYLOAD_BYTES ? readableSize : protocol::QUERY_DIRECTORY_PAYLOAD_BYTES;
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pDirectoryBuffer, copySize);
@@ -64,6 +65,10 @@ namespace mimo {
                     __except (EXCEPTION_EXECUTE_HANDLER) {
 
                         return;
+                    }
+
+                    if (copySize < dataSize) {
+                        pSupplement->captured |= protocol::QUERY_DIRECTORY_TRUNCATED_PAYLOAD;
                     }
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);

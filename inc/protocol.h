@@ -344,8 +344,9 @@ namespace mimo {
 
         // IRP_MJ_QUERY_INFORMATION / IRP_MJ_NETWORK_QUERY_OPEN
 
-        // capture bit for QueryInfoSupplement::captured
-        inline constexpr uint32_t QUERY_INFO_CAPTURED_PAYLOAD = 0x00000001u;
+        // capture bits for QueryInfoSupplement::captured
+        inline constexpr uint32_t QUERY_INFO_CAPTURED_PAYLOAD  = 0x00000001u;
+        inline constexpr uint32_t QUERY_INFO_TRUNCATED_PAYLOAD = 0x00000002u;
 
         inline constexpr uint32_t QUERY_INFO_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 2u * sizeof(uint32_t);
 
@@ -362,7 +363,8 @@ namespace mimo {
         // capture bits for SetInfoSupplement::captured
         inline constexpr uint32_t SET_INFO_CAPTURED_PAYLOAD      = 0x00000001u;
         inline constexpr uint32_t SET_INFO_CAPTURED_TARGET_NAME  = 0x00000002u;
-        inline constexpr uint32_t SET_INFO_TRUNCATED_TARGET_NAME = 0x00000004u;
+        inline constexpr uint32_t SET_INFO_TRUNCATED_PAYLOAD     = 0x00000004u;
+        inline constexpr uint32_t SET_INFO_TRUNCATED_TARGET_NAME = 0x00000008u;
 
         inline constexpr uint32_t SET_INFO_TARGET_NAME_WCHARS = 256u;
 
@@ -380,8 +382,9 @@ namespace mimo {
 
         // IRP_MJ_QUERY_VOLUME_INFORMATION / IRP_MJ_SET_VOLUME_INFORMATION
 
-        // capture bit for VolumeInfoSupplement::captured
-        inline constexpr uint32_t VOLUME_INFO_CAPTURED_PAYLOAD = 0x00000001u;
+        // capture bits for VolumeInfoSupplement::captured
+        inline constexpr uint32_t VOLUME_INFO_CAPTURED_PAYLOAD  = 0x00000001u;
+        inline constexpr uint32_t VOLUME_INFO_TRUNCATED_PAYLOAD = 0x00000002u;
 
         inline constexpr uint32_t VOLUME_INFO_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 2u * sizeof(uint32_t);
 
@@ -398,7 +401,8 @@ namespace mimo {
         // capture bits for QueryDirectorySupplement::captured
         inline constexpr uint32_t QUERY_DIRECTORY_CAPTURED_PAYLOAD    = 0x00000001u;
         inline constexpr uint32_t QUERY_DIRECTORY_CAPTURED_FILE_NAME  = 0x00000002u;
-        inline constexpr uint32_t QUERY_DIRECTORY_TRUNCATED_FILE_NAME = 0x00000004u;
+        inline constexpr uint32_t QUERY_DIRECTORY_TRUNCATED_PAYLOAD   = 0x00000004u;
+        inline constexpr uint32_t QUERY_DIRECTORY_TRUNCATED_FILE_NAME = 0x00000008u;
 
         inline constexpr uint32_t QUERY_DIRECTORY_FILE_NAME_WCHARS = 256u;
 
@@ -417,8 +421,10 @@ namespace mimo {
         // IRP_MJ_FILE_SYSTEM_CONTROL
 
         // capture bits for FsControlSupplement::captured
-        inline constexpr uint32_t FS_CONTROL_CAPTURED_INPUT  = 0x00000001u;
-        inline constexpr uint32_t FS_CONTROL_CAPTURED_OUTPUT = 0x00000002u;
+        inline constexpr uint32_t FS_CONTROL_CAPTURED_INPUT   = 0x00000001u;
+        inline constexpr uint32_t FS_CONTROL_CAPTURED_OUTPUT  = 0x00000002u;
+        inline constexpr uint32_t FS_CONTROL_TRUNCATED_INPUT  = 0x00000004u;
+        inline constexpr uint32_t FS_CONTROL_TRUNCATED_OUTPUT = 0x00000008u;
 
         inline constexpr uint32_t FS_CONTROL_INPUT_PAYLOAD_BYTES  = 546u;
         inline constexpr uint32_t FS_CONTROL_OUTPUT_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 3u * sizeof(uint32_t) - FS_CONTROL_INPUT_PAYLOAD_BYTES;
@@ -437,8 +443,10 @@ namespace mimo {
         // IRP_MJ_DEVICE_CONTROL / IRP_MJ_INTERNAL_DEVICE_CONTROL
 
         // capture bits for DeviceIoControlSupplement::captured
-        inline constexpr uint32_t DEVICE_IO_CONTROL_CAPTURED_INPUT  = 0x00000001u;
-        inline constexpr uint32_t DEVICE_IO_CONTROL_CAPTURED_OUTPUT = 0x00000002u;
+        inline constexpr uint32_t DEVICE_IO_CONTROL_CAPTURED_INPUT   = 0x00000001u;
+        inline constexpr uint32_t DEVICE_IO_CONTROL_CAPTURED_OUTPUT  = 0x00000002u;
+        inline constexpr uint32_t DEVICE_IO_CONTROL_TRUNCATED_INPUT  = 0x00000004u;
+        inline constexpr uint32_t DEVICE_IO_CONTROL_TRUNCATED_OUTPUT = 0x00000008u;
 
         inline constexpr uint32_t DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES  = 546u;
         inline constexpr uint32_t DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 3u * sizeof(uint32_t) - DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES;

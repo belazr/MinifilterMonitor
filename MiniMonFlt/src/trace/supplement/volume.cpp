@@ -18,13 +18,17 @@ namespace mimo {
                     PAGED_CODE();
 
                     const void* const pVolumeBuffer = pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer;
-                    const ULONG size = pData->Iopb->Parameters.SetVolumeInformation.Length;
+                    const ULONG bufferSize = pData->Iopb->Parameters.SetVolumeInformation.Length;
 
-                    if (!pVolumeBuffer || !size) return;
+                    if (!pVolumeBuffer || !bufferSize) return;
 
-                    const ULONG copySize = size < protocol::VOLUME_INFO_PAYLOAD_BYTES ? size : protocol::VOLUME_INFO_PAYLOAD_BYTES;
+                    const ULONG copySize = bufferSize < protocol::VOLUME_INFO_PAYLOAD_BYTES ? bufferSize : protocol::VOLUME_INFO_PAYLOAD_BYTES;
 
                     RtlCopyMemory(pSupplement->payload, pVolumeBuffer, copySize);
+
+                    if (copySize < bufferSize) {
+                        pSupplement->captured |= protocol::VOLUME_INFO_TRUNCATED_PAYLOAD;
+                    }
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;
@@ -48,6 +52,10 @@ namespace mimo {
                     const ULONG copySize = dataSize < protocol::VOLUME_INFO_PAYLOAD_BYTES ? dataSize : protocol::VOLUME_INFO_PAYLOAD_BYTES;
 
                     RtlCopyMemory(pSupplement->payload, pVolumeBuffer, copySize);
+
+                    if (copySize < dataSize) {
+                        pSupplement->captured |= protocol::VOLUME_INFO_TRUNCATED_PAYLOAD;
+                    }
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;

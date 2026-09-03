@@ -14,7 +14,7 @@ namespace {
     void PopulateSecondInput(_Inout_ protocol::DeviceIoControlSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
         PAGED_CODE();
 
-        ULONG bufferSize = pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength;
+        const ULONG bufferSize = pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength;
 
         if (!bufferSize) return;
 
@@ -22,11 +22,12 @@ namespace {
         MDL* pMdl = isFastIo ? nullptr : pData->Iopb->Parameters.DeviceIoControl.Direct.OutputMdlAddress;
         const void* pRawBuffer = isFastIo ? pData->Iopb->Parameters.DeviceIoControl.FastIo.OutputBuffer : pData->Iopb->Parameters.DeviceIoControl.Direct.OutputBuffer;
 
-        const void* pSecondInput = memory::GetReadableBuffer(pData, pMdl, pRawBuffer, &bufferSize);
+        ULONG readableSize = bufferSize;
+        const void* pSecondInput = memory::GetReadableBuffer(pData, pMdl, pRawBuffer, &readableSize);
 
-        if (!pSecondInput || !bufferSize) return;
+        if (!pSecondInput || !readableSize) return;
 
-        const ULONG copySize = bufferSize < protocol::DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES ? bufferSize : protocol::DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES;
+        const ULONG copySize = readableSize < protocol::DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES ? readableSize : protocol::DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES;
 
         __try {
             RtlCopyMemory(pSupplement->outputPayload, pSecondInput, copySize);
@@ -34,6 +35,10 @@ namespace {
         __except (EXCEPTION_EXECUTE_HANDLER) {
 
             return;
+        }
+
+        if (copySize < bufferSize) {
+            pSupplement->captured |= protocol::DEVICE_IO_CONTROL_TRUNCATED_OUTPUT;
         }
 
         pSupplement->capturedOutputBytes = static_cast<uint32_t>(copySize);
@@ -104,6 +109,10 @@ namespace mimo {
                         __try {
                             RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
 
+                            if (copySize < inSize) {
+                                pSupplement->captured |= protocol::DEVICE_IO_CONTROL_TRUNCATED_INPUT;
+                            }
+
                             pSupplement->capturedInputBytes = static_cast<uint32_t>(copySize);
                             pSupplement->captured |= protocol::DEVICE_IO_CONTROL_CAPTURED_INPUT;
                         }
@@ -126,15 +135,17 @@ namespace mimo {
                     PAGED_CODE();
 
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.DeviceIoControl.Common.IoControlCode);
-                    ULONG bufferSize = pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength;
+                    const ULONG bufferSize = pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
 
                     if (method == METHOD_IN_DIRECT || !bufferSize || !writtenSize) return;
 
+                    const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
+                    ULONG readableSize = dataSize;
                     const void* pOutputBuffer = nullptr;
 
                     if (FLT_IS_FASTIO_OPERATION(pData)) {
-                        pOutputBuffer = memory::GetReadableBuffer(pData, nullptr, pData->Iopb->Parameters.DeviceIoControl.FastIo.OutputBuffer, &bufferSize);
+                        pOutputBuffer = memory::GetReadableBuffer(pData, nullptr, pData->Iopb->Parameters.DeviceIoControl.FastIo.OutputBuffer, &readableSize);
                     }
                     else {
 
@@ -146,12 +157,12 @@ namespace mimo {
                                 break;
 
                             case METHOD_OUT_DIRECT:
-                                pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DeviceIoControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.DeviceIoControl.Direct.OutputBuffer, &bufferSize);
+                                pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DeviceIoControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.DeviceIoControl.Direct.OutputBuffer, &readableSize);
 
                                 break;
 
                             case METHOD_NEITHER:
-                                pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DeviceIoControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.DeviceIoControl.Neither.OutputBuffer, &bufferSize);
+                                pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DeviceIoControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.DeviceIoControl.Neither.OutputBuffer, &readableSize);
 
                                 break;
 
@@ -161,10 +172,9 @@ namespace mimo {
 
                     }
 
-                    if (!pOutputBuffer || !bufferSize) return;
+                    if (!pOutputBuffer || !readableSize) return;
 
-                    const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
-                    const ULONG copySize = dataSize < protocol::DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES ? dataSize : protocol::DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES;
+                    const ULONG copySize = readableSize < protocol::DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES ? readableSize : protocol::DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES;
 
                     __try {
                         RtlCopyMemory(pSupplement->outputPayload, pOutputBuffer, copySize);
@@ -172,6 +182,10 @@ namespace mimo {
                     __except (EXCEPTION_EXECUTE_HANDLER) {
 
                         return;
+                    }
+
+                    if (copySize < dataSize) {
+                        pSupplement->captured |= protocol::DEVICE_IO_CONTROL_TRUNCATED_OUTPUT;
                     }
 
                     pSupplement->capturedOutputBytes = static_cast<uint32_t>(copySize);
