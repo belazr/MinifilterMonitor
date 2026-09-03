@@ -14,13 +14,13 @@ using namespace mimo;
 
 namespace {
 
-    const FLT_CONTEXT_REGISTRATION Contexts[] {
+    constexpr FLT_CONTEXT_REGISTRATION CONTEXTS[] {
         { FLT_TRANSACTION_CONTEXT, 0, nullptr, sizeof(transaction::Context), driver::MEM_TAG },
         { FLT_INSTANCE_CONTEXT, 0, nullptr, sizeof(driver::InstanceContext), driver::MEM_TAG },
         { FLT_CONTEXT_END },
     };
 
-    const FLT_OPERATION_REGISTRATION Callbacks[] {
+    constexpr FLT_OPERATION_REGISTRATION CALLBACKS[] {
         // file lifecycle
         { IRP_MJ_CREATE, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
         { IRP_MJ_CREATE_NAMED_PIPE, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
@@ -95,12 +95,12 @@ namespace {
 
     NTSTATUS QueryTeardown(_In_ const FLT_RELATED_OBJECTS* pFltObjects, _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS flags);
 
-    const FLT_REGISTRATION FilterRegistration {
+    constexpr FLT_REGISTRATION FILTER_REGISTRATION {
         .Size = sizeof(FLT_REGISTRATION),
         .Version = FLT_REGISTRATION_VERSION,
         .Flags = FLTFL_REGISTRATION_SUPPORT_NPFS_MSFS,
-        .ContextRegistration = Contexts,
-        .OperationRegistration = Callbacks,
+        .ContextRegistration = CONTEXTS,
+        .OperationRegistration = CALLBACKS,
         .FilterUnloadCallback = FilterUnload,
         .InstanceSetupCallback = InstanceSetup,
         .InstanceQueryTeardownCallback = QueryTeardown,
@@ -261,7 +261,7 @@ extern "C" NTSTATUS DriverEntry(DRIVER_OBJECT* pDriverObject, UNICODE_STRING* pR
     trace::modules::Create();
     config::Create(pDriverObject);
 
-    status = FltRegisterFilter(pDriverObject, &FilterRegistration, &driver::Filter);
+    status = FltRegisterFilter(pDriverObject, &FILTER_REGISTRATION, &driver::Filter);
 
     if (!NT_SUCCESS(status)) goto done;
 
