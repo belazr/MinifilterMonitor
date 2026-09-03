@@ -16,6 +16,8 @@ namespace mimo {
 
                 std::wstring RenderSet(const protocol::RecordData& data);
 
+                std::wstring RenderNetworkQueryOpen(const protocol::RecordData& data);
+
             }
 
         }

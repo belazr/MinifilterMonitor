@@ -169,6 +169,14 @@ namespace mimo {
 
                         break;
 
+                    case IRP_MJ_NETWORK_QUERY_OPEN:
+
+                        if (pData->Iopb->Parameters.NetworkQueryOpen.NetworkInformation) {
+                            info::PopulateNetworkQueryOpen(&pSupplement->queryInfo, pData);
+                        }
+
+                        break;
+
                 }
 
                 return;

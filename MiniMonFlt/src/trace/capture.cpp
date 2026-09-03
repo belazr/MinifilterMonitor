@@ -189,6 +189,9 @@ MIRROR_ASSERT(fastIoCheckIfPossible.length,                FastIoCheckIfPossible
 MIRROR_ASSERT(fastIoCheckIfPossible.lockKey,               FastIoCheckIfPossible.LockKey);
 MIRROR_ASSERT(fastIoCheckIfPossible.checkForReadOperation, FastIoCheckIfPossible.CheckForReadOperation);
 
+MIRROR_ASSERT(networkQueryOpen.irp,                NetworkQueryOpen.Irp);
+MIRROR_ASSERT(networkQueryOpen.networkInformation, NetworkQueryOpen.NetworkInformation);
+
 MIRROR_ASSERT(mdlReadWrite.fileOffset, MdlRead.FileOffset);
 MIRROR_ASSERT(mdlReadWrite.length,     MdlRead.Length);
 MIRROR_ASSERT(mdlReadWrite.key,        MdlRead.Key);

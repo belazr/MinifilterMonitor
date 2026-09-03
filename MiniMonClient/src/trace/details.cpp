@@ -89,6 +89,10 @@ namespace mimo {
 
                         return readwrite::RenderCheckIfPossible(data);
 
+                    case kernel::IRP_MJ_NETWORK_QUERY_OPEN:
+
+                        return info::RenderNetworkQueryOpen(data);
+
                     case kernel::IRP_MJ_MDL_READ:
                     case kernel::IRP_MJ_PREPARE_MDL_WRITE:
 

@@ -205,6 +205,12 @@ namespace mimo {
                 uint8_t checkForReadOperation;
             } fastIoCheckIfPossible;
 
+            // IRP_MJ_NETWORK_QUERY_OPEN
+            struct {
+                uint64_t irp;
+                uint64_t networkInformation;
+            } networkQueryOpen;
+
             // IRP_MJ_MDL_READ / IRP_MJ_PREPARE_MDL_WRITE
             struct {
                 int64_t fileOffset;
@@ -294,6 +300,7 @@ namespace mimo {
         static_assert(offsetof(FltParameters, fastIoCheckIfPossible.length) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, fastIoCheckIfPossible.lockKey) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, fastIoCheckIfPossible.checkForReadOperation) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, networkQueryOpen.networkInformation) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, mdlReadWrite.length) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, mdlReadWrite.key) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, mdlReadWrite.mdlChain) == 24u, "protocol::FltParameters layout drift");
@@ -335,7 +342,7 @@ namespace mimo {
         static_assert(offsetof(CreateSupplement, impersonatedSid) == 8u, "protocol::CreateSupplement layout drift");
         static_assert(offsetof(CreateSupplement, ecpText) == 8u + CREATE_SID_BYTES, "protocol::CreateSupplement layout drift");
 
-        // IRP_MJ_QUERY_INFORMATION
+        // IRP_MJ_QUERY_INFORMATION / IRP_MJ_NETWORK_QUERY_OPEN
 
         // capture bit for QueryInfoSupplement::captured
         inline constexpr uint32_t QUERY_INFO_CAPTURED_PAYLOAD = 0x00000001u;

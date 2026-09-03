@@ -794,6 +794,16 @@ namespace mimo {
                     return details;
                 }
 
+
+                std::wstring RenderNetworkQueryOpen(const protocol::RecordData& data) {
+                    const std::span<const uint8_t> payload = ExtractPayload(data.supplement.queryInfo);
+                    kernel::FILE_NETWORK_OPEN_INFORMATION networkOpen;
+
+                    if (!payload::ReadValue(payload, networkOpen)) return {};
+
+                    return RenderNetworkOpenPayload(networkOpen);
+                }
+
             }
 
         }

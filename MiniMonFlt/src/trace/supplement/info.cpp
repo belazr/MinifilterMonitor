@@ -8,6 +8,8 @@
 
 using namespace mimo;
 
+static_assert(sizeof(FILE_NETWORK_OPEN_INFORMATION) <= protocol::QUERY_INFO_PAYLOAD_BYTES, "FILE_NETWORK_OPEN_INFORMATION exceeds the query information payload");
+
 namespace {
 
     __declspec(code_seg("PAGE"))
@@ -104,6 +106,28 @@ namespace mimo {
                     const ULONG copySize = dataSize < protocol::QUERY_INFO_PAYLOAD_BYTES ? dataSize : protocol::QUERY_INFO_PAYLOAD_BYTES;
 
                     RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
+
+                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;
+
+                    return;
+                }
+
+
+                __declspec(code_seg("PAGE"))
+                _Use_decl_annotations_
+                void PopulateNetworkQueryOpen(protocol::QueryInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
+                    PAGED_CODE();
+
+                    const FILE_NETWORK_OPEN_INFORMATION* const pNetworkInformation = pData->Iopb->Parameters.NetworkQueryOpen.NetworkInformation;
+                    constexpr ULONG BUFFER_SIZE = static_cast<ULONG>(sizeof(FILE_NETWORK_OPEN_INFORMATION));
+                    const ULONG_PTR writtenSize = pData->IoStatus.Information;
+
+                    if (!pNetworkInformation || !writtenSize) return;
+
+                    const ULONG copySize = writtenSize < BUFFER_SIZE ? static_cast<ULONG>(writtenSize) : BUFFER_SIZE;
+
+                    RtlCopyMemory(pSupplement->payload, pNetworkInformation, copySize);
 
                     pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;
