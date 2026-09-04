@@ -55,6 +55,17 @@ MIRROR_ASSERT(setFileInformation.clusterCount,          SetFileInformation.Clust
 MIRROR_ASSERT(setFileInformation.deleteHandle,          SetFileInformation.DeleteHandle);
 MIRROR_ASSERT(setFileInformation.infoBuffer,            SetFileInformation.InfoBuffer);
 
+MIRROR_ASSERT(queryEa.length,       QueryEa.Length);
+MIRROR_ASSERT(queryEa.eaList,       QueryEa.EaList);
+MIRROR_ASSERT(queryEa.eaListLength, QueryEa.EaListLength);
+MIRROR_ASSERT(queryEa.eaIndex,      QueryEa.EaIndex);
+MIRROR_ASSERT(queryEa.eaBuffer,     QueryEa.EaBuffer);
+MIRROR_ASSERT(queryEa.mdlAddress,   QueryEa.MdlAddress);
+
+MIRROR_ASSERT(setEa.length,     SetEa.Length);
+MIRROR_ASSERT(setEa.eaBuffer,   SetEa.EaBuffer);
+MIRROR_ASSERT(setEa.mdlAddress, SetEa.MdlAddress);
+
 MIRROR_ASSERT(volumeInformation.length,             QueryVolumeInformation.Length);
 MIRROR_ASSERT(volumeInformation.fsInformationClass, QueryVolumeInformation.FsInformationClass);
 MIRROR_ASSERT(volumeInformation.volumeBuffer,       QueryVolumeInformation.VolumeBuffer);

@@ -92,6 +92,27 @@ namespace mimo {
                 uint64_t infoBuffer;
             } setFileInformation;
 
+            // IRP_MJ_QUERY_EA
+            struct {
+                uint32_t length;
+                uint8_t reserved1[4u];
+                uint64_t eaList;
+                uint32_t eaListLength;
+                uint8_t reserved2[4u];
+                uint32_t eaIndex;
+                uint8_t reserved3[4u];
+                uint64_t eaBuffer;
+                uint64_t mdlAddress;
+            } queryEa;
+
+            // IRP_MJ_SET_EA
+            struct {
+                uint32_t length;
+                uint8_t reserved1[4u];
+                uint64_t eaBuffer;
+                uint64_t mdlAddress;
+            } setEa;
+
             // IRP_MJ_QUERY_VOLUME_INFORMATION / IRP_MJ_SET_VOLUME_INFORMATION
             struct {
                 uint32_t length;
@@ -262,6 +283,13 @@ namespace mimo {
         static_assert(offsetof(FltParameters, setFileInformation.clusterCount) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setFileInformation.deleteHandle) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setFileInformation.infoBuffer) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryEa.eaList) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryEa.eaListLength) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryEa.eaIndex) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryEa.eaBuffer) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryEa.mdlAddress) == 40u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setEa.eaBuffer) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setEa.mdlAddress) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, volumeInformation.fsInformationClass) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, volumeInformation.volumeBuffer) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, queryDirectory.fileName) == 8u, "protocol::FltParameters layout drift");

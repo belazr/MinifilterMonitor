@@ -3,6 +3,7 @@
 #include "details\create.h"
 #include "details\deviceio.h"
 #include "details\directory.h"
+#include "details\ea.h"
 #include "details\fastiocheck.h"
 #include "details\filesystem.h"
 #include "details\info.h"
@@ -47,6 +48,14 @@ namespace mimo {
                     case kernel::IRP_MJ_SET_INFORMATION:
 
                         return info::RenderSet(data);
+
+                    case kernel::IRP_MJ_QUERY_EA:
+
+                        return ea::RenderQuery(data);
+
+                    case kernel::IRP_MJ_SET_EA:
+
+                        return ea::RenderSet(data);
 
                     case kernel::IRP_MJ_QUERY_VOLUME_INFORMATION:
                     case kernel::IRP_MJ_SET_VOLUME_INFORMATION:
