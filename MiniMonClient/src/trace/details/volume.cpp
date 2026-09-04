@@ -67,7 +67,7 @@ namespace {
 
     std::wstring RenderDevicePayload(const trace::kernel::FILE_FS_DEVICE_INFORMATION& payload) {
 
-        return std::format(L"DeviceType: {}, Characteristics: 0x{:X}", payload.DeviceType, payload.Characteristics);
+        return std::format(L"DeviceType: {}, Characteristics: 0x{:X}", trace::names::RenderDeviceType(payload.DeviceType), payload.Characteristics);
     }
 
 
