@@ -3,6 +3,7 @@
 #include "details\create.h"
 #include "details\deviceio.h"
 #include "details\directory.h"
+#include "details\fastiocheck.h"
 #include "details\filesystem.h"
 #include "details\info.h"
 #include "details\lock.h"
@@ -87,7 +88,7 @@ namespace mimo {
 
                     case kernel::IRP_MJ_FAST_IO_CHECK_IF_POSSIBLE:
 
-                        return readwrite::RenderCheckIfPossible(data);
+                        return fastiocheck::Render(data);
 
                     case kernel::IRP_MJ_NETWORK_QUERY_OPEN:
 

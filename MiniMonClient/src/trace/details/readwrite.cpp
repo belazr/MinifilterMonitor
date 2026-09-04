@@ -61,17 +61,6 @@ namespace {
         return ioFlags;
     }
 
-
-    std::wstring RenderRange(int64_t fileOffset, uint32_t length, uint32_t key) {
-        std::wstring details = std::format(L"Offset: {}, Length: {}", fileOffset, length);
-
-        if (key) {
-            details += std::format(L", Key: 0x{:X}", key);
-        }
-
-        return details;
-    }
-
 }
 
 namespace mimo {
@@ -112,21 +101,15 @@ namespace mimo {
                 }
 
 
-                std::wstring RenderCheckIfPossible(const protocol::RecordData& data) {
-                    const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Operation: {}", parameters.fastIoCheckIfPossible.checkForReadOperation ? L"Read" : L"Write");
-
-                    details += L", ";
-                    details += RenderRange(parameters.fastIoCheckIfPossible.fileOffset, parameters.fastIoCheckIfPossible.length, parameters.fastIoCheckIfPossible.lockKey);
-
-                    return details;
-                }
-
-
                 std::wstring RenderMdl(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
+                    std::wstring details = std::format(L"Offset: {}, Length: {}", parameters.mdlReadWrite.fileOffset, parameters.mdlReadWrite.length);
 
-                    return RenderRange(parameters.mdlReadWrite.fileOffset, parameters.mdlReadWrite.length, parameters.mdlReadWrite.key);
+                    if (parameters.mdlReadWrite.key) {
+                        details += std::format(L", Key: 0x{:X}", parameters.mdlReadWrite.key);
+                    }
+
+                    return details;
                 }
 
 

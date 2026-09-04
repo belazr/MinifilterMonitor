@@ -14,8 +14,6 @@ namespace mimo {
 
                 std::wstring RenderCopy(const protocol::RecordData& data);
 
-                std::wstring RenderCheckIfPossible(const protocol::RecordData& data);
-
                 std::wstring RenderMdl(const protocol::RecordData& data);
 
                 std::wstring RenderMdlReadComplete(const protocol::RecordData& data);
