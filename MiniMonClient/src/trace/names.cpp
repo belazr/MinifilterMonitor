@@ -493,6 +493,15 @@ namespace mimo {
                         }
                         break;
 
+                    case kernel::IRP_MJ_FLUSH_BUFFERS:
+                        switch (minor) {
+                            case kernel::IRP_MN_FLUSH_AND_PURGE:      return L"IRP_MN_FLUSH_AND_PURGE";
+                            case kernel::IRP_MN_FLUSH_DATA_ONLY:      return L"IRP_MN_FLUSH_DATA_ONLY";
+                            case kernel::IRP_MN_FLUSH_NO_SYNC:        return L"IRP_MN_FLUSH_NO_SYNC";
+                            case kernel::IRP_MN_FLUSH_DATA_SYNC_ONLY: return L"IRP_MN_FLUSH_DATA_SYNC_ONLY";
+                        }
+                        break;
+
                     case kernel::IRP_MJ_READ:
                     case kernel::IRP_MJ_WRITE:
                         switch (minor) {
@@ -540,6 +549,7 @@ namespace mimo {
                             case kernel::IRP_MN_DEVICE_USAGE_NOTIFICATION:    return L"IRP_MN_DEVICE_USAGE_NOTIFICATION";
                             case kernel::IRP_MN_SURPRISE_REMOVAL:             return L"IRP_MN_SURPRISE_REMOVAL";
                             case kernel::IRP_MN_QUERY_LEGACY_BUS_INFORMATION: return L"IRP_MN_QUERY_LEGACY_BUS_INFORMATION";
+                            case kernel::IRP_MN_DEVICE_ENUMERATED:            return L"IRP_MN_DEVICE_ENUMERATED";
                         }
                         break;
 
@@ -564,6 +574,7 @@ namespace mimo {
                             case kernel::IRP_MN_DISABLE_COLLECTION:     return L"IRP_MN_DISABLE_COLLECTION";
                             case kernel::IRP_MN_REGINFO:                return L"IRP_MN_REGINFO";
                             case kernel::IRP_MN_EXECUTE_METHOD:         return L"IRP_MN_EXECUTE_METHOD";
+                            case kernel::IRP_MN_REGINFO_EX:             return L"IRP_MN_REGINFO_EX";
                         }
                         break;
                 }

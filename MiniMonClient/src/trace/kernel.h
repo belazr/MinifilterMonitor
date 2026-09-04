@@ -106,6 +106,12 @@ namespace mimo {
             inline constexpr uint8_t IRP_MN_UNLOCK_ALL        = 0x03u;
             inline constexpr uint8_t IRP_MN_UNLOCK_ALL_BY_KEY = 0x04u;
 
+            // flush buffers
+            inline constexpr uint8_t IRP_MN_FLUSH_AND_PURGE      = 0x01u;
+            inline constexpr uint8_t IRP_MN_FLUSH_DATA_ONLY      = 0x02u;
+            inline constexpr uint8_t IRP_MN_FLUSH_NO_SYNC        = 0x03u;
+            inline constexpr uint8_t IRP_MN_FLUSH_DATA_SYNC_ONLY = 0x04u;
+
             // read/write
             inline constexpr uint8_t IRP_MN_NORMAL           = 0x00u;
             inline constexpr uint8_t IRP_MN_DPC              = 0x01u;
@@ -144,6 +150,7 @@ namespace mimo {
             inline constexpr uint8_t IRP_MN_DEVICE_USAGE_NOTIFICATION    = 0x16u;
             inline constexpr uint8_t IRP_MN_SURPRISE_REMOVAL             = 0x17u;
             inline constexpr uint8_t IRP_MN_QUERY_LEGACY_BUS_INFORMATION = 0x18u;
+            inline constexpr uint8_t IRP_MN_DEVICE_ENUMERATED            = 0x19u;
 
             // power
             inline constexpr uint8_t IRP_MN_WAIT_WAKE      = 0x00u;
@@ -162,6 +169,7 @@ namespace mimo {
             inline constexpr uint8_t IRP_MN_DISABLE_COLLECTION     = 0x07u;
             inline constexpr uint8_t IRP_MN_REGINFO                = 0x08u;
             inline constexpr uint8_t IRP_MN_EXECUTE_METHOD         = 0x09u;
+            inline constexpr uint8_t IRP_MN_REGINFO_EX             = 0x0Bu;
 
             // WSL reparse tags live in kernel-only ntifs.h
             inline constexpr uint32_t IO_REPARSE_TAG_LX_SYMLINK = 0xA000001Du;
