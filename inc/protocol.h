@@ -408,6 +408,44 @@ namespace mimo {
         static_assert(offsetof(SetInfoSupplement, payload) == 8u, "protocol::SetInfoSupplement layout drift");
         static_assert(offsetof(SetInfoSupplement, targetName) == 8u + SET_INFO_PAYLOAD_BYTES, "protocol::SetInfoSupplement layout drift");
 
+        // IRP_MJ_QUERY_EA
+
+        // capture bits for QueryEaSupplement::captured
+        inline constexpr uint32_t QUERY_EA_CAPTURED_LIST     = 0x00000001u;
+        inline constexpr uint32_t QUERY_EA_CAPTURED_PAYLOAD  = 0x00000002u;
+        inline constexpr uint32_t QUERY_EA_TRUNCATED_LIST    = 0x00000004u;
+        inline constexpr uint32_t QUERY_EA_TRUNCATED_PAYLOAD = 0x00000008u;
+
+        inline constexpr uint32_t QUERY_EA_LIST_BYTES    = 264u;
+        inline constexpr uint32_t QUERY_EA_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 3u * sizeof(uint32_t) - QUERY_EA_LIST_BYTES;
+
+        struct QueryEaSupplement {
+            uint32_t captured;
+            uint32_t capturedListBytes;
+            uint32_t capturedPayloadBytes;
+            uint8_t list[QUERY_EA_LIST_BYTES];          // FILE_GET_EA_INFORMATION entries, captured pre-operation
+            uint8_t payload[QUERY_EA_PAYLOAD_BYTES];    // FILE_FULL_EA_INFORMATION entries, captured post-operation
+        };
+
+        static_assert(offsetof(QueryEaSupplement, list) == 12u, "protocol::QueryEaSupplement layout drift");
+        static_assert(offsetof(QueryEaSupplement, payload) == 12u + QUERY_EA_LIST_BYTES, "protocol::QueryEaSupplement layout drift");
+
+        // IRP_MJ_SET_EA
+
+        // capture bits for SetEaSupplement::captured
+        inline constexpr uint32_t SET_EA_CAPTURED_PAYLOAD  = 0x00000001u;
+        inline constexpr uint32_t SET_EA_TRUNCATED_PAYLOAD = 0x00000002u;
+
+        inline constexpr uint32_t SET_EA_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 2u * sizeof(uint32_t);
+
+        struct SetEaSupplement {
+            uint32_t captured;
+            uint32_t capturedBytes;
+            uint8_t payload[SET_EA_PAYLOAD_BYTES];    // FILE_FULL_EA_INFORMATION entries
+        };
+
+        static_assert(offsetof(SetEaSupplement, payload) == 8u, "protocol::SetEaSupplement layout drift");
+
         // IRP_MJ_QUERY_VOLUME_INFORMATION / IRP_MJ_SET_VOLUME_INFORMATION
 
         // capture bits for VolumeInfoSupplement::captured
@@ -539,6 +577,8 @@ namespace mimo {
             CreateSupplement create;
             QueryInfoSupplement queryInfo;
             SetInfoSupplement setInfo;
+            QueryEaSupplement queryEa;
+            SetEaSupplement setEa;
             VolumeInfoSupplement volumeInfo;
             QueryDirectorySupplement queryDirectory;
             FsControlSupplement fsControl;
@@ -551,6 +591,8 @@ namespace mimo {
         static_assert(sizeof(CreateSupplement) == SUPPLEMENT_BYTES, "protocol::CreateSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(QueryInfoSupplement) == SUPPLEMENT_BYTES, "protocol::QueryInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(SetInfoSupplement) == SUPPLEMENT_BYTES, "protocol::SetInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
+        static_assert(sizeof(QueryEaSupplement) == SUPPLEMENT_BYTES, "protocol::QueryEaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
+        static_assert(sizeof(SetEaSupplement) == SUPPLEMENT_BYTES, "protocol::SetEaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(VolumeInfoSupplement) == SUPPLEMENT_BYTES, "protocol::VolumeInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(QueryDirectorySupplement) == SUPPLEMENT_BYTES, "protocol::QueryDirectorySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
         static_assert(sizeof(FsControlSupplement) == SUPPLEMENT_BYTES, "protocol::FsControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");

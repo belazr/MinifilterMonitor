@@ -82,7 +82,7 @@ namespace {
             details += std::format(L", FileIndex: {}", parameters.queryDirectory.fileIndex);
         }
 
-        const std::wstring flags = trace::names::RenderQueryDirectoryFlags(data.operationFlags);
+        const std::wstring flags = trace::names::RenderScanFlags(data.operationFlags);
 
         if (!flags.empty()) {
             details += L", ";

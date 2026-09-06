@@ -3,6 +3,7 @@
 #include "supplement\create.h"
 #include "supplement\deviceio.h"
 #include "supplement\directory.h"
+#include "supplement\ea.h"
 #include "supplement\filesystem.h"
 #include "supplement\info.h"
 #include "supplement\lock.h"
@@ -41,6 +42,22 @@ namespace mimo {
 
                         if (pData->Iopb->Parameters.SetFileInformation.InfoBuffer) {
                             info::PopulateSet(&pSupplement->setInfo, pData, pFltObjects);
+                        }
+
+                        break;
+
+                    case IRP_MJ_QUERY_EA:
+
+                        if (pData->Iopb->Parameters.QueryEa.EaList) {
+                            ea::PopulateList(&pSupplement->queryEa, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_SET_EA:
+
+                        if (pData->Iopb->Parameters.SetEa.Length) {
+                            ea::PopulateSet(&pSupplement->setEa, pData);
                         }
 
                         break;
@@ -124,6 +141,14 @@ namespace mimo {
 
                         if (pData->Iopb->Parameters.QueryFileInformation.InfoBuffer) {
                             info::PopulateQuery(&pSupplement->queryInfo, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_QUERY_EA:
+
+                        if (pData->Iopb->Parameters.QueryEa.Length) {
+                            ea::PopulateQuery(&pSupplement->queryEa, pData);
                         }
 
                         break;

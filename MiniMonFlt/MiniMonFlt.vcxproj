@@ -108,6 +108,7 @@
     <ClCompile Include="src\trace\supplement\create.cpp" />
     <ClCompile Include="src\trace\supplement\deviceio.cpp" />
     <ClCompile Include="src\trace\supplement\directory.cpp" />
+    <ClCompile Include="src\trace\supplement\ea.cpp" />
     <ClCompile Include="src\trace\supplement\filesystem.cpp" />
     <ClCompile Include="src\trace\supplement\info.cpp" />
     <ClCompile Include="src\trace\supplement\lock.cpp" />
@@ -133,6 +134,7 @@
     <ClInclude Include="src\trace\supplement\create.h" />
     <ClInclude Include="src\trace\supplement\deviceio.h" />
     <ClInclude Include="src\trace\supplement\directory.h" />
+    <ClInclude Include="src\trace\supplement\ea.h" />
     <ClInclude Include="src\trace\supplement\filesystem.h" />
     <ClInclude Include="src\trace\supplement\info.h" />
     <ClInclude Include="src\trace\supplement\lock.h" />

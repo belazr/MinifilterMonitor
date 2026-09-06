@@ -25,7 +25,7 @@ namespace mimo {
             inline constexpr uint8_t SL_KEY_SPECIFIED = 0x01u;
             inline constexpr uint8_t SL_WRITE_THROUGH = 0x04u;
 
-            // directory control query stack-location SL_* flags carried in RecordData::operationFlags
+            // query EA and directory control query stack-location SL_* flags carried in RecordData::operationFlags
             inline constexpr uint8_t SL_RESTART_SCAN        = 0x01u;
             inline constexpr uint8_t SL_RETURN_SINGLE_ENTRY = 0x02u;
             inline constexpr uint8_t SL_INDEX_SPECIFIED     = 0x04u;
@@ -629,6 +629,31 @@ namespace mimo {
             inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_TARGET_SR               = 0x00000080u;
             inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_SOURCE_SR               = 0x00000100u;
             inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_SR                      = 0x00000180u;
+
+            // extended attribute entry layouts
+            struct FILE_FULL_EA_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint8_t Flags;
+                uint8_t EaNameLength;
+                uint16_t EaValueLength;
+                char EaName[1u];
+            };
+
+            static_assert(sizeof(FILE_FULL_EA_INFORMATION) == 12u, "trace::kernel::FILE_FULL_EA_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_FULL_EA_INFORMATION, EaValueLength) == 6u, "trace::kernel::FILE_FULL_EA_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_FULL_EA_INFORMATION, EaName) == 8u, "trace::kernel::FILE_FULL_EA_INFORMATION x64 layout drift");
+
+            // FILE_FULL_EA_INFORMATION flag
+            inline constexpr uint8_t FILE_NEED_EA = 0x80u;
+
+            struct FILE_GET_EA_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint8_t EaNameLength;
+                char EaName[1u];
+            };
+
+            static_assert(sizeof(FILE_GET_EA_INFORMATION) == 8u, "trace::kernel::FILE_GET_EA_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_GET_EA_INFORMATION, EaName) == 5u, "trace::kernel::FILE_GET_EA_INFORMATION x64 layout drift");
 
             // FS_INFORMATION_CLASS codes
             inline constexpr uint32_t FileFsVolumeInformation       = 1u;

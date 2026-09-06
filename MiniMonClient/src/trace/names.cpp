@@ -193,6 +193,20 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(RENAME_FLAG_NAMES), "composite entry after its components in RENAME_FLAG_NAMES");
 
+    constexpr FlagName EA_FLAG_NAMES[]{
+        { trace::kernel::FILE_NEED_EA, L"FILE_NEED_EA" },
+    };
+
+    static_assert(CompositesPrecedeComponents(EA_FLAG_NAMES), "composite entry after its components in EA_FLAG_NAMES");
+
+    constexpr FlagName SCAN_FLAG_NAMES[]{
+        { trace::kernel::SL_RESTART_SCAN,        L"Restart Scan" },
+        { trace::kernel::SL_RETURN_SINGLE_ENTRY, L"Return Single Entry" },
+        { trace::kernel::SL_INDEX_SPECIFIED,     L"Index Specified" },
+    };
+
+    static_assert(CompositesPrecedeComponents(SCAN_FLAG_NAMES), "composite entry after its components in SCAN_FLAG_NAMES");
+
     constexpr FlagName FILE_SYSTEM_ATTRIBUTE_NAMES[]{
         { FILE_CASE_SENSITIVE_SEARCH,        L"FILE_CASE_SENSITIVE_SEARCH" },
         { FILE_CASE_PRESERVED_NAMES,         L"FILE_CASE_PRESERVED_NAMES" },
@@ -227,14 +241,6 @@ namespace {
     };
 
     static_assert(CompositesPrecedeComponents(FILE_SYSTEM_ATTRIBUTE_NAMES), "composite entry after its components in FILE_SYSTEM_ATTRIBUTE_NAMES");
-
-    constexpr FlagName QUERY_DIRECTORY_FLAG_NAMES[]{
-        { trace::kernel::SL_RESTART_SCAN,        L"Restart Scan" },
-        { trace::kernel::SL_RETURN_SINGLE_ENTRY, L"Return Single Entry" },
-        { trace::kernel::SL_INDEX_SPECIFIED,     L"Index Specified" },
-    };
-
-    static_assert(CompositesPrecedeComponents(QUERY_DIRECTORY_FLAG_NAMES), "composite entry after its components in QUERY_DIRECTORY_FLAG_NAMES");
 
     constexpr FlagName COMPLETION_FILTER_NAMES[]{
         { FILE_NOTIFY_CHANGE_FILE_NAME,                   L"FILE_NOTIFY_CHANGE_FILE_NAME" },
@@ -846,6 +852,18 @@ namespace mimo {
             }
 
 
+            std::wstring RenderEaFlags(uint8_t flags) {
+
+                return RenderFlags(flags, EA_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderScanFlags(uint8_t operationFlags) {
+
+                return RenderFlags(operationFlags, SCAN_FLAG_NAMES, L"|");
+            }
+
+
             std::wstring RenderFsInformationClass(uint32_t fsInformationClass) {
 
                 switch (fsInformationClass) {
@@ -875,12 +893,6 @@ namespace mimo {
                 if (!fileSystemAttributes) return L"None";
 
                 return RenderFlags(fileSystemAttributes, FILE_SYSTEM_ATTRIBUTE_NAMES, L"|");
-            }
-
-
-            std::wstring RenderQueryDirectoryFlags(uint8_t operationFlags) {
-
-                return RenderFlags(operationFlags, QUERY_DIRECTORY_FLAG_NAMES, L"|");
             }
 
 

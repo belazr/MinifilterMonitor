@@ -69,6 +69,9 @@
     <ClCompile Include="src\trace\supplement\directory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\trace\supplement\ea.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\trace\supplement\filesystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -138,6 +141,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\supplement\directory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\supplement\ea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\supplement\filesystem.h">
