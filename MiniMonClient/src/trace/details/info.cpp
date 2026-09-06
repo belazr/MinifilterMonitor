@@ -126,9 +126,10 @@ namespace {
     }
 
 
-    std::wstring RenderStreamsPayload(std::span<const uint8_t> payload) {
+    std::wstring RenderStreamsPayload(std::span<const uint8_t> payload, bool truncated) {
         std::wstring result;
         size_t offset = 0u;
+        bool terminated = false;
 
         while (true) {
             constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_STREAM_INFORMATION, StreamName);
@@ -138,16 +139,26 @@ namespace {
 
             result += std::format(L"StreamName: {}, StreamSize: {}, StreamAllocationSize: {}, ", trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.StreamNameLength), entry.StreamSize, entry.StreamAllocationSize);
 
-            if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
+            if (!entry.NextEntryOffset) {
+                terminated = true;
+
+                break;
+            }
+
+            if (entry.NextEntryOffset > payload.size()) break;
 
             offset += entry.NextEntryOffset;
         }
 
-        if (!result.empty()) {
+        if (result.empty()) return {};
+
+        const bool marked = truncated && !terminated;
+
+        if (!marked) {
             result.resize(result.size() - 2u);
         }
 
-        return result;
+        return text::MarkTruncated(result, marked);
     }
 
 
@@ -202,14 +213,15 @@ namespace {
     }
 
 
-    std::wstring RenderHardLinksPayload(std::span<const uint8_t> payload) {
+    std::wstring RenderHardLinksPayload(std::span<const uint8_t> payload, bool truncated) {
         uint32_t bytesNeeded;
         uint32_t entriesReturned;
 
         if (!trace::details::payload::ReadValue(payload, bytesNeeded) || !trace::details::payload::ReadValue(payload, entriesReturned, offsetof(trace::kernel::FILE_LINKS_INFORMATION, EntriesReturned))) return {};
 
-        std::wstring result = std::format(L"BytesNeeded: {}, EntriesReturned: {}", bytesNeeded, entriesReturned);
+        std::wstring result = std::format(L"BytesNeeded: {}, EntriesReturned: {}, ", bytesNeeded, entriesReturned);
         size_t offset = offsetof(trace::kernel::FILE_LINKS_INFORMATION, Entry);
+        bool terminated = false;
 
         while (true) {
             constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_LINK_ENTRY_INFORMATION, FileName);
@@ -217,14 +229,26 @@ namespace {
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L", ParentFileId: 0x{:X}, FileName: {}", static_cast<uint64_t>(entry.ParentFileId), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
+            result += std::format(L"ParentFileId: 0x{:X}, FileName: {}, ", static_cast<uint64_t>(entry.ParentFileId), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
 
-            if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
+            if (!entry.NextEntryOffset) {
+                terminated = true;
+
+                break;
+            }
+
+            if (entry.NextEntryOffset > payload.size()) break;
 
             offset += entry.NextEntryOffset;
         }
 
-        return result;
+        const bool marked = truncated && !terminated;
+
+        if (!marked) {
+            result.resize(result.size() - 2u);
+        }
+
+        return text::MarkTruncated(result, marked);
     }
 
 
@@ -455,8 +479,10 @@ namespace mimo {
 
                     const protocol::QueryInfoSupplement& queryInfoSupplement = data.supplement.queryInfo;
                     const std::span<const uint8_t> payload = ExtractPayload(queryInfoSupplement);
+                    const bool truncated = queryInfoSupplement.captured & protocol::QUERY_INFO_TRUNCATED_PAYLOAD;
 
                     std::wstring payloadText;
+                    std::wstring entriesText;
 
                     switch (parameters.queryFileInformation.fileInformationClass) {
 
@@ -536,7 +562,7 @@ namespace mimo {
                         }
 
                         case kernel::FileStreamInformation:
-                            payloadText = RenderStreamsPayload(payload);
+                            entriesText = RenderStreamsPayload(payload, truncated);
 
                             break;
 
@@ -571,7 +597,7 @@ namespace mimo {
                         }
 
                         case kernel::FileHardLinkInformation:
-                            payloadText = RenderHardLinksPayload(payload);
+                            entriesText = RenderHardLinksPayload(payload, truncated);
 
                             break;
 
@@ -639,7 +665,12 @@ namespace mimo {
 
                     if (!payloadText.empty()) {
                         details += L", ";
-                        details += text::MarkTruncated(payloadText, queryInfoSupplement.captured & protocol::QUERY_INFO_TRUNCATED_PAYLOAD);
+                        details += text::MarkTruncated(payloadText, truncated);
+                    }
+
+                    if (!entriesText.empty()) {
+                        details += L", ";
+                        details += entriesText;
                     }
 
                     return details;

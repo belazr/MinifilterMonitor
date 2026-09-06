@@ -47,10 +47,11 @@ namespace {
 
 
     template <typename Entry>
-    std::wstring RenderEntriesPayload(std::span<const uint8_t> payload) {
+    std::wstring RenderEntriesPayload(std::span<const uint8_t> payload, bool truncated) {
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
+        bool terminated = false;
 
         while (true) {
             constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
@@ -61,16 +62,26 @@ namespace {
             result += std::format(L"{}: {}, ", index, trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
             index++;
 
-            if (!entry.NextEntryOffset || entry.NextEntryOffset > payload.size()) break;
+            if (!entry.NextEntryOffset) {
+                terminated = true;
+
+                break;
+            }
+
+            if (entry.NextEntryOffset > payload.size()) break;
 
             offset += entry.NextEntryOffset;
         }
 
-        if (!result.empty()) {
+        if (result.empty()) return {};
+
+        const bool marked = truncated && !terminated;
+
+        if (!marked) {
             result.resize(result.size() - 2u);
         }
 
-        return result;
+        return text::MarkTruncated(result, marked);
     }
 
 
@@ -98,45 +109,46 @@ namespace {
         }
 
         const std::span<const uint8_t> payload = ExtractPayload(queryDirectorySupplement);
-        std::wstring payloadText;
+        const bool truncated = queryDirectorySupplement.captured & protocol::QUERY_DIRECTORY_TRUNCATED_PAYLOAD;
+        std::wstring entriesText;
 
         switch (parameters.queryDirectory.fileInformationClass) {
 
             case trace::kernel::FileDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_DIRECTORY_INFORMATION>(payload);
+                entriesText = RenderEntriesPayload<trace::kernel::FILE_DIRECTORY_INFORMATION>(payload, truncated);
 
                 break;
 
             case trace::kernel::FileFullDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_FULL_DIR_INFORMATION>(payload);
+                entriesText = RenderEntriesPayload<trace::kernel::FILE_FULL_DIR_INFORMATION>(payload, truncated);
 
                 break;
 
             case trace::kernel::FileBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_BOTH_DIR_INFORMATION>(payload);
+                entriesText = RenderEntriesPayload<trace::kernel::FILE_BOTH_DIR_INFORMATION>(payload, truncated);
 
                 break;
 
             case trace::kernel::FileNamesInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_NAMES_INFORMATION>(payload);
+                entriesText = RenderEntriesPayload<trace::kernel::FILE_NAMES_INFORMATION>(payload, truncated);
 
                 break;
 
             case trace::kernel::FileIdBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_BOTH_DIR_INFORMATION>(payload);
+                entriesText = RenderEntriesPayload<trace::kernel::FILE_ID_BOTH_DIR_INFORMATION>(payload, truncated);
 
                 break;
 
             case trace::kernel::FileIdFullDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_FULL_DIR_INFORMATION>(payload);
+                entriesText = RenderEntriesPayload<trace::kernel::FILE_ID_FULL_DIR_INFORMATION>(payload, truncated);
 
                 break;
 
         }
 
-        if (!payloadText.empty()) {
+        if (!entriesText.empty()) {
             details += L", ";
-            details += text::MarkTruncated(payloadText, queryDirectorySupplement.captured & protocol::QUERY_DIRECTORY_TRUNCATED_PAYLOAD);
+            details += entriesText;
         }
 
         return details;
