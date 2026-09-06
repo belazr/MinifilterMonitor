@@ -2,6 +2,8 @@
 
 #include "..\name.h"
 
+#include "..\..\memory.h"
+
 #include "..\..\..\..\inc\protocol.h"
 
 #include <fltKernel.h>
@@ -107,9 +109,18 @@ namespace mimo {
                     if (!pInfoBuffer || !bufferSize || !writtenSize) return;
 
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
+
+                    if (FLT_IS_FASTIO_OPERATION(pData) && !memory::IsRawBufferReadable(pData, pInfoBuffer, dataSize)) return;
+
                     const ULONG copySize = dataSize < protocol::QUERY_INFO_PAYLOAD_BYTES ? dataSize : protocol::QUERY_INFO_PAYLOAD_BYTES;
 
-                    RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
+                    __try {
+                        RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
+                    }
+                    __except (EXCEPTION_EXECUTE_HANDLER) {
+
+                        return;
+                    }
 
                     if (copySize < dataSize) {
                         pSupplement->captured |= protocol::QUERY_INFO_TRUNCATED_PAYLOAD;
