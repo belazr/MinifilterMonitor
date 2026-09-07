@@ -82,6 +82,20 @@ namespace {
     }
 
 
+    std::wstring RenderEaValue(std::span<const uint8_t> valueData, uint16_t valueLength) {
+        constexpr size_t PREVIEW_BYTES = 32u;
+        const size_t dataBytes = valueLength < valueData.size() ? valueLength : valueData.size();
+        const size_t copyBytes = dataBytes < PREVIEW_BYTES ? dataBytes : PREVIEW_BYTES;
+        std::wstring result;
+
+        for (const uint8_t byte : valueData.first(copyBytes)) {
+            result += std::format(L"{:02X}", byte);
+        }
+
+        return text::MarkTruncated(result, copyBytes < valueLength);
+    }
+
+
     std::wstring RenderEntriesPayload(std::span<const uint8_t> payload) {
         std::wstring result;
         size_t offset = 0u;
@@ -96,6 +110,13 @@ namespace {
 
             result += std::format(L"{}: EaName: {}, EaValueLength: {}", index, RenderEaName(payload.subspan(offset + NAME_OFFSET), entry.EaNameLength), entry.EaValueLength);
             index++;
+
+            if (entry.EaValueLength) {
+                const size_t valueOffset = offset + NAME_OFFSET + entry.EaNameLength + 1u;
+                const size_t valueStart = valueOffset < payload.size() ? valueOffset : payload.size();
+
+                result += std::format(L", EaValue: {}", RenderEaValue(payload.subspan(valueStart), entry.EaValueLength));
+            }
 
             const std::wstring flags = trace::names::RenderEaFlags(entry.Flags);
 
