@@ -25,7 +25,7 @@ namespace {
 
     std::map<std::wstring, std::wstring> accountNames;
 
-    std::wstring RenderImpersonated(const protocol::CreateSupplement& createSupplement) {
+    std::wstring RenderImpersonatedSid(const protocol::CreateSupplement& createSupplement) {
         const PSID pSid = const_cast<uint8_t*>(createSupplement.impersonatedSid);
         wchar_t* pSidText = nullptr;
 
@@ -99,7 +99,7 @@ namespace mimo {
                     }
 
                     if (createSupplement.captured & protocol::CREATE_CAPTURED_IMPERSONATED_SID) {
-                        result += std::format(L"Impersonating: {}, ", RenderImpersonated(createSupplement));
+                        result += std::format(L"Impersonating: {}, ", RenderImpersonatedSid(createSupplement));
                     }
 
                     if (data.status == 0 || data.information == kernel::FILE_EXISTS || data.information == kernel::FILE_DOES_NOT_EXIST) {
