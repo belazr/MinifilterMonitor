@@ -27,7 +27,7 @@ namespace {
     }
 
 
-    std::wstring RenderNamesList(std::span<const uint8_t> list, bool truncated) {
+    std::wstring RenderNamesList(std::span<const uint8_t> list) {
         std::wstring result;
         size_t offset = 0u;
         bool terminated = false;
@@ -54,13 +54,11 @@ namespace {
 
         if (result.empty()) return {};
 
-        const bool marked = truncated && !terminated;
-
-        if (!marked) {
+        if (terminated) {
             result.resize(result.size() - 1u);
         }
 
-        return text::MarkTruncated(result, marked);
+        return text::MarkTruncated(result, !terminated);
     }
 
 
@@ -68,7 +66,7 @@ namespace {
 
         if (!(supplement.captured & protocol::QUERY_EA_CAPTURED_LIST)) return {};
 
-        const std::wstring names = RenderNamesList({ supplement.list, supplement.capturedListBytes }, supplement.captured & protocol::QUERY_EA_TRUNCATED_LIST);
+        const std::wstring names = RenderNamesList({ supplement.list, supplement.capturedListBytes });
 
         if (names.empty()) return {};
 
@@ -84,7 +82,7 @@ namespace {
     }
 
 
-    std::wstring RenderEntriesPayload(std::span<const uint8_t> payload, bool truncated) {
+    std::wstring RenderEntriesPayload(std::span<const uint8_t> payload) {
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
@@ -120,13 +118,11 @@ namespace {
 
         if (result.empty()) return {};
 
-        const bool marked = truncated && !terminated;
-
-        if (!marked) {
+        if (terminated) {
             result.resize(result.size() - 2u);
         }
 
-        return text::MarkTruncated(result, marked);
+        return text::MarkTruncated(result, !terminated);
     }
 
 
@@ -170,11 +166,11 @@ namespace mimo {
                         details += listText;
                     }
 
-                    const std::wstring entriesText = RenderEntriesPayload(ExtractPayload(queryEaSupplement), queryEaSupplement.captured & protocol::QUERY_EA_TRUNCATED_PAYLOAD);
+                    const std::wstring payloadText = RenderEntriesPayload(ExtractPayload(queryEaSupplement));
 
-                    if (!entriesText.empty()) {
+                    if (!payloadText.empty()) {
                         details += L", ";
-                        details += entriesText;
+                        details += payloadText;
                     }
 
                     return details;
@@ -185,11 +181,11 @@ namespace mimo {
                     std::wstring details = std::format(L"Length: {}", data.parameters.setEa.length);
 
                     const protocol::SetEaSupplement& setEaSupplement = data.supplement.setEa;
-                    const std::wstring entriesText = RenderEntriesPayload(ExtractPayload(setEaSupplement), setEaSupplement.captured & protocol::SET_EA_TRUNCATED_PAYLOAD);
+                    const std::wstring payloadText = RenderEntriesPayload(ExtractPayload(setEaSupplement));
 
-                    if (!entriesText.empty()) {
+                    if (!payloadText.empty()) {
                         details += L", ";
-                        details += entriesText;
+                        details += payloadText;
                     }
 
                     return details;

@@ -6,8 +6,6 @@
 #include "..\names.h"
 #include "..\values.h"
 
-#include "..\..\text.h"
-
 #include "..\..\..\..\inc\protocol.h"
 
 #include <cstddef>
@@ -190,7 +188,7 @@ namespace mimo {
 
                     if (!payloadText.empty()) {
                         details += L", ";
-                        details += text::MarkTruncated(payloadText, volumeInfoSupplement.captured & protocol::VOLUME_INFO_TRUNCATED_PAYLOAD);
+                        details += payloadText;
                     }
 
                     return details;

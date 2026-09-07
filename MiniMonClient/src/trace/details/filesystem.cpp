@@ -216,7 +216,7 @@ namespace {
 
         if (!trace::details::payload::ReadHeader(payload, trim, RANGES_OFFSET)) return {};
 
-        std::wstring result = std::format(L"Key: {}, NumRanges: {}", trim.Key, trim.NumRanges);
+        std::wstring result = std::format(L"Key: {}, NumRanges: {}, ", trim.Key, trim.NumRanges);
         size_t offset = RANGES_OFFSET;
         uint32_t index = 1u;
 
@@ -225,12 +225,18 @@ namespace {
 
             if (!trace::details::payload::ReadValue(payload, range, offset)) break;
 
-            result += std::format(L", {}: Offset: {}, Length: {}", index, range.Offset, range.Length);
+            result += std::format(L"{}: Offset: {}, Length: {}, ", index, range.Offset, range.Length);
             offset += sizeof(range);
             index++;
         }
 
-        return result;
+        const bool marked = index <= trim.NumRanges;
+
+        if (!marked) {
+            result.resize(result.size() - 2u);
+        }
+
+        return text::MarkTruncated(result, marked);
     }
 
 
@@ -252,7 +258,8 @@ namespace {
     }
 
 
-    std::wstring RenderInput(const protocol::FltParameters& parameters, std::span<const uint8_t> input) {
+    std::wstring RenderInput(const protocol::FltParameters& parameters, const protocol::FsControlSupplement& supplement) {
+        const std::span<const uint8_t> input = ExtractInput(supplement);
 
         switch (parameters.fileSystemControl.fsControlCode) {
 
@@ -387,13 +394,13 @@ namespace {
     }
 
 
-    std::wstring RenderUsnRecordsPayload(std::span<const uint8_t> payload) {
+    std::wstring RenderUsnRecordsPayload(std::span<const uint8_t> payload, bool truncated) {
         constexpr size_t HEADER_BYTES = offsetof(trace::kernel::USN_RECORD_V2, FileName);
         int64_t nextUsn;
 
         if (!trace::details::payload::ReadValue(payload, nextUsn)) return {};
 
-        std::wstring result = std::format(L"NextUsn: {}", nextUsn);
+        std::wstring result = std::format(L"NextUsn: {}, ", nextUsn);
         size_t offset = sizeof(nextUsn);
         uint32_t index = 1u;
 
@@ -406,21 +413,25 @@ namespace {
 
             if (record.MajorVersion == 2u) {
                 const size_t nameStart = offset + record.FileNameOffset < payload.size() ? offset + record.FileNameOffset : payload.size();
-                result += std::format(L", {}: {}", index, RenderUsnRecordPayload(record, payload.subspan(nameStart)));
+                result += std::format(L"{}: {}, ", index, RenderUsnRecordPayload(record, payload.subspan(nameStart)));
             }
             else {
-                result += std::format(L", {}: MajorVersion: {}", index, record.MajorVersion);
+                result += std::format(L"{}: MajorVersion: {}, ", index, record.MajorVersion);
             }
 
             offset += record.RecordLength;
             index++;
         }
 
-        return result;
+        if (!truncated) {
+            result.resize(result.size() - 2u);
+        }
+
+        return text::MarkTruncated(result, truncated);
     }
 
 
-    std::wstring RenderAllocatedRangesPayload(std::span<const uint8_t> payload) {
+    std::wstring RenderAllocatedRangesPayload(std::span<const uint8_t> payload, bool truncated) {
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
@@ -432,11 +443,13 @@ namespace {
             index++;
         }
 
-        if (!result.empty()) {
+        if (result.empty()) return {};
+
+        if (!truncated) {
             result.resize(result.size() - 2u);
         }
 
-        return result;
+        return text::MarkTruncated(result, truncated);
     }
 
 
@@ -463,7 +476,7 @@ namespace {
 
         if (!trace::details::payload::ReadHeader(payload, regions, REGION_OFFSET)) return {};
 
-        std::wstring result = std::format(L"TotalRegionEntryCount: {}, RegionEntryCount: {}", regions.TotalRegionEntryCount, regions.RegionEntryCount);
+        std::wstring result = std::format(L"TotalRegionEntryCount: {}, RegionEntryCount: {}, ", regions.TotalRegionEntryCount, regions.RegionEntryCount);
         size_t offset = REGION_OFFSET;
         uint32_t index = 1u;
 
@@ -472,16 +485,24 @@ namespace {
 
             if (!trace::details::payload::ReadValue(payload, region, offset)) break;
 
-            result += std::format(L", {}: FileOffset: {}, Length: {}, Usage: {}", index, region.FileOffset, region.Length, trace::names::RenderFileRegionUsage(region.Usage));
+            result += std::format(L"{}: FileOffset: {}, Length: {}, Usage: {}, ", index, region.FileOffset, region.Length, trace::names::RenderFileRegionUsage(region.Usage));
             offset += sizeof(region);
             index++;
         }
 
-        return result;
+        const bool marked = index <= regions.RegionEntryCount;
+
+        if (!marked) {
+            result.resize(result.size() - 2u);
+        }
+
+        return text::MarkTruncated(result, marked);
     }
 
 
-    std::wstring RenderOutput(uint32_t fsControlCode, std::span<const uint8_t> output) {
+    std::wstring RenderOutput(uint32_t fsControlCode, const protocol::FsControlSupplement& supplement) {
+        const std::span<const uint8_t> output = ExtractOutput(supplement);
+        const bool truncated = supplement.captured & protocol::FS_CONTROL_TRUNCATED_OUTPUT;
 
         switch (fsControlCode) {
 
@@ -524,11 +545,11 @@ namespace {
 
             case FSCTL_READ_USN_JOURNAL:
 
-                return RenderUsnRecordsPayload(output);
+                return RenderUsnRecordsPayload(output, truncated);
 
             case FSCTL_QUERY_ALLOCATED_RANGES:
 
-                return RenderAllocatedRangesPayload(output);
+                return RenderAllocatedRangesPayload(output, truncated);
 
             case FSCTL_QUERY_USN_JOURNAL: {
                 trace::kernel::USN_JOURNAL_DATA_V0 journalData;
@@ -580,18 +601,18 @@ namespace mimo {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", names::RenderFsControlCode(parameters.fileSystemControl.fsControlCode), parameters.fileSystemControl.inputBufferLength, parameters.fileSystemControl.outputBufferLength);
                     const protocol::FsControlSupplement& fsControlSupplement = data.supplement.fsControl;
-                    const std::wstring inputText = RenderInput(parameters, ExtractInput(fsControlSupplement));
+                    const std::wstring inputText = RenderInput(parameters, fsControlSupplement);
 
                     if (!inputText.empty()) {
                         details += L", ";
-                        details += text::MarkTruncated(inputText, fsControlSupplement.captured & protocol::FS_CONTROL_TRUNCATED_INPUT);
+                        details += inputText;
                     }
 
-                    const std::wstring outputText = RenderOutput(parameters.fileSystemControl.fsControlCode, ExtractOutput(fsControlSupplement));
+                    const std::wstring outputText = RenderOutput(parameters.fileSystemControl.fsControlCode, fsControlSupplement);
 
                     if (!outputText.empty()) {
                         details += L", ";
-                        details += text::MarkTruncated(outputText, fsControlSupplement.captured & protocol::FS_CONTROL_TRUNCATED_OUTPUT);
+                        details += outputText;
                     }
 
                     return details;

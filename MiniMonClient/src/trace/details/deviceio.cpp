@@ -36,7 +36,8 @@ namespace {
     }
 
 
-    std::wstring RenderInput(uint32_t ioControlCode, std::span<const uint8_t> input) {
+    std::wstring RenderInput(uint32_t ioControlCode, const protocol::DeviceIoControlSupplement& supplement) {
+        const std::span<const uint8_t> input = ExtractInput(supplement);
 
         switch (ioControlCode) {
 
@@ -99,7 +100,7 @@ namespace {
 
         if (!trace::details::payload::ReadHeader(payload, extents, EXTENTS_OFFSET)) return {};
 
-        std::wstring result = std::format(L"NumberOfDiskExtents: {}", extents.NumberOfDiskExtents);
+        std::wstring result = std::format(L"NumberOfDiskExtents: {}, ", extents.NumberOfDiskExtents);
         size_t offset = EXTENTS_OFFSET;
         uint32_t index = 1u;
 
@@ -108,16 +109,23 @@ namespace {
 
             if (!trace::details::payload::ReadValue(payload, extent, offset)) break;
 
-            result += std::format(L", {}: DiskNumber: {}, StartingOffset: {}, ExtentLength: {}", index, extent.DiskNumber, extent.StartingOffset, extent.ExtentLength);
+            result += std::format(L"{}: DiskNumber: {}, StartingOffset: {}, ExtentLength: {}, ", index, extent.DiskNumber, extent.StartingOffset, extent.ExtentLength);
             offset += sizeof(extent);
             index++;
         }
 
-        return result;
+        const bool marked = index <= extents.NumberOfDiskExtents;
+
+        if (!marked) {
+            result.resize(result.size() - 2u);
+        }
+
+        return text::MarkTruncated(result, marked);
     }
 
 
-    std::wstring RenderOutput(uint32_t ioControlCode, std::span<const uint8_t> output) {
+    std::wstring RenderOutput(uint32_t ioControlCode, const protocol::DeviceIoControlSupplement& supplement) {
+        const std::span<const uint8_t> output = ExtractOutput(supplement);
 
         switch (ioControlCode) {
 
@@ -185,18 +193,18 @@ namespace mimo {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", names::RenderIoControlCode(parameters.deviceIoControl.ioControlCode), parameters.deviceIoControl.inputBufferLength, parameters.deviceIoControl.outputBufferLength);
                     const protocol::DeviceIoControlSupplement& deviceIoControlSupplement = data.supplement.deviceIoControl;
-                    const std::wstring inputText = RenderInput(parameters.deviceIoControl.ioControlCode, ExtractInput(deviceIoControlSupplement));
+                    const std::wstring inputText = RenderInput(parameters.deviceIoControl.ioControlCode, deviceIoControlSupplement);
 
                     if (!inputText.empty()) {
                         details += L", ";
-                        details += text::MarkTruncated(inputText, deviceIoControlSupplement.captured & protocol::DEVICE_IO_CONTROL_TRUNCATED_INPUT);
+                        details += inputText;
                     }
 
-                    const std::wstring outputText = RenderOutput(parameters.deviceIoControl.ioControlCode, ExtractOutput(deviceIoControlSupplement));
+                    const std::wstring outputText = RenderOutput(parameters.deviceIoControl.ioControlCode, deviceIoControlSupplement);
 
                     if (!outputText.empty()) {
                         details += L", ";
-                        details += text::MarkTruncated(outputText, deviceIoControlSupplement.captured & protocol::DEVICE_IO_CONTROL_TRUNCATED_OUTPUT);
+                        details += outputText;
                     }
 
                     return details;
