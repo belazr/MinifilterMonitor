@@ -151,7 +151,7 @@ namespace {
                 escaped.push_back(character);
                 quoted = true;
             }
-            else if (character < L' ' || character == L'\x7F') {
+            else if (character < L' ' || (character >= L'\x7F' && character <= L'\x9F')) {
                 escaped.append(std::format(LR"(\x{:02X})", static_cast<uint16_t>(character)));
             }
             else {
