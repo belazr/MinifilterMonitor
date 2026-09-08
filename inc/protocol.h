@@ -448,13 +448,13 @@ namespace mimo {
 
         struct QueryEaSupplement {
             uint32_t captured;
-            uint32_t capturedListSize;
+            uint32_t capturedEaListSize;
             uint32_t capturedPayloadSize;
-            uint8_t list[QUERY_EA_LIST_SIZE];          // FILE_GET_EA_INFORMATION entries, captured pre-operation
+            uint8_t eaList[QUERY_EA_LIST_SIZE];        // FILE_GET_EA_INFORMATION entries, captured pre-operation
             uint8_t payload[QUERY_EA_PAYLOAD_SIZE];    // FILE_FULL_EA_INFORMATION entries, captured post-operation
         };
 
-        static_assert(offsetof(QueryEaSupplement, list) == 12u, "protocol::QueryEaSupplement layout drift");
+        static_assert(offsetof(QueryEaSupplement, eaList) == 12u, "protocol::QueryEaSupplement layout drift");
         static_assert(offsetof(QueryEaSupplement, payload) == 12u + QUERY_EA_LIST_SIZE, "protocol::QueryEaSupplement layout drift");
 
         // IRP_MJ_SET_EA
@@ -588,24 +588,24 @@ namespace mimo {
         // IRP_MJ_QUERY_QUOTA
 
         // capture bits for QueryQuotaSupplement::captured
-        inline constexpr uint32_t QUERY_QUOTA_CAPTURED_LIST     = 0x00000001u;
-        inline constexpr uint32_t QUERY_QUOTA_CAPTURED_PAYLOAD  = 0x00000002u;
-        inline constexpr uint32_t QUERY_QUOTA_TRUNCATED_LIST    = 0x00000004u;
-        inline constexpr uint32_t QUERY_QUOTA_TRUNCATED_PAYLOAD = 0x00000008u;
+        inline constexpr uint32_t QUERY_QUOTA_CAPTURED_SID_LIST  = 0x00000001u;
+        inline constexpr uint32_t QUERY_QUOTA_CAPTURED_PAYLOAD   = 0x00000002u;
+        inline constexpr uint32_t QUERY_QUOTA_TRUNCATED_SID_LIST = 0x00000004u;
+        inline constexpr uint32_t QUERY_QUOTA_TRUNCATED_PAYLOAD  = 0x00000008u;
 
-        inline constexpr uint32_t QUERY_QUOTA_LIST_SIZE    = 304u;
-        inline constexpr uint32_t QUERY_QUOTA_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 3u * sizeof(uint32_t) - QUERY_QUOTA_LIST_SIZE;
+        inline constexpr uint32_t QUERY_QUOTA_SID_LIST_SIZE = 304u;
+        inline constexpr uint32_t QUERY_QUOTA_PAYLOAD_SIZE  = SUPPLEMENT_SIZE - 3u * sizeof(uint32_t) - QUERY_QUOTA_SID_LIST_SIZE;
 
         struct QueryQuotaSupplement {
             uint32_t captured;
-            uint32_t capturedListSize;
+            uint32_t capturedSidListSize;
             uint32_t capturedPayloadSize;
-            uint8_t list[QUERY_QUOTA_LIST_SIZE];          // FILE_GET_QUOTA_INFORMATION entries, captured pre-operation
-            uint8_t payload[QUERY_QUOTA_PAYLOAD_SIZE];    // FILE_QUOTA_INFORMATION entries, captured post-operation
+            uint8_t sidList[QUERY_QUOTA_SID_LIST_SIZE];    // FILE_GET_QUOTA_INFORMATION entries, captured pre-operation
+            uint8_t payload[QUERY_QUOTA_PAYLOAD_SIZE];     // FILE_QUOTA_INFORMATION entries, captured post-operation
         };
 
-        static_assert(offsetof(QueryQuotaSupplement, list) == 12u, "protocol::QueryQuotaSupplement layout drift");
-        static_assert(offsetof(QueryQuotaSupplement, payload) == 12u + QUERY_QUOTA_LIST_SIZE, "protocol::QueryQuotaSupplement layout drift");
+        static_assert(offsetof(QueryQuotaSupplement, sidList) == 12u, "protocol::QueryQuotaSupplement layout drift");
+        static_assert(offsetof(QueryQuotaSupplement, payload) == 12u + QUERY_QUOTA_SID_LIST_SIZE, "protocol::QueryQuotaSupplement layout drift");
 
         // IRP_MJ_SET_QUOTA
 

@@ -20,7 +20,7 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderSidsList(std::span<const uint8_t> list) {
+    std::wstring RenderSids(std::span<const uint8_t> sidList) {
         std::wstring result;
         size_t offset = 0u;
         bool terminated = false;
@@ -29,13 +29,13 @@ namespace {
             constexpr size_t SID_OFFSET = offsetof(trace::kernel::FILE_GET_QUOTA_INFORMATION, Sid);
             trace::kernel::FILE_GET_QUOTA_INFORMATION entry;
 
-            if (!trace::details::payload::ReadHeader(list, entry, SID_OFFSET, offset)) break;
+            if (!trace::details::payload::ReadHeader(sidList, entry, SID_OFFSET, offset)) break;
 
             const size_t sidStart = offset + SID_OFFSET;
 
-            if (entry.SidLength > list.size() - sidStart) break;
+            if (entry.SidLength > sidList.size() - sidStart) break;
 
-            result += trace::values::RenderSid(list.subspan(sidStart, entry.SidLength));
+            result += trace::values::RenderSid(sidList.subspan(sidStart, entry.SidLength));
             result += L'|';
 
             if (!entry.NextEntryOffset) {
@@ -44,7 +44,7 @@ namespace {
                 break;
             }
 
-            if (entry.NextEntryOffset > list.size()) break;
+            if (entry.NextEntryOffset > sidList.size()) break;
 
             offset += entry.NextEntryOffset;
         }
@@ -59,11 +59,11 @@ namespace {
     }
 
 
-    std::wstring RenderList(const protocol::QueryQuotaSupplement& supplement) {
+    std::wstring RenderSidList(const protocol::QueryQuotaSupplement& supplement) {
 
-        if (!(supplement.captured & protocol::QUERY_QUOTA_CAPTURED_LIST)) return {};
+        if (!(supplement.captured & protocol::QUERY_QUOTA_CAPTURED_SID_LIST)) return {};
 
-        const std::wstring sids = RenderSidsList({ supplement.list, supplement.capturedListSize });
+        const std::wstring sids = RenderSids({ supplement.sidList, supplement.capturedSidListSize });
 
         if (sids.empty()) return {};
 
@@ -79,7 +79,7 @@ namespace {
     }
 
 
-    std::wstring RenderEntriesPayload(std::span<const uint8_t> payload) {
+    std::wstring RenderQuotasPayload(std::span<const uint8_t> payload) {
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
@@ -154,14 +154,14 @@ namespace mimo {
                     }
 
                     const protocol::QueryQuotaSupplement& queryQuotaSupplement = data.supplement.queryQuota;
-                    const std::wstring listText = RenderList(queryQuotaSupplement);
+                    const std::wstring sidListText = RenderSidList(queryQuotaSupplement);
 
-                    if (!listText.empty()) {
+                    if (!sidListText.empty()) {
                         details += L", ";
-                        details += listText;
+                        details += sidListText;
                     }
 
-                    const std::wstring payloadText = RenderEntriesPayload(ExtractPayload(queryQuotaSupplement));
+                    const std::wstring payloadText = RenderQuotasPayload(ExtractPayload(queryQuotaSupplement));
 
                     if (!payloadText.empty()) {
                         details += L", ";
@@ -175,8 +175,7 @@ namespace mimo {
                 std::wstring RenderSet(const protocol::RecordData& data) {
                     std::wstring details = std::format(L"Length: {}", data.parameters.setQuota.length);
 
-                    const protocol::SetQuotaSupplement& setQuotaSupplement = data.supplement.setQuota;
-                    const std::wstring payloadText = RenderEntriesPayload(ExtractPayload(setQuotaSupplement));
+                    const std::wstring payloadText = RenderQuotasPayload(ExtractPayload(data.supplement.setQuota));
 
                     if (!payloadText.empty()) {
                         details += L", ";

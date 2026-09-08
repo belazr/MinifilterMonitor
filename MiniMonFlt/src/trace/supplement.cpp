@@ -50,7 +50,7 @@ namespace mimo {
                     case IRP_MJ_QUERY_EA:
 
                         if (pData->Iopb->Parameters.QueryEa.EaList) {
-                            ea::PopulateList(&pSupplement->queryEa, pData);
+                            ea::PopulateEaList(&pSupplement->queryEa, pData);
                         }
 
                         break;
@@ -115,7 +115,7 @@ namespace mimo {
                     case IRP_MJ_QUERY_QUOTA:
 
                         if (pData->Iopb->Parameters.QueryQuota.SidList) {
-                            quota::PopulateList(&pSupplement->queryQuota, pData);
+                            quota::PopulateSidList(&pSupplement->queryQuota, pData);
                         }
 
                         break;

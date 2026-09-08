@@ -27,7 +27,7 @@ namespace {
     }
 
 
-    std::wstring RenderNamesList(std::span<const uint8_t> list) {
+    std::wstring RenderEaNames(std::span<const uint8_t> eaList) {
         std::wstring result;
         size_t offset = 0u;
         bool terminated = false;
@@ -36,9 +36,9 @@ namespace {
             constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_GET_EA_INFORMATION, EaName);
             trace::kernel::FILE_GET_EA_INFORMATION entry;
 
-            if (!trace::details::payload::ReadHeader(list, entry, NAME_OFFSET, offset)) break;
+            if (!trace::details::payload::ReadHeader(eaList, entry, NAME_OFFSET, offset)) break;
 
-            result += RenderEaName(list.subspan(offset + NAME_OFFSET), entry.EaNameLength);
+            result += RenderEaName(eaList.subspan(offset + NAME_OFFSET), entry.EaNameLength);
             result += L'|';
 
             if (!entry.NextEntryOffset) {
@@ -47,7 +47,7 @@ namespace {
                 break;
             }
 
-            if (entry.NextEntryOffset > list.size()) break;
+            if (entry.NextEntryOffset > eaList.size()) break;
 
             offset += entry.NextEntryOffset;
         }
@@ -62,11 +62,11 @@ namespace {
     }
 
 
-    std::wstring RenderList(const protocol::QueryEaSupplement& supplement) {
+    std::wstring RenderEaList(const protocol::QueryEaSupplement& supplement) {
 
         if (!(supplement.captured & protocol::QUERY_EA_CAPTURED_LIST)) return {};
 
-        const std::wstring names = RenderNamesList({ supplement.list, supplement.capturedListSize });
+        const std::wstring names = RenderEaNames({ supplement.eaList, supplement.capturedEaListSize });
 
         if (names.empty()) return {};
 
@@ -96,7 +96,7 @@ namespace {
     }
 
 
-    std::wstring RenderEntriesPayload(std::span<const uint8_t> payload) {
+    std::wstring RenderExtendedAttributesPayload(std::span<const uint8_t> payload) {
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
@@ -180,14 +180,14 @@ namespace mimo {
                     }
 
                     const protocol::QueryEaSupplement& queryEaSupplement = data.supplement.queryEa;
-                    const std::wstring listText = RenderList(queryEaSupplement);
+                    const std::wstring eaListText = RenderEaList(queryEaSupplement);
 
-                    if (!listText.empty()) {
+                    if (!eaListText.empty()) {
                         details += L", ";
-                        details += listText;
+                        details += eaListText;
                     }
 
-                    const std::wstring payloadText = RenderEntriesPayload(ExtractPayload(queryEaSupplement));
+                    const std::wstring payloadText = RenderExtendedAttributesPayload(ExtractPayload(queryEaSupplement));
 
                     if (!payloadText.empty()) {
                         details += L", ";
@@ -201,8 +201,7 @@ namespace mimo {
                 std::wstring RenderSet(const protocol::RecordData& data) {
                     std::wstring details = std::format(L"Length: {}", data.parameters.setEa.length);
 
-                    const protocol::SetEaSupplement& setEaSupplement = data.supplement.setEa;
-                    const std::wstring payloadText = RenderEntriesPayload(ExtractPayload(setEaSupplement));
+                    const std::wstring payloadText = RenderExtendedAttributesPayload(ExtractPayload(data.supplement.setEa));
 
                     if (!payloadText.empty()) {
                         details += L", ";

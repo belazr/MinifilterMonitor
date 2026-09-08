@@ -16,7 +16,7 @@ namespace mimo {
 
                 __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
-                void PopulateList(protocol::QueryEaSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
+                void PopulateEaList(protocol::QueryEaSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
                     const void* const pEaList = pData->Iopb->Parameters.QueryEa.EaList;
@@ -26,13 +26,13 @@ namespace mimo {
 
                     const ULONG copySize = bufferSize < protocol::QUERY_EA_LIST_SIZE ? bufferSize : protocol::QUERY_EA_LIST_SIZE;
 
-                    RtlCopyMemory(pSupplement->list, pEaList, copySize);
+                    RtlCopyMemory(pSupplement->eaList, pEaList, copySize);
 
                     if (copySize < bufferSize) {
                         pSupplement->captured |= protocol::QUERY_EA_TRUNCATED_LIST;
                     }
 
-                    pSupplement->capturedListSize = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedEaListSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_EA_CAPTURED_LIST;
 
                     return;

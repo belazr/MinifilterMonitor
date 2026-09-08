@@ -16,7 +16,7 @@ namespace mimo {
 
                 __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
-                void PopulateList(protocol::QueryQuotaSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
+                void PopulateSidList(protocol::QueryQuotaSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
                     const void* const pSidList = pData->Iopb->Parameters.QueryQuota.SidList;
@@ -24,16 +24,16 @@ namespace mimo {
 
                     if (!pSidList || !bufferSize) return;
 
-                    const ULONG copySize = bufferSize < protocol::QUERY_QUOTA_LIST_SIZE ? bufferSize : protocol::QUERY_QUOTA_LIST_SIZE;
+                    const ULONG copySize = bufferSize < protocol::QUERY_QUOTA_SID_LIST_SIZE ? bufferSize : protocol::QUERY_QUOTA_SID_LIST_SIZE;
 
-                    RtlCopyMemory(pSupplement->list, pSidList, copySize);
+                    RtlCopyMemory(pSupplement->sidList, pSidList, copySize);
 
                     if (copySize < bufferSize) {
-                        pSupplement->captured |= protocol::QUERY_QUOTA_TRUNCATED_LIST;
+                        pSupplement->captured |= protocol::QUERY_QUOTA_TRUNCATED_SID_LIST;
                     }
 
-                    pSupplement->capturedListSize = static_cast<uint32_t>(copySize);
-                    pSupplement->captured |= protocol::QUERY_QUOTA_CAPTURED_LIST;
+                    pSupplement->capturedSidListSize = static_cast<uint32_t>(copySize);
+                    pSupplement->captured |= protocol::QUERY_QUOTA_CAPTURED_SID_LIST;
 
                     return;
                 }
