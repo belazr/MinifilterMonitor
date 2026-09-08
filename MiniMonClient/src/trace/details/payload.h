@@ -35,26 +35,26 @@ namespace mimo {
                 bool ReadHeader(
                     std::span<const uint8_t> payload,
                     T& value,
-                    size_t headerBytes,
+                    size_t headerSize,
                     size_t offset = 0u
                 ) {
 
-                    if (payload.size() < offset + headerBytes) return false;
+                    if (payload.size() < offset + headerSize) return false;
 
                     std::memset(&value, 0, sizeof(value));
-                    std::memcpy(&value, payload.data() + offset, headerBytes);
+                    std::memcpy(&value, payload.data() + offset, headerSize);
 
                     return true;
                 }
 
 
-                inline std::wstring RenderName(std::span<const uint8_t> nameData, uint32_t nameBytes) {
-                    const size_t copyBytes = nameBytes < nameData.size() ? nameBytes : nameData.size();
+                inline std::wstring RenderName(std::span<const uint8_t> nameData, uint32_t nameSize) {
+                    const size_t copySize = nameSize < nameData.size() ? nameSize : nameData.size();
 
-                    std::wstring name(copyBytes / sizeof(wchar_t), L'\0');
+                    std::wstring name(copySize / sizeof(wchar_t), L'\0');
                     std::memcpy(name.data(), nameData.data(), name.size() * sizeof(wchar_t));
 
-                    return text::MarkTruncated(name, copyBytes < nameBytes);
+                    return text::MarkTruncated(name, copySize < nameSize);
                 }
 
             }

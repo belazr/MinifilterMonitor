@@ -21,7 +21,7 @@ using namespace mimo;
 
 namespace {
 
-    constexpr uint32_t ACCOUNT_NAME_CHARS = 256u;
+    constexpr uint32_t ACCOUNT_NAME_WCHAR_COUNT = 256u;
 
     std::map<std::wstring, std::wstring> accountNames;
 
@@ -38,13 +38,13 @@ namespace {
 
         if (!inserted) return it->second;
 
-        wchar_t name[ACCOUNT_NAME_CHARS]{};
-        wchar_t domain[ACCOUNT_NAME_CHARS]{};
-        DWORD nameChars = static_cast<DWORD>(ACCOUNT_NAME_CHARS);
-        DWORD domainChars = static_cast<DWORD>(ACCOUNT_NAME_CHARS);
+        wchar_t name[ACCOUNT_NAME_WCHAR_COUNT]{};
+        wchar_t domain[ACCOUNT_NAME_WCHAR_COUNT]{};
+        DWORD nameWcharCount = static_cast<DWORD>(ACCOUNT_NAME_WCHAR_COUNT);
+        DWORD domainWcharCount = static_cast<DWORD>(ACCOUNT_NAME_WCHAR_COUNT);
         SID_NAME_USE use{};
 
-        if (LookupAccountSidW(nullptr, pSid, name, &nameChars, domain, &domainChars, &use)) {
+        if (LookupAccountSidW(nullptr, pSid, name, &nameWcharCount, domain, &domainWcharCount, &use)) {
             it->second = *domain ? std::format(L"{}\\{}", domain, name) : name;
         }
         else {

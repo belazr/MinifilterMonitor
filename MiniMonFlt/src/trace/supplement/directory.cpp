@@ -57,7 +57,7 @@ namespace mimo {
 
                     if (!pDirectoryBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::QUERY_DIRECTORY_PAYLOAD_BYTES ? readableSize : protocol::QUERY_DIRECTORY_PAYLOAD_BYTES;
+                    const ULONG copySize = readableSize < protocol::QUERY_DIRECTORY_PAYLOAD_SIZE ? readableSize : protocol::QUERY_DIRECTORY_PAYLOAD_SIZE;
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pDirectoryBuffer, copySize);
@@ -71,7 +71,7 @@ namespace mimo {
                         pSupplement->captured |= protocol::QUERY_DIRECTORY_TRUNCATED_PAYLOAD;
                     }
 
-                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_DIRECTORY_CAPTURED_PAYLOAD;
 
                     return;

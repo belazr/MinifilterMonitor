@@ -20,7 +20,7 @@ namespace {
 
         if (!(supplement.captured & protocol::SECURITY_CAPTURED_PAYLOAD)) return {};
 
-        return { supplement.payload, supplement.capturedBytes };
+        return { supplement.payload, supplement.capturedSize };
     }
 
 

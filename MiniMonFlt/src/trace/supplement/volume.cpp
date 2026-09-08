@@ -22,7 +22,7 @@ namespace mimo {
 
                     if (!pVolumeBuffer || !bufferSize) return;
 
-                    const ULONG copySize = bufferSize < protocol::VOLUME_INFO_PAYLOAD_BYTES ? bufferSize : protocol::VOLUME_INFO_PAYLOAD_BYTES;
+                    const ULONG copySize = bufferSize < protocol::VOLUME_INFO_PAYLOAD_SIZE ? bufferSize : protocol::VOLUME_INFO_PAYLOAD_SIZE;
 
                     RtlCopyMemory(pSupplement->payload, pVolumeBuffer, copySize);
 
@@ -30,7 +30,7 @@ namespace mimo {
                         pSupplement->captured |= protocol::VOLUME_INFO_TRUNCATED_PAYLOAD;
                     }
 
-                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;
 
                     return;
@@ -49,7 +49,7 @@ namespace mimo {
                     if (!pVolumeBuffer || !bufferSize || !writtenSize) return;
 
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
-                    const ULONG copySize = dataSize < protocol::VOLUME_INFO_PAYLOAD_BYTES ? dataSize : protocol::VOLUME_INFO_PAYLOAD_BYTES;
+                    const ULONG copySize = dataSize < protocol::VOLUME_INFO_PAYLOAD_SIZE ? dataSize : protocol::VOLUME_INFO_PAYLOAD_SIZE;
 
                     RtlCopyMemory(pSupplement->payload, pVolumeBuffer, copySize);
 
@@ -57,7 +57,7 @@ namespace mimo {
                         pSupplement->captured |= protocol::VOLUME_INFO_TRUNCATED_PAYLOAD;
                     }
 
-                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::VOLUME_INFO_CAPTURED_PAYLOAD;
 
                     return;

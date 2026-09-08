@@ -33,7 +33,7 @@ namespace {
 
         if (!(supplement.captured & protocol::QUERY_INFO_CAPTURED_PAYLOAD)) return {};
 
-        return { supplement.payload, supplement.capturedBytes };
+        return { supplement.payload, supplement.capturedSize };
     }
 
 
@@ -41,7 +41,7 @@ namespace {
 
         if (!(supplement.captured & protocol::SET_INFO_CAPTURED_PAYLOAD)) return {};
 
-        return { supplement.payload, supplement.capturedBytes };
+        return { supplement.payload, supplement.capturedSize };
     }
 
 

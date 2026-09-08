@@ -20,10 +20,10 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderEaName(std::span<const uint8_t> nameData, uint8_t nameLength) {
-        const std::string_view name{ reinterpret_cast<const char*>(nameData.data()), nameLength < nameData.size() ? nameLength : nameData.size() };
+    std::wstring RenderEaName(std::span<const uint8_t> nameData, uint8_t nameSize) {
+        const std::string_view name{ reinterpret_cast<const char*>(nameData.data()), nameSize < nameData.size() ? nameSize : nameData.size() };
 
-        return text::MarkTruncated(text::ConvertFromAscii(name), name.size() < nameLength);
+        return text::MarkTruncated(text::ConvertFromAscii(name), name.size() < nameSize);
     }
 
 
@@ -66,7 +66,7 @@ namespace {
 
         if (!(supplement.captured & protocol::QUERY_EA_CAPTURED_LIST)) return {};
 
-        const std::wstring names = RenderNamesList({ supplement.list, supplement.capturedListBytes });
+        const std::wstring names = RenderNamesList({ supplement.list, supplement.capturedListSize });
 
         if (names.empty()) return {};
 
@@ -78,21 +78,21 @@ namespace {
 
         if (!(supplement.captured & protocol::QUERY_EA_CAPTURED_PAYLOAD)) return {};
 
-        return { supplement.payload, supplement.capturedPayloadBytes };
+        return { supplement.payload, supplement.capturedPayloadSize };
     }
 
 
-    std::wstring RenderEaValue(std::span<const uint8_t> valueData, uint16_t valueLength) {
-        constexpr size_t PREVIEW_BYTES = 32u;
-        const size_t dataBytes = valueLength < valueData.size() ? valueLength : valueData.size();
-        const size_t copyBytes = dataBytes < PREVIEW_BYTES ? dataBytes : PREVIEW_BYTES;
+    std::wstring RenderEaValue(std::span<const uint8_t> valueData, uint16_t valueSize) {
+        constexpr size_t PREVIEW_SIZE = 32u;
+        const size_t dataSize = valueSize < valueData.size() ? valueSize : valueData.size();
+        const size_t copySize = dataSize < PREVIEW_SIZE ? dataSize : PREVIEW_SIZE;
         std::wstring result;
 
-        for (const uint8_t byte : valueData.first(copyBytes)) {
+        for (const uint8_t byte : valueData.first(copySize)) {
             result += std::format(L"{:02X}", byte);
         }
 
-        return text::MarkTruncated(result, copyBytes < valueLength);
+        return text::MarkTruncated(result, copySize < valueSize);
     }
 
 
@@ -151,7 +151,7 @@ namespace {
 
         if (!(supplement.captured & protocol::SET_EA_CAPTURED_PAYLOAD)) return {};
 
-        return { supplement.payload, supplement.capturedBytes };
+        return { supplement.payload, supplement.capturedSize };
     }
 
 }

@@ -9,17 +9,17 @@
 
 using namespace mimo;
 // ResolveAddress's SAL needs the unqualified name
-using protocol::STACK_FRAME_NAME_WCHARS;
+using protocol::STACK_FRAME_NAME_WCHAR_COUNT;
 
 namespace {
 
-    constexpr ULONG MODULE_NAME_WCHARS = 64u;
+    constexpr ULONG MODULE_NAME_WCHAR_COUNT = 64u;
 
     struct ModuleEntry {
         LIST_ENTRY list;
         const void* pBase;
         SIZE_T size;
-        WCHAR name[MODULE_NAME_WCHARS];
+        WCHAR name[MODULE_NAME_WCHAR_COUNT];
     };
 
     KSPIN_LOCK ModuleListLock;
@@ -40,14 +40,14 @@ namespace {
         pNewEntry->pBase = pBase;
         pNewEntry->size = size;
 
-        size_t copyChars = pName->Length / sizeof(WCHAR);
+        size_t wcharCount = pName->Length / sizeof(WCHAR);
 
-        if (copyChars >= MODULE_NAME_WCHARS) {
-            copyChars = MODULE_NAME_WCHARS - 1u;
+        if (wcharCount >= MODULE_NAME_WCHAR_COUNT) {
+            wcharCount = MODULE_NAME_WCHAR_COUNT - 1u;
         }
 
-        RtlCopyMemory(pNewEntry->name, pName->Buffer, copyChars * sizeof(WCHAR));
-        pNewEntry->name[copyChars] = L'\0';
+        RtlCopyMemory(pNewEntry->name, pName->Buffer, wcharCount * sizeof(WCHAR));
+        pNewEntry->name[wcharCount] = L'\0';
 
         KIRQL oldIrql{};
         KeAcquireSpinLock(&ModuleListLock, &oldIrql);
@@ -90,8 +90,8 @@ namespace {
 
         if (!pFullImageName || !pFullImageName->Buffer || pFullImageName->Length == 0u) return;
 
-        const size_t charCount = pFullImageName->Length / sizeof(WCHAR);
-        size_t i = charCount;
+        const size_t wcharCount = pFullImageName->Length / sizeof(WCHAR);
+        size_t i = wcharCount;
 
         while (i > 0u && pFullImageName->Buffer[i - 1u] != L'\\') {
             i--;
@@ -99,7 +99,7 @@ namespace {
 
         UNICODE_STRING baseName{};
         baseName.Buffer = pFullImageName->Buffer + i;
-        baseName.Length = static_cast<USHORT>((charCount - i) * sizeof(WCHAR));
+        baseName.Length = static_cast<USHORT>((wcharCount - i) * sizeof(WCHAR));
         baseName.MaximumLength = baseName.Length;
 
         if (baseName.Length == 0u) return;
@@ -112,7 +112,7 @@ namespace {
 
     void ResolveAddress(
         _In_ const void* pAddress,
-        _Out_writes_z_(STACK_FRAME_NAME_WCHARS) WCHAR* pNameBuffer,
+        _Out_writes_z_(STACK_FRAME_NAME_WCHAR_COUNT) WCHAR* pNameBuffer,
         _Out_ ULONGLONG* pOffset
     ) {
         const ULONG_PTR addressVal = reinterpret_cast<ULONG_PTR>(pAddress);
@@ -128,14 +128,14 @@ namespace {
 
             if (offset >= pEntry->size) continue;
 
-            size_t copyChars = 0u;
+            size_t wcharCount = 0u;
 
-            while (copyChars < protocol::STACK_FRAME_NAME_WCHARS - 1u && pEntry->name[copyChars] != L'\0') {
-                pNameBuffer[copyChars] = pEntry->name[copyChars];
-                copyChars++;
+            while (wcharCount < protocol::STACK_FRAME_NAME_WCHAR_COUNT - 1u && pEntry->name[wcharCount] != L'\0') {
+                pNameBuffer[wcharCount] = pEntry->name[wcharCount];
+                wcharCount++;
             }
 
-            pNameBuffer[copyChars] = L'\0';
+            pNameBuffer[wcharCount] = L'\0';
 
             *pOffset = offset;
             found = true;
@@ -177,9 +177,9 @@ namespace mimo {
                 size_t moduleCount = 0u;
                 ANSI_STRING ansiName{};
                 UNICODE_STRING unicodeName{};
-                WCHAR wideBuffer[MODULE_NAME_WCHARS]{};
+                WCHAR wideBuffer[MODULE_NAME_WCHAR_COUNT]{};
                 const UCHAR* pBaseName = nullptr;
-                USHORT ansiCount = 0u;
+                USHORT charCount = 0u;
                 USHORT remaining = 0u;
 
                 if (!ModuleList.Flink) {
@@ -219,17 +219,17 @@ namespace mimo {
                 for (size_t i = 0u; i < moduleCount; i++) {
                     pBaseName = pModules[i].FullPathName + pModules[i].FileNameOffset;
                     remaining = static_cast<USHORT>(AUX_KLIB_MODULE_PATH_LEN - pModules[i].FileNameOffset);
-                    ansiCount = 0u;
+                    charCount = 0u;
 
-                    while (ansiCount < remaining && pBaseName[ansiCount] != 0u) {
-                        ansiCount++;
+                    while (charCount < remaining && pBaseName[charCount] != 0u) {
+                        charCount++;
                     }
 
-                    if (ansiCount == 0u) continue;
+                    if (charCount == 0u) continue;
 
                     ansiName.Buffer = reinterpret_cast<PCHAR>(const_cast<UCHAR*>(pBaseName));
-                    ansiName.Length = ansiCount;
-                    ansiName.MaximumLength = ansiCount;
+                    ansiName.Length = charCount;
+                    ansiName.MaximumLength = charCount;
 
                     unicodeName.Buffer = wideBuffer;
                     unicodeName.Length = 0u;

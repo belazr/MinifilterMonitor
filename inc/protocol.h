@@ -334,11 +334,11 @@ namespace mimo {
         static_assert(offsetof(FltParameters, mdlReadWrite.mdlChain) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, mdlWriteComplete.mdlChain) == 8u, "protocol::FltParameters layout drift");
 
-        inline constexpr uint32_t STACK_TRACE_FRAMES      = 8u;
-        inline constexpr uint32_t STACK_FRAME_NAME_WCHARS = 32u;
+        inline constexpr uint32_t STACK_TRACE_FRAME_COUNT      = 8u;
+        inline constexpr uint32_t STACK_FRAME_NAME_WCHAR_COUNT = 32u;
 
         struct StackFrame {
-            wchar_t moduleName[STACK_FRAME_NAME_WCHARS];
+            wchar_t moduleName[STACK_FRAME_NAME_WCHAR_COUNT];
             uint64_t offset;
         };
 
@@ -348,7 +348,7 @@ namespace mimo {
 
         // supplements with an elastic capacity fill the union exactly
         // fixed-member-only supplements stay at their natural size
-        inline constexpr uint32_t SUPPLEMENT_BYTES = 1104u;
+        inline constexpr uint32_t SUPPLEMENT_SIZE = 1104u;
 
         // IRP_MJ_CREATE
 
@@ -357,18 +357,18 @@ namespace mimo {
         inline constexpr uint32_t CREATE_CAPTURED_IMPERSONATED_SID = 0x00000002u;
         inline constexpr uint32_t CREATE_TRUNCATED_ECP_TEXT        = 0x00000004u;
 
-        inline constexpr uint32_t CREATE_SID_BYTES       = 68u;    // SECURITY_MAX_SID_SIZE, pinned by the driver
-        inline constexpr uint32_t CREATE_ECP_TEXT_WCHARS = (SUPPLEMENT_BYTES - 2u * sizeof(uint32_t) - CREATE_SID_BYTES) / sizeof(wchar_t);
+        inline constexpr uint32_t CREATE_SID_SIZE             = 68u;    // SECURITY_MAX_SID_SIZE, pinned by the driver
+        inline constexpr uint32_t CREATE_ECP_TEXT_WCHAR_COUNT = (SUPPLEMENT_SIZE - 2u * sizeof(uint32_t) - CREATE_SID_SIZE) / sizeof(wchar_t);
 
         struct CreateSupplement {
             uint32_t captured;
             uint32_t desiredAccess;
-            uint8_t impersonatedSid[CREATE_SID_BYTES];
-            wchar_t ecpText[CREATE_ECP_TEXT_WCHARS];
+            uint8_t impersonatedSid[CREATE_SID_SIZE];
+            wchar_t ecpText[CREATE_ECP_TEXT_WCHAR_COUNT];
         };
 
         static_assert(offsetof(CreateSupplement, impersonatedSid) == 8u, "protocol::CreateSupplement layout drift");
-        static_assert(offsetof(CreateSupplement, ecpText) == 8u + CREATE_SID_BYTES, "protocol::CreateSupplement layout drift");
+        static_assert(offsetof(CreateSupplement, ecpText) == 8u + CREATE_SID_SIZE, "protocol::CreateSupplement layout drift");
 
         // IRP_MJ_QUERY_INFORMATION / IRP_MJ_NETWORK_QUERY_OPEN
 
@@ -376,12 +376,12 @@ namespace mimo {
         inline constexpr uint32_t QUERY_INFO_CAPTURED_PAYLOAD  = 0x00000001u;
         inline constexpr uint32_t QUERY_INFO_TRUNCATED_PAYLOAD = 0x00000002u;
 
-        inline constexpr uint32_t QUERY_INFO_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 2u * sizeof(uint32_t);
+        inline constexpr uint32_t QUERY_INFO_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 2u * sizeof(uint32_t);
 
         struct QueryInfoSupplement {
             uint32_t captured;
-            uint32_t capturedBytes;
-            uint8_t payload[QUERY_INFO_PAYLOAD_BYTES];
+            uint32_t capturedSize;
+            uint8_t payload[QUERY_INFO_PAYLOAD_SIZE];
         };
 
         static_assert(offsetof(QueryInfoSupplement, payload) == 8u, "protocol::QueryInfoSupplement layout drift");
@@ -394,19 +394,19 @@ namespace mimo {
         inline constexpr uint32_t SET_INFO_TRUNCATED_PAYLOAD     = 0x00000004u;
         inline constexpr uint32_t SET_INFO_TRUNCATED_TARGET_NAME = 0x00000008u;
 
-        inline constexpr uint32_t SET_INFO_TARGET_NAME_WCHARS = 256u;
+        inline constexpr uint32_t SET_INFO_TARGET_NAME_WCHAR_COUNT = 256u;
 
-        inline constexpr uint32_t SET_INFO_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 2u * sizeof(uint32_t) - sizeof(wchar_t) * SET_INFO_TARGET_NAME_WCHARS;
+        inline constexpr uint32_t SET_INFO_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 2u * sizeof(uint32_t) - sizeof(wchar_t) * SET_INFO_TARGET_NAME_WCHAR_COUNT;
 
         struct SetInfoSupplement {
             uint32_t captured;
-            uint32_t capturedBytes;
-            uint8_t payload[SET_INFO_PAYLOAD_BYTES];
-            wchar_t targetName[SET_INFO_TARGET_NAME_WCHARS];
+            uint32_t capturedSize;
+            uint8_t payload[SET_INFO_PAYLOAD_SIZE];
+            wchar_t targetName[SET_INFO_TARGET_NAME_WCHAR_COUNT];
         };
 
         static_assert(offsetof(SetInfoSupplement, payload) == 8u, "protocol::SetInfoSupplement layout drift");
-        static_assert(offsetof(SetInfoSupplement, targetName) == 8u + SET_INFO_PAYLOAD_BYTES, "protocol::SetInfoSupplement layout drift");
+        static_assert(offsetof(SetInfoSupplement, targetName) == 8u + SET_INFO_PAYLOAD_SIZE, "protocol::SetInfoSupplement layout drift");
 
         // IRP_MJ_QUERY_EA
 
@@ -416,19 +416,19 @@ namespace mimo {
         inline constexpr uint32_t QUERY_EA_TRUNCATED_LIST    = 0x00000004u;
         inline constexpr uint32_t QUERY_EA_TRUNCATED_PAYLOAD = 0x00000008u;
 
-        inline constexpr uint32_t QUERY_EA_LIST_BYTES    = 264u;
-        inline constexpr uint32_t QUERY_EA_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 3u * sizeof(uint32_t) - QUERY_EA_LIST_BYTES;
+        inline constexpr uint32_t QUERY_EA_LIST_SIZE    = 264u;
+        inline constexpr uint32_t QUERY_EA_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 3u * sizeof(uint32_t) - QUERY_EA_LIST_SIZE;
 
         struct QueryEaSupplement {
             uint32_t captured;
-            uint32_t capturedListBytes;
-            uint32_t capturedPayloadBytes;
-            uint8_t list[QUERY_EA_LIST_BYTES];          // FILE_GET_EA_INFORMATION entries, captured pre-operation
-            uint8_t payload[QUERY_EA_PAYLOAD_BYTES];    // FILE_FULL_EA_INFORMATION entries, captured post-operation
+            uint32_t capturedListSize;
+            uint32_t capturedPayloadSize;
+            uint8_t list[QUERY_EA_LIST_SIZE];          // FILE_GET_EA_INFORMATION entries, captured pre-operation
+            uint8_t payload[QUERY_EA_PAYLOAD_SIZE];    // FILE_FULL_EA_INFORMATION entries, captured post-operation
         };
 
         static_assert(offsetof(QueryEaSupplement, list) == 12u, "protocol::QueryEaSupplement layout drift");
-        static_assert(offsetof(QueryEaSupplement, payload) == 12u + QUERY_EA_LIST_BYTES, "protocol::QueryEaSupplement layout drift");
+        static_assert(offsetof(QueryEaSupplement, payload) == 12u + QUERY_EA_LIST_SIZE, "protocol::QueryEaSupplement layout drift");
 
         // IRP_MJ_SET_EA
 
@@ -436,12 +436,12 @@ namespace mimo {
         inline constexpr uint32_t SET_EA_CAPTURED_PAYLOAD  = 0x00000001u;
         inline constexpr uint32_t SET_EA_TRUNCATED_PAYLOAD = 0x00000002u;
 
-        inline constexpr uint32_t SET_EA_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 2u * sizeof(uint32_t);
+        inline constexpr uint32_t SET_EA_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 2u * sizeof(uint32_t);
 
         struct SetEaSupplement {
             uint32_t captured;
-            uint32_t capturedBytes;
-            uint8_t payload[SET_EA_PAYLOAD_BYTES];    // FILE_FULL_EA_INFORMATION entries
+            uint32_t capturedSize;
+            uint8_t payload[SET_EA_PAYLOAD_SIZE];    // FILE_FULL_EA_INFORMATION entries
         };
 
         static_assert(offsetof(SetEaSupplement, payload) == 8u, "protocol::SetEaSupplement layout drift");
@@ -452,12 +452,12 @@ namespace mimo {
         inline constexpr uint32_t VOLUME_INFO_CAPTURED_PAYLOAD  = 0x00000001u;
         inline constexpr uint32_t VOLUME_INFO_TRUNCATED_PAYLOAD = 0x00000002u;
 
-        inline constexpr uint32_t VOLUME_INFO_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 2u * sizeof(uint32_t);
+        inline constexpr uint32_t VOLUME_INFO_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 2u * sizeof(uint32_t);
 
         struct VolumeInfoSupplement {
             uint32_t captured;
-            uint32_t capturedBytes;
-            uint8_t payload[VOLUME_INFO_PAYLOAD_BYTES];
+            uint32_t capturedSize;
+            uint8_t payload[VOLUME_INFO_PAYLOAD_SIZE];
         };
 
         static_assert(offsetof(VolumeInfoSupplement, payload) == 8u, "protocol::VolumeInfoSupplement layout drift");
@@ -470,19 +470,19 @@ namespace mimo {
         inline constexpr uint32_t QUERY_DIRECTORY_TRUNCATED_PAYLOAD   = 0x00000004u;
         inline constexpr uint32_t QUERY_DIRECTORY_TRUNCATED_FILE_NAME = 0x00000008u;
 
-        inline constexpr uint32_t QUERY_DIRECTORY_FILE_NAME_WCHARS = 256u;
+        inline constexpr uint32_t QUERY_DIRECTORY_FILE_NAME_WCHAR_COUNT = 256u;
 
-        inline constexpr uint32_t QUERY_DIRECTORY_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 2u * sizeof(uint32_t) - sizeof(wchar_t) * QUERY_DIRECTORY_FILE_NAME_WCHARS;
+        inline constexpr uint32_t QUERY_DIRECTORY_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 2u * sizeof(uint32_t) - sizeof(wchar_t) * QUERY_DIRECTORY_FILE_NAME_WCHAR_COUNT;
 
         struct QueryDirectorySupplement {
             uint32_t captured;
-            uint32_t capturedBytes;
-            uint8_t payload[QUERY_DIRECTORY_PAYLOAD_BYTES];
-            wchar_t fileName[QUERY_DIRECTORY_FILE_NAME_WCHARS];
+            uint32_t capturedSize;
+            uint8_t payload[QUERY_DIRECTORY_PAYLOAD_SIZE];
+            wchar_t fileName[QUERY_DIRECTORY_FILE_NAME_WCHAR_COUNT];
         };
 
         static_assert(offsetof(QueryDirectorySupplement, payload) == 8u, "protocol::QueryDirectorySupplement layout drift");
-        static_assert(offsetof(QueryDirectorySupplement, fileName) == 8u + QUERY_DIRECTORY_PAYLOAD_BYTES, "protocol::QueryDirectorySupplement layout drift");
+        static_assert(offsetof(QueryDirectorySupplement, fileName) == 8u + QUERY_DIRECTORY_PAYLOAD_SIZE, "protocol::QueryDirectorySupplement layout drift");
 
         // IRP_MJ_FILE_SYSTEM_CONTROL
 
@@ -492,19 +492,19 @@ namespace mimo {
         inline constexpr uint32_t FS_CONTROL_TRUNCATED_INPUT  = 0x00000004u;
         inline constexpr uint32_t FS_CONTROL_TRUNCATED_OUTPUT = 0x00000008u;
 
-        inline constexpr uint32_t FS_CONTROL_INPUT_PAYLOAD_BYTES  = 546u;
-        inline constexpr uint32_t FS_CONTROL_OUTPUT_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 3u * sizeof(uint32_t) - FS_CONTROL_INPUT_PAYLOAD_BYTES;
+        inline constexpr uint32_t FS_CONTROL_INPUT_PAYLOAD_SIZE  = 546u;
+        inline constexpr uint32_t FS_CONTROL_OUTPUT_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 3u * sizeof(uint32_t) - FS_CONTROL_INPUT_PAYLOAD_SIZE;
 
         struct FsControlSupplement {
             uint32_t captured;
-            uint32_t capturedInputBytes;
-            uint32_t capturedOutputBytes;
-            uint8_t inputPayload[FS_CONTROL_INPUT_PAYLOAD_BYTES];
-            uint8_t outputPayload[FS_CONTROL_OUTPUT_PAYLOAD_BYTES];    // METHOD_IN_DIRECT: the second input buffer, captured pre-operation
+            uint32_t capturedInputSize;
+            uint32_t capturedOutputSize;
+            uint8_t inputPayload[FS_CONTROL_INPUT_PAYLOAD_SIZE];
+            uint8_t outputPayload[FS_CONTROL_OUTPUT_PAYLOAD_SIZE];    // METHOD_IN_DIRECT: the second input buffer, captured pre-operation
         };
 
         static_assert(offsetof(FsControlSupplement, inputPayload) == 12u, "protocol::FsControlSupplement layout drift");
-        static_assert(offsetof(FsControlSupplement, outputPayload) == 12u + FS_CONTROL_INPUT_PAYLOAD_BYTES, "protocol::FsControlSupplement layout drift");
+        static_assert(offsetof(FsControlSupplement, outputPayload) == 12u + FS_CONTROL_INPUT_PAYLOAD_SIZE, "protocol::FsControlSupplement layout drift");
 
         // IRP_MJ_DEVICE_CONTROL / IRP_MJ_INTERNAL_DEVICE_CONTROL
 
@@ -514,19 +514,19 @@ namespace mimo {
         inline constexpr uint32_t DEVICE_IO_CONTROL_TRUNCATED_INPUT  = 0x00000004u;
         inline constexpr uint32_t DEVICE_IO_CONTROL_TRUNCATED_OUTPUT = 0x00000008u;
 
-        inline constexpr uint32_t DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES  = 546u;
-        inline constexpr uint32_t DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 3u * sizeof(uint32_t) - DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES;
+        inline constexpr uint32_t DEVICE_IO_CONTROL_INPUT_PAYLOAD_SIZE  = 546u;
+        inline constexpr uint32_t DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 3u * sizeof(uint32_t) - DEVICE_IO_CONTROL_INPUT_PAYLOAD_SIZE;
 
         struct DeviceIoControlSupplement {
             uint32_t captured;
-            uint32_t capturedInputBytes;
-            uint32_t capturedOutputBytes;
-            uint8_t inputPayload[DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES];
-            uint8_t outputPayload[DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_BYTES];    // METHOD_IN_DIRECT: the second input buffer, captured pre-operation
+            uint32_t capturedInputSize;
+            uint32_t capturedOutputSize;
+            uint8_t inputPayload[DEVICE_IO_CONTROL_INPUT_PAYLOAD_SIZE];
+            uint8_t outputPayload[DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_SIZE];    // METHOD_IN_DIRECT: the second input buffer, captured pre-operation
         };
 
         static_assert(offsetof(DeviceIoControlSupplement, inputPayload) == 12u, "protocol::DeviceIoControlSupplement layout drift");
-        static_assert(offsetof(DeviceIoControlSupplement, outputPayload) == 12u + DEVICE_IO_CONTROL_INPUT_PAYLOAD_BYTES, "protocol::DeviceIoControlSupplement layout drift");
+        static_assert(offsetof(DeviceIoControlSupplement, outputPayload) == 12u + DEVICE_IO_CONTROL_INPUT_PAYLOAD_SIZE, "protocol::DeviceIoControlSupplement layout drift");
 
         // IRP_MJ_LOCK_CONTROL
 
@@ -541,19 +541,19 @@ namespace mimo {
 
         static_assert(offsetof(LockControlSupplement, length) == 8u, "protocol::LockControlSupplement layout drift");
         static_assert(sizeof(LockControlSupplement) == 16u, "protocol::LockControlSupplement layout drift");
-        static_assert(sizeof(LockControlSupplement) <= SUPPLEMENT_BYTES, "protocol::LockControlSupplement exceeds the supplement union");
+        static_assert(sizeof(LockControlSupplement) <= SUPPLEMENT_SIZE, "protocol::LockControlSupplement exceeds the supplement union");
 
         // IRP_MJ_QUERY_SECURITY / IRP_MJ_SET_SECURITY
 
         // capture bit for SecuritySupplement::captured
         inline constexpr uint32_t SECURITY_CAPTURED_PAYLOAD = 0x00000001u;
 
-        inline constexpr uint32_t SECURITY_PAYLOAD_BYTES = SUPPLEMENT_BYTES - 2u * sizeof(uint32_t);
+        inline constexpr uint32_t SECURITY_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 2u * sizeof(uint32_t);
 
         struct SecuritySupplement {
             uint32_t captured;
-            uint32_t capturedBytes;
-            uint8_t payload[SECURITY_PAYLOAD_BYTES];    // self-relative SECURITY_DESCRIPTOR, validated by the driver
+            uint32_t capturedSize;
+            uint8_t payload[SECURITY_PAYLOAD_SIZE];    // self-relative SECURITY_DESCRIPTOR, validated by the driver
         };
 
         static_assert(offsetof(SecuritySupplement, payload) == 8u, "protocol::SecuritySupplement layout drift");
@@ -571,7 +571,7 @@ namespace mimo {
 
         static_assert(offsetof(ModWriteSupplement, endingOffset) == 8u, "protocol::ModWriteSupplement layout drift");
         static_assert(sizeof(ModWriteSupplement) == 16u, "protocol::ModWriteSupplement layout drift");
-        static_assert(sizeof(ModWriteSupplement) <= SUPPLEMENT_BYTES, "protocol::ModWriteSupplement exceeds the supplement union");
+        static_assert(sizeof(ModWriteSupplement) <= SUPPLEMENT_SIZE, "protocol::ModWriteSupplement exceeds the supplement union");
 
         union Supplement {
             CreateSupplement create;
@@ -588,22 +588,22 @@ namespace mimo {
             ModWriteSupplement modWrite;
         };
 
-        static_assert(sizeof(CreateSupplement) == SUPPLEMENT_BYTES, "protocol::CreateSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
-        static_assert(sizeof(QueryInfoSupplement) == SUPPLEMENT_BYTES, "protocol::QueryInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
-        static_assert(sizeof(SetInfoSupplement) == SUPPLEMENT_BYTES, "protocol::SetInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
-        static_assert(sizeof(QueryEaSupplement) == SUPPLEMENT_BYTES, "protocol::QueryEaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
-        static_assert(sizeof(SetEaSupplement) == SUPPLEMENT_BYTES, "protocol::SetEaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
-        static_assert(sizeof(VolumeInfoSupplement) == SUPPLEMENT_BYTES, "protocol::VolumeInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
-        static_assert(sizeof(QueryDirectorySupplement) == SUPPLEMENT_BYTES, "protocol::QueryDirectorySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
-        static_assert(sizeof(FsControlSupplement) == SUPPLEMENT_BYTES, "protocol::FsControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
-        static_assert(sizeof(DeviceIoControlSupplement) == SUPPLEMENT_BYTES, "protocol::DeviceIoControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
-        static_assert(sizeof(SecuritySupplement) == SUPPLEMENT_BYTES, "protocol::SecuritySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_BYTES");
-        static_assert(sizeof(Supplement) == SUPPLEMENT_BYTES, "protocol::Supplement layout drift");
+        static_assert(sizeof(CreateSupplement) == SUPPLEMENT_SIZE, "protocol::CreateSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(QueryInfoSupplement) == SUPPLEMENT_SIZE, "protocol::QueryInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(SetInfoSupplement) == SUPPLEMENT_SIZE, "protocol::SetInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(QueryEaSupplement) == SUPPLEMENT_SIZE, "protocol::QueryEaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(SetEaSupplement) == SUPPLEMENT_SIZE, "protocol::SetEaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(VolumeInfoSupplement) == SUPPLEMENT_SIZE, "protocol::VolumeInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(QueryDirectorySupplement) == SUPPLEMENT_SIZE, "protocol::QueryDirectorySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(FsControlSupplement) == SUPPLEMENT_SIZE, "protocol::FsControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(DeviceIoControlSupplement) == SUPPLEMENT_SIZE, "protocol::DeviceIoControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(SecuritySupplement) == SUPPLEMENT_SIZE, "protocol::SecuritySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(Supplement) == SUPPLEMENT_SIZE, "protocol::Supplement layout drift");
 
         // truncation bit for RecordData::truncated
         inline constexpr uint8_t TRUNCATED_NAME = 0x01u;
 
-        inline constexpr uint32_t NAME_WCHARS = 512u;
+        inline constexpr uint32_t NAME_WCHAR_COUNT = 512u;
 
         struct RecordData {
             int64_t originatingTime;        // 100 ns ticks since 1601
@@ -630,8 +630,8 @@ namespace mimo {
             FltParameters parameters;
             uint32_t altitude;
             uint32_t stackFrameCount;
-            StackFrame stackTrace[STACK_TRACE_FRAMES];
-            wchar_t name[NAME_WCHARS];
+            StackFrame stackTrace[STACK_TRACE_FRAME_COUNT];
+            wchar_t name[NAME_WCHAR_COUNT];
             Supplement supplement;
         };
 

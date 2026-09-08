@@ -8,7 +8,7 @@
 
 using namespace mimo;
 
-static_assert(protocol::CREATE_SID_BYTES == SECURITY_MAX_SID_SIZE, "protocol::CREATE_SID_BYTES mirror drift");
+static_assert(protocol::CREATE_SID_SIZE == SECURITY_MAX_SID_SIZE, "protocol::CREATE_SID_SIZE mirror drift");
 
 namespace {
 

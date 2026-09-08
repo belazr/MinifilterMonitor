@@ -23,7 +23,7 @@ namespace {
 
         if (!pSecondInput || !readableSize) return;
 
-        const ULONG copySize = readableSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES ? readableSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES;
+        const ULONG copySize = readableSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_SIZE ? readableSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_SIZE;
 
         __try {
             RtlCopyMemory(pSupplement->outputPayload, pSecondInput, copySize);
@@ -37,7 +37,7 @@ namespace {
             pSupplement->captured |= protocol::FS_CONTROL_TRUNCATED_OUTPUT;
         }
 
-        pSupplement->capturedOutputBytes = static_cast<uint32_t>(copySize);
+        pSupplement->capturedOutputSize = static_cast<uint32_t>(copySize);
         pSupplement->captured |= protocol::FS_CONTROL_CAPTURED_OUTPUT;
 
         return;
@@ -93,7 +93,7 @@ namespace mimo {
                     }
 
                     if (pInputBuffer && inSize) {
-                        const ULONG copySize = inSize < protocol::FS_CONTROL_INPUT_PAYLOAD_BYTES ? inSize : protocol::FS_CONTROL_INPUT_PAYLOAD_BYTES;
+                        const ULONG copySize = inSize < protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE ? inSize : protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE;
 
                         __try {
                             RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
@@ -102,7 +102,7 @@ namespace mimo {
                                 pSupplement->captured |= protocol::FS_CONTROL_TRUNCATED_INPUT;
                             }
 
-                            pSupplement->capturedInputBytes = static_cast<uint32_t>(copySize);
+                            pSupplement->capturedInputSize = static_cast<uint32_t>(copySize);
                             pSupplement->captured |= protocol::FS_CONTROL_CAPTURED_INPUT;
                         }
                         __except (EXCEPTION_EXECUTE_HANDLER) {}
@@ -156,7 +156,7 @@ namespace mimo {
 
                     if (!pOutputBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES ? readableSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_BYTES;
+                    const ULONG copySize = readableSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_SIZE ? readableSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_SIZE;
 
                     __try {
                         RtlCopyMemory(pSupplement->outputPayload, pOutputBuffer, copySize);
@@ -170,7 +170,7 @@ namespace mimo {
                         pSupplement->captured |= protocol::FS_CONTROL_TRUNCATED_OUTPUT;
                     }
 
-                    pSupplement->capturedOutputBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedOutputSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::FS_CONTROL_CAPTURED_OUTPUT;
 
                     return;

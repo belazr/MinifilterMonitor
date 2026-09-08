@@ -28,12 +28,12 @@ namespace mimo {
                     if (static_cast<const SECURITY_DESCRIPTOR_RELATIVE*>(pSecurityDescriptor)->Control & SE_SELF_RELATIVE) {
                         size = RtlLengthSecurityDescriptor(pSecurityDescriptor);
 
-                        if (!size || size > protocol::SECURITY_PAYLOAD_BYTES) return;
+                        if (!size || size > protocol::SECURITY_PAYLOAD_SIZE) return;
 
                         RtlCopyMemory(pSupplement->payload, pSecurityDescriptor, size);
                     }
                     else {
-                        size = protocol::SECURITY_PAYLOAD_BYTES;
+                        size = protocol::SECURITY_PAYLOAD_SIZE;
 
                         if (!NT_SUCCESS(RtlAbsoluteToSelfRelativeSD(pSecurityDescriptor, pSupplement->payload, &size))) return;
 
@@ -41,7 +41,7 @@ namespace mimo {
 
                     if (!RtlValidRelativeSecurityDescriptor(pSupplement->payload, size, 0u)) return;
 
-                    pSupplement->capturedBytes = static_cast<uint32_t>(size);
+                    pSupplement->capturedSize = static_cast<uint32_t>(size);
                     pSupplement->captured |= protocol::SECURITY_CAPTURED_PAYLOAD;
 
                     return;
@@ -65,7 +65,7 @@ namespace mimo {
 
                     const ULONG copySize = writtenSize < readableSize ? static_cast<ULONG>(writtenSize) : readableSize;
 
-                    if (copySize > protocol::SECURITY_PAYLOAD_BYTES) return;
+                    if (copySize > protocol::SECURITY_PAYLOAD_SIZE) return;
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pSecurityBuffer, copySize);
@@ -77,7 +77,7 @@ namespace mimo {
 
                     if (!RtlValidRelativeSecurityDescriptor(pSupplement->payload, copySize, 0u)) return;
 
-                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::SECURITY_CAPTURED_PAYLOAD;
 
                     return;

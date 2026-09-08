@@ -95,16 +95,16 @@ namespace {
     bool FormatEndpoint(_In_ PSOCKADDR_STORAGE_NFS pAddr, _Out_writes_z_(INET6_ADDRSTRLEN) CHAR* pText) {
         PAGED_CODE();
 
-        ULONG textChars = INET6_ADDRSTRLEN;
+        ULONG charCount = INET6_ADDRSTRLEN;
         NTSTATUS status = STATUS_INVALID_PARAMETER;
 
         if (pAddr->ss_family == AF_INET) {
             const SOCKADDR_IN* const pIpv4 = reinterpret_cast<const SOCKADDR_IN*>(pAddr);
-            status = RtlIpv4AddressToStringEx(&pIpv4->sin_addr, pIpv4->sin_port, pText, &textChars);
+            status = RtlIpv4AddressToStringEx(&pIpv4->sin_addr, pIpv4->sin_port, pText, &charCount);
         }
         else if (pAddr->ss_family == AF_INET6) {
             const SOCKADDR_IN6* const pIpv6 = reinterpret_cast<const SOCKADDR_IN6*>(pAddr);
-            status = RtlIpv6AddressToStringEx(&pIpv6->sin6_addr, 0u, pIpv6->sin6_port, pText, &textChars);
+            status = RtlIpv6AddressToStringEx(&pIpv6->sin6_addr, 0u, pIpv6->sin6_port, pText, &charCount);
         }
 
         return NT_SUCCESS(status);

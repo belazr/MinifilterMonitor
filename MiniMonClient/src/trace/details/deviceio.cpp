@@ -26,7 +26,7 @@ namespace {
 
         if (!(supplement.captured & protocol::DEVICE_IO_CONTROL_CAPTURED_INPUT)) return {};
 
-        return { supplement.inputPayload, supplement.capturedInputBytes };
+        return { supplement.inputPayload, supplement.capturedInputSize };
     }
 
 
@@ -60,7 +60,7 @@ namespace {
 
         if (!(supplement.captured & protocol::DEVICE_IO_CONTROL_CAPTURED_OUTPUT)) return {};
 
-        return { supplement.outputPayload, supplement.capturedOutputBytes };
+        return { supplement.outputPayload, supplement.capturedOutputSize };
     }
 
 

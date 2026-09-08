@@ -28,7 +28,7 @@ namespace {
 
         if (!(supplement.captured & protocol::VOLUME_INFO_CAPTURED_PAYLOAD)) return {};
 
-        return { supplement.payload, supplement.capturedBytes };
+        return { supplement.payload, supplement.capturedSize };
     }
 
 

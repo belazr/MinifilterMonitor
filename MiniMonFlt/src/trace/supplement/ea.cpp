@@ -24,7 +24,7 @@ namespace mimo {
 
                     if (!pEaList || !bufferSize) return;
 
-                    const ULONG copySize = bufferSize < protocol::QUERY_EA_LIST_BYTES ? bufferSize : protocol::QUERY_EA_LIST_BYTES;
+                    const ULONG copySize = bufferSize < protocol::QUERY_EA_LIST_SIZE ? bufferSize : protocol::QUERY_EA_LIST_SIZE;
 
                     RtlCopyMemory(pSupplement->list, pEaList, copySize);
 
@@ -32,7 +32,7 @@ namespace mimo {
                         pSupplement->captured |= protocol::QUERY_EA_TRUNCATED_LIST;
                     }
 
-                    pSupplement->capturedListBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedListSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_EA_CAPTURED_LIST;
 
                     return;
@@ -53,7 +53,7 @@ namespace mimo {
 
                     if (!pEaBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::SET_EA_PAYLOAD_BYTES ? readableSize : protocol::SET_EA_PAYLOAD_BYTES;
+                    const ULONG copySize = readableSize < protocol::SET_EA_PAYLOAD_SIZE ? readableSize : protocol::SET_EA_PAYLOAD_SIZE;
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pEaBuffer, copySize);
@@ -67,7 +67,7 @@ namespace mimo {
                         pSupplement->captured |= protocol::SET_EA_TRUNCATED_PAYLOAD;
                     }
 
-                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::SET_EA_CAPTURED_PAYLOAD;
 
                     return;
@@ -90,7 +90,7 @@ namespace mimo {
 
                     if (!pEaBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::QUERY_EA_PAYLOAD_BYTES ? readableSize : protocol::QUERY_EA_PAYLOAD_BYTES;
+                    const ULONG copySize = readableSize < protocol::QUERY_EA_PAYLOAD_SIZE ? readableSize : protocol::QUERY_EA_PAYLOAD_SIZE;
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pEaBuffer, copySize);
@@ -104,7 +104,7 @@ namespace mimo {
                         pSupplement->captured |= protocol::QUERY_EA_TRUNCATED_PAYLOAD;
                     }
 
-                    pSupplement->capturedPayloadBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedPayloadSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_EA_CAPTURED_PAYLOAD;
 
                     return;

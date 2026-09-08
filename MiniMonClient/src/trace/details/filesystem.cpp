@@ -29,7 +29,7 @@ namespace {
 
         if (!(supplement.captured & protocol::FS_CONTROL_CAPTURED_INPUT)) return {};
 
-        return { supplement.inputPayload, supplement.capturedInputBytes };
+        return { supplement.inputPayload, supplement.capturedInputSize };
     }
 
 
@@ -65,13 +65,13 @@ namespace {
     }
 
 
-    std::wstring RenderPathName(std::wstring_view label, std::span<const uint8_t> nameData, uint16_t nameOffset, uint16_t nameBytes) {
+    std::wstring RenderPathName(std::wstring_view label, std::span<const uint8_t> nameData, uint16_t nameOffset, uint16_t nameSize) {
 
-        if (!nameBytes) return {};
+        if (!nameSize) return {};
 
         const size_t start = nameOffset < nameData.size() ? nameOffset : nameData.size();
 
-        return std::format(L"{}: {}", label, trace::details::payload::RenderName(nameData.subspan(start), nameBytes));
+        return std::format(L"{}: {}", label, trace::details::payload::RenderName(nameData.subspan(start), nameSize));
     }
 
 
@@ -132,10 +132,10 @@ namespace {
 
 
     std::wstring RenderReparsePayload(std::span<const uint8_t> payload) {
-        constexpr size_t HEADER_BYTES = offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer);
+        constexpr size_t HEADER_SIZE = offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer);
         trace::kernel::REPARSE_DATA_BUFFER reparse;
 
-        if (!trace::details::payload::ReadHeader(payload, reparse, HEADER_BYTES)) return {};
+        if (!trace::details::payload::ReadHeader(payload, reparse, HEADER_SIZE)) return {};
 
         if (!reparse.ReparseTag) return {};
 
@@ -371,7 +371,7 @@ namespace {
 
         if (!(supplement.captured & protocol::FS_CONTROL_CAPTURED_OUTPUT)) return {};
 
-        return { supplement.outputPayload, supplement.capturedOutputBytes };
+        return { supplement.outputPayload, supplement.capturedOutputSize };
     }
 
 
@@ -395,7 +395,7 @@ namespace {
 
 
     std::wstring RenderUsnRecordsPayload(std::span<const uint8_t> payload, bool truncated) {
-        constexpr size_t HEADER_BYTES = offsetof(trace::kernel::USN_RECORD_V2, FileName);
+        constexpr size_t HEADER_SIZE = offsetof(trace::kernel::USN_RECORD_V2, FileName);
         int64_t nextUsn;
 
         if (!trace::details::payload::ReadValue(payload, nextUsn)) return {};
@@ -407,9 +407,9 @@ namespace {
         while (true) {
             trace::kernel::USN_RECORD_V2 record;
 
-            if (!trace::details::payload::ReadHeader(payload, record, HEADER_BYTES, offset)) break;
+            if (!trace::details::payload::ReadHeader(payload, record, HEADER_SIZE, offset)) break;
 
-            if (record.RecordLength < HEADER_BYTES) break;
+            if (record.RecordLength < HEADER_SIZE) break;
 
             if (record.MajorVersion == 2u) {
                 const size_t nameStart = offset + record.FileNameOffset < payload.size() ? offset + record.FileNameOffset : payload.size();

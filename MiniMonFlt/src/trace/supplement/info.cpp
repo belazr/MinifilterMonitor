@@ -10,7 +10,7 @@
 
 using namespace mimo;
 
-static_assert(sizeof(FILE_NETWORK_OPEN_INFORMATION) <= protocol::QUERY_INFO_PAYLOAD_BYTES, "FILE_NETWORK_OPEN_INFORMATION exceeds the query information payload");
+static_assert(sizeof(FILE_NETWORK_OPEN_INFORMATION) <= protocol::QUERY_INFO_PAYLOAD_SIZE, "FILE_NETWORK_OPEN_INFORMATION exceeds the query information payload");
 
 namespace {
 
@@ -62,7 +62,7 @@ namespace mimo {
 
                     if (!pInfoBuffer || !bufferSize) return;
 
-                    const ULONG copySize = bufferSize < protocol::SET_INFO_PAYLOAD_BYTES ? bufferSize : protocol::SET_INFO_PAYLOAD_BYTES;
+                    const ULONG copySize = bufferSize < protocol::SET_INFO_PAYLOAD_SIZE ? bufferSize : protocol::SET_INFO_PAYLOAD_SIZE;
 
                     RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
 
@@ -70,7 +70,7 @@ namespace mimo {
                         pSupplement->captured |= protocol::SET_INFO_TRUNCATED_PAYLOAD;
                     }
 
-                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::SET_INFO_CAPTURED_PAYLOAD;
 
                     switch (pData->Iopb->Parameters.SetFileInformation.FileInformationClass) {
@@ -112,7 +112,7 @@ namespace mimo {
 
                     if (FLT_IS_FASTIO_OPERATION(pData) && !memory::IsRawBufferReadable(pData, pInfoBuffer, dataSize)) return;
 
-                    const ULONG copySize = dataSize < protocol::QUERY_INFO_PAYLOAD_BYTES ? dataSize : protocol::QUERY_INFO_PAYLOAD_BYTES;
+                    const ULONG copySize = dataSize < protocol::QUERY_INFO_PAYLOAD_SIZE ? dataSize : protocol::QUERY_INFO_PAYLOAD_SIZE;
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
@@ -126,7 +126,7 @@ namespace mimo {
                         pSupplement->captured |= protocol::QUERY_INFO_TRUNCATED_PAYLOAD;
                     }
 
-                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;
 
                     return;
@@ -148,7 +148,7 @@ namespace mimo {
 
                     RtlCopyMemory(pSupplement->payload, pNetworkInformation, copySize);
 
-                    pSupplement->capturedBytes = static_cast<uint32_t>(copySize);
+                    pSupplement->capturedSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;
 
                     return;
