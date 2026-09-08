@@ -201,6 +201,26 @@ namespace mimo {
                 uint64_t securityDescriptor;
             } setSecurity;
 
+            // IRP_MJ_QUERY_QUOTA
+            struct {
+                uint32_t length;
+                uint8_t reserved1[4u];
+                uint64_t startSid;
+                uint64_t sidList;
+                uint32_t sidListLength;
+                uint8_t reserved2[4u];
+                uint64_t quotaBuffer;
+                uint64_t mdlAddress;
+            } queryQuota;
+
+            // IRP_MJ_SET_QUOTA
+            struct {
+                uint32_t length;
+                uint8_t reserved1[4u];
+                uint64_t quotaBuffer;
+                uint64_t mdlAddress;
+            } setQuota;
+
             // IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION
             struct {
                 uint32_t syncType;
@@ -320,6 +340,13 @@ namespace mimo {
         static_assert(offsetof(FltParameters, querySecurity.securityBuffer) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, querySecurity.mdlAddress) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setSecurity.securityDescriptor) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryQuota.startSid) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryQuota.sidList) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryQuota.sidListLength) == 24u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryQuota.quotaBuffer) == 32u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryQuota.mdlAddress) == 40u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setQuota.quotaBuffer) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, setQuota.mdlAddress) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.pageProtection) == 4u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.outputInformation) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.flags) == 16u, "protocol::FltParameters layout drift");
@@ -558,6 +585,44 @@ namespace mimo {
 
         static_assert(offsetof(SecuritySupplement, payload) == 8u, "protocol::SecuritySupplement layout drift");
 
+        // IRP_MJ_QUERY_QUOTA
+
+        // capture bits for QueryQuotaSupplement::captured
+        inline constexpr uint32_t QUERY_QUOTA_CAPTURED_LIST     = 0x00000001u;
+        inline constexpr uint32_t QUERY_QUOTA_CAPTURED_PAYLOAD  = 0x00000002u;
+        inline constexpr uint32_t QUERY_QUOTA_TRUNCATED_LIST    = 0x00000004u;
+        inline constexpr uint32_t QUERY_QUOTA_TRUNCATED_PAYLOAD = 0x00000008u;
+
+        inline constexpr uint32_t QUERY_QUOTA_LIST_SIZE    = 304u;
+        inline constexpr uint32_t QUERY_QUOTA_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 3u * sizeof(uint32_t) - QUERY_QUOTA_LIST_SIZE;
+
+        struct QueryQuotaSupplement {
+            uint32_t captured;
+            uint32_t capturedListSize;
+            uint32_t capturedPayloadSize;
+            uint8_t list[QUERY_QUOTA_LIST_SIZE];          // FILE_GET_QUOTA_INFORMATION entries, captured pre-operation
+            uint8_t payload[QUERY_QUOTA_PAYLOAD_SIZE];    // FILE_QUOTA_INFORMATION entries, captured post-operation
+        };
+
+        static_assert(offsetof(QueryQuotaSupplement, list) == 12u, "protocol::QueryQuotaSupplement layout drift");
+        static_assert(offsetof(QueryQuotaSupplement, payload) == 12u + QUERY_QUOTA_LIST_SIZE, "protocol::QueryQuotaSupplement layout drift");
+
+        // IRP_MJ_SET_QUOTA
+
+        // capture bits for SetQuotaSupplement::captured
+        inline constexpr uint32_t SET_QUOTA_CAPTURED_PAYLOAD  = 0x00000001u;
+        inline constexpr uint32_t SET_QUOTA_TRUNCATED_PAYLOAD = 0x00000002u;
+
+        inline constexpr uint32_t SET_QUOTA_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 2u * sizeof(uint32_t);
+
+        struct SetQuotaSupplement {
+            uint32_t captured;
+            uint32_t capturedSize;
+            uint8_t payload[SET_QUOTA_PAYLOAD_SIZE];    // FILE_QUOTA_INFORMATION entries
+        };
+
+        static_assert(offsetof(SetQuotaSupplement, payload) == 8u, "protocol::SetQuotaSupplement layout drift");
+
         // IRP_MJ_ACQUIRE_FOR_MOD_WRITE
 
         // capture bit for ModWriteSupplement::captured
@@ -585,6 +650,8 @@ namespace mimo {
             DeviceIoControlSupplement deviceIoControl;
             LockControlSupplement lockControl;
             SecuritySupplement security;
+            QueryQuotaSupplement queryQuota;
+            SetQuotaSupplement setQuota;
             ModWriteSupplement modWrite;
         };
 
@@ -598,6 +665,8 @@ namespace mimo {
         static_assert(sizeof(FsControlSupplement) == SUPPLEMENT_SIZE, "protocol::FsControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(DeviceIoControlSupplement) == SUPPLEMENT_SIZE, "protocol::DeviceIoControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(SecuritySupplement) == SUPPLEMENT_SIZE, "protocol::SecuritySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(QueryQuotaSupplement) == SUPPLEMENT_SIZE, "protocol::QueryQuotaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(SetQuotaSupplement) == SUPPLEMENT_SIZE, "protocol::SetQuotaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(Supplement) == SUPPLEMENT_SIZE, "protocol::Supplement layout drift");
 
         // truncation bit for RecordData::truncated

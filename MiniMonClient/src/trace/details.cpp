@@ -9,6 +9,7 @@
 #include "details\info.h"
 #include "details\lock.h"
 #include "details\modwrite.h"
+#include "details\quota.h"
 #include "details\readwrite.h"
 #include "details\section.h"
 #include "details\security.h"
@@ -86,6 +87,14 @@ namespace mimo {
                     case kernel::IRP_MJ_SET_SECURITY:
 
                         return security::RenderSet(data);
+
+                    case kernel::IRP_MJ_QUERY_QUOTA:
+
+                        return quota::RenderQuery(data);
+
+                    case kernel::IRP_MJ_SET_QUOTA:
+
+                        return quota::RenderSet(data);
 
                     case kernel::IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION:
 

@@ -8,6 +8,7 @@
 #include "supplement\info.h"
 #include "supplement\lock.h"
 #include "supplement\modwrite.h"
+#include "supplement\quota.h"
 #include "supplement\security.h"
 #include "supplement\volume.h"
 
@@ -111,6 +112,22 @@ namespace mimo {
 
                         break;
 
+                    case IRP_MJ_QUERY_QUOTA:
+
+                        if (pData->Iopb->Parameters.QueryQuota.SidList) {
+                            quota::PopulateList(&pSupplement->queryQuota, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_SET_QUOTA:
+
+                        if (pData->Iopb->Parameters.SetQuota.Length) {
+                            quota::PopulateSet(&pSupplement->setQuota, pData);
+                        }
+
+                        break;
+
                     case IRP_MJ_ACQUIRE_FOR_MOD_WRITE:
 
                         if (pData->Iopb->Parameters.AcquireForModifiedPageWriter.EndingOffset) {
@@ -190,6 +207,14 @@ namespace mimo {
 
                         if (pData->Iopb->Parameters.QuerySecurity.Length) {
                             security::PopulateQuery(&pSupplement->security, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_QUERY_QUOTA:
+
+                        if (pData->Iopb->Parameters.QueryQuota.Length) {
+                            quota::PopulateQuery(&pSupplement->queryQuota, pData);
                         }
 
                         break;

@@ -25,7 +25,7 @@ namespace mimo {
             inline constexpr uint8_t SL_KEY_SPECIFIED = 0x01u;
             inline constexpr uint8_t SL_WRITE_THROUGH = 0x04u;
 
-            // query EA and directory control query stack-location SL_* flags carried in RecordData::operationFlags
+            // query EA, query quota and directory control query stack-location SL_* flags carried in RecordData::operationFlags
             inline constexpr uint8_t SL_RESTART_SCAN        = 0x01u;
             inline constexpr uint8_t SL_RETURN_SINGLE_ENTRY = 0x02u;
             inline constexpr uint8_t SL_INDEX_SPECIFIED     = 0x04u;
@@ -1198,6 +1198,40 @@ namespace mimo {
 
             static_assert(sizeof(VOLUME_DISK_EXTENTS) == 32u, "trace::kernel::VOLUME_DISK_EXTENTS x64 layout drift");
             static_assert(offsetof(VOLUME_DISK_EXTENTS, Extents) == 8u, "trace::kernel::VOLUME_DISK_EXTENTS x64 layout drift");
+
+            // quota entry layouts
+            struct SID {
+                uint8_t Revision;
+                uint8_t SubAuthorityCount;
+                uint8_t IdentifierAuthority[6u];
+                uint32_t SubAuthority[1u];
+            };
+
+            static_assert(sizeof(SID) == 12u, "trace::kernel::SID x64 layout drift");
+            static_assert(offsetof(SID, SubAuthority) == 8u, "trace::kernel::SID x64 layout drift");
+
+            struct FILE_GET_QUOTA_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t SidLength;
+                SID Sid;
+            };
+
+            static_assert(sizeof(FILE_GET_QUOTA_INFORMATION) == 20u, "trace::kernel::FILE_GET_QUOTA_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_GET_QUOTA_INFORMATION, Sid) == 8u, "trace::kernel::FILE_GET_QUOTA_INFORMATION x64 layout drift");
+
+            struct FILE_QUOTA_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t SidLength;
+                int64_t ChangeTime;
+                int64_t QuotaUsed;
+                int64_t QuotaThreshold;
+                int64_t QuotaLimit;
+                SID Sid;
+            };
+
+            static_assert(sizeof(FILE_QUOTA_INFORMATION) == 56u, "trace::kernel::FILE_QUOTA_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_QUOTA_INFORMATION, ChangeTime) == 8u, "trace::kernel::FILE_QUOTA_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_QUOTA_INFORMATION, Sid) == 40u, "trace::kernel::FILE_QUOTA_INFORMATION x64 layout drift");
 
             // FS_FILTER_SECTION_SYNC_TYPE values
             inline constexpr uint32_t SyncTypeOther         = 0u;

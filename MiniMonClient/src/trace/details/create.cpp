@@ -2,59 +2,16 @@
 
 #include "..\kernel.h"
 #include "..\names.h"
+#include "..\values.h"
 
 #include "..\..\text.h"
 
 #include "..\..\..\..\inc\protocol.h"
 
-#include <Windows.h>
-#include <sddl.h>
-
 #include <cstdint>
 #include <format>
-#include <map>
 #include <string>
 #include <string_view>
-#include <utility>
-
-using namespace mimo;
-
-namespace {
-
-    constexpr uint32_t ACCOUNT_NAME_WCHAR_COUNT = 256u;
-
-    std::map<std::wstring, std::wstring> accountNames;
-
-    std::wstring RenderImpersonatedSid(const protocol::CreateSupplement& createSupplement) {
-        const PSID pSid = const_cast<uint8_t*>(createSupplement.impersonatedSid);
-        wchar_t* pSidText = nullptr;
-
-        if (!ConvertSidToStringSidW(pSid, &pSidText)) return L"[invalid sid]";
-
-        std::wstring sidText = pSidText;
-        LocalFree(pSidText);
-
-        const auto [it, inserted] = accountNames.try_emplace(std::move(sidText));
-
-        if (!inserted) return it->second;
-
-        wchar_t name[ACCOUNT_NAME_WCHAR_COUNT]{};
-        wchar_t domain[ACCOUNT_NAME_WCHAR_COUNT]{};
-        DWORD nameWcharCount = static_cast<DWORD>(ACCOUNT_NAME_WCHAR_COUNT);
-        DWORD domainWcharCount = static_cast<DWORD>(ACCOUNT_NAME_WCHAR_COUNT);
-        SID_NAME_USE use{};
-
-        if (LookupAccountSidW(nullptr, pSid, name, &nameWcharCount, domain, &domainWcharCount, &use)) {
-            it->second = *domain ? std::format(L"{}\\{}", domain, name) : name;
-        }
-        else {
-            it->second = it->first;
-        }
-
-        return it->second;
-    }
-
-}
 
 namespace mimo {
 
@@ -99,7 +56,7 @@ namespace mimo {
                     }
 
                     if (createSupplement.captured & protocol::CREATE_CAPTURED_IMPERSONATED_SID) {
-                        result += std::format(L"Impersonating: {}, ", RenderImpersonatedSid(createSupplement));
+                        result += std::format(L"Impersonating: {}, ", values::RenderSid(createSupplement.impersonatedSid));
                     }
 
                     if (data.status == 0 || data.information == kernel::FILE_EXISTS || data.information == kernel::FILE_DOES_NOT_EXIST) {

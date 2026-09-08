@@ -186,6 +186,17 @@ MIRROR_ASSERT(querySecurity.mdlAddress,          QuerySecurity.MdlAddress);
 MIRROR_ASSERT(setSecurity.securityInformation, SetSecurity.SecurityInformation);
 MIRROR_ASSERT(setSecurity.securityDescriptor,  SetSecurity.SecurityDescriptor);
 
+MIRROR_ASSERT(queryQuota.length,        QueryQuota.Length);
+MIRROR_ASSERT(queryQuota.startSid,      QueryQuota.StartSid);
+MIRROR_ASSERT(queryQuota.sidList,       QueryQuota.SidList);
+MIRROR_ASSERT(queryQuota.sidListLength, QueryQuota.SidListLength);
+MIRROR_ASSERT(queryQuota.quotaBuffer,   QueryQuota.QuotaBuffer);
+MIRROR_ASSERT(queryQuota.mdlAddress,    QueryQuota.MdlAddress);
+
+MIRROR_ASSERT(setQuota.length,      SetQuota.Length);
+MIRROR_ASSERT(setQuota.quotaBuffer, SetQuota.QuotaBuffer);
+MIRROR_ASSERT(setQuota.mdlAddress,  SetQuota.MdlAddress);
+
 MIRROR_ASSERT(acquireForSectionSynchronization.syncType,             AcquireForSectionSynchronization.SyncType);
 MIRROR_ASSERT(acquireForSectionSynchronization.pageProtection,       AcquireForSectionSynchronization.PageProtection);
 MIRROR_ASSERT(acquireForSectionSynchronization.outputInformation,    AcquireForSectionSynchronization.OutputInformation);
