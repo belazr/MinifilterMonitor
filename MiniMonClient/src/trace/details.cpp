@@ -9,6 +9,7 @@
 #include "details\info.h"
 #include "details\lock.h"
 #include "details\modwrite.h"
+#include "details\mount.h"
 #include "details\quota.h"
 #include "details\readwrite.h"
 #include "details\section.h"
@@ -124,6 +125,10 @@ namespace mimo {
                     case kernel::IRP_MJ_MDL_WRITE_COMPLETE:
 
                         return readwrite::RenderMdlWriteComplete(data);
+
+                    case kernel::IRP_MJ_VOLUME_MOUNT:
+
+                        return mount::Render(data);
 
                 }
 

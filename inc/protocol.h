@@ -273,6 +273,11 @@ namespace mimo {
                 uint64_t mdlChain;
             } mdlWriteComplete;
 
+            // IRP_MJ_VOLUME_MOUNT
+            struct {
+                uint32_t deviceType;
+            } mountVolume;
+
             struct {
                 uint64_t argument1;
                 uint64_t argument2;
@@ -638,6 +643,22 @@ namespace mimo {
         static_assert(sizeof(ModWriteSupplement) == 16u, "protocol::ModWriteSupplement layout drift");
         static_assert(sizeof(ModWriteSupplement) <= SUPPLEMENT_SIZE, "protocol::ModWriteSupplement exceeds the supplement union");
 
+        // IRP_MJ_VOLUME_MOUNT
+
+        // capture bits for MountSupplement::captured
+        inline constexpr uint32_t MOUNT_CAPTURED_VOLUME_NAME      = 0x00000001u;
+        inline constexpr uint32_t MOUNT_CAPTURED_FILE_SYSTEM_TYPE = 0x00000002u;
+
+        inline constexpr uint32_t MOUNT_VOLUME_NAME_WCHAR_COUNT = (SUPPLEMENT_SIZE - 2u * sizeof(uint32_t)) / sizeof(wchar_t);
+
+        struct MountSupplement {
+            uint32_t captured;
+            uint32_t fileSystemType;                              // FLT_FILESYSTEM_TYPE
+            wchar_t volumeName[MOUNT_VOLUME_NAME_WCHAR_COUNT];    // the storage volume's device name, whole or absent
+        };
+
+        static_assert(offsetof(MountSupplement, volumeName) == 8u, "protocol::MountSupplement layout drift");
+
         union Supplement {
             CreateSupplement create;
             QueryInfoSupplement queryInfo;
@@ -653,6 +674,7 @@ namespace mimo {
             QueryQuotaSupplement queryQuota;
             SetQuotaSupplement setQuota;
             ModWriteSupplement modWrite;
+            MountSupplement mount;
         };
 
         static_assert(sizeof(CreateSupplement) == SUPPLEMENT_SIZE, "protocol::CreateSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
@@ -667,6 +689,7 @@ namespace mimo {
         static_assert(sizeof(SecuritySupplement) == SUPPLEMENT_SIZE, "protocol::SecuritySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(QueryQuotaSupplement) == SUPPLEMENT_SIZE, "protocol::QueryQuotaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(SetQuotaSupplement) == SUPPLEMENT_SIZE, "protocol::SetQuotaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(MountSupplement) == SUPPLEMENT_SIZE, "protocol::MountSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(Supplement) == SUPPLEMENT_SIZE, "protocol::Supplement layout drift");
 
         // truncation bit for RecordData::truncated

@@ -57,6 +57,9 @@
     <ClCompile Include="src\trace\details\modwrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\trace\details\mount.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\trace\details\quota.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -132,6 +135,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\details\modwrite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\details\mount.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\details\payload.h">

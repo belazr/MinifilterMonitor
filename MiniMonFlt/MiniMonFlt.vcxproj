@@ -113,6 +113,7 @@
     <ClCompile Include="src\trace\supplement\info.cpp" />
     <ClCompile Include="src\trace\supplement\lock.cpp" />
     <ClCompile Include="src\trace\supplement\modwrite.cpp" />
+    <ClCompile Include="src\trace\supplement\mount.cpp" />
     <ClCompile Include="src\trace\supplement\quota.cpp" />
     <ClCompile Include="src\trace\supplement\security.cpp" />
     <ClCompile Include="src\trace\supplement\volume.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="src\trace\supplement\info.h" />
     <ClInclude Include="src\trace\supplement\lock.h" />
     <ClInclude Include="src\trace\supplement\modwrite.h" />
+    <ClInclude Include="src\trace\supplement\mount.h" />
     <ClInclude Include="src\trace\supplement\quota.h" />
     <ClInclude Include="src\trace\supplement\security.h" />
     <ClInclude Include="src\trace\supplement\volume.h" />

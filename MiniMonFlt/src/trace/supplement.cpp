@@ -8,6 +8,7 @@
 #include "supplement\info.h"
 #include "supplement\lock.h"
 #include "supplement\modwrite.h"
+#include "supplement\mount.h"
 #include "supplement\quota.h"
 #include "supplement\security.h"
 #include "supplement\volume.h"
@@ -132,6 +133,14 @@ namespace mimo {
 
                         if (pData->Iopb->Parameters.AcquireForModifiedPageWriter.EndingOffset) {
                             modwrite::Populate(&pSupplement->modWrite, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_VOLUME_MOUNT:
+
+                        if (pFltObjects->Volume) {
+                            mount::Populate(&pSupplement->mount, pFltObjects);
                         }
 
                         break;

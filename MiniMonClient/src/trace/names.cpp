@@ -3,6 +3,7 @@
 #include "kernel.h"
 
 #include <Windows.h>
+#include <fltUser.h>
 #include <winioctl.h>
 #include <wnnc.h>
 
@@ -1596,6 +1597,46 @@ namespace mimo {
             std::wstring RenderAllocationAttributes(uint32_t allocationAttributes) {
 
                 return RenderFlags(allocationAttributes, ALLOCATION_ATTRIBUTE_NAMES, L"|");
+            }
+
+
+            std::wstring RenderFileSystemType(uint32_t fileSystemType) {
+
+                switch (fileSystemType) {
+                    case FLT_FSTYPE_UNKNOWN:    return L"UNKNOWN";
+                    case FLT_FSTYPE_RAW:        return L"RAW";
+                    case FLT_FSTYPE_NTFS:       return L"NTFS";
+                    case FLT_FSTYPE_FAT:        return L"FAT";
+                    case FLT_FSTYPE_CDFS:       return L"CDFS";
+                    case FLT_FSTYPE_UDFS:       return L"UDFS";
+                    case FLT_FSTYPE_LANMAN:     return L"LANMAN";
+                    case FLT_FSTYPE_WEBDAV:     return L"WEBDAV";
+                    case FLT_FSTYPE_RDPDR:      return L"RDPDR";
+                    case FLT_FSTYPE_NFS:        return L"NFS";
+                    case FLT_FSTYPE_MS_NETWARE: return L"MS_NETWARE";
+                    case FLT_FSTYPE_NETWARE:    return L"NETWARE";
+                    case FLT_FSTYPE_BSUDF:      return L"BSUDF";
+                    case FLT_FSTYPE_MUP:        return L"MUP";
+                    case FLT_FSTYPE_RSFX:       return L"RSFX";
+                    case FLT_FSTYPE_ROXIO_UDF1: return L"ROXIO_UDF1";
+                    case FLT_FSTYPE_ROXIO_UDF2: return L"ROXIO_UDF2";
+                    case FLT_FSTYPE_ROXIO_UDF3: return L"ROXIO_UDF3";
+                    case FLT_FSTYPE_TACIT:      return L"TACIT";
+                    case FLT_FSTYPE_FS_REC:     return L"FS_REC";
+                    case FLT_FSTYPE_INCD:       return L"INCD";
+                    case FLT_FSTYPE_INCD_FAT:   return L"INCD_FAT";
+                    case FLT_FSTYPE_EXFAT:      return L"EXFAT";
+                    case FLT_FSTYPE_PSFS:       return L"PSFS";
+                    case FLT_FSTYPE_GPFS:       return L"GPFS";
+                    case FLT_FSTYPE_NPFS:       return L"NPFS";
+                    case FLT_FSTYPE_MSFS:       return L"MSFS";
+                    case FLT_FSTYPE_CSVFS:      return L"CSVFS";
+                    case FLT_FSTYPE_REFS:       return L"REFS";
+                    case FLT_FSTYPE_OPENAFS:    return L"OPENAFS";
+                    case FLT_FSTYPE_CIMFS:      return L"CIMFS";
+                }
+
+                return std::to_wstring(fileSystemType);
             }
 
         }

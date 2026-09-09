@@ -91,6 +91,8 @@ namespace mimo {
 
             std::wstring RenderAllocationAttributes(uint32_t allocationAttributes);
 
+            std::wstring RenderFileSystemType(uint32_t fileSystemType);
+
         }
 
     }

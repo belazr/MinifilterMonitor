@@ -232,6 +232,8 @@ MIRROR_ASSERT(mdlReadComplete.mdlChain, MdlReadComplete.MdlChain);
 MIRROR_ASSERT(mdlWriteComplete.fileOffset, MdlWriteComplete.FileOffset);
 MIRROR_ASSERT(mdlWriteComplete.mdlChain,   MdlWriteComplete.MdlChain);
 
+MIRROR_ASSERT(mountVolume.deviceType, MountVolume.DeviceType);
+
 namespace {
 
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {
