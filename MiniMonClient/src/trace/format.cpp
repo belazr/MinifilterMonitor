@@ -2,6 +2,7 @@
 
 #include "details.h"
 #include "names.h"
+#include "values.h"
 
 #include "..\text.h"
 
@@ -210,7 +211,7 @@ namespace mimo {
                 else {
                     columns[OPR]           = names::RenderOperationCategory(data.flags);
                     columns[OPERATION_ID]  = std::format(L"{:0{}X}", data.operationId, PTR_WIDTH);
-                    columns[TOP_LEVEL_IRP] = RenderObject(data.topLevelIrp);
+                    columns[TOP_LEVEL_IRP] = values::RenderTopLevelIrp(data.topLevelIrp);
                     columns[POST_OP_TIME]  = RenderTime(data.completionTime);
                     columns[MAJOR]         = names::RenderMajorFunction(data.callbackMajorId);
                     columns[MINOR]         = names::RenderMinorFunction(data.callbackMajorId, data.callbackMinorId);

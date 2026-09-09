@@ -14,6 +14,16 @@ namespace mimo {
             inline constexpr uint32_t FLT_CALLBACK_DATA_FAST_IO_OPERATION   = 0x00000002u;
             inline constexpr uint32_t FLT_CALLBACK_DATA_FS_FILTER_OPERATION = 0x00000004u;
 
+            // IoGetTopLevelIrp sentinels carried in RecordData::topLevelIrp
+            inline constexpr uint64_t FSRTL_FSP_TOP_LEVEL_IRP               = 0x01u;
+            inline constexpr uint64_t FSRTL_CACHE_TOP_LEVEL_IRP             = 0x02u;
+            inline constexpr uint64_t FSRTL_MOD_WRITE_TOP_LEVEL_IRP         = 0x03u;
+            inline constexpr uint64_t FSRTL_FAST_IO_TOP_LEVEL_IRP           = 0x04u;
+            inline constexpr uint64_t FSRTL_NETWORK1_TOP_LEVEL_IRP          = 0x05u;
+            inline constexpr uint64_t FSRTL_NETWORK2_TOP_LEVEL_IRP          = 0x06u;
+            inline constexpr uint64_t FSRTL_ASYNC_CACHED_READ_TOP_LEVEL_IRP = 0x07u;
+            inline constexpr uint64_t FSRTL_VOLSNAP_TOP_LEVEL_IRP           = 0x08u;
+
             // IRP flags carried in RecordData::irpFlags
             inline constexpr uint32_t IRP_NOCACHE                 = 0x00000001u;
             inline constexpr uint32_t IRP_PAGING_IO               = 0x00000002u;

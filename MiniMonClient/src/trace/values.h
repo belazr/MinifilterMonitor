@@ -14,6 +14,8 @@ namespace mimo {
 
             std::wstring RenderByteOffset(int64_t byteOffset);
 
+            std::wstring RenderTopLevelIrp(uint64_t topLevelIrp);
+
             std::wstring RenderFileTime(int64_t fileTime);
 
             std::wstring RenderSid(std::span<const uint8_t> sidData);

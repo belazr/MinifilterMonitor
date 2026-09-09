@@ -43,6 +43,25 @@ namespace mimo {
             }
 
 
+            std::wstring RenderTopLevelIrp(uint64_t topLevelIrp) {
+
+                if (topLevelIrp == 0u) return L"";
+
+                switch (topLevelIrp) {
+                    case kernel::FSRTL_FSP_TOP_LEVEL_IRP:               return L"FSP";
+                    case kernel::FSRTL_CACHE_TOP_LEVEL_IRP:             return L"CACHE";
+                    case kernel::FSRTL_MOD_WRITE_TOP_LEVEL_IRP:         return L"MOD_WRITE";
+                    case kernel::FSRTL_FAST_IO_TOP_LEVEL_IRP:           return L"FAST_IO";
+                    case kernel::FSRTL_NETWORK1_TOP_LEVEL_IRP:          return L"NETWORK1";
+                    case kernel::FSRTL_NETWORK2_TOP_LEVEL_IRP:          return L"NETWORK2";
+                    case kernel::FSRTL_ASYNC_CACHED_READ_TOP_LEVEL_IRP: return L"ASYNC_CACHED_READ";
+                    case kernel::FSRTL_VOLSNAP_TOP_LEVEL_IRP:           return L"VOLSNAP";
+                }
+
+                return std::format(L"{:0{}X}", topLevelIrp, static_cast<int>(sizeof(topLevelIrp) * 2u));
+            }
+
+
             std::wstring RenderFileTime(int64_t fileTime) {
 
                 if (fileTime < 0) return std::to_wstring(fileTime);
