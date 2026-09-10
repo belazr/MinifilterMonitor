@@ -269,22 +269,9 @@ namespace {
     }
 
 
-    std::wstring RenderFileId(std::span<const uint8_t, 16u> fileId) {
-        uint64_t low;
-        uint64_t high;
-
-        std::memcpy(&low, fileId.data(), sizeof(low));
-        std::memcpy(&high, fileId.data() + sizeof(low), sizeof(high));
-
-        if (!high) return std::format(L"0x{:X}", low);
-
-        return std::format(L"0x{:X}{:016X}", high, low);
-    }
-
-
     std::wstring RenderIdPayload(const trace::kernel::FILE_ID_INFORMATION& payload) {
 
-        return std::format(L"VolumeSerialNumber: 0x{:X}, FileId: {}", payload.VolumeSerialNumber, RenderFileId(payload.FileId));
+        return std::format(L"VolumeSerialNumber: 0x{:X}, FileId: {}", payload.VolumeSerialNumber, trace::values::RenderFileId(payload.FileId));
     }
 
 
@@ -388,7 +375,7 @@ namespace {
             result += std::format(L", ReparseTag: {}", trace::names::RenderReparseTag(payload.ReparseTag));
         }
 
-        result += std::format(L", NumberOfLinks: {}, DeviceType: {}, DeviceCharacteristics: 0x{:X}, VolumeSerialNumber: 0x{:X}, FileId128: {}", payload.NumberOfLinks, trace::names::RenderDeviceType(payload.DeviceType), payload.DeviceCharacteristics, payload.VolumeSerialNumber, RenderFileId(payload.FileId128));
+        result += std::format(L", NumberOfLinks: {}, DeviceType: {}, DeviceCharacteristics: 0x{:X}, VolumeSerialNumber: 0x{:X}, FileId128: {}", payload.NumberOfLinks, trace::names::RenderDeviceType(payload.DeviceType), payload.DeviceCharacteristics, payload.VolumeSerialNumber, trace::values::RenderFileId(payload.FileId128));
 
         return result;
     }

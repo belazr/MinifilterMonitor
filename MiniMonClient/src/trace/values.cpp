@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <format>
 #include <map>
 #include <optional>
@@ -88,6 +89,33 @@ namespace mimo {
                 }
 
                 return RenderObjectId(topLevelIrp);
+            }
+
+
+            std::wstring RenderFileId(std::span<const uint8_t, 16u> fileId) {
+                uint64_t low;
+                uint64_t high;
+
+                std::memcpy(&low, fileId.data(), sizeof(low));
+                std::memcpy(&high, fileId.data() + sizeof(low), sizeof(high));
+
+                if (!high) return std::format(L"0x{:X}", low);
+
+                return std::format(L"0x{:X}{:016X}", high, low);
+            }
+
+
+            std::wstring RenderGuid(std::span<const uint8_t, 16u> guid) {
+                uint32_t data1 = 0u;
+                std::memcpy(&data1, guid.data(), sizeof(data1));
+
+                uint16_t data2 = 0u;
+                std::memcpy(&data2, guid.data() + 4u, sizeof(data2));
+
+                uint16_t data3 = 0u;
+                std::memcpy(&data3, guid.data() + 6u, sizeof(data3));
+
+                return std::format(L"{:08X}-{:04X}-{:04X}-{:02X}{:02X}-{:02X}{:02X}{:02X}{:02X}{:02X}{:02X}", data1, data2, data3, guid[8u], guid[9u], guid[10u], guid[11u], guid[12u], guid[13u], guid[14u], guid[15u]);
             }
 
 
