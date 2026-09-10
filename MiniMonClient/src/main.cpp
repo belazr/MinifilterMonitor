@@ -252,7 +252,7 @@ namespace {
             if (buffer.Size() > 0u) {
                 const std::optional<std::span<const protocol::Record>> records = records::Parse(buffer);
 
-                if (!records) {
+                if (!records.has_value()) {
                     std::cerr << "Received a malformed record buffer from the filter\n";
 
                     return false;
