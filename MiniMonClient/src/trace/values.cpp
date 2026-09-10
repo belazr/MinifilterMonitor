@@ -95,7 +95,7 @@ namespace mimo {
                 constexpr uint64_t TICKS_PER_SECOND = 10000000u;
                 const std::optional<SYSTEMTIME> localTime = MakeLocalTime(operationTime);
 
-                if (!localTime.has_value()) return L"TIME ERROR";
+                if (!localTime.has_value()) return L"[invalid time]";
 
                 const uint64_t ticks = static_cast<uint64_t>(operationTime);
                 const uint32_t subSecond = static_cast<uint32_t>(ticks % TICKS_PER_SECOND);
@@ -107,7 +107,7 @@ namespace mimo {
             std::wstring RenderTime(int64_t time) {
                 const std::optional<SYSTEMTIME> localTime = MakeLocalTime(time);
 
-                if (!localTime.has_value()) return L"TIME ERROR";
+                if (!localTime.has_value()) return L"[invalid time]";
 
                 return std::format(L"{:04}-{:02}-{:02} {:02}:{:02}:{:02}", localTime->wYear, localTime->wMonth, localTime->wDay, localTime->wHour, localTime->wMinute, localTime->wSecond);
             }
