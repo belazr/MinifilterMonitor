@@ -14,7 +14,7 @@ using namespace mimo;
 namespace {
 
     std::wstring RenderWriteComplete(int64_t byteOffset, uint64_t mdlAddress) {
-        std::wstring details = std::format(L"Offset: {}", byteOffset);
+        std::wstring details = std::format(L"Offset: {}", trace::values::RenderByteOffset(byteOffset));
 
         if (mdlAddress) {
             details += std::format(L", Mdl: 0x{:X}", mdlAddress);
@@ -103,7 +103,7 @@ namespace mimo {
 
                 std::wstring RenderMdl(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Offset: {}, Length: {}", parameters.mdlReadWrite.fileOffset, parameters.mdlReadWrite.length);
+                    std::wstring details = std::format(L"Offset: {}, Length: {}", values::RenderByteOffset(parameters.mdlReadWrite.fileOffset), parameters.mdlReadWrite.length);
 
                     if (parameters.mdlReadWrite.key) {
                         details += std::format(L", Key: 0x{:X}", parameters.mdlReadWrite.key);

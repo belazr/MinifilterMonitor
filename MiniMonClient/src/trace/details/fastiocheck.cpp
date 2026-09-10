@@ -1,5 +1,7 @@
 #include "fastiocheck.h"
 
+#include "..\values.h"
+
 #include "..\..\..\..\inc\protocol.h"
 
 #include <format>
@@ -15,7 +17,7 @@ namespace mimo {
 
                 std::wstring Render(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Operation: {}, Offset: {}, Length: {}", parameters.fastIoCheckIfPossible.checkForReadOperation ? L"Read" : L"Write", parameters.fastIoCheckIfPossible.fileOffset, parameters.fastIoCheckIfPossible.length);
+                    std::wstring details = std::format(L"Operation: {}, Offset: {}, Length: {}", parameters.fastIoCheckIfPossible.checkForReadOperation ? L"Read" : L"Write", values::RenderByteOffset(parameters.fastIoCheckIfPossible.fileOffset), parameters.fastIoCheckIfPossible.length);
 
                     if (parameters.fastIoCheckIfPossible.lockKey) {
                         details += std::format(L", Key: 0x{:X}", parameters.fastIoCheckIfPossible.lockKey);
