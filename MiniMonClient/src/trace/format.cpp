@@ -81,8 +81,6 @@ namespace {
 
     static_assert(AllColumnsLabeled(), "every Column needs a header label in COLUMN_LABELS");
 
-    constexpr int PTR_WIDTH = static_cast<int>(sizeof(protocol::ObjectId) * 2u);
-
     std::wstring RenderTime(int64_t kernelTime) {
         const uint64_t ticks = static_cast<uint64_t>(kernelTime);
 
@@ -102,14 +100,6 @@ namespace {
         const uint32_t subSecond = static_cast<uint32_t>(ticks % 10000000ull);
 
         return std::format(L"{:02}:{:02}:{:02}.{:07}", sysTime.wHour, sysTime.wMinute, sysTime.wSecond, subSecond);
-    }
-
-
-    std::wstring RenderObject(protocol::ObjectId object) {
-
-        if (object == 0u) return L"";
-
-        return std::format(L"{:0{}X}", object, PTR_WIDTH);
     }
 
 
@@ -199,8 +189,8 @@ namespace mimo {
                 columns[PRE_OP_TIME]     = RenderTime(data.originatingTime);
                 columns[PROCESS_ID]      = std::format(L"{:X}", data.processId);
                 columns[THREAD_ID]       = std::format(L"{:X}", data.threadId);
-                columns[DEV_OBJ]         = RenderObject(data.deviceObject);
-                columns[TRANSACTION]     = RenderObject(data.transaction);
+                columns[DEV_OBJ]         = values::RenderObjectId(data.deviceObject);
+                columns[TRANSACTION]     = values::RenderObjectId(data.transaction);
                 columns[TRANSACTION_SEQ] = data.transactionSequence ? std::format(L"{:08X}", data.transactionSequence) : std::wstring{};
                 columns[STACK_TRACE]     = EscapeCsvField(RenderStackTrace(data));
 
@@ -210,23 +200,23 @@ namespace mimo {
                 }
                 else {
                     columns[OPR]           = names::RenderOperationCategory(data.flags);
-                    columns[OPERATION_ID]  = std::format(L"{:0{}X}", data.operationId, PTR_WIDTH);
+                    columns[OPERATION_ID]  = std::format(L"{:016X}", data.operationId);
                     columns[TOP_LEVEL_IRP] = values::RenderTopLevelIrp(data.topLevelIrp);
                     columns[POST_OP_TIME]  = RenderTime(data.completionTime);
                     columns[MAJOR]         = names::RenderMajorFunction(data.callbackMajorId);
                     columns[MINOR]         = names::RenderMinorFunction(data.callbackMajorId, data.callbackMinorId);
                     columns[NAME]          = EscapeCsvField(text::MarkTruncated(text::Extract(data.name), data.truncated & protocol::TRUNCATED_NAME));
                     columns[STATUS]        = std::format(L"{:08X}", static_cast<uint32_t>(data.status));
-                    columns[INFORMATION]   = std::format(L"{:0{}X}", data.information, PTR_WIDTH);
+                    columns[INFORMATION]   = std::format(L"{:016X}", data.information);
                     columns[DETAILS]       = EscapeCsvField(details::Render(data));
                     columns[IRP_FLAGS]     = std::format(L"{:08X}", data.irpFlags);
-                    columns[FILE_OBJ]      = RenderObject(data.fileObject);
-                    columns[ARG1]          = std::format(L"{:0{}X}", data.parameters.others.argument1, PTR_WIDTH);
-                    columns[ARG2]          = std::format(L"{:0{}X}", data.parameters.others.argument2, PTR_WIDTH);
-                    columns[ARG3]          = std::format(L"{:0{}X}", data.parameters.others.argument3, PTR_WIDTH);
-                    columns[ARG4]          = std::format(L"{:0{}X}", data.parameters.others.argument4, PTR_WIDTH);
-                    columns[ARG5]          = std::format(L"{:0{}X}", data.parameters.others.argument5, PTR_WIDTH);
-                    columns[ARG6]          = std::format(L"{:0{}X}", static_cast<uint64_t>(data.parameters.others.argument6), PTR_WIDTH);
+                    columns[FILE_OBJ]      = values::RenderObjectId(data.fileObject);
+                    columns[ARG1]          = std::format(L"{:016X}", data.parameters.others.argument1);
+                    columns[ARG2]          = std::format(L"{:016X}", data.parameters.others.argument2);
+                    columns[ARG3]          = std::format(L"{:016X}", data.parameters.others.argument3);
+                    columns[ARG4]          = std::format(L"{:016X}", data.parameters.others.argument4);
+                    columns[ARG5]          = std::format(L"{:016X}", data.parameters.others.argument5);
+                    columns[ARG6]          = std::format(L"{:016X}", static_cast<uint64_t>(data.parameters.others.argument6));
                     columns[REPARSE_TAG]   = names::RenderReparseTag(data.reparseTag);
                 }
 

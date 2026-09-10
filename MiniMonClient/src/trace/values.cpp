@@ -43,9 +43,15 @@ namespace mimo {
             }
 
 
-            std::wstring RenderTopLevelIrp(uint64_t topLevelIrp) {
+            std::wstring RenderObjectId(uint64_t objectId) {
 
-                if (topLevelIrp == 0u) return L"";
+                if (objectId == 0u) return L"";
+
+                return std::format(L"{:016X}", objectId);
+            }
+
+
+            std::wstring RenderTopLevelIrp(uint64_t topLevelIrp) {
 
                 switch (topLevelIrp) {
                     case kernel::FSRTL_FSP_TOP_LEVEL_IRP:               return L"FSP";
@@ -58,7 +64,7 @@ namespace mimo {
                     case kernel::FSRTL_VOLSNAP_TOP_LEVEL_IRP:           return L"VOLSNAP";
                 }
 
-                return std::format(L"{:0{}X}", topLevelIrp, static_cast<int>(sizeof(topLevelIrp) * 2u));
+                return RenderObjectId(topLevelIrp);
             }
 
 
