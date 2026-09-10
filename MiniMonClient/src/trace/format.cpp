@@ -8,8 +8,6 @@
 
 #include "..\..\..\inc\protocol.h"
 
-#include <Windows.h>
-
 #include <array>
 #include <cstdint>
 #include <format>
@@ -80,28 +78,6 @@ namespace {
 
 
     static_assert(AllColumnsLabeled(), "every Column needs a header label in COLUMN_LABELS");
-
-    std::wstring RenderTime(int64_t kernelTime) {
-        const uint64_t ticks = static_cast<uint64_t>(kernelTime);
-
-        FILETIME fileTime{};
-        fileTime.dwLowDateTime = static_cast<DWORD>(ticks);
-        fileTime.dwHighDateTime = static_cast<DWORD>(ticks >> 32);
-
-        FILETIME localTime{};
-
-        if (!FileTimeToLocalFileTime(&fileTime, &localTime)) return L"TIME ERROR";
-
-        SYSTEMTIME sysTime{};
-
-        if (!FileTimeToSystemTime(&localTime, &sysTime)) return L"TIME ERROR";
-
-        // 100 ns fraction within the second
-        const uint32_t subSecond = static_cast<uint32_t>(ticks % 10000000ull);
-
-        return std::format(L"{:02}:{:02}:{:02}.{:07}", sysTime.wHour, sysTime.wMinute, sysTime.wSecond, subSecond);
-    }
-
 
     std::wstring RenderStackTrace(const protocol::RecordData& data) {
         const uint32_t count = data.stackFrameCount < protocol::STACK_TRACE_FRAME_COUNT ? data.stackFrameCount : protocol::STACK_TRACE_FRAME_COUNT;
@@ -179,14 +155,12 @@ namespace mimo {
 
 
             std::wstring Render(const protocol::Record& record) {
-                // using enum because some labels (OPERATION_ID, a winbase.h typedef) collide with SDK globals
-                using enum Column;
                 const protocol::RecordData& data = record.data;
                 std::array<std::wstring, COLUMN_COUNT> columns;
 
                 columns[SEQ_NUM]         = std::format(L"{:08X}", record.sequenceNumber);
                 columns[ALTITUDE]        = std::to_wstring(data.altitude);
-                columns[PRE_OP_TIME]     = RenderTime(data.originatingTime);
+                columns[PRE_OP_TIME]     = values::RenderOperationTime(data.originatingTime);
                 columns[PROCESS_ID]      = std::format(L"{:X}", data.processId);
                 columns[THREAD_ID]       = std::format(L"{:X}", data.threadId);
                 columns[DEV_OBJ]         = values::RenderObjectId(data.deviceObject);
@@ -202,7 +176,7 @@ namespace mimo {
                     columns[OPR]           = names::RenderOperationCategory(data.flags);
                     columns[OPERATION_ID]  = std::format(L"{:016X}", data.operationId);
                     columns[TOP_LEVEL_IRP] = values::RenderTopLevelIrp(data.topLevelIrp);
-                    columns[POST_OP_TIME]  = RenderTime(data.completionTime);
+                    columns[POST_OP_TIME]  = values::RenderOperationTime(data.completionTime);
                     columns[MAJOR]         = names::RenderMajorFunction(data.callbackMajorId);
                     columns[MINOR]         = names::RenderMinorFunction(data.callbackMajorId, data.callbackMinorId);
                     columns[NAME]          = EscapeCsvField(text::MarkTruncated(text::Extract(data.name), data.truncated & protocol::TRUNCATED_NAME));

@@ -45,23 +45,31 @@ namespace {
     }
 
 
+    std::wstring RenderFileTime(int64_t fileTime) {
+
+        if (fileTime < 0) return std::to_wstring(fileTime);
+
+        return trace::values::RenderTime(fileTime);
+    }
+
+
     std::wstring RenderBasicPayload(const trace::kernel::FILE_BASIC_INFORMATION& payload) {
         std::wstring result;
 
         if (payload.CreationTime) {
-            result += std::format(L"CreationTime: {}, ", trace::values::RenderFileTime(payload.CreationTime));
+            result += std::format(L"CreationTime: {}, ", RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L"LastAccessTime: {}, ", trace::values::RenderFileTime(payload.LastAccessTime));
+            result += std::format(L"LastAccessTime: {}, ", RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L"LastWriteTime: {}, ", trace::values::RenderFileTime(payload.LastWriteTime));
+            result += std::format(L"LastWriteTime: {}, ", RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L"ChangeTime: {}, ", trace::values::RenderFileTime(payload.ChangeTime));
+            result += std::format(L"ChangeTime: {}, ", RenderFileTime(payload.ChangeTime));
         }
 
         if (payload.FileAttributes) {
@@ -175,19 +183,19 @@ namespace {
         std::wstring result;
 
         if (payload.CreationTime) {
-            result += std::format(L"CreationTime: {}, ", trace::values::RenderFileTime(payload.CreationTime));
+            result += std::format(L"CreationTime: {}, ", RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L"LastAccessTime: {}, ", trace::values::RenderFileTime(payload.LastAccessTime));
+            result += std::format(L"LastAccessTime: {}, ", RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L"LastWriteTime: {}, ", trace::values::RenderFileTime(payload.LastWriteTime));
+            result += std::format(L"LastWriteTime: {}, ", RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L"ChangeTime: {}, ", trace::values::RenderFileTime(payload.ChangeTime));
+            result += std::format(L"ChangeTime: {}, ", RenderFileTime(payload.ChangeTime));
         }
 
         result += std::format(L"AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);
@@ -284,19 +292,19 @@ namespace {
         std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<uint64_t>(payload.FileId));
 
         if (payload.CreationTime) {
-            result += std::format(L", CreationTime: {}", trace::values::RenderFileTime(payload.CreationTime));
+            result += std::format(L", CreationTime: {}", RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L", LastAccessTime: {}", trace::values::RenderFileTime(payload.LastAccessTime));
+            result += std::format(L", LastAccessTime: {}", RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L", LastWriteTime: {}", trace::values::RenderFileTime(payload.LastWriteTime));
+            result += std::format(L", LastWriteTime: {}", RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L", ChangeTime: {}", trace::values::RenderFileTime(payload.ChangeTime));
+            result += std::format(L", ChangeTime: {}", RenderFileTime(payload.ChangeTime));
         }
 
         result += std::format(L", AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);
@@ -355,19 +363,19 @@ namespace {
         std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<uint64_t>(payload.FileId));
 
         if (payload.CreationTime) {
-            result += std::format(L", CreationTime: {}", trace::values::RenderFileTime(payload.CreationTime));
+            result += std::format(L", CreationTime: {}", RenderFileTime(payload.CreationTime));
         }
 
         if (payload.LastAccessTime) {
-            result += std::format(L", LastAccessTime: {}", trace::values::RenderFileTime(payload.LastAccessTime));
+            result += std::format(L", LastAccessTime: {}", RenderFileTime(payload.LastAccessTime));
         }
 
         if (payload.LastWriteTime) {
-            result += std::format(L", LastWriteTime: {}", trace::values::RenderFileTime(payload.LastWriteTime));
+            result += std::format(L", LastWriteTime: {}", RenderFileTime(payload.LastWriteTime));
         }
 
         if (payload.ChangeTime) {
-            result += std::format(L", ChangeTime: {}", trace::values::RenderFileTime(payload.ChangeTime));
+            result += std::format(L", ChangeTime: {}", RenderFileTime(payload.ChangeTime));
         }
 
         result += std::format(L", AllocationSize: {}, EndOfFile: {}", payload.AllocationSize, payload.EndOfFile);

@@ -9,11 +9,34 @@
 #include <cstdint>
 #include <format>
 #include <map>
+#include <optional>
 #include <span>
 #include <string>
 #include <utility>
 
 namespace {
+
+    std::optional<SYSTEMTIME> MakeLocalTime(int64_t time) {
+
+        if (time < 0) return std::nullopt;
+
+        const uint64_t ticks = static_cast<uint64_t>(time);
+
+        FILETIME utcFileTime{};
+        utcFileTime.dwLowDateTime = static_cast<DWORD>(ticks);
+        utcFileTime.dwHighDateTime = static_cast<DWORD>(ticks >> 32);
+
+        FILETIME localFileTime{};
+
+        if (!FileTimeToLocalFileTime(&utcFileTime, &localFileTime)) return std::nullopt;
+
+        SYSTEMTIME localTime{};
+
+        if (!FileTimeToSystemTime(&localFileTime, &localTime)) return std::nullopt;
+
+        return localTime;
+    }
+
 
     constexpr uint32_t ACCOUNT_NAME_WCHAR_COUNT = 256u;
 
@@ -68,25 +91,25 @@ namespace mimo {
             }
 
 
-            std::wstring RenderFileTime(int64_t fileTime) {
+            std::wstring RenderOperationTime(int64_t operationTime) {
+                constexpr uint64_t TICKS_PER_SECOND = 10000000u;
+                const std::optional<SYSTEMTIME> localTime = MakeLocalTime(operationTime);
 
-                if (fileTime < 0) return std::to_wstring(fileTime);
+                if (!localTime.has_value()) return L"TIME ERROR";
 
-                const uint64_t ticks = static_cast<uint64_t>(fileTime);
+                const uint64_t ticks = static_cast<uint64_t>(operationTime);
+                const uint32_t subSecond = static_cast<uint32_t>(ticks % TICKS_PER_SECOND);
 
-                FILETIME systemFileTime{};
-                systemFileTime.dwLowDateTime = static_cast<DWORD>(ticks);
-                systemFileTime.dwHighDateTime = static_cast<DWORD>(ticks >> 32);
+                return std::format(L"{:02}:{:02}:{:02}.{:07}", localTime->wHour, localTime->wMinute, localTime->wSecond, subSecond);
+            }
 
-                FILETIME localFileTime{};
 
-                if (!FileTimeToLocalFileTime(&systemFileTime, &localFileTime)) return L"TIME ERROR";
+            std::wstring RenderTime(int64_t time) {
+                const std::optional<SYSTEMTIME> localTime = MakeLocalTime(time);
 
-                SYSTEMTIME localTime{};
+                if (!localTime.has_value()) return L"TIME ERROR";
 
-                if (!FileTimeToSystemTime(&localFileTime, &localTime)) return L"TIME ERROR";
-
-                return std::format(L"{:04}-{:02}-{:02} {:02}:{:02}:{:02}", localTime.wYear, localTime.wMonth, localTime.wDay, localTime.wHour, localTime.wMinute, localTime.wSecond);
+                return std::format(L"{:04}-{:02}-{:02} {:02}:{:02}:{:02}", localTime->wYear, localTime->wMonth, localTime->wDay, localTime->wHour, localTime->wMinute, localTime->wSecond);
             }
 
 

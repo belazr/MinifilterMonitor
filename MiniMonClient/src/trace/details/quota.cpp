@@ -99,7 +99,7 @@ namespace {
             index++;
 
             if (entry.ChangeTime) {
-                result += std::format(L", ChangeTime: {}", trace::values::RenderFileTime(entry.ChangeTime));
+                result += std::format(L", ChangeTime: {}", trace::values::RenderTime(entry.ChangeTime));
             }
 
             result += std::format(L", QuotaUsed: {}, QuotaThreshold: {}, QuotaLimit: {}, ", entry.QuotaUsed, entry.QuotaThreshold, entry.QuotaLimit);

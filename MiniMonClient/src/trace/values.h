@@ -18,7 +18,9 @@ namespace mimo {
 
             std::wstring RenderTopLevelIrp(uint64_t topLevelIrp);
 
-            std::wstring RenderFileTime(int64_t fileTime);
+            std::wstring RenderOperationTime(int64_t operationTime);
+
+            std::wstring RenderTime(int64_t time);
 
             std::wstring RenderSid(std::span<const uint8_t> sidData);
 

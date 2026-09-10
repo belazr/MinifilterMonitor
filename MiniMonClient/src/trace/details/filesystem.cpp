@@ -390,7 +390,7 @@ namespace {
 
     std::wstring RenderUsnRecordPayload(const trace::kernel::USN_RECORD_V2& record, std::span<const uint8_t> nameData) {
 
-        return std::format(L"FileName: {}, Reason: {}, Usn: {}, TimeStamp: {}, FileReferenceNumber: 0x{:X}, ParentFileReferenceNumber: 0x{:X}", trace::details::payload::RenderName(nameData, record.FileNameLength), trace::names::RenderUsnReason(record.Reason), record.Usn, trace::values::RenderFileTime(record.TimeStamp), record.FileReferenceNumber, record.ParentFileReferenceNumber);
+        return std::format(L"FileName: {}, Reason: {}, Usn: {}, TimeStamp: {}, FileReferenceNumber: 0x{:X}, ParentFileReferenceNumber: 0x{:X}", trace::details::payload::RenderName(nameData, record.FileNameLength), trace::names::RenderUsnReason(record.Reason), record.Usn, trace::values::RenderTime(record.TimeStamp), record.FileReferenceNumber, record.ParentFileReferenceNumber);
     }
 
 

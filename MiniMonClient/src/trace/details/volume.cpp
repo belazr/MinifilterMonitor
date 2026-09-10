@@ -36,7 +36,7 @@ namespace {
         std::wstring result;
 
         if (payload.VolumeCreationTime) {
-            result += std::format(L"VolumeCreationTime: {}, ", trace::values::RenderFileTime(payload.VolumeCreationTime));
+            result += std::format(L"VolumeCreationTime: {}, ", trace::values::RenderTime(payload.VolumeCreationTime));
         }
 
         result += std::format(L"VolumeSerialNumber: {:04X}-{:04X}, SupportsObjects: {}", payload.VolumeSerialNumber >> 16, payload.VolumeSerialNumber & 0xFFFFu, trace::values::RenderBoolean(payload.SupportsObjects));
