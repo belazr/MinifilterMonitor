@@ -92,6 +92,12 @@ namespace mimo {
             }
 
 
+            std::wstring RenderFileId(uint64_t fileId) {
+
+                return std::format(L"0x{:X}", fileId);
+            }
+
+
             std::wstring RenderFileId(std::span<const uint8_t, 16u> fileId) {
                 uint64_t low;
                 uint64_t high;
@@ -99,7 +105,7 @@ namespace mimo {
                 std::memcpy(&low, fileId.data(), sizeof(low));
                 std::memcpy(&high, fileId.data() + sizeof(low), sizeof(high));
 
-                if (!high) return std::format(L"0x{:X}", low);
+                if (!high) return RenderFileId(low);
 
                 return std::format(L"0x{:X}{:016X}", high, low);
             }

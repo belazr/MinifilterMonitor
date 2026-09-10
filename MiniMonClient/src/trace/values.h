@@ -18,6 +18,8 @@ namespace mimo {
 
             std::wstring RenderTopLevelIrp(uint64_t topLevelIrp);
 
+            std::wstring RenderFileId(uint64_t fileId);
+
             std::wstring RenderFileId(std::span<const uint8_t, 16u> fileId);
 
             std::wstring RenderGuid(std::span<const uint8_t, 16u> guid);

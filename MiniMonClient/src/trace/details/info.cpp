@@ -92,7 +92,7 @@ namespace {
 
     std::wstring RenderInternalPayload(const trace::kernel::FILE_INTERNAL_INFORMATION& payload) {
 
-        return std::format(L"IndexNumber: 0x{:X}", static_cast<uint64_t>(payload.IndexNumber));
+        return std::format(L"IndexNumber: {}", trace::values::RenderFileId(static_cast<uint64_t>(payload.IndexNumber)));
     }
 
 
@@ -235,7 +235,7 @@ namespace {
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L"ParentFileId: 0x{:X}, FileName: {}, ", static_cast<uint64_t>(entry.ParentFileId), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
+            result += std::format(L"ParentFileId: {}, FileName: {}, ", trace::values::RenderFileId(static_cast<uint64_t>(entry.ParentFileId)), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
 
             if (!entry.NextEntryOffset) {
                 terminated = true;
@@ -276,7 +276,7 @@ namespace {
 
 
     std::wstring RenderStatPayload(const trace::kernel::FILE_STAT_INFORMATION& payload) {
-        std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<uint64_t>(payload.FileId));
+        std::wstring result = std::format(L"FileId: {}", trace::values::RenderFileId(static_cast<uint64_t>(payload.FileId)));
 
         if (payload.CreationTime) {
             result += std::format(L", CreationTime: {}", RenderFileTime(payload.CreationTime));
@@ -347,7 +347,7 @@ namespace {
 
 
     std::wstring RenderStatBasicPayload(const trace::kernel::FILE_STAT_BASIC_INFORMATION& payload) {
-        std::wstring result = std::format(L"FileId: 0x{:X}", static_cast<uint64_t>(payload.FileId));
+        std::wstring result = std::format(L"FileId: {}", trace::values::RenderFileId(static_cast<uint64_t>(payload.FileId)));
 
         if (payload.CreationTime) {
             result += std::format(L", CreationTime: {}", RenderFileTime(payload.CreationTime));
