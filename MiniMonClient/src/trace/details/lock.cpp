@@ -5,6 +5,7 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
+#include <cstdint>
 #include <format>
 #include <string>
 
@@ -16,13 +17,13 @@ namespace {
 
         if (!(supplement.captured & protocol::LOCK_CONTROL_CAPTURED_LENGTH)) return {};
 
-        return std::format(L"Length: {}", supplement.length);
+        return std::format(L"Length: {}", static_cast<uint64_t>(supplement.length));
     }
 
 
     std::wstring RenderLockRange(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
-        std::wstring details = std::format(L"Offset: {}", parameters.lockControl.byteOffset);
+        std::wstring details = std::format(L"Offset: {}", static_cast<uint64_t>(parameters.lockControl.byteOffset));
 
         const std::wstring lengthText = RenderLength(data.supplement.lockControl);
 
