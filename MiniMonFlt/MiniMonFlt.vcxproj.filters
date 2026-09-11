@@ -96,6 +96,9 @@
     <ClCompile Include="src\trace\supplement\volume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\trace\supplement\wmi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\transaction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -174,6 +177,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\supplement\volume.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\supplement\wmi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\transaction.h">

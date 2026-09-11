@@ -186,6 +186,11 @@ MIRROR_ASSERT(querySecurity.mdlAddress,          QuerySecurity.MdlAddress);
 MIRROR_ASSERT(setSecurity.securityInformation, SetSecurity.SecurityInformation);
 MIRROR_ASSERT(setSecurity.securityDescriptor,  SetSecurity.SecurityDescriptor);
 
+MIRROR_ASSERT(wmi.providerId, WMI.ProviderId);
+MIRROR_ASSERT(wmi.dataPath,   WMI.DataPath);
+MIRROR_ASSERT(wmi.bufferSize, WMI.BufferSize);
+MIRROR_ASSERT(wmi.buffer,     WMI.Buffer);
+
 MIRROR_ASSERT(queryQuota.length,        QueryQuota.Length);
 MIRROR_ASSERT(queryQuota.startSid,      QueryQuota.StartSid);
 MIRROR_ASSERT(queryQuota.sidList,       QueryQuota.SidList);

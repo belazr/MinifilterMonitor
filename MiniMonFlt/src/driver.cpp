@@ -79,6 +79,7 @@ namespace {
 
         // device and system events
         { IRP_MJ_PNP, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
+        { IRP_MJ_SYSTEM_CONTROL, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
         // FltMgr issues no post phase for SHUTDOWN
         { IRP_MJ_SHUTDOWN, 0, dispatch::PreOperationCallback, nullptr },
 

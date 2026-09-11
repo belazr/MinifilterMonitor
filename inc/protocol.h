@@ -201,6 +201,15 @@ namespace mimo {
                 uint64_t securityDescriptor;
             } setSecurity;
 
+            // IRP_MJ_SYSTEM_CONTROL
+            struct {
+                uint64_t providerId;
+                uint64_t dataPath;
+                uint32_t bufferSize;
+                uint8_t reserved1[4u];
+                uint64_t buffer;
+            } wmi;
+
             // IRP_MJ_QUERY_QUOTA
             struct {
                 uint32_t length;
@@ -353,6 +362,9 @@ namespace mimo {
         static_assert(offsetof(FltParameters, querySecurity.securityBuffer) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, querySecurity.mdlAddress) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setSecurity.securityDescriptor) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, wmi.dataPath) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, wmi.bufferSize) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, wmi.buffer) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, queryQuota.startSid) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, queryQuota.sidList) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, queryQuota.sidListLength) == 24u, "protocol::FltParameters layout drift");
@@ -601,6 +613,20 @@ namespace mimo {
 
         static_assert(offsetof(SecuritySupplement, payload) == 8u, "protocol::SecuritySupplement layout drift");
 
+        // IRP_MJ_SYSTEM_CONTROL
+
+        // capture bit for WmiSupplement::captured
+        inline constexpr uint32_t WMI_CAPTURED_GUID = 0x00000001u;
+
+        struct WmiSupplement {
+            uint32_t captured;
+            uint8_t guid[16u];    // the data block GUID DataPath addresses, absent for the REGINFO minors
+        };
+
+        static_assert(offsetof(WmiSupplement, guid) == 4u, "protocol::WmiSupplement layout drift");
+        static_assert(sizeof(WmiSupplement) == 20u, "protocol::WmiSupplement layout drift");
+        static_assert(sizeof(WmiSupplement) <= SUPPLEMENT_SIZE, "protocol::WmiSupplement exceeds the supplement union");
+
         // IRP_MJ_QUERY_QUOTA
 
         // capture bits for QueryQuotaSupplement::captured
@@ -682,6 +708,7 @@ namespace mimo {
             DeviceIoControlSupplement deviceIoControl;
             LockControlSupplement lockControl;
             SecuritySupplement security;
+            WmiSupplement wmi;
             QueryQuotaSupplement queryQuota;
             SetQuotaSupplement setQuota;
             ModWriteSupplement modWrite;

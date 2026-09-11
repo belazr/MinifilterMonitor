@@ -39,6 +39,7 @@
     <ClCompile Include="src\trace\details\section.cpp" />
     <ClCompile Include="src\trace\details\security.cpp" />
     <ClCompile Include="src\trace\details\volume.cpp" />
+    <ClCompile Include="src\trace\details\wmi.cpp" />
     <ClCompile Include="src\trace\format.cpp" />
     <ClCompile Include="src\trace\names.cpp" />
     <ClCompile Include="src\trace\values.cpp" />
@@ -68,6 +69,7 @@
     <ClInclude Include="src\trace\details\section.h" />
     <ClInclude Include="src\trace\details\security.h" />
     <ClInclude Include="src\trace\details\volume.h" />
+    <ClInclude Include="src\trace\details\wmi.h" />
     <ClInclude Include="src\trace\format.h" />
     <ClInclude Include="src\trace\kernel.h" />
     <ClInclude Include="src\trace\names.h" />

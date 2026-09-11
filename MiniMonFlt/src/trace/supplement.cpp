@@ -12,6 +12,7 @@
 #include "supplement\quota.h"
 #include "supplement\security.h"
 #include "supplement\volume.h"
+#include "supplement\wmi.h"
 
 #include "..\..\..\inc\protocol.h"
 
@@ -109,6 +110,14 @@ namespace mimo {
 
                         if (pData->Iopb->Parameters.SetSecurity.SecurityDescriptor) {
                             security::PopulateSet(&pSupplement->security, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_SYSTEM_CONTROL:
+
+                        if (pData->Iopb->MinorFunction != IRP_MN_REGINFO && pData->Iopb->MinorFunction != IRP_MN_REGINFO_EX && pData->Iopb->Parameters.WMI.DataPath) {
+                            wmi::Populate(&pSupplement->wmi, pData);
                         }
 
                         break;

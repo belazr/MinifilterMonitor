@@ -15,6 +15,7 @@
 #include "details\section.h"
 #include "details\security.h"
 #include "details\volume.h"
+#include "details\wmi.h"
 
 #include "kernel.h"
 
@@ -88,6 +89,10 @@ namespace mimo {
                     case kernel::IRP_MJ_SET_SECURITY:
 
                         return security::RenderSet(data);
+
+                    case kernel::IRP_MJ_SYSTEM_CONTROL:
+
+                        return wmi::Render(data);
 
                     case kernel::IRP_MJ_QUERY_QUOTA:
 
