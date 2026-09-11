@@ -206,6 +206,11 @@ MIRROR_ASSERT(acquireForSectionSynchronization.allocationAttributes, AcquireForS
 MIRROR_ASSERT(acquireForModifiedPageWriter.endingOffset,      AcquireForModifiedPageWriter.EndingOffset);
 MIRROR_ASSERT(acquireForModifiedPageWriter.resourceToRelease, AcquireForModifiedPageWriter.ResourceToRelease);
 
+MIRROR_ASSERT(queryOpen.irp,                  QueryOpen.Irp);
+MIRROR_ASSERT(queryOpen.fileInformation,      QueryOpen.FileInformation);
+MIRROR_ASSERT(queryOpen.length,               QueryOpen.Length);
+MIRROR_ASSERT(queryOpen.fileInformationClass, QueryOpen.FileInformationClass);
+
 MIRROR_ASSERT(fastIoCheckIfPossible.fileOffset,            FastIoCheckIfPossible.FileOffset);
 MIRROR_ASSERT(fastIoCheckIfPossible.length,                FastIoCheckIfPossible.Length);
 MIRROR_ASSERT(fastIoCheckIfPossible.lockKey,               FastIoCheckIfPossible.LockKey);

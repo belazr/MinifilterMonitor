@@ -135,6 +135,35 @@ namespace mimo {
 
                 __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
+                void PopulateQueryOpen(protocol::QueryInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
+                    PAGED_CODE();
+
+                    const void* const pFileInformation = pData->Iopb->Parameters.QueryOpen.FileInformation;
+                    const ULONG* const pLength = pData->Iopb->Parameters.QueryOpen.Length;
+
+                    if (!pFileInformation || !pLength) return;
+
+                    const ULONG bufferSize = *pLength;
+
+                    if (!bufferSize) return;
+
+                    const ULONG copySize = bufferSize < protocol::QUERY_INFO_PAYLOAD_SIZE ? bufferSize : protocol::QUERY_INFO_PAYLOAD_SIZE;
+
+                    RtlCopyMemory(pSupplement->payload, pFileInformation, copySize);
+
+                    if (copySize < bufferSize) {
+                        pSupplement->captured |= protocol::QUERY_INFO_TRUNCATED_PAYLOAD;
+                    }
+
+                    pSupplement->capturedSize = static_cast<uint32_t>(copySize);
+                    pSupplement->captured |= protocol::QUERY_INFO_CAPTURED_PAYLOAD;
+
+                    return;
+                }
+
+
+                __declspec(code_seg("PAGE"))
+                _Use_decl_annotations_
                 void PopulateNetworkQueryOpen(protocol::QueryInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 

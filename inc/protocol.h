@@ -236,6 +236,14 @@ namespace mimo {
                 uint64_t resourceToRelease;
             } acquireForModifiedPageWriter;
 
+            // IRP_MJ_QUERY_OPEN
+            struct {
+                uint64_t irp;
+                uint64_t fileInformation;
+                uint64_t length;
+                uint32_t fileInformationClass;
+            } queryOpen;
+
             // IRP_MJ_FAST_IO_CHECK_IF_POSSIBLE
             struct {
                 int64_t fileOffset;
@@ -357,6 +365,9 @@ namespace mimo {
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.flags) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.allocationAttributes) == 20u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForModifiedPageWriter.resourceToRelease) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryOpen.fileInformation) == 8u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryOpen.length) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, queryOpen.fileInformationClass) == 24u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, fastIoCheckIfPossible.length) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, fastIoCheckIfPossible.lockKey) == 16u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, fastIoCheckIfPossible.checkForReadOperation) == 24u, "protocol::FltParameters layout drift");
@@ -402,7 +413,7 @@ namespace mimo {
         static_assert(offsetof(CreateSupplement, impersonatedSid) == 8u, "protocol::CreateSupplement layout drift");
         static_assert(offsetof(CreateSupplement, ecpText) == 8u + CREATE_SID_SIZE, "protocol::CreateSupplement layout drift");
 
-        // IRP_MJ_QUERY_INFORMATION / IRP_MJ_NETWORK_QUERY_OPEN
+        // IRP_MJ_QUERY_INFORMATION / IRP_MJ_QUERY_OPEN / IRP_MJ_NETWORK_QUERY_OPEN
 
         // capture bits for QueryInfoSupplement::captured
         inline constexpr uint32_t QUERY_INFO_CAPTURED_PAYLOAD  = 0x00000001u;

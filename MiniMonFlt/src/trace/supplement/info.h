@@ -23,6 +23,9 @@ namespace mimo {
                 void PopulateQuery(_Inout_ protocol::QueryInfoSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData);
 
                 __declspec(code_seg("PAGE"))
+                void PopulateQueryOpen(_Inout_ protocol::QueryInfoSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData);
+
+                __declspec(code_seg("PAGE"))
                 void PopulateNetworkQueryOpen(_Inout_ protocol::QueryInfoSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData);
 
             }

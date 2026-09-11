@@ -105,6 +105,10 @@ namespace mimo {
 
                         return modwrite::Render(data);
 
+                    case kernel::IRP_MJ_QUERY_OPEN:
+
+                        return info::RenderQueryOpen(data);
+
                     case kernel::IRP_MJ_FAST_IO_CHECK_IF_POSSIBLE:
 
                         return fastiocheck::Render(data);

@@ -38,6 +38,7 @@ namespace {
         { IRP_MJ_SET_INFORMATION, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
         { IRP_MJ_QUERY_EA, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
         { IRP_MJ_SET_EA, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
+        { IRP_MJ_QUERY_OPEN, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
         { IRP_MJ_NETWORK_QUERY_OPEN, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
 
         // security and quota

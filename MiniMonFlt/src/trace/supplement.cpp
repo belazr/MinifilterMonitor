@@ -157,8 +157,6 @@ namespace mimo {
 
                 if (!NT_SUCCESS(status) && status != STATUS_BUFFER_OVERFLOW) return;
 
-                if (!pData->IoStatus.Information) return;
-
                 if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                 switch (pData->Iopb->MajorFunction) {
@@ -224,6 +222,14 @@ namespace mimo {
 
                         if (pData->Iopb->Parameters.QueryQuota.Length) {
                             quota::PopulateQuery(&pSupplement->queryQuota, pData);
+                        }
+
+                        break;
+
+                    case IRP_MJ_QUERY_OPEN:
+
+                        if (pData->Iopb->Parameters.QueryOpen.FileInformation) {
+                            info::PopulateQueryOpen(&pSupplement->queryInfo, pData);
                         }
 
                         break;
