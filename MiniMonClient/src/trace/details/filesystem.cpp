@@ -380,9 +380,31 @@ namespace {
     }
 
 
-    std::wstring RenderUsnRecordPayload(const trace::kernel::USN_RECORD_V2& record, std::span<const uint8_t> nameData) {
+    std::wstring RenderUsnRecordPayload(std::span<const uint8_t> payload) {
+        constexpr size_t HEADER_SIZE = offsetof(trace::kernel::USN_RECORD_V2, FileName);
+        trace::kernel::USN_RECORD_V2 record;
 
-        return std::format(L"FileName: {}, Reason: {}, Usn: {}, TimeStamp: {}, FileReferenceNumber: {}, ParentFileReferenceNumber: {}", trace::details::payload::RenderName(nameData, record.FileNameLength), trace::names::RenderUsnReason(record.Reason), record.Usn, trace::values::RenderTime(record.TimeStamp), trace::values::RenderFileId(record.FileReferenceNumber), trace::values::RenderFileId(record.ParentFileReferenceNumber));
+        if (!trace::details::payload::ReadHeader(payload, record, HEADER_SIZE)) return {};
+
+        if (record.MajorVersion != 2u) return std::format(L"MajorVersion: {}", record.MajorVersion);
+
+        const size_t nameStart = record.FileNameOffset < payload.size() ? record.FileNameOffset : payload.size();
+        std::wstring result = std::format(L"FileName: {}", trace::details::payload::RenderName(payload.subspan(nameStart), record.FileNameLength));
+        const std::wstring reason = trace::names::RenderUsnReason(record.Reason);
+
+        if (!reason.empty()) {
+            result += std::format(L", Reason: {}", reason);
+        }
+
+        result += std::format(L", Usn: {}", record.Usn);
+
+        if (record.TimeStamp) {
+            result += std::format(L", TimeStamp: {}", trace::values::RenderTime(record.TimeStamp));
+        }
+
+        result += std::format(L", FileReferenceNumber: {}, ParentFileReferenceNumber: {}", trace::values::RenderFileId(record.FileReferenceNumber), trace::values::RenderFileId(record.ParentFileReferenceNumber));
+
+        return result;
     }
 
 
@@ -403,14 +425,7 @@ namespace {
 
             if (record.RecordLength < HEADER_SIZE) break;
 
-            if (record.MajorVersion == 2u) {
-                const size_t nameStart = offset + record.FileNameOffset < payload.size() ? offset + record.FileNameOffset : payload.size();
-                result += std::format(L"{}: {}, ", index, RenderUsnRecordPayload(record, payload.subspan(nameStart)));
-            }
-            else {
-                result += std::format(L"{}: MajorVersion: {}, ", index, record.MajorVersion);
-            }
-
+            result += std::format(L"{}: {}, ", index, RenderUsnRecordPayload(payload.subspan(offset)));
             offset += record.RecordLength;
             index++;
         }
@@ -542,6 +557,10 @@ namespace {
             case FSCTL_QUERY_ALLOCATED_RANGES:
 
                 return RenderAllocatedRangesPayload(output, truncated);
+
+            case FSCTL_READ_FILE_USN_DATA:
+
+                return RenderUsnRecordPayload(output);
 
             case FSCTL_QUERY_USN_JOURNAL: {
                 trace::kernel::USN_JOURNAL_DATA_V0 journalData;
