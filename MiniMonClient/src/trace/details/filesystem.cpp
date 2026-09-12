@@ -245,6 +245,7 @@ namespace {
 
     std::wstring RenderInput(const protocol::FltParameters& parameters, const protocol::FsControlSupplement& supplement) {
         const std::span<const uint8_t> input = ExtractInput(supplement);
+        const bool truncated = supplement.captured & protocol::FS_CONTROL_TRUNCATED_INPUT;
 
         switch (parameters.fileSystemControl.fsControlCode) {
 
@@ -345,6 +346,12 @@ namespace {
 
                 break;
             }
+
+            default:
+
+                if (!input.empty()) return std::format(L"InputBuffer: {}", trace::values::RenderBytes(input, truncated));
+
+                break;
 
         }
 
@@ -563,6 +570,12 @@ namespace {
 
                 break;
             }
+
+            default:
+
+                if (!output.empty()) return std::format(L"OutputBuffer: {}", trace::values::RenderBytes(output, truncated));
+
+                break;
 
         }
 

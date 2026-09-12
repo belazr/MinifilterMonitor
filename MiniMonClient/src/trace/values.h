@@ -30,6 +30,8 @@ namespace mimo {
 
             std::wstring RenderSid(std::span<const uint8_t> sidData);
 
+            std::wstring RenderBytes(std::span<const uint8_t> bytes, bool truncated);
+
         }
 
     }

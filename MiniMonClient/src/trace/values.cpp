@@ -2,6 +2,8 @@
 
 #include "kernel.h"
 
+#include "..\text.h"
+
 #include <Windows.h>
 #include <sddl.h>
 
@@ -180,6 +182,19 @@ namespace mimo {
                 }
 
                 return it->second;
+            }
+
+
+            std::wstring RenderBytes(std::span<const uint8_t> bytes, bool truncated) {
+                constexpr size_t PREVIEW_SIZE = 32u;
+                const size_t copySize = bytes.size() < PREVIEW_SIZE ? bytes.size() : PREVIEW_SIZE;
+                std::wstring result;
+
+                for (const uint8_t byte : bytes.first(copySize)) {
+                    result += std::format(L"{:02X}", byte);
+                }
+
+                return text::MarkTruncated(result, truncated || copySize < bytes.size());
             }
 
         }

@@ -4,6 +4,7 @@
 
 #include "..\kernel.h"
 #include "..\names.h"
+#include "..\values.h"
 
 #include "..\..\text.h"
 
@@ -38,6 +39,7 @@ namespace {
 
     std::wstring RenderInput(uint32_t ioControlCode, const protocol::DeviceIoControlSupplement& supplement) {
         const std::span<const uint8_t> input = ExtractInput(supplement);
+        const bool truncated = supplement.captured & protocol::DEVICE_IO_CONTROL_TRUNCATED_INPUT;
 
         switch (ioControlCode) {
 
@@ -49,6 +51,12 @@ namespace {
 
                 break;
             }
+
+            default:
+
+                if (!input.empty()) return std::format(L"InputBuffer: {}", trace::values::RenderBytes(input, truncated));
+
+                break;
 
         }
 
@@ -126,6 +134,7 @@ namespace {
 
     std::wstring RenderOutput(uint32_t ioControlCode, const protocol::DeviceIoControlSupplement& supplement) {
         const std::span<const uint8_t> output = ExtractOutput(supplement);
+        const bool truncated = supplement.captured & protocol::DEVICE_IO_CONTROL_TRUNCATED_OUTPUT;
 
         switch (ioControlCode) {
 
@@ -173,6 +182,12 @@ namespace {
             case IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS:
 
                 return RenderDiskExtentsPayload(output);
+
+            default:
+
+                if (!output.empty()) return std::format(L"OutputBuffer: {}", trace::values::RenderBytes(output, truncated));
+
+                break;
 
         }
 

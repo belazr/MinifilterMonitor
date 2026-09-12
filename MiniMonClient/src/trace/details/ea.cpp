@@ -4,6 +4,7 @@
 
 #include "..\kernel.h"
 #include "..\names.h"
+#include "..\values.h"
 
 #include "..\..\text.h"
 
@@ -83,16 +84,9 @@ namespace {
 
 
     std::wstring RenderEaValue(std::span<const uint8_t> valueData, uint16_t valueSize) {
-        constexpr size_t PREVIEW_SIZE = 32u;
         const size_t dataSize = valueSize < valueData.size() ? valueSize : valueData.size();
-        const size_t copySize = dataSize < PREVIEW_SIZE ? dataSize : PREVIEW_SIZE;
-        std::wstring result;
 
-        for (const uint8_t byte : valueData.first(copySize)) {
-            result += std::format(L"{:02X}", byte);
-        }
-
-        return text::MarkTruncated(result, copySize < valueSize);
+        return trace::values::RenderBytes(valueData.first(dataSize), dataSize < valueSize);
     }
 
 
