@@ -755,7 +755,8 @@ namespace mimo {
             uint8_t operationFlags;         // IRP stack-location SL_* flags
             uint8_t truncated;              // TRUNCATED_* bits
             uint8_t requestorMode;          // KPROCESSOR_MODE
-            uint8_t reserved[3u];
+            uint8_t ioPriorityHint;         // IO_PRIORITY_HINT
+            uint8_t reserved[2u];
             uint32_t transactionNotify;     // raw TRANSACTION_NOTIFY_* code, non-zero marks a transaction lifecycle event, not an operation
             uint32_t transactionSequence;   // our per-transaction id, 0 if the operation is not transacted
             FltParameters parameters;

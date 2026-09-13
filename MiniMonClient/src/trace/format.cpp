@@ -20,7 +20,7 @@ namespace {
 
     enum Column {
         SEQ_NUM, ALTITUDE, OPERATION_ID, TOP_LEVEL_IRP,
-        PRE_OP_TIME, POST_OP_TIME, PROCESS_ID, THREAD_ID, REQUESTOR_MODE, OPR, MAJOR, MINOR, NAME, STATUS, INFORMATION,
+        PRE_OP_TIME, POST_OP_TIME, PROCESS_ID, THREAD_ID, REQUESTOR_MODE, IO_PRIORITY_HINT, OPR, MAJOR, MINOR, NAME, STATUS, INFORMATION,
         DETAILS, IRP_FLAGS, DEV_OBJ, FILE_OBJ, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, REPARSE_TAG,
         TRANSACTION, TRANSACTION_SEQ, TRANSACTION_NOTIFY,
         STACK_TRACE, COLUMN_COUNT
@@ -38,6 +38,7 @@ namespace {
         labels[PROCESS_ID]         = L"ProcessId";
         labels[THREAD_ID]          = L"ThreadId";
         labels[REQUESTOR_MODE]     = L"RequestorMode";
+        labels[IO_PRIORITY_HINT]   = L"IoPriorityHint";
         labels[OPR]                = L"Opr";
         labels[MAJOR]              = L"Major";
         labels[MINOR]              = L"Minor";
@@ -174,26 +175,27 @@ namespace mimo {
                     columns[TRANSACTION_NOTIFY] = names::RenderTransactionNotify(data.transactionNotify);
                 }
                 else {
-                    columns[REQUESTOR_MODE] = names::RenderRequestorMode(data.requestorMode);
-                    columns[OPR]            = names::RenderOperationCategory(data.flags);
-                    columns[OPERATION_ID]   = std::format(L"{:016X}", data.operationId);
-                    columns[TOP_LEVEL_IRP]  = values::RenderTopLevelIrp(data.topLevelIrp);
-                    columns[POST_OP_TIME]   = values::RenderOperationTime(data.completionTime);
-                    columns[MAJOR]          = names::RenderMajorFunction(data.callbackMajorId);
-                    columns[MINOR]          = names::RenderMinorFunction(data.callbackMajorId, data.callbackMinorId);
-                    columns[NAME]           = EscapeCsvField(text::MarkTruncated(text::Extract(data.name), data.truncated & protocol::TRUNCATED_NAME));
-                    columns[STATUS]         = std::format(L"{:08X}", static_cast<uint32_t>(data.status));
-                    columns[INFORMATION]    = std::format(L"{:016X}", data.information);
-                    columns[DETAILS]        = EscapeCsvField(details::Render(data));
-                    columns[IRP_FLAGS]      = std::format(L"{:08X}", data.irpFlags);
-                    columns[FILE_OBJ]       = values::RenderObjectId(data.fileObject);
-                    columns[ARG1]           = std::format(L"{:016X}", data.parameters.others.argument1);
-                    columns[ARG2]           = std::format(L"{:016X}", data.parameters.others.argument2);
-                    columns[ARG3]           = std::format(L"{:016X}", data.parameters.others.argument3);
-                    columns[ARG4]           = std::format(L"{:016X}", data.parameters.others.argument4);
-                    columns[ARG5]           = std::format(L"{:016X}", data.parameters.others.argument5);
-                    columns[ARG6]           = std::format(L"{:016X}", static_cast<uint64_t>(data.parameters.others.argument6));
-                    columns[REPARSE_TAG]    = names::RenderReparseTag(data.reparseTag);
+                    columns[REQUESTOR_MODE]   = names::RenderRequestorMode(data.requestorMode);
+                    columns[IO_PRIORITY_HINT] = names::RenderIoPriorityHint(data.ioPriorityHint);
+                    columns[OPR]              = names::RenderOperationCategory(data.flags);
+                    columns[OPERATION_ID]     = std::format(L"{:016X}", data.operationId);
+                    columns[TOP_LEVEL_IRP]    = values::RenderTopLevelIrp(data.topLevelIrp);
+                    columns[POST_OP_TIME]     = values::RenderOperationTime(data.completionTime);
+                    columns[MAJOR]            = names::RenderMajorFunction(data.callbackMajorId);
+                    columns[MINOR]            = names::RenderMinorFunction(data.callbackMajorId, data.callbackMinorId);
+                    columns[NAME]             = EscapeCsvField(text::MarkTruncated(text::Extract(data.name), data.truncated & protocol::TRUNCATED_NAME));
+                    columns[STATUS]           = std::format(L"{:08X}", static_cast<uint32_t>(data.status));
+                    columns[INFORMATION]      = std::format(L"{:016X}", data.information);
+                    columns[DETAILS]          = EscapeCsvField(details::Render(data));
+                    columns[IRP_FLAGS]        = std::format(L"{:08X}", data.irpFlags);
+                    columns[FILE_OBJ]         = values::RenderObjectId(data.fileObject);
+                    columns[ARG1]             = std::format(L"{:016X}", data.parameters.others.argument1);
+                    columns[ARG2]             = std::format(L"{:016X}", data.parameters.others.argument2);
+                    columns[ARG3]             = std::format(L"{:016X}", data.parameters.others.argument3);
+                    columns[ARG4]             = std::format(L"{:016X}", data.parameters.others.argument4);
+                    columns[ARG5]             = std::format(L"{:016X}", data.parameters.others.argument5);
+                    columns[ARG6]             = std::format(L"{:016X}", static_cast<uint64_t>(data.parameters.others.argument6));
+                    columns[REPARSE_TAG]      = names::RenderReparseTag(data.reparseTag);
                 }
 
                 std::wstring line;

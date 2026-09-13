@@ -11,6 +11,8 @@ namespace mimo {
 
             std::wstring RenderRequestorMode(uint8_t mode);
 
+            std::wstring RenderIoPriorityHint(uint8_t hint);
+
             std::wstring RenderOperationCategory(uint32_t flags);
 
             std::wstring RenderMajorFunction(uint8_t major);

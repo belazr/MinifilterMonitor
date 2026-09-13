@@ -51,6 +51,13 @@ namespace mimo {
             inline constexpr uint8_t KernelMode = 0u;
             inline constexpr uint8_t UserMode   = 1u;
 
+            // IO_PRIORITY_HINT values carried in RecordData::ioPriorityHint
+            inline constexpr uint8_t IoPriorityVeryLow  = 0u;
+            inline constexpr uint8_t IoPriorityLow      = 1u;
+            inline constexpr uint8_t IoPriorityNormal   = 2u;
+            inline constexpr uint8_t IoPriorityHigh     = 3u;
+            inline constexpr uint8_t IoPriorityCritical = 4u;
+
             // standard IRP major codes
             inline constexpr uint8_t IRP_MJ_CREATE                   = 0x00u;
             inline constexpr uint8_t IRP_MJ_CREATE_NAMED_PIPE        = 0x01u;

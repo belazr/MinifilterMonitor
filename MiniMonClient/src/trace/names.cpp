@@ -418,6 +418,20 @@ namespace mimo {
             }
 
 
+            std::wstring RenderIoPriorityHint(uint8_t hint) {
+
+                switch (hint) {
+                    case kernel::IoPriorityVeryLow:  return L"Very Low";
+                    case kernel::IoPriorityLow:      return L"Low";
+                    case kernel::IoPriorityNormal:   return L"Normal";
+                    case kernel::IoPriorityHigh:     return L"High";
+                    case kernel::IoPriorityCritical: return L"Critical";
+                }
+
+                return std::format(L"{:02X}", static_cast<uint32_t>(hint));
+            }
+
+
             std::wstring RenderOperationCategory(uint32_t flags) {
 
                 if (flags & kernel::FLT_CALLBACK_DATA_IRP_OPERATION)       return L"IRP";
