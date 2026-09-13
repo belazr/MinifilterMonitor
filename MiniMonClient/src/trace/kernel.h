@@ -1139,7 +1139,15 @@ namespace mimo {
             static_assert(sizeof(FILESYSTEM_STATISTICS_EX) == 104u, "trace::kernel::FILESYSTEM_STATISTICS_EX x64 layout drift");
             static_assert(offsetof(FILESYSTEM_STATISTICS_EX, UserFileReads) == 8u, "trace::kernel::FILESYSTEM_STATISTICS_EX x64 layout drift");
 
-            // IOCTL payload layouts
+            // IOCTL codes and payload layouts
+
+            inline constexpr uint32_t IOCTL_MOUNTDEV_QUERY_UNIQUE_ID           = 0x4D0000u;
+            inline constexpr uint32_t IOCTL_MOUNTDEV_QUERY_SUGGESTED_LINK_NAME = 0x4D000Cu;
+            inline constexpr uint32_t IOCTL_MOUNTDEV_LINK_CREATED              = 0x4DC010u;
+            inline constexpr uint32_t IOCTL_MOUNTDEV_LINK_DELETED              = 0x4DC014u;
+            inline constexpr uint32_t IOCTL_MOUNTDEV_QUERY_STABLE_GUID         = 0x4D0018u;
+            inline constexpr uint32_t IOCTL_MOUNTDEV_QUERY_INTERFACE_NAME      = 0x4D001Cu;
+            inline constexpr uint32_t IOCTL_MOUNTDEV_QUERY_DEVICE_NAME         = 0x4D0008u;
 
             struct DISK_GEOMETRY {
                 int64_t Cylinders;
