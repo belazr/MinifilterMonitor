@@ -407,6 +407,17 @@ namespace mimo {
 
         namespace names {
 
+            std::wstring RenderRequestorMode(uint8_t mode) {
+
+                switch (mode) {
+                    case kernel::KernelMode: return L"Kernel";
+                    case kernel::UserMode:   return L"User";
+                }
+
+                return std::format(L"{:02X}", static_cast<uint32_t>(mode));
+            }
+
+
             std::wstring RenderOperationCategory(uint32_t flags) {
 
                 if (flags & kernel::FLT_CALLBACK_DATA_IRP_OPERATION)       return L"IRP";

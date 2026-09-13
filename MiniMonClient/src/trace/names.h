@@ -9,6 +9,8 @@ namespace mimo {
 
         namespace names {
 
+            std::wstring RenderRequestorMode(uint8_t mode);
+
             std::wstring RenderOperationCategory(uint32_t flags);
 
             std::wstring RenderMajorFunction(uint8_t major);

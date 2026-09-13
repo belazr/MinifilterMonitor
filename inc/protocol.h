@@ -754,7 +754,8 @@ namespace mimo {
             uint8_t callbackMinorId;
             uint8_t operationFlags;         // IRP stack-location SL_* flags
             uint8_t truncated;              // TRUNCATED_* bits
-            uint8_t reserved[4u];
+            uint8_t requestorMode;          // KPROCESSOR_MODE
+            uint8_t reserved[3u];
             uint32_t transactionNotify;     // raw TRANSACTION_NOTIFY_* code, non-zero marks a transaction lifecycle event, not an operation
             uint32_t transactionSequence;   // our per-transaction id, 0 if the operation is not transacted
             FltParameters parameters;
@@ -767,6 +768,7 @@ namespace mimo {
 
         static_assert(sizeof(RecordData) == 2872u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, deviceObject) == 16u, "protocol::RecordData layout drift");
+        static_assert(offsetof(RecordData, requestorMode) == 100u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, transactionNotify) == 104u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, transactionSequence) == 108u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, parameters) == 112u, "protocol::RecordData layout drift");

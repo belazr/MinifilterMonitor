@@ -300,6 +300,7 @@ namespace mimo {
                 pRecordData->callbackMajorId = pData->Iopb->MajorFunction;
                 pRecordData->callbackMinorId = pData->Iopb->MinorFunction;
                 pRecordData->operationFlags  = pData->Iopb->OperationFlags;
+                pRecordData->requestorMode   = static_cast<uint8_t>(pData->RequestorMode);
                 pRecordData->irpFlags        = static_cast<uint32_t>(pData->Iopb->IrpFlags);
                 pRecordData->flags           = static_cast<uint32_t>(pData->Flags);
                 pRecordData->operationId     = reinterpret_cast<protocol::ObjectId>(pData);

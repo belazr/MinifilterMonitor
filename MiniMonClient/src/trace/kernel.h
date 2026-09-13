@@ -47,6 +47,10 @@ namespace mimo {
             inline constexpr uint8_t SL_FAIL_IMMEDIATELY = 0x01u;
             inline constexpr uint8_t SL_EXCLUSIVE_LOCK   = 0x02u;
 
+            // KPROCESSOR_MODE values carried in RecordData::requestorMode
+            inline constexpr uint8_t KernelMode = 0u;
+            inline constexpr uint8_t UserMode   = 1u;
+
             // standard IRP major codes
             inline constexpr uint8_t IRP_MJ_CREATE                   = 0x00u;
             inline constexpr uint8_t IRP_MJ_CREATE_NAMED_PIPE        = 0x01u;
