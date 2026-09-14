@@ -168,6 +168,9 @@ namespace mimo {
 
                 if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
+                // late system buffer, parameter buffers stale
+                if (pData->Flags & FLTFL_CALLBACK_DATA_NEW_SYSTEM_BUFFER) return;
+
                 switch (pData->Iopb->MajorFunction) {
 
                     case IRP_MJ_QUERY_INFORMATION:
