@@ -18,6 +18,7 @@
 #include <format>
 #include <span>
 #include <string>
+#include <string_view>
 
 using namespace mimo;
 
@@ -37,6 +38,16 @@ namespace {
     }
 
 
+    std::wstring RenderDeviceNamePayload(std::span<const uint8_t> payload) {
+        constexpr size_t NAME_OFFSET = offsetof(trace::kernel::MOUNTDEV_NAME, Name);
+        trace::kernel::MOUNTDEV_NAME deviceName;
+
+        if (!trace::details::payload::ReadHeader(payload, deviceName, NAME_OFFSET)) return {};
+
+        return std::format(L"Name: {}", trace::details::payload::RenderName(payload.subspan(NAME_OFFSET), deviceName.NameLength));
+    }
+
+
     std::wstring RenderInput(uint32_t ioControlCode, const protocol::DeviceIoControlSupplement& supplement) {
         const std::span<const uint8_t> input = ExtractInput(supplement);
         const bool truncated = supplement.captured & protocol::DEVICE_IO_CONTROL_TRUNCATED_INPUT;
@@ -51,6 +62,11 @@ namespace {
 
                 break;
             }
+
+            case trace::kernel::IOCTL_MOUNTDEV_LINK_CREATED:
+            case trace::kernel::IOCTL_MOUNTDEV_LINK_DELETED:
+
+                return RenderDeviceNamePayload(input);
 
             default:
 
@@ -87,6 +103,63 @@ namespace {
     std::wstring RenderLengthPayload(const trace::kernel::GET_LENGTH_INFORMATION& payload) {
 
         return std::format(L"Length: {}", payload.Length);
+    }
+
+
+    std::wstring RenderMbr(const trace::kernel::PARTITION_INFORMATION_MBR& payload) {
+
+        return std::format(L"PartitionType: 0x{:X}, BootIndicator: {}, RecognizedPartition: {}, HiddenSectors: {}, PartitionId: {}", payload.PartitionType, trace::values::RenderBoolean(payload.BootIndicator), trace::values::RenderBoolean(payload.RecognizedPartition), payload.HiddenSectors, trace::values::RenderGuid(payload.PartitionId));
+    }
+
+
+    std::wstring RenderGpt(const trace::kernel::PARTITION_INFORMATION_GPT& payload) {
+        std::wstring result = std::format(L"PartitionType: {}, PartitionId: {}, Attributes: 0x{:X}", trace::values::RenderGuid(payload.PartitionType), trace::values::RenderGuid(payload.PartitionId), payload.Attributes);
+        const std::wstring_view name = text::Extract(payload.Name);
+
+        if (!name.empty()) {
+            result += std::format(L", Name: {}", name);
+        }
+
+        return result;
+    }
+
+
+    std::wstring RenderPartitionExPayload(const trace::kernel::PARTITION_INFORMATION_EX& payload) {
+        std::wstring result = std::format(L"PartitionStyle: {}", trace::names::RenderPartitionStyle(payload.PartitionStyle));
+
+        if (payload.PartitionOrdinal) {
+            result += std::format(L", PartitionOrdinal: {}", payload.PartitionOrdinal);
+        }
+
+        result += std::format(L", StartingOffset: {}, PartitionLength: {}, PartitionNumber: {}, RewritePartition: {}, IsServicePartition: {}", payload.StartingOffset, payload.PartitionLength, payload.PartitionNumber, trace::values::RenderBoolean(payload.RewritePartition), trace::values::RenderBoolean(payload.IsServicePartition));
+        std::wstring styleText;
+
+        switch (payload.PartitionStyle) {
+
+            case PARTITION_STYLE_MBR:
+                styleText = RenderMbr(payload.Mbr);
+
+                break;
+
+            case PARTITION_STYLE_GPT:
+                styleText = RenderGpt(payload.Gpt);
+
+                break;
+
+        }
+
+        if (!styleText.empty()) {
+            result += L", ";
+            result += styleText;
+        }
+
+        return result;
+    }
+
+
+    std::wstring RenderHotplugPayload(const trace::kernel::STORAGE_HOTPLUG_INFO& payload) {
+
+        return std::format(L"Size: {}, MediaRemovable: {}, MediaHotplug: {}, DeviceHotplug: {}, WriteCacheEnableOverride: {}", payload.Size, trace::values::RenderBoolean(payload.MediaRemovable), trace::values::RenderBoolean(payload.MediaHotplug), trace::values::RenderBoolean(payload.DeviceHotplug), trace::values::RenderBoolean(payload.WriteCacheEnableOverride));
     }
 
 
@@ -163,6 +236,22 @@ namespace {
                 break;
             }
 
+            case IOCTL_DISK_GET_PARTITION_INFO_EX: {
+                trace::kernel::PARTITION_INFORMATION_EX partition;
+
+                if (trace::details::payload::ReadValue(output, partition)) return RenderPartitionExPayload(partition);
+
+                break;
+            }
+
+            case IOCTL_STORAGE_GET_HOTPLUG_INFO: {
+                trace::kernel::STORAGE_HOTPLUG_INFO hotplug;
+
+                if (trace::details::payload::ReadValue(output, hotplug)) return RenderHotplugPayload(hotplug);
+
+                break;
+            }
+
             case IOCTL_STORAGE_GET_DEVICE_NUMBER: {
                 trace::kernel::STORAGE_DEVICE_NUMBER deviceNumber;
 
@@ -182,6 +271,10 @@ namespace {
             case IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS:
 
                 return RenderDiskExtentsPayload(output);
+
+            case trace::kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME:
+
+                return RenderDeviceNamePayload(output);
 
             default:
 

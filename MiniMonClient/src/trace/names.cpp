@@ -1618,6 +1618,18 @@ namespace mimo {
             }
 
 
+            std::wstring RenderPartitionStyle(uint32_t partitionStyle) {
+
+                switch (partitionStyle) {
+                    case PARTITION_STYLE_MBR: return L"MBR";
+                    case PARTITION_STYLE_GPT: return L"GPT";
+                    case PARTITION_STYLE_RAW: return L"RAW";
+                }
+
+                return std::format(L"0x{:X}", partitionStyle);
+            }
+
+
             std::wstring RenderSecurityInformation(uint32_t securityInformation) {
 
                 if (!securityInformation) return L"None";

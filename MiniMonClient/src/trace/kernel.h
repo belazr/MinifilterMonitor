@@ -1187,6 +1187,61 @@ namespace mimo {
 
             static_assert(sizeof(GET_LENGTH_INFORMATION) == 8u, "trace::kernel::GET_LENGTH_INFORMATION x64 layout drift");
 
+            struct PARTITION_INFORMATION_MBR {
+                uint8_t PartitionType;
+                uint8_t BootIndicator;  // BOOLEAN in the kernel
+                uint8_t RecognizedPartition;
+                uint32_t HiddenSectors;
+                uint8_t PartitionId[16u];
+            };
+
+            static_assert(sizeof(PARTITION_INFORMATION_MBR) == 24u, "trace::kernel::PARTITION_INFORMATION_MBR x64 layout drift");
+            static_assert(offsetof(PARTITION_INFORMATION_MBR, HiddenSectors) == 4u, "trace::kernel::PARTITION_INFORMATION_MBR x64 layout drift");
+            static_assert(offsetof(PARTITION_INFORMATION_MBR, PartitionId) == 8u, "trace::kernel::PARTITION_INFORMATION_MBR x64 layout drift");
+
+            struct PARTITION_INFORMATION_GPT {
+                uint8_t PartitionType[16u];
+                uint8_t PartitionId[16u];
+                uint64_t Attributes;
+                wchar_t Name[36u];
+            };
+
+            static_assert(sizeof(PARTITION_INFORMATION_GPT) == 112u, "trace::kernel::PARTITION_INFORMATION_GPT x64 layout drift");
+            static_assert(offsetof(PARTITION_INFORMATION_GPT, Attributes) == 32u, "trace::kernel::PARTITION_INFORMATION_GPT x64 layout drift");
+            static_assert(offsetof(PARTITION_INFORMATION_GPT, Name) == 40u, "trace::kernel::PARTITION_INFORMATION_GPT x64 layout drift");
+
+            struct PARTITION_INFORMATION_EX {
+                uint32_t PartitionStyle;     // PARTITION_STYLE in the kernel
+                uint16_t PartitionOrdinal;
+                int64_t StartingOffset;
+                int64_t PartitionLength;
+                uint32_t PartitionNumber;
+                uint8_t RewritePartition;    // BOOLEAN in the kernel
+                uint8_t IsServicePartition;
+                union {
+                    PARTITION_INFORMATION_MBR Mbr;
+                    PARTITION_INFORMATION_GPT Gpt;
+                };
+            };
+
+            static_assert(sizeof(PARTITION_INFORMATION_EX) == 144u, "trace::kernel::PARTITION_INFORMATION_EX x64 layout drift");
+            static_assert(offsetof(PARTITION_INFORMATION_EX, StartingOffset) == 8u, "trace::kernel::PARTITION_INFORMATION_EX x64 layout drift");
+            static_assert(offsetof(PARTITION_INFORMATION_EX, PartitionNumber) == 24u, "trace::kernel::PARTITION_INFORMATION_EX x64 layout drift");
+            static_assert(offsetof(PARTITION_INFORMATION_EX, IsServicePartition) == 29u, "trace::kernel::PARTITION_INFORMATION_EX x64 layout drift");
+            static_assert(offsetof(PARTITION_INFORMATION_EX, Mbr) == 32u, "trace::kernel::PARTITION_INFORMATION_EX x64 layout drift");
+            static_assert(offsetof(PARTITION_INFORMATION_EX, Gpt) == 32u, "trace::kernel::PARTITION_INFORMATION_EX x64 layout drift");
+
+            struct STORAGE_HOTPLUG_INFO {
+                uint32_t Size;
+                uint8_t MediaRemovable;    // BOOLEAN in the kernel
+                uint8_t MediaHotplug;
+                uint8_t DeviceHotplug;
+                uint8_t WriteCacheEnableOverride;
+            };
+
+            static_assert(sizeof(STORAGE_HOTPLUG_INFO) == 8u, "trace::kernel::STORAGE_HOTPLUG_INFO x64 layout drift");
+            static_assert(offsetof(STORAGE_HOTPLUG_INFO, MediaRemovable) == 4u, "trace::kernel::STORAGE_HOTPLUG_INFO x64 layout drift");
+
             struct STORAGE_DEVICE_NUMBER {
                 uint32_t DeviceType;    // DEVICE_TYPE in the kernel
                 uint32_t DeviceNumber;
@@ -1227,6 +1282,14 @@ namespace mimo {
 
             static_assert(sizeof(VOLUME_DISK_EXTENTS) == 32u, "trace::kernel::VOLUME_DISK_EXTENTS x64 layout drift");
             static_assert(offsetof(VOLUME_DISK_EXTENTS, Extents) == 8u, "trace::kernel::VOLUME_DISK_EXTENTS x64 layout drift");
+
+            struct MOUNTDEV_NAME {
+                uint16_t NameLength;
+                wchar_t Name[1u];
+            };
+
+            static_assert(sizeof(MOUNTDEV_NAME) == 4u, "trace::kernel::MOUNTDEV_NAME x64 layout drift");
+            static_assert(offsetof(MOUNTDEV_NAME, Name) == 2u, "trace::kernel::MOUNTDEV_NAME x64 layout drift");
 
             // quota entry layouts
             struct SID {

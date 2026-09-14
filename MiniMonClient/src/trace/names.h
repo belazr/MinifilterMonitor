@@ -85,6 +85,8 @@ namespace mimo {
 
             std::wstring RenderMediaType(uint32_t mediaType);
 
+            std::wstring RenderPartitionStyle(uint32_t partitionStyle);
+
             std::wstring RenderSecurityInformation(uint32_t securityInformation);
 
             std::wstring RenderSectionSyncType(uint32_t syncType);
