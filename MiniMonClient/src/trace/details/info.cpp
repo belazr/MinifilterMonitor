@@ -127,6 +127,9 @@ namespace {
 
 
     std::wstring RenderStreamsPayload(std::span<const uint8_t> payload) {
+
+        if (payload.empty()) return {};
+
         std::wstring result;
         size_t offset = 0u;
         bool terminated = false;
@@ -149,8 +152,6 @@ namespace {
 
             offset += entry.NextEntryOffset;
         }
-
-        if (result.empty()) return {};
 
         if (terminated) {
             result.resize(result.size() - 2u);

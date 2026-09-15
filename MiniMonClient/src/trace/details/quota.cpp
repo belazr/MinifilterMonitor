@@ -21,6 +21,9 @@ using namespace mimo;
 namespace {
 
     std::wstring RenderSids(std::span<const uint8_t> sidList) {
+
+        if (sidList.empty()) return {};
+
         std::wstring result;
         size_t offset = 0u;
         bool terminated = false;
@@ -48,8 +51,6 @@ namespace {
 
             offset += entry.NextEntryOffset;
         }
-
-        if (result.empty()) return {};
 
         if (terminated) {
             result.resize(result.size() - 1u);
@@ -80,6 +81,9 @@ namespace {
 
 
     std::wstring RenderQuotasPayload(std::span<const uint8_t> payload) {
+
+        if (payload.empty()) return {};
+
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
@@ -114,8 +118,6 @@ namespace {
 
             offset += entry.NextEntryOffset;
         }
-
-        if (result.empty()) return {};
 
         if (terminated) {
             result.resize(result.size() - 2u);

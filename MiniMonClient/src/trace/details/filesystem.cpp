@@ -491,6 +491,9 @@ namespace {
 
 
     std::wstring RenderAllocatedRangesPayload(std::span<const uint8_t> payload, bool truncated) {
+
+        if (payload.empty()) return {};
+
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
@@ -502,13 +505,13 @@ namespace {
             index++;
         }
 
-        if (result.empty()) return {};
+        const bool marked = truncated || result.empty();
 
-        if (!truncated) {
+        if (!marked) {
             result.resize(result.size() - 2u);
         }
 
-        return text::MarkTruncated(result, truncated);
+        return text::MarkTruncated(result, marked);
     }
 
 
