@@ -220,32 +220,31 @@ namespace {
 
         std::wstring result = std::format(L"BytesNeeded: {}, EntriesReturned: {}, ", bytesNeeded, entriesReturned);
         size_t offset = offsetof(trace::kernel::FILE_LINKS_INFORMATION, Entry);
-        bool terminated = false;
+        uint32_t index = 1u;
 
-        while (true) {
+        while (index <= entriesReturned) {
             constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_LINK_ENTRY_INFORMATION, FileName);
             trace::kernel::FILE_LINK_ENTRY_INFORMATION entry;
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
             result += std::format(L"ParentFileId: {}, FileName: {}, ", trace::values::RenderFileId(static_cast<uint64_t>(entry.ParentFileId)), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
+            index++;
 
-            if (!entry.NextEntryOffset) {
-                terminated = true;
-
-                break;
-            }
+            if (!entry.NextEntryOffset) break;
 
             if (entry.NextEntryOffset > payload.size()) break;
 
             offset += entry.NextEntryOffset;
         }
 
-        if (terminated) {
+        const bool marked = index <= entriesReturned;
+
+        if (!marked) {
             result.resize(result.size() - 2u);
         }
 
-        return text::MarkTruncated(result, !terminated);
+        return text::MarkTruncated(result, marked);
     }
 
 
