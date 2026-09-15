@@ -1051,6 +1051,25 @@ namespace mimo {
             static_assert(sizeof(USN_JOURNAL_DATA_V0) == 56u, "trace::kernel::USN_JOURNAL_DATA_V0 x64 layout drift");
             static_assert(offsetof(USN_JOURNAL_DATA_V0, AllocationDelta) == 48u, "trace::kernel::USN_JOURNAL_DATA_V0 x64 layout drift");
 
+            struct FILE_PREFETCH {
+                uint32_t Type;
+                uint32_t Count;
+                uint64_t Prefetch[1u];
+            };
+
+            static_assert(sizeof(FILE_PREFETCH) == 16u, "trace::kernel::FILE_PREFETCH x64 layout drift");
+            static_assert(offsetof(FILE_PREFETCH, Prefetch) == 8u, "trace::kernel::FILE_PREFETCH x64 layout drift");
+
+            struct FILE_PREFETCH_EX {
+                uint32_t Type;
+                uint32_t Count;
+                uint64_t Context;       // PVOID in the kernel
+                uint64_t Prefetch[1u];
+            };
+
+            static_assert(sizeof(FILE_PREFETCH_EX) == 24u, "trace::kernel::FILE_PREFETCH_EX x64 layout drift");
+            static_assert(offsetof(FILE_PREFETCH_EX, Prefetch) == 16u, "trace::kernel::FILE_PREFETCH_EX x64 layout drift");
+
             struct FILE_LEVEL_TRIM_RANGE {
                 uint64_t Offset;
                 uint64_t Length;

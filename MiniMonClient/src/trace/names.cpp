@@ -1522,6 +1522,19 @@ namespace mimo {
             }
 
 
+            std::wstring RenderFilePrefetchType(uint32_t type) {
+
+                switch (type) {
+                    case FILE_PREFETCH_TYPE_FOR_CREATE:     return L"For Create";
+                    case FILE_PREFETCH_TYPE_FOR_DIRENUM:    return L"For Dir Enum";
+                    case FILE_PREFETCH_TYPE_FOR_CREATE_EX:  return L"For Create Ex";
+                    case FILE_PREFETCH_TYPE_FOR_DIRENUM_EX: return L"For Dir Enum Ex";
+                }
+
+                return std::format(L"0x{:X}", type);
+            }
+
+
             std::wstring RenderStoragePropertyId(uint32_t propertyId) {
 
                 switch (propertyId) {

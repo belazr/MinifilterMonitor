@@ -195,6 +195,54 @@ namespace {
     }
 
 
+    std::wstring RenderPrefetchPayload(std::span<const uint8_t> payload) {
+        constexpr size_t HEADER_SIZE = offsetof(trace::kernel::FILE_PREFETCH, Prefetch);
+        trace::kernel::FILE_PREFETCH_EX prefetch;
+
+        if (!trace::details::payload::ReadHeader(payload, prefetch, HEADER_SIZE)) return {};
+
+        std::wstring result = std::format(L"Type: {}, Count: {}", trace::names::RenderFilePrefetchType(prefetch.Type), prefetch.Count);
+        size_t offset = HEADER_SIZE;
+
+        if (prefetch.Type == FILE_PREFETCH_TYPE_FOR_CREATE_EX || prefetch.Type == FILE_PREFETCH_TYPE_FOR_DIRENUM_EX) {
+            constexpr size_t CONTEXT_OFFSET = offsetof(trace::kernel::FILE_PREFETCH_EX, Context);
+
+            if (trace::details::payload::ReadValue(payload, prefetch.Context, CONTEXT_OFFSET) && prefetch.Context) {
+                result += std::format(L", Context: {}", trace::values::RenderObjectId(prefetch.Context));
+            }
+
+            offset = offsetof(trace::kernel::FILE_PREFETCH_EX, Prefetch);
+        }
+
+        std::wstring listText;
+        uint32_t index = 1u;
+
+        while (index <= prefetch.Count) {
+            uint64_t entry;
+
+            if (!trace::details::payload::ReadValue(payload, entry, offset)) break;
+
+            listText += trace::values::RenderFileId(entry);
+            listText += L'|';
+            offset += sizeof(entry);
+            index++;
+        }
+
+        const bool marked = index <= prefetch.Count;
+
+        if (prefetch.Count) {
+
+            if (!marked) {
+                listText.resize(listText.size() - 1u);
+            }
+
+            result += std::format(L", Prefetch: {}", text::MarkTruncated(listText, marked));
+        }
+
+        return result;
+    }
+
+
     std::wstring RenderTrimPayload(std::span<const uint8_t> payload) {
         constexpr size_t RANGES_OFFSET = offsetof(trace::kernel::FILE_LEVEL_TRIM, Ranges);
         trace::kernel::FILE_LEVEL_TRIM trim;
@@ -318,6 +366,10 @@ namespace {
 
                 break;
             }
+
+            case FSCTL_FILE_PREFETCH:
+
+                return RenderPrefetchPayload(input);
 
             case FSCTL_FILE_LEVEL_TRIM:
 
