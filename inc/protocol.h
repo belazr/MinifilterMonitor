@@ -539,6 +539,20 @@ namespace mimo {
         static_assert(offsetof(QueryDirectorySupplement, payload) == 8u, "protocol::QueryDirectorySupplement layout drift");
         static_assert(offsetof(QueryDirectorySupplement, fileName) == 8u + QUERY_DIRECTORY_PAYLOAD_SIZE, "protocol::QueryDirectorySupplement layout drift");
 
+        // capture bits for NotifyDirectorySupplement::captured
+        inline constexpr uint32_t NOTIFY_DIRECTORY_CAPTURED_PAYLOAD  = 0x00000001u;
+        inline constexpr uint32_t NOTIFY_DIRECTORY_TRUNCATED_PAYLOAD = 0x00000002u;
+
+        inline constexpr uint32_t NOTIFY_DIRECTORY_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 2u * sizeof(uint32_t);
+
+        struct NotifyDirectorySupplement {
+            uint32_t captured;
+            uint32_t capturedSize;
+            uint8_t payload[NOTIFY_DIRECTORY_PAYLOAD_SIZE];
+        };
+
+        static_assert(offsetof(NotifyDirectorySupplement, payload) == 8u, "protocol::NotifyDirectorySupplement layout drift");
+
         // IRP_MJ_FILE_SYSTEM_CONTROL
 
         // capture bits for FsControlSupplement::captured
@@ -704,6 +718,7 @@ namespace mimo {
             SetEaSupplement setEa;
             VolumeInfoSupplement volumeInfo;
             QueryDirectorySupplement queryDirectory;
+            NotifyDirectorySupplement notifyDirectory;
             FsControlSupplement fsControl;
             DeviceIoControlSupplement deviceIoControl;
             LockControlSupplement lockControl;
@@ -722,6 +737,7 @@ namespace mimo {
         static_assert(sizeof(SetEaSupplement) == SUPPLEMENT_SIZE, "protocol::SetEaSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(VolumeInfoSupplement) == SUPPLEMENT_SIZE, "protocol::VolumeInfoSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(QueryDirectorySupplement) == SUPPLEMENT_SIZE, "protocol::QueryDirectorySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
+        static_assert(sizeof(NotifyDirectorySupplement) == SUPPLEMENT_SIZE, "protocol::NotifyDirectorySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(FsControlSupplement) == SUPPLEMENT_SIZE, "protocol::FsControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(DeviceIoControlSupplement) == SUPPLEMENT_SIZE, "protocol::DeviceIoControlSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(SecuritySupplement) == SUPPLEMENT_SIZE, "protocol::SecuritySupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");

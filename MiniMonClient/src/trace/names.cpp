@@ -941,6 +941,26 @@ namespace mimo {
             }
 
 
+            std::wstring RenderFileAction(uint32_t action) {
+
+                switch (action) {
+                    case FILE_ACTION_ADDED:                          return L"Added";
+                    case FILE_ACTION_REMOVED:                        return L"Removed";
+                    case FILE_ACTION_MODIFIED:                       return L"Modified";
+                    case FILE_ACTION_RENAMED_OLD_NAME:               return L"Renamed Old Name";
+                    case FILE_ACTION_RENAMED_NEW_NAME:               return L"Renamed New Name";
+                    case kernel::FILE_ACTION_ADDED_STREAM:           return L"Added Stream";
+                    case kernel::FILE_ACTION_REMOVED_STREAM:         return L"Removed Stream";
+                    case kernel::FILE_ACTION_MODIFIED_STREAM:        return L"Modified Stream";
+                    case kernel::FILE_ACTION_REMOVED_BY_DELETE:      return L"Removed By Delete";
+                    case kernel::FILE_ACTION_ID_NOT_TUNNELLED:       return L"ID Not Tunnelled";
+                    case kernel::FILE_ACTION_TUNNELLED_ID_COLLISION: return L"Tunnelled ID Collision";
+                }
+
+                return std::format(L"0x{:X}", action);
+            }
+
+
             std::wstring RenderFsControlCode(uint32_t fsControlCode) {
 
                 switch (fsControlCode) {

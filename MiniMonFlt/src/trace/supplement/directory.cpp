@@ -43,7 +43,7 @@ namespace mimo {
 
                 __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
-                void PopulatePayload(protocol::QueryDirectorySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
+                void PopulateQuery(protocol::QueryDirectorySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     PAGED_CODE();
 
                     const ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
@@ -73,6 +73,43 @@ namespace mimo {
 
                     pSupplement->capturedSize = static_cast<uint32_t>(copySize);
                     pSupplement->captured |= protocol::QUERY_DIRECTORY_CAPTURED_PAYLOAD;
+
+                    return;
+                }
+
+
+                __declspec(code_seg("PAGE"))
+                _Use_decl_annotations_
+                void PopulateNotify(protocol::NotifyDirectorySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
+                    PAGED_CODE();
+
+                    const ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.NotifyDirectory.Length;
+                    const ULONG_PTR writtenSize = pData->IoStatus.Information;
+
+                    if (!bufferSize || !writtenSize) return;
+
+                    const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
+                    ULONG readableSize = dataSize;
+                    const void* pDirectoryBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DirectoryControl.NotifyDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.NotifyDirectory.DirectoryBuffer, &readableSize);
+
+                    if (!pDirectoryBuffer || !readableSize) return;
+
+                    const ULONG copySize = readableSize < protocol::NOTIFY_DIRECTORY_PAYLOAD_SIZE ? readableSize : protocol::NOTIFY_DIRECTORY_PAYLOAD_SIZE;
+
+                    __try {
+                        RtlCopyMemory(pSupplement->payload, pDirectoryBuffer, copySize);
+                    }
+                    __except (EXCEPTION_EXECUTE_HANDLER) {
+
+                        return;
+                    }
+
+                    if (copySize < dataSize) {
+                        pSupplement->captured |= protocol::NOTIFY_DIRECTORY_TRUNCATED_PAYLOAD;
+                    }
+
+                    pSupplement->capturedSize = static_cast<uint32_t>(copySize);
+                    pSupplement->captured |= protocol::NOTIFY_DIRECTORY_CAPTURED_PAYLOAD;
 
                     return;
                 }

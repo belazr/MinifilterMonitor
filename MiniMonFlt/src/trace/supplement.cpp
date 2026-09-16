@@ -197,7 +197,10 @@ namespace mimo {
                     case IRP_MJ_DIRECTORY_CONTROL:
 
                         if (pData->Iopb->MinorFunction == IRP_MN_QUERY_DIRECTORY && pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length) {
-                            directory::PopulatePayload(&pSupplement->queryDirectory, pData);
+                            directory::PopulateQuery(&pSupplement->queryDirectory, pData);
+                        }
+                        else if ((pData->Iopb->MinorFunction == IRP_MN_NOTIFY_CHANGE_DIRECTORY || pData->Iopb->MinorFunction == IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX) && pData->Iopb->Parameters.DirectoryControl.NotifyDirectory.Length) {
+                            directory::PopulateNotify(&pSupplement->notifyDirectory, pData);
                         }
 
                         break;

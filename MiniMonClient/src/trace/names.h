@@ -59,6 +59,8 @@ namespace mimo {
 
             std::wstring RenderDirectoryNotifyInformationClass(uint32_t directoryNotifyInformationClass);
 
+            std::wstring RenderFileAction(uint32_t action);
+
             std::wstring RenderFsControlCode(uint32_t fsControlCode);
 
             std::wstring RenderIoControlCode(uint32_t ioControlCode);

@@ -166,6 +166,52 @@ namespace {
     }
 
 
+    std::span<const uint8_t> ExtractPayload(const protocol::NotifyDirectorySupplement& supplement) {
+
+        if (!(supplement.captured & protocol::NOTIFY_DIRECTORY_CAPTURED_PAYLOAD)) return {};
+
+        return { supplement.payload, supplement.capturedSize };
+    }
+
+
+    template <typename Entry>
+    std::wstring RenderChangesPayload(std::span<const uint8_t> payload) {
+
+        if (payload.empty()) return {};
+
+        std::wstring result;
+        size_t offset = 0u;
+        uint32_t index = 1u;
+        bool terminated = false;
+
+        while (true) {
+            constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
+            Entry entry;
+
+            if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+
+            result += std::format(L"{}: Action: {}, FileName: {}, ", index, trace::names::RenderFileAction(entry.Action), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
+            index++;
+
+            if (!entry.NextEntryOffset) {
+                terminated = true;
+
+                break;
+            }
+
+            if (entry.NextEntryOffset > payload.size()) break;
+
+            offset += entry.NextEntryOffset;
+        }
+
+        if (terminated) {
+            result.resize(result.size() - 2u);
+        }
+
+        return text::MarkTruncated(result, !terminated);
+    }
+
+
     std::wstring RenderNotify(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
         std::wstring details;
@@ -185,6 +231,34 @@ namespace {
 
         if (!completionFilter.empty()) {
             details += std::format(L", Filter: {}", completionFilter);
+        }
+
+        const std::span<const uint8_t> payload = ExtractPayload(data.supplement.notifyDirectory);
+        const uint32_t directoryNotifyInformationClass = data.callbackMinorId == trace::kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY ? trace::kernel::DirectoryNotifyInformation : parameters.notifyDirectory.directoryNotifyInformationClass;
+        std::wstring payloadText;
+
+        switch (directoryNotifyInformationClass) {
+
+            case trace::kernel::DirectoryNotifyInformation:
+                payloadText = RenderChangesPayload<trace::kernel::FILE_NOTIFY_INFORMATION>(payload);
+
+                break;
+
+            case trace::kernel::DirectoryNotifyExtendedInformation:
+                payloadText = RenderChangesPayload<trace::kernel::FILE_NOTIFY_EXTENDED_INFORMATION>(payload);
+
+                break;
+
+            case trace::kernel::DirectoryNotifyFullInformation:
+                payloadText = RenderChangesPayload<trace::kernel::FILE_NOTIFY_FULL_INFORMATION>(payload);
+
+                break;
+
+        }
+
+        if (!payloadText.empty()) {
+            details += L", ";
+            details += payloadText;
         }
 
         return details;

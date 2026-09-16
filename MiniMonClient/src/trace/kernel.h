@@ -773,6 +773,14 @@ namespace mimo {
             inline constexpr uint32_t DirectoryNotifyExtendedInformation = 2u;
             inline constexpr uint32_t DirectoryNotifyFullInformation     = 3u;
 
+            // stream and tunnelling file actions live in kernel-only ntifs.h
+            inline constexpr uint32_t FILE_ACTION_ADDED_STREAM           = 0x00000006u;
+            inline constexpr uint32_t FILE_ACTION_REMOVED_STREAM         = 0x00000007u;
+            inline constexpr uint32_t FILE_ACTION_MODIFIED_STREAM        = 0x00000008u;
+            inline constexpr uint32_t FILE_ACTION_REMOVED_BY_DELETE      = 0x00000009u;
+            inline constexpr uint32_t FILE_ACTION_ID_NOT_TUNNELLED       = 0x0000000Au;
+            inline constexpr uint32_t FILE_ACTION_TUNNELLED_ID_COLLISION = 0x0000000Bu;
+
             // directory enumeration entry layouts
 
             struct FILE_DIRECTORY_INFORMATION {
@@ -881,6 +889,62 @@ namespace mimo {
             static_assert(sizeof(FILE_ID_FULL_DIR_INFORMATION) == 88u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileId) == 72u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileName) == 80u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
+
+            // directory notify entry layouts
+
+            struct FILE_NOTIFY_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t Action;
+                uint32_t FileNameLength;
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_NOTIFY_INFORMATION) == 16u, "trace::kernel::FILE_NOTIFY_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_NOTIFY_INFORMATION, FileName) == 12u, "trace::kernel::FILE_NOTIFY_INFORMATION x64 layout drift");
+
+            struct FILE_NOTIFY_EXTENDED_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t Action;
+                int64_t CreationTime;
+                int64_t LastModificationTime;
+                int64_t LastChangeTime;
+                int64_t LastAccessTime;
+                int64_t AllocatedLength;
+                int64_t FileSize;
+                uint32_t FileAttributes;
+                uint32_t ReparsePointTag;    // EaSize without a reparse point, the kernel's nameless union
+                int64_t FileId;
+                int64_t ParentFileId;
+                uint32_t FileNameLength;
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) == 88u, "trace::kernel::FILE_NOTIFY_EXTENDED_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_NOTIFY_EXTENDED_INFORMATION, FileId) == 64u, "trace::kernel::FILE_NOTIFY_EXTENDED_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_NOTIFY_EXTENDED_INFORMATION, FileName) == 84u, "trace::kernel::FILE_NOTIFY_EXTENDED_INFORMATION x64 layout drift");
+
+            struct FILE_NOTIFY_FULL_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t Action;
+                int64_t CreationTime;
+                int64_t LastModificationTime;
+                int64_t LastChangeTime;
+                int64_t LastAccessTime;
+                int64_t AllocatedLength;
+                int64_t FileSize;
+                uint32_t FileAttributes;
+                uint32_t ReparsePointTag;    // EaSize without a reparse point, the kernel's nameless union
+                int64_t FileId;
+                int64_t ParentFileId;
+                uint16_t FileNameLength;
+                uint8_t FileNameFlags;
+                uint8_t Reserved;
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_NOTIFY_FULL_INFORMATION) == 88u, "trace::kernel::FILE_NOTIFY_FULL_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_NOTIFY_FULL_INFORMATION, FileNameLength) == 80u, "trace::kernel::FILE_NOTIFY_FULL_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_NOTIFY_FULL_INFORMATION, FileName) == 84u, "trace::kernel::FILE_NOTIFY_FULL_INFORMATION x64 layout drift");
 
             // FSCTL payload layouts
 
