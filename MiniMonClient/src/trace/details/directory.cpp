@@ -31,10 +31,11 @@ namespace {
         if (!(supplement.captured & protocol::QUERY_DIRECTORY_CAPTURED_FILE_NAME)) return {};
 
         const std::wstring_view fileName = text::Extract(supplement.fileName);
+        const bool truncated = supplement.captured & protocol::QUERY_DIRECTORY_TRUNCATED_FILE_NAME;
 
-        if (fileName.empty()) return {};
+        if (fileName.empty() && !truncated) return {};
 
-        return std::format(L"Filter: {}", text::MarkTruncated(fileName, supplement.captured & protocol::QUERY_DIRECTORY_TRUNCATED_FILE_NAME));
+        return std::format(L"Filter: {}", text::MarkTruncated(fileName, truncated));
     }
 
 
