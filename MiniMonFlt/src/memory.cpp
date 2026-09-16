@@ -68,6 +68,17 @@ namespace mimo {
         ) {
             PAGED_CODE();
 
+            // the completion wrote here, the parameter buffers are stale
+            if (pData->Flags & FLTFL_CALLBACK_DATA_NEW_SYSTEM_BUFFER) {
+                const ULONG_PTR writtenSize = pData->IoStatus.Information;
+
+                if (writtenSize < *pBufferSize) {
+                    *pBufferSize = static_cast<ULONG>(writtenSize);
+                }
+
+                return FltGetNewSystemBufferAddress(const_cast<FLT_CALLBACK_DATA*>(pData));
+            }
+
             const void* pBuffer = MapMdl(pMdl, pRawBuffer, pBufferSize);
 
             if (pBuffer) return pBuffer;
