@@ -127,10 +127,6 @@ namespace mimo {
                         result += std::format(L"AllocationSize: {}, ", parameters.create.allocationSize);
                     }
 
-                    if (parameters.create.eaLength) {
-                        result += std::format(L"EaLength: {}, ", parameters.create.eaLength);
-                    }
-
                     const std::wstring flags = names::RenderCreateFlags(data.operationFlags);
 
                     if (!flags.empty()) {
@@ -156,6 +152,10 @@ namespace mimo {
                     if (!ecpText.empty() || truncated) {
                         result += text::MarkTruncated(ecpText, truncated);
                         result += L", ";
+                    }
+
+                    if (parameters.create.eaLength) {
+                        result += std::format(L"EaLength: {}, ", parameters.create.eaLength);
                     }
 
                     const std::wstring eaBufferText = RenderExtendedAttributes(ExtractEaBuffer(createSupplement));
