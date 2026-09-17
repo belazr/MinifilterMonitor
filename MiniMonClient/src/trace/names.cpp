@@ -169,6 +169,26 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(CREATE_FLAG_NAMES), "composite entry after its components in CREATE_FLAG_NAMES");
 
+    constexpr FlagName IRP_FLAG_NAMES[]{
+        { trace::kernel::IRP_NOCACHE,                L"Non-cached" },
+        { trace::kernel::IRP_PAGING_IO,              L"Paging I/O" },
+        { trace::kernel::IRP_SYNCHRONOUS_API,        L"Synchronous" },
+        { trace::kernel::IRP_ASSOCIATED_IRP,         L"Associated IRP" },
+        { trace::kernel::IRP_BUFFERED_IO,            L"Buffered I/O" },
+        { trace::kernel::IRP_DEALLOCATE_BUFFER,      L"Deallocate Buffer" },
+        { trace::kernel::IRP_SYNCHRONOUS_PAGING_IO,  L"Synchronous Paging I/O" },
+        { trace::kernel::IRP_CREATE_OPERATION,       L"Create Operation" },
+        { trace::kernel::IRP_READ_OPERATION,         L"Read Operation" },
+        { trace::kernel::IRP_WRITE_OPERATION,        L"Write Operation" },
+        { trace::kernel::IRP_CLOSE_OPERATION,        L"Close Operation" },
+        { trace::kernel::IRP_DEFER_IO_COMPLETION,    L"Defer I/O Completion" },
+        { trace::kernel::IRP_OB_QUERY_NAME,          L"Ob Query Name" },
+        { trace::kernel::IRP_HOLD_DEVICE_QUEUE,      L"Hold Device Queue" },
+        { trace::kernel::IRP_UM_DRIVER_INITIATED_IO, L"UM Driver Initiated I/O" },
+    };
+
+    static_assert(CompositesPrecedeComponents(IRP_FLAG_NAMES), "composite entry after its components in IRP_FLAG_NAMES");
+
     constexpr FlagName READ_WRITE_FLAG_NAMES[]{
         { trace::kernel::SL_KEY_SPECIFIED,          L"Key Specified" },
         { trace::kernel::SL_OVERRIDE_VERIFY_VOLUME, L"Override Verify Volume" },
@@ -796,6 +816,12 @@ namespace mimo {
             std::wstring RenderCreateFlags(uint8_t operationFlags) {
 
                 return RenderFlags(operationFlags, CREATE_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderIrpFlags(uint32_t irpFlags) {
+
+                return RenderFlags(irpFlags, IRP_FLAG_NAMES, L"|");
             }
 
 

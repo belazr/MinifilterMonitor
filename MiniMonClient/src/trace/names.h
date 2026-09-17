@@ -37,6 +37,8 @@ namespace mimo {
 
             std::wstring RenderCreateFlags(uint8_t operationFlags);
 
+            std::wstring RenderIrpFlags(uint32_t irpFlags);
+
             std::wstring RenderReadWriteFlags(uint8_t operationFlags);
 
             std::wstring RenderFileInformationClass(uint32_t fileInformationClass);

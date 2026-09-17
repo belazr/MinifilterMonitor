@@ -36,25 +36,17 @@ namespace {
     std::wstring RenderIoFlags(const protocol::RecordData& data) {
         std::wstring ioFlags;
 
-        if (data.irpFlags & trace::kernel::IRP_NOCACHE) {
-            ioFlags += L"Non-cached|";
+        const std::wstring irpFlagsText = trace::names::RenderIrpFlags(data.irpFlags);
+
+        if (!irpFlagsText.empty()) {
+            ioFlags += irpFlagsText;
+            ioFlags += L'|';
         }
 
-        if (data.irpFlags & trace::kernel::IRP_PAGING_IO) {
-            ioFlags += L"Paging I/O|";
-        }
+        const std::wstring operationFlagsText = trace::names::RenderReadWriteFlags(data.operationFlags);
 
-        if ((data.irpFlags & trace::kernel::IRP_PAGING_IO) && (data.irpFlags & trace::kernel::IRP_SYNCHRONOUS_PAGING_IO)) {
-            ioFlags += L"Synchronous Paging I/O|";
-        }
-        else if (data.irpFlags & trace::kernel::IRP_SYNCHRONOUS_API) {
-            ioFlags += L"Synchronous|";
-        }
-
-        const std::wstring stackFlags = trace::names::RenderReadWriteFlags(data.operationFlags);
-
-        if (!stackFlags.empty()) {
-            ioFlags += stackFlags;
+        if (!operationFlagsText.empty()) {
+            ioFlags += operationFlagsText;
             ioFlags += L'|';
         }
 

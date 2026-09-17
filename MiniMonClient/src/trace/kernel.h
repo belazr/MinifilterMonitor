@@ -24,12 +24,23 @@ namespace mimo {
             inline constexpr uint64_t FSRTL_ASYNC_CACHED_READ_TOP_LEVEL_IRP = 0x07u;
             inline constexpr uint64_t FSRTL_VOLSNAP_TOP_LEVEL_IRP           = 0x08u;
 
-            // IRP flags carried in RecordData::irpFlags
+            // IRP flags carried in RecordData::irpFlags, the read/write reading of the two overloaded values
+            // (0x2 is IRP_MOUNT_COMPLETION on a mount, 0x40 IRP_INPUT_OPERATION on a device control)
             inline constexpr uint32_t IRP_NOCACHE                 = 0x00000001u;
             inline constexpr uint32_t IRP_PAGING_IO               = 0x00000002u;
             inline constexpr uint32_t IRP_SYNCHRONOUS_API         = 0x00000004u;
+            inline constexpr uint32_t IRP_ASSOCIATED_IRP          = 0x00000008u;
+            inline constexpr uint32_t IRP_BUFFERED_IO             = 0x00000010u;
+            inline constexpr uint32_t IRP_DEALLOCATE_BUFFER       = 0x00000020u;
             inline constexpr uint32_t IRP_SYNCHRONOUS_PAGING_IO   = 0x00000040u;
+            inline constexpr uint32_t IRP_CREATE_OPERATION        = 0x00000080u;
+            inline constexpr uint32_t IRP_READ_OPERATION          = 0x00000100u;
             inline constexpr uint32_t IRP_WRITE_OPERATION         = 0x00000200u;
+            inline constexpr uint32_t IRP_CLOSE_OPERATION         = 0x00000400u;
+            inline constexpr uint32_t IRP_DEFER_IO_COMPLETION     = 0x00000800u;
+            inline constexpr uint32_t IRP_OB_QUERY_NAME           = 0x00001000u;
+            inline constexpr uint32_t IRP_HOLD_DEVICE_QUEUE       = 0x00002000u;
+            inline constexpr uint32_t IRP_UM_DRIVER_INITIATED_IO  = 0x00400000u;
 
             // create stack-location SL_* flags carried in RecordData::operationFlags
             inline constexpr uint8_t SL_FORCE_ACCESS_CHECK        = 0x01u;
