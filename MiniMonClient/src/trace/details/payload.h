@@ -7,6 +7,7 @@
 #include <cstring>
 #include <span>
 #include <string>
+#include <string_view>
 
 namespace mimo {
 
@@ -55,6 +56,14 @@ namespace mimo {
                     std::memcpy(name.data(), nameData.data(), name.size() * sizeof(wchar_t));
 
                     return text::MarkTruncated(name, copySize < nameSize);
+                }
+
+
+                inline std::wstring RenderAsciiName(std::span<const uint8_t> nameData, uint32_t nameSize) {
+                    const size_t copySize = nameSize < nameData.size() ? nameSize : nameData.size();
+                    const std::string_view name{ reinterpret_cast<const char*>(nameData.data()), copySize };
+
+                    return text::MarkTruncated(text::ConvertFromAscii(name), copySize < nameSize);
                 }
 
             }

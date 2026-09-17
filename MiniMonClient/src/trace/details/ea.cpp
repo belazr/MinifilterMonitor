@@ -15,18 +15,10 @@
 #include <format>
 #include <span>
 #include <string>
-#include <string_view>
 
 using namespace mimo;
 
 namespace {
-
-    std::wstring RenderEaName(std::span<const uint8_t> nameData, uint8_t nameSize) {
-        const std::string_view name{ reinterpret_cast<const char*>(nameData.data()), nameSize < nameData.size() ? nameSize : nameData.size() };
-
-        return text::MarkTruncated(text::ConvertFromAscii(name), name.size() < nameSize);
-    }
-
 
     std::wstring RenderEaNames(std::span<const uint8_t> eaList) {
 
@@ -42,7 +34,7 @@ namespace {
 
             if (!trace::details::payload::ReadHeader(eaList, entry, NAME_OFFSET, offset)) break;
 
-            result += RenderEaName(eaList.subspan(offset + NAME_OFFSET), entry.EaNameLength);
+            result += trace::details::payload::RenderAsciiName(eaList.subspan(offset + NAME_OFFSET), entry.EaNameLength);
             result += L'|';
 
             if (!entry.NextEntryOffset) {
@@ -106,7 +98,7 @@ namespace {
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L"{}: EaName: {}, EaValueLength: {}", index, RenderEaName(payload.subspan(offset + NAME_OFFSET), entry.EaNameLength), entry.EaValueLength);
+            result += std::format(L"{}: EaName: {}, EaValueLength: {}", index, trace::details::payload::RenderAsciiName(payload.subspan(offset + NAME_OFFSET), entry.EaNameLength), entry.EaValueLength);
             index++;
 
             if (entry.EaValueLength) {
