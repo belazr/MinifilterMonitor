@@ -169,6 +169,18 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(CREATE_FLAG_NAMES), "composite entry after its components in CREATE_FLAG_NAMES");
 
+    constexpr FlagName READ_WRITE_FLAG_NAMES[]{
+        { trace::kernel::SL_KEY_SPECIFIED,          L"Key Specified" },
+        { trace::kernel::SL_OVERRIDE_VERIFY_VOLUME, L"Override Verify Volume" },
+        { trace::kernel::SL_WRITE_THROUGH,          L"Write Through" },
+        { trace::kernel::SL_FT_SEQUENTIAL_WRITE,    L"FT Sequential Write" },
+        { trace::kernel::SL_FORCE_DIRECT_WRITE,     L"Force Direct Write" },
+        { trace::kernel::SL_REALTIME_STREAM,        L"Realtime Stream/Persistent Memory Fixed Mapping" },
+        { trace::kernel::SL_BYPASS_IO,              L"Bypass I/O" },
+    };
+
+    static_assert(CompositesPrecedeComponents(READ_WRITE_FLAG_NAMES), "composite entry after its components in READ_WRITE_FLAG_NAMES");
+
     constexpr FlagName REMOTE_PROTOCOL_FLAG_NAMES[]{
         { trace::kernel::REMOTE_PROTOCOL_FLAG_LOOPBACK,          L"Loopback" },
         { trace::kernel::REMOTE_PROTOCOL_FLAG_OFFLINE,           L"Offline" },
@@ -784,6 +796,12 @@ namespace mimo {
             std::wstring RenderCreateFlags(uint8_t operationFlags) {
 
                 return RenderFlags(operationFlags, CREATE_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderReadWriteFlags(uint8_t operationFlags) {
+
+                return RenderFlags(operationFlags, READ_WRITE_FLAG_NAMES, L"|");
             }
 
 

@@ -40,8 +40,14 @@ namespace mimo {
             inline constexpr uint8_t SL_CASE_SENSITIVE            = 0x80u;
 
             // read/write stack-location SL_* flags carried in RecordData::operationFlags
-            inline constexpr uint8_t SL_KEY_SPECIFIED = 0x01u;
-            inline constexpr uint8_t SL_WRITE_THROUGH = 0x04u;
+            inline constexpr uint8_t SL_KEY_SPECIFIED                   = 0x01u;
+            inline constexpr uint8_t SL_OVERRIDE_VERIFY_VOLUME          = 0x02u;
+            inline constexpr uint8_t SL_WRITE_THROUGH                   = 0x04u;
+            inline constexpr uint8_t SL_FT_SEQUENTIAL_WRITE             = 0x08u;
+            inline constexpr uint8_t SL_FORCE_DIRECT_WRITE              = 0x10u;
+            inline constexpr uint8_t SL_REALTIME_STREAM                 = 0x20u;    // optical media
+            inline constexpr uint8_t SL_PERSISTENT_MEMORY_FIXED_MAPPING = 0x20u;    // persistent memory writes, the same bit
+            inline constexpr uint8_t SL_BYPASS_IO                       = 0x40u;
 
             // query EA, query quota and directory control query stack-location SL_* flags carried in RecordData::operationFlags
             inline constexpr uint8_t SL_RESTART_SCAN        = 0x01u;

@@ -1,6 +1,7 @@
 #include "readwrite.h"
 
 #include "..\kernel.h"
+#include "..\names.h"
 #include "..\values.h"
 
 #include "..\..\..\..\inc\protocol.h"
@@ -50,8 +51,11 @@ namespace {
             ioFlags += L"Synchronous|";
         }
 
-        if (data.operationFlags & trace::kernel::SL_WRITE_THROUGH) {
-            ioFlags += L"Write Through|";
+        const std::wstring stackFlags = trace::names::RenderReadWriteFlags(data.operationFlags);
+
+        if (!stackFlags.empty()) {
+            ioFlags += stackFlags;
+            ioFlags += L'|';
         }
 
         if (!ioFlags.empty()) {
