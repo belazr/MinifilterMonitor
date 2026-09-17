@@ -61,9 +61,11 @@ namespace mimo {
             inline constexpr uint8_t SL_BYPASS_IO                       = 0x40u;
 
             // query EA, query quota and directory control query stack-location SL_* flags carried in RecordData::operationFlags
-            inline constexpr uint8_t SL_RESTART_SCAN        = 0x01u;
-            inline constexpr uint8_t SL_RETURN_SINGLE_ENTRY = 0x02u;
-            inline constexpr uint8_t SL_INDEX_SPECIFIED     = 0x04u;
+            inline constexpr uint8_t SL_RESTART_SCAN                = 0x01u;
+            inline constexpr uint8_t SL_RETURN_SINGLE_ENTRY         = 0x02u;
+            inline constexpr uint8_t SL_INDEX_SPECIFIED             = 0x04u;
+            inline constexpr uint8_t SL_RETURN_ON_DISK_ENTRIES_ONLY = 0x08u;
+            inline constexpr uint8_t SL_NO_CURSOR_UPDATE            = 0x10u;
 
             // directory control notify stack-location SL_* flag carried in RecordData::operationFlags
             inline constexpr uint8_t SL_WATCH_TREE = 0x01u;

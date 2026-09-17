@@ -245,9 +245,11 @@ namespace {
     static_assert(CompositesPrecedeComponents(EA_FLAG_NAMES), "composite entry after its components in EA_FLAG_NAMES");
 
     constexpr FlagName SCAN_FLAG_NAMES[]{
-        { trace::kernel::SL_RESTART_SCAN,        L"Restart Scan" },
-        { trace::kernel::SL_RETURN_SINGLE_ENTRY, L"Return Single Entry" },
-        { trace::kernel::SL_INDEX_SPECIFIED,     L"Index Specified" },
+        { trace::kernel::SL_RESTART_SCAN,                L"Restart Scan" },
+        { trace::kernel::SL_RETURN_SINGLE_ENTRY,         L"Return Single Entry" },
+        { trace::kernel::SL_INDEX_SPECIFIED,             L"Index Specified" },
+        { trace::kernel::SL_RETURN_ON_DISK_ENTRIES_ONLY, L"Return On Disk Entries Only" },
+        { trace::kernel::SL_NO_CURSOR_UPDATE,            L"No Cursor Update" },
     };
 
     static_assert(CompositesPrecedeComponents(SCAN_FLAG_NAMES), "composite entry after its components in SCAN_FLAG_NAMES");
