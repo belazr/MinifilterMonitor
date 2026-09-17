@@ -12,6 +12,7 @@
 
 #include <Windows.h>
 #include <winioctl.h>
+#include <ntddvol.h>    // after winioctl.h, whose volume section it repeats under an IOCTL_VOLUME_BASE guard
 
 #include <cstddef>
 #include <cstdint>
@@ -271,6 +272,22 @@ namespace {
             case IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS:
 
                 return RenderDiskExtentsPayload(output);
+
+            case IOCTL_VOLUME_IS_DYNAMIC: {
+                uint8_t dynamic;
+
+                if (trace::details::payload::ReadValue(output, dynamic)) return std::format(L"IsDynamic: {}", trace::values::RenderBoolean(dynamic));
+
+                break;
+            }
+
+            case IOCTL_VOLUME_IS_CSV: {
+                uint8_t csv;
+
+                if (trace::details::payload::ReadValue(output, csv)) return std::format(L"IsCsv: {}", trace::values::RenderBoolean(csv));
+
+                break;
+            }
 
             case trace::kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME:
 
