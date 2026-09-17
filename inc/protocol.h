@@ -411,19 +411,26 @@ namespace mimo {
         inline constexpr uint32_t CREATE_CAPTURED_DESIRED_ACCESS   = 0x00000001u;
         inline constexpr uint32_t CREATE_CAPTURED_IMPERSONATED_SID = 0x00000002u;
         inline constexpr uint32_t CREATE_TRUNCATED_ECP_TEXT        = 0x00000004u;
+        inline constexpr uint32_t CREATE_CAPTURED_EA_BUFFER        = 0x00000008u;
+        inline constexpr uint32_t CREATE_TRUNCATED_EA_BUFFER       = 0x00000010u;
 
         inline constexpr uint32_t CREATE_SID_SIZE             = 68u;    // SECURITY_MAX_SID_SIZE, pinned by the driver
-        inline constexpr uint32_t CREATE_ECP_TEXT_WCHAR_COUNT = (SUPPLEMENT_SIZE - 2u * sizeof(uint32_t) - CREATE_SID_SIZE) / sizeof(wchar_t);
+        inline constexpr uint32_t CREATE_ECP_TEXT_WCHAR_COUNT = 256u;
+
+        inline constexpr uint32_t CREATE_EA_BUFFER_SIZE = SUPPLEMENT_SIZE - 3u * sizeof(uint32_t) - CREATE_SID_SIZE - sizeof(wchar_t) * CREATE_ECP_TEXT_WCHAR_COUNT;
 
         struct CreateSupplement {
             uint32_t captured;
             uint32_t desiredAccess;
+            uint32_t capturedEaBufferSize;
             uint8_t impersonatedSid[CREATE_SID_SIZE];
+            uint8_t eaBuffer[CREATE_EA_BUFFER_SIZE];    // FILE_FULL_EA_INFORMATION entries
             wchar_t ecpText[CREATE_ECP_TEXT_WCHAR_COUNT];
         };
 
-        static_assert(offsetof(CreateSupplement, impersonatedSid) == 8u, "protocol::CreateSupplement layout drift");
-        static_assert(offsetof(CreateSupplement, ecpText) == 8u + CREATE_SID_SIZE, "protocol::CreateSupplement layout drift");
+        static_assert(offsetof(CreateSupplement, impersonatedSid) == 12u, "protocol::CreateSupplement layout drift");
+        static_assert(offsetof(CreateSupplement, eaBuffer) == 12u + CREATE_SID_SIZE, "protocol::CreateSupplement layout drift");
+        static_assert(offsetof(CreateSupplement, ecpText) == 12u + CREATE_SID_SIZE + CREATE_EA_BUFFER_SIZE, "protocol::CreateSupplement layout drift");
 
         // IRP_MJ_QUERY_INFORMATION / IRP_MJ_QUERY_OPEN / IRP_MJ_NETWORK_QUERY_OPEN
 

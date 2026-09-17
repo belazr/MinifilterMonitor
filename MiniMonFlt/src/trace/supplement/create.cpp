@@ -63,6 +63,22 @@ namespace mimo {
                         pSupplement->captured |= protocol::CREATE_TRUNCATED_ECP_TEXT;
                     }
 
+                    const void* const pEaBuffer = pData->Iopb->Parameters.Create.EaBuffer;
+                    const ULONG bufferSize = pData->Iopb->Parameters.Create.EaLength;
+
+                    if (pEaBuffer && bufferSize) {
+                        const ULONG copySize = bufferSize < protocol::CREATE_EA_BUFFER_SIZE ? bufferSize : protocol::CREATE_EA_BUFFER_SIZE;
+
+                        RtlCopyMemory(pSupplement->eaBuffer, pEaBuffer, copySize);
+
+                        if (copySize < bufferSize) {
+                            pSupplement->captured |= protocol::CREATE_TRUNCATED_EA_BUFFER;
+                        }
+
+                        pSupplement->capturedEaBufferSize = static_cast<uint32_t>(copySize);
+                        pSupplement->captured |= protocol::CREATE_CAPTURED_EA_BUFFER;
+                    }
+
                     const IO_SECURITY_CONTEXT* const pSecurityContext = pData->Iopb->Parameters.Create.SecurityContext;
 
                     if (!pSecurityContext) return;

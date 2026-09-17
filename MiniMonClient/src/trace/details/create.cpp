@@ -1,5 +1,7 @@
 #include "create.h"
 
+#include "payload.h"
+
 #include "..\kernel.h"
 #include "..\names.h"
 #include "..\values.h"
@@ -8,10 +10,84 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <format>
+#include <span>
 #include <string>
 #include <string_view>
+
+using namespace mimo;
+
+namespace {
+
+    std::span<const uint8_t> ExtractEaBuffer(const protocol::CreateSupplement& supplement) {
+
+        if (!(supplement.captured & protocol::CREATE_CAPTURED_EA_BUFFER)) return {};
+
+        return { supplement.eaBuffer, supplement.capturedEaBufferSize };
+    }
+
+
+    std::wstring RenderEaValue(std::span<const uint8_t> valueData, uint16_t valueSize) {
+        const size_t dataSize = valueSize < valueData.size() ? valueSize : valueData.size();
+
+        return trace::values::RenderBytes(valueData.first(dataSize), dataSize < valueSize);
+    }
+
+
+    std::wstring RenderExtendedAttributes(std::span<const uint8_t> eaBuffer) {
+
+        if (eaBuffer.empty()) return {};
+
+        std::wstring result;
+        size_t offset = 0u;
+        uint32_t index = 1u;
+        bool terminated = false;
+
+        while (true) {
+            constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_FULL_EA_INFORMATION, EaName);
+            trace::kernel::FILE_FULL_EA_INFORMATION entry;
+
+            if (!trace::details::payload::ReadHeader(eaBuffer, entry, NAME_OFFSET, offset)) break;
+
+            result += std::format(L"{}: EaName: {}, EaValueLength: {}", index, trace::details::payload::RenderAsciiName(eaBuffer.subspan(offset + NAME_OFFSET), entry.EaNameLength), entry.EaValueLength);
+            index++;
+
+            if (entry.EaValueLength) {
+                const size_t valueOffset = offset + NAME_OFFSET + entry.EaNameLength + 1u;
+                const size_t valueStart = valueOffset < eaBuffer.size() ? valueOffset : eaBuffer.size();
+
+                result += std::format(L", EaValue: {}", RenderEaValue(eaBuffer.subspan(valueStart), entry.EaValueLength));
+            }
+
+            const std::wstring flags = trace::names::RenderEaFlags(entry.Flags);
+
+            if (!flags.empty()) {
+                result += std::format(L", Flags: {}", flags);
+            }
+
+            result += L", ";
+
+            if (!entry.NextEntryOffset) {
+                terminated = true;
+
+                break;
+            }
+
+            if (entry.NextEntryOffset > eaBuffer.size()) break;
+
+            offset += entry.NextEntryOffset;
+        }
+
+        if (terminated) {
+            result.resize(result.size() - 2u);
+        }
+
+        return text::MarkTruncated(result, !terminated);
+    }
+
+}
 
 namespace mimo {
 
@@ -72,6 +148,13 @@ namespace mimo {
 
                     if (!ecpText.empty() || truncated) {
                         result += text::MarkTruncated(ecpText, truncated);
+                        result += L", ";
+                    }
+
+                    const std::wstring eaBufferText = RenderExtendedAttributes(ExtractEaBuffer(createSupplement));
+
+                    if (!eaBufferText.empty()) {
+                        result += eaBufferText;
                         result += L", ";
                     }
 
