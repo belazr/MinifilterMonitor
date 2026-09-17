@@ -158,6 +158,12 @@ namespace {
     }
 
 
+    std::wstring RenderDiskAttributesPayload(const trace::kernel::GET_DISK_ATTRIBUTES& payload) {
+
+        return std::format(L"Version: {}, Attributes: {}", payload.Version, trace::names::RenderDiskAttributes(static_cast<uint32_t>(payload.Attributes)));
+    }
+
+
     std::wstring RenderHotplugPayload(const trace::kernel::STORAGE_HOTPLUG_INFO& payload) {
 
         return std::format(L"Size: {}, MediaRemovable: {}, MediaHotplug: {}, DeviceHotplug: {}, WriteCacheEnableOverride: {}", payload.Size, trace::values::RenderBoolean(payload.MediaRemovable), trace::values::RenderBoolean(payload.MediaHotplug), trace::values::RenderBoolean(payload.DeviceHotplug), trace::values::RenderBoolean(payload.WriteCacheEnableOverride));
@@ -241,6 +247,14 @@ namespace {
                 trace::kernel::PARTITION_INFORMATION_EX partition;
 
                 if (trace::details::payload::ReadValue(output, partition)) return RenderPartitionExPayload(partition);
+
+                break;
+            }
+
+            case IOCTL_DISK_GET_DISK_ATTRIBUTES: {
+                trace::kernel::GET_DISK_ATTRIBUTES diskAttributes;
+
+                if (trace::details::payload::ReadValue(output, diskAttributes)) return RenderDiskAttributesPayload(diskAttributes);
 
                 break;
             }

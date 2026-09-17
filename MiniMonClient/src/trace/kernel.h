@@ -1323,6 +1323,15 @@ namespace mimo {
             static_assert(offsetof(PARTITION_INFORMATION_EX, Mbr) == 32u, "trace::kernel::PARTITION_INFORMATION_EX x64 layout drift");
             static_assert(offsetof(PARTITION_INFORMATION_EX, Gpt) == 32u, "trace::kernel::PARTITION_INFORMATION_EX x64 layout drift");
 
+            struct GET_DISK_ATTRIBUTES {
+                uint32_t Version;
+                uint32_t Reserved1;
+                uint64_t Attributes;
+            };
+
+            static_assert(sizeof(GET_DISK_ATTRIBUTES) == 16u, "trace::kernel::GET_DISK_ATTRIBUTES x64 layout drift");
+            static_assert(offsetof(GET_DISK_ATTRIBUTES, Attributes) == 8u, "trace::kernel::GET_DISK_ATTRIBUTES x64 layout drift");
+
             struct STORAGE_HOTPLUG_INFO {
                 uint32_t Size;
                 uint8_t MediaRemovable;    // BOOLEAN in the kernel

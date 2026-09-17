@@ -93,6 +93,8 @@ namespace mimo {
 
             std::wstring RenderPartitionStyle(uint32_t partitionStyle);
 
+            std::wstring RenderDiskAttributes(uint32_t attributes);
+
             std::wstring RenderSecurityInformation(uint32_t securityInformation);
 
             std::wstring RenderSectionSyncType(uint32_t syncType);

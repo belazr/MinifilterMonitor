@@ -363,6 +363,13 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(PERSISTENT_VOLUME_STATE_NAMES), "composite entry after its components in PERSISTENT_VOLUME_STATE_NAMES");
 
+    constexpr FlagName DISK_ATTRIBUTE_NAMES[]{
+        { DISK_ATTRIBUTE_OFFLINE,   L"DISK_ATTRIBUTE_OFFLINE" },
+        { DISK_ATTRIBUTE_READ_ONLY, L"DISK_ATTRIBUTE_READ_ONLY" },
+    };
+
+    static_assert(CompositesPrecedeComponents(DISK_ATTRIBUTE_NAMES), "composite entry after its components in DISK_ATTRIBUTE_NAMES");
+
     constexpr FlagName SECURITY_INFORMATION_NAMES[]{
         { OWNER_SECURITY_INFORMATION,               L"Owner" },
         { GROUP_SECURITY_INFORMATION,               L"Group" },
@@ -1688,6 +1695,14 @@ namespace mimo {
                 }
 
                 return std::format(L"0x{:X}", partitionStyle);
+            }
+
+
+            std::wstring RenderDiskAttributes(uint32_t attributes) {
+
+                if (!attributes) return L"None";
+
+                return RenderFlags(attributes, DISK_ATTRIBUTE_NAMES, L"|");
             }
 
 
