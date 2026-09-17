@@ -131,6 +131,13 @@ namespace mimo {
                         result += std::format(L"EaLength: {}, ", parameters.create.eaLength);
                     }
 
+                    const std::wstring flags = names::RenderCreateFlags(data.operationFlags);
+
+                    if (!flags.empty()) {
+                        result += flags;
+                        result += L", ";
+                    }
+
                     if (createSupplement.captured & protocol::CREATE_CAPTURED_IMPERSONATED_SID) {
                         result += std::format(L"Impersonating: {}, ", values::RenderSid(createSupplement.impersonatedSid));
                     }

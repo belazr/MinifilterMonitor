@@ -158,6 +158,17 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(FILE_ATTRIBUTE_LETTERS), "composite entry after its components in FILE_ATTRIBUTE_LETTERS");
 
+    constexpr FlagName CREATE_FLAG_NAMES[]{
+        { trace::kernel::SL_FORCE_ACCESS_CHECK,        L"Force Access Check" },
+        { trace::kernel::SL_OPEN_PAGING_FILE,          L"Open Paging File" },
+        { trace::kernel::SL_OPEN_TARGET_DIRECTORY,     L"Open Target Directory" },
+        { trace::kernel::SL_STOP_ON_SYMLINK,           L"Stop On Symlink" },
+        { trace::kernel::SL_IGNORE_READONLY_ATTRIBUTE, L"Ignore Readonly Attribute" },
+        { trace::kernel::SL_CASE_SENSITIVE,            L"Case Sensitive" },
+    };
+
+    static_assert(CompositesPrecedeComponents(CREATE_FLAG_NAMES), "composite entry after its components in CREATE_FLAG_NAMES");
+
     constexpr FlagName REMOTE_PROTOCOL_FLAG_NAMES[]{
         { trace::kernel::REMOTE_PROTOCOL_FLAG_LOOPBACK,          L"Loopback" },
         { trace::kernel::REMOTE_PROTOCOL_FLAG_OFFLINE,           L"Offline" },
@@ -767,6 +778,12 @@ namespace mimo {
                 if (!fileAttributes) return L"n/a";
 
                 return RenderFlags(fileAttributes, FILE_ATTRIBUTE_LETTERS, L"");
+            }
+
+
+            std::wstring RenderCreateFlags(uint8_t operationFlags) {
+
+                return RenderFlags(operationFlags, CREATE_FLAG_NAMES, L"|");
             }
 
 

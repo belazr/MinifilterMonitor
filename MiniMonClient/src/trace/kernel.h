@@ -31,6 +31,14 @@ namespace mimo {
             inline constexpr uint32_t IRP_SYNCHRONOUS_PAGING_IO   = 0x00000040u;
             inline constexpr uint32_t IRP_WRITE_OPERATION         = 0x00000200u;
 
+            // create stack-location SL_* flags carried in RecordData::operationFlags
+            inline constexpr uint8_t SL_FORCE_ACCESS_CHECK        = 0x01u;
+            inline constexpr uint8_t SL_OPEN_PAGING_FILE          = 0x02u;
+            inline constexpr uint8_t SL_OPEN_TARGET_DIRECTORY     = 0x04u;
+            inline constexpr uint8_t SL_STOP_ON_SYMLINK           = 0x08u;
+            inline constexpr uint8_t SL_IGNORE_READONLY_ATTRIBUTE = 0x40u;
+            inline constexpr uint8_t SL_CASE_SENSITIVE            = 0x80u;
+
             // read/write stack-location SL_* flags carried in RecordData::operationFlags
             inline constexpr uint8_t SL_KEY_SPECIFIED = 0x01u;
             inline constexpr uint8_t SL_WRITE_THROUGH = 0x04u;
