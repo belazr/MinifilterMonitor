@@ -83,6 +83,8 @@ namespace mimo {
 
             std::wstring RenderFilePrefetchType(uint32_t type);
 
+            std::wstring RenderPersistentVolumeState(uint32_t flags);
+
             std::wstring RenderStoragePropertyId(uint32_t propertyId);
 
             std::wstring RenderStorageQueryType(uint32_t queryType);

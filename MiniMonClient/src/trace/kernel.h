@@ -1150,6 +1150,15 @@ namespace mimo {
             static_assert(sizeof(FILE_LEVEL_TRIM) == 24u, "trace::kernel::FILE_LEVEL_TRIM x64 layout drift");
             static_assert(offsetof(FILE_LEVEL_TRIM, Ranges) == 8u, "trace::kernel::FILE_LEVEL_TRIM x64 layout drift");
 
+            struct FILE_FS_PERSISTENT_VOLUME_INFORMATION {
+                uint32_t VolumeFlags;
+                uint32_t FlagMask;
+                uint32_t Version;
+                uint32_t Reserved;
+            };
+
+            static_assert(sizeof(FILE_FS_PERSISTENT_VOLUME_INFORMATION) == 16u, "trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION x64 layout drift");
+
             struct REQUEST_OPLOCK_INPUT_BUFFER {
                 uint16_t StructureVersion;
                 uint16_t StructureLength;

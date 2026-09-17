@@ -273,6 +273,12 @@ namespace {
     }
 
 
+    std::wstring RenderPersistentVolumeStateInputPayload(const trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION& payload) {
+
+        return std::format(L"VolumeFlags: {}, FlagMask: {}, Version: {}", trace::names::RenderPersistentVolumeState(payload.VolumeFlags), trace::names::RenderPersistentVolumeState(payload.FlagMask), payload.Version);
+    }
+
+
     std::wstring RenderOplockInputPayload(const trace::kernel::REQUEST_OPLOCK_INPUT_BUFFER& payload) {
 
         return std::format(L"RequestedOplockLevel: {}, Flags: {}", trace::names::RenderOplockLevel(payload.RequestedOplockLevel), trace::names::RenderOplockInputFlags(payload.Flags));
@@ -374,6 +380,15 @@ namespace {
             case FSCTL_FILE_LEVEL_TRIM:
 
                 return RenderTrimPayload(input);
+
+            case FSCTL_SET_PERSISTENT_VOLUME_STATE:
+            case FSCTL_QUERY_PERSISTENT_VOLUME_STATE: {
+                trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION persistentState;
+
+                if (trace::details::payload::ReadValue(input, persistentState)) return RenderPersistentVolumeStateInputPayload(persistentState);
+
+                break;
+            }
 
             case FSCTL_REQUEST_OPLOCK: {
                 trace::kernel::REQUEST_OPLOCK_INPUT_BUFFER oplock;
@@ -521,6 +536,12 @@ namespace {
     }
 
 
+    std::wstring RenderPersistentVolumeStateOutputPayload(const trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION& payload) {
+
+        return std::format(L"VolumeFlags: {}", trace::names::RenderPersistentVolumeState(payload.VolumeFlags));
+    }
+
+
     std::wstring RenderOplockOutputPayload(const trace::kernel::REQUEST_OPLOCK_OUTPUT_BUFFER& payload) {
         std::wstring result = std::format(L"OriginalOplockLevel: {}, NewOplockLevel: {}, Flags: {}", trace::names::RenderOplockLevel(payload.OriginalOplockLevel), trace::names::RenderOplockLevel(payload.NewOplockLevel), trace::names::RenderOplockOutputFlags(payload.Flags));
 
@@ -621,6 +642,14 @@ namespace {
                 trace::kernel::USN_JOURNAL_DATA_V0 journalData;
 
                 if (trace::details::payload::ReadValue(output, journalData)) return RenderUsnJournalDataPayload(journalData);
+
+                break;
+            }
+
+            case FSCTL_QUERY_PERSISTENT_VOLUME_STATE: {
+                trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION persistentState;
+
+                if (trace::details::payload::ReadValue(output, persistentState)) return RenderPersistentVolumeStateOutputPayload(persistentState);
 
                 break;
             }
