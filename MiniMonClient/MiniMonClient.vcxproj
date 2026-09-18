@@ -30,6 +30,7 @@
     <ClCompile Include="src\trace\details\ea.cpp" />
     <ClCompile Include="src\trace\details\fastiocheck.cpp" />
     <ClCompile Include="src\trace\details\filesystem.cpp" />
+    <ClCompile Include="src\trace\details\flush.cpp" />
     <ClCompile Include="src\trace\details\info.cpp" />
     <ClCompile Include="src\trace\details\lock.cpp" />
     <ClCompile Include="src\trace\details\modwrite.cpp" />
@@ -59,6 +60,7 @@
     <ClInclude Include="src\trace\details\ea.h" />
     <ClInclude Include="src\trace\details\fastiocheck.h" />
     <ClInclude Include="src\trace\details\filesystem.h" />
+    <ClInclude Include="src\trace\details\flush.h" />
     <ClInclude Include="src\trace\details\info.h" />
     <ClInclude Include="src\trace\details\lock.h" />
     <ClInclude Include="src\trace\details\modwrite.h" />

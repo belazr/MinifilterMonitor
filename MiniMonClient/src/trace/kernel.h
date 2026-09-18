@@ -67,6 +67,9 @@ namespace mimo {
             inline constexpr uint8_t SL_RETURN_ON_DISK_ENTRIES_ONLY = 0x08u;
             inline constexpr uint8_t SL_NO_CURSOR_UPDATE            = 0x10u;
 
+            // flush buffers stack-location SL_* flag carried in RecordData::operationFlags
+            inline constexpr uint8_t SL_FORCE_ASYNCHRONOUS = 0x01u;
+
             // directory control notify stack-location SL_* flag carried in RecordData::operationFlags
             inline constexpr uint8_t SL_WATCH_TREE = 0x01u;
 

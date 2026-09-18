@@ -57,6 +57,8 @@ namespace mimo {
 
             std::wstring RenderScanFlags(uint8_t operationFlags);
 
+            std::wstring RenderFlushFlags(uint8_t operationFlags);
+
             std::wstring RenderFsInformationClass(uint32_t fsInformationClass);
 
             std::wstring RenderFileSystemAttributes(uint32_t fileSystemAttributes);

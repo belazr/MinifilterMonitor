@@ -254,6 +254,12 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(SCAN_FLAG_NAMES), "composite entry after its components in SCAN_FLAG_NAMES");
 
+    constexpr FlagName FLUSH_FLAG_NAMES[]{
+        { trace::kernel::SL_FORCE_ASYNCHRONOUS, L"Force Asynchronous" },
+    };
+
+    static_assert(CompositesPrecedeComponents(FLUSH_FLAG_NAMES), "composite entry after its components in FLUSH_FLAG_NAMES");
+
     constexpr FlagName FILE_SYSTEM_ATTRIBUTE_NAMES[]{
         { FILE_CASE_SENSITIVE_SEARCH,        L"FILE_CASE_SENSITIVE_SEARCH" },
         { FILE_CASE_PRESERVED_NAMES,         L"FILE_CASE_PRESERVED_NAMES" },
@@ -978,6 +984,12 @@ namespace mimo {
             std::wstring RenderScanFlags(uint8_t operationFlags) {
 
                 return RenderFlags(operationFlags, SCAN_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderFlushFlags(uint8_t operationFlags) {
+
+                return RenderFlags(operationFlags, FLUSH_FLAG_NAMES, L"|");
             }
 
 

@@ -6,6 +6,7 @@
 #include "details\ea.h"
 #include "details\fastiocheck.h"
 #include "details\filesystem.h"
+#include "details\flush.h"
 #include "details\info.h"
 #include "details\lock.h"
 #include "details\modwrite.h"
@@ -59,6 +60,10 @@ namespace mimo {
                     case kernel::IRP_MJ_SET_EA:
 
                         return ea::RenderSet(data);
+
+                    case kernel::IRP_MJ_FLUSH_BUFFERS:
+
+                        return flush::Render(data);
 
                     case kernel::IRP_MJ_QUERY_VOLUME_INFORMATION:
                     case kernel::IRP_MJ_SET_VOLUME_INFORMATION:
