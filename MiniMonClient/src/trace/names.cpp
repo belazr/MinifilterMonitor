@@ -295,6 +295,12 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(FILE_SYSTEM_ATTRIBUTE_NAMES), "composite entry after its components in FILE_SYSTEM_ATTRIBUTE_NAMES");
 
+    constexpr FlagName NOTIFY_FLAG_NAMES[]{
+        { trace::kernel::SL_WATCH_TREE, L"Watch Tree" },
+    };
+
+    static_assert(CompositesPrecedeComponents(NOTIFY_FLAG_NAMES), "composite entry after its components in NOTIFY_FLAG_NAMES");
+
     constexpr FlagName COMPLETION_FILTER_NAMES[]{
         { FILE_NOTIFY_CHANGE_FILE_NAME,                   L"FILE_NOTIFY_CHANGE_FILE_NAME" },
         { FILE_NOTIFY_CHANGE_DIR_NAME,                    L"FILE_NOTIFY_CHANGE_DIR_NAME" },
@@ -1022,6 +1028,12 @@ namespace mimo {
                 if (!fileSystemAttributes) return L"None";
 
                 return RenderFlags(fileSystemAttributes, FILE_SYSTEM_ATTRIBUTE_NAMES, L"|");
+            }
+
+
+            std::wstring RenderNotifyFlags(uint8_t operationFlags) {
+
+                return RenderFlags(operationFlags, NOTIFY_FLAG_NAMES, L"|");
             }
 
 

@@ -223,8 +223,11 @@ namespace {
             details = RenderNotifyExParameters(parameters.notifyDirectory.directoryNotifyInformationClass, parameters.notifyDirectory.length);
         }
 
-        if (data.operationFlags & trace::kernel::SL_WATCH_TREE) {
-            details += L", Watch Tree";
+        const std::wstring flags = trace::names::RenderNotifyFlags(data.operationFlags);
+
+        if (!flags.empty()) {
+            details += L", ";
+            details += flags;
         }
 
         const std::wstring completionFilter = trace::names::RenderCompletionFilter(parameters.notifyDirectory.completionFilter);
