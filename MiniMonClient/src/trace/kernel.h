@@ -73,6 +73,10 @@ namespace mimo {
             // directory control notify stack-location SL_* flag carried in RecordData::operationFlags
             inline constexpr uint8_t SL_WATCH_TREE = 0x01u;
 
+            // file system control verify volume stack-location SL_* flag carried in RecordData::operationFlags
+            // (the mount minor reaches a minifilter as IRP_MJ_VOLUME_MOUNT, whose callback data FltMgr builds without it)
+            inline constexpr uint8_t SL_ALLOW_RAW_MOUNT = 0x01u;
+
             // device control and file system control stack-location SL_* flags carried in RecordData::operationFlags
             inline constexpr uint8_t SL_READ_ACCESS_GRANTED  = 0x01u;
             inline constexpr uint8_t SL_WRITE_ACCESS_GRANTED = 0x04u;

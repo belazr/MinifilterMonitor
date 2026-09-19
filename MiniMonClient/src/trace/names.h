@@ -71,6 +71,8 @@ namespace mimo {
 
             std::wstring RenderFileAction(uint32_t action);
 
+            std::wstring RenderVerifyVolumeFlags(uint8_t operationFlags);
+
             std::wstring RenderFsControlCode(uint32_t fsControlCode);
 
             std::wstring RenderIoControlCode(uint32_t ioControlCode);

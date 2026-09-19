@@ -318,6 +318,12 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(COMPLETION_FILTER_NAMES), "composite entry after its components in COMPLETION_FILTER_NAMES");
 
+    constexpr FlagName VERIFY_VOLUME_FLAG_NAMES[]{
+        { trace::kernel::SL_ALLOW_RAW_MOUNT, L"Allow Raw Mount" },
+    };
+
+    static_assert(CompositesPrecedeComponents(VERIFY_VOLUME_FLAG_NAMES), "composite entry after its components in VERIFY_VOLUME_FLAG_NAMES");
+
     constexpr const wchar_t* CONTROL_METHOD_NAMES[]{ L"METHOD_BUFFERED", L"METHOD_IN_DIRECT", L"METHOD_OUT_DIRECT", L"METHOD_NEITHER" };
 
     constexpr const wchar_t* CONTROL_ACCESS_NAMES[]{ L"FILE_ANY_ACCESS", L"FILE_READ_ACCESS", L"FILE_WRITE_ACCESS", L"FILE_READ_ACCESS|FILE_WRITE_ACCESS" };
@@ -1080,6 +1086,12 @@ namespace mimo {
                 }
 
                 return std::format(L"0x{:X}", action);
+            }
+
+
+            std::wstring RenderVerifyVolumeFlags(uint8_t operationFlags) {
+
+                return RenderFlags(operationFlags, VERIFY_VOLUME_FLAG_NAMES, L"|");
             }
 
 

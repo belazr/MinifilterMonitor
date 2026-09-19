@@ -697,6 +697,8 @@ namespace mimo {
 
                 std::wstring Render(const protocol::RecordData& data) {
 
+                    if (data.callbackMinorId == kernel::IRP_MN_VERIFY_VOLUME) return names::RenderVerifyVolumeFlags(data.operationFlags);
+
                     if (data.callbackMinorId != kernel::IRP_MN_USER_FS_REQUEST && data.callbackMinorId != kernel::IRP_MN_KERNEL_CALL) return {};
 
                     const protocol::FltParameters& parameters = data.parameters;
