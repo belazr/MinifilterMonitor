@@ -701,6 +701,13 @@ namespace mimo {
 
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", names::RenderFsControlCode(parameters.fileSystemControl.fsControlCode), parameters.fileSystemControl.inputBufferLength, parameters.fileSystemControl.outputBufferLength);
+                    const std::wstring flags = names::RenderDeviceIoFlags(data.operationFlags);
+
+                    if (!flags.empty()) {
+                        details += L", ";
+                        details += flags;
+                    }
+
                     const protocol::FsControlSupplement& fsControlSupplement = data.supplement.fsControl;
                     const std::wstring inputText = RenderInput(parameters, fsControlSupplement);
 

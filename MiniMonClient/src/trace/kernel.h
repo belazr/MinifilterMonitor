@@ -73,7 +73,7 @@ namespace mimo {
             // directory control notify stack-location SL_* flag carried in RecordData::operationFlags
             inline constexpr uint8_t SL_WATCH_TREE = 0x01u;
 
-            // device control stack-location SL_* flags carried in RecordData::operationFlags
+            // device control and file system control stack-location SL_* flags carried in RecordData::operationFlags
             inline constexpr uint8_t SL_READ_ACCESS_GRANTED  = 0x01u;
             inline constexpr uint8_t SL_WRITE_ACCESS_GRANTED = 0x04u;
 
