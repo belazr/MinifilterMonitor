@@ -21,7 +21,7 @@ namespace {
     enum Column {
         SEQ_NUM, ALTITUDE, OPERATION_ID, TOP_LEVEL_IRP,
         PRE_OP_TIME, POST_OP_TIME, PROCESS_ID, THREAD_ID, REQUESTOR_MODE, IO_PRIORITY_HINT, OPR, MAJOR, MINOR, NAME, STATUS, INFORMATION,
-        DETAILS, IRP_FLAGS, DEV_OBJ, FILE_OBJ, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, REPARSE_TAG,
+        DETAILS, IRP_FLAGS, OPERATION_FLAGS, DEV_OBJ, FILE_OBJ, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, REPARSE_TAG,
         TRANSACTION, TRANSACTION_SEQ, TRANSACTION_NOTIFY,
         STACK_TRACE, COLUMN_COUNT
     };
@@ -47,6 +47,7 @@ namespace {
         labels[INFORMATION]        = L"Information";
         labels[DETAILS]            = L"Details";
         labels[IRP_FLAGS]          = L"IrpFlags";
+        labels[OPERATION_FLAGS]    = L"OperationFlags";
         labels[DEV_OBJ]            = L"DevObj";
         labels[FILE_OBJ]           = L"FileObj";
         labels[ARG1]               = L"Arg1";
@@ -188,6 +189,7 @@ namespace mimo {
                     columns[INFORMATION]      = std::format(L"{:016X}", data.information);
                     columns[DETAILS]          = EscapeCsvField(details::Render(data));
                     columns[IRP_FLAGS]        = std::format(L"{:08X}", data.irpFlags);
+                    columns[OPERATION_FLAGS]  = std::format(L"{:02X}", data.operationFlags);
                     columns[FILE_OBJ]         = values::RenderObjectId(data.fileObject);
                     columns[ARG1]             = std::format(L"{:016X}", data.parameters.others.argument1);
                     columns[ARG2]             = std::format(L"{:016X}", data.parameters.others.argument2);
