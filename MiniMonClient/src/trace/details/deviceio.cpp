@@ -331,6 +331,13 @@ namespace mimo {
                 std::wstring Render(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", names::RenderIoControlCode(parameters.deviceIoControl.ioControlCode), parameters.deviceIoControl.inputBufferLength, parameters.deviceIoControl.outputBufferLength);
+                    const std::wstring flags = names::RenderDeviceIoFlags(data.operationFlags);
+
+                    if (!flags.empty()) {
+                        details += L", ";
+                        details += flags;
+                    }
+
                     const protocol::DeviceIoControlSupplement& deviceIoControlSupplement = data.supplement.deviceIoControl;
                     const std::wstring inputText = RenderInput(parameters.deviceIoControl.ioControlCode, deviceIoControlSupplement);
 

@@ -95,6 +95,8 @@ namespace mimo {
 
             std::wstring RenderPersistentVolumeState(uint32_t flags);
 
+            std::wstring RenderDeviceIoFlags(uint8_t operationFlags);
+
             std::wstring RenderStoragePropertyId(uint32_t propertyId);
 
             std::wstring RenderStorageQueryType(uint32_t queryType);

@@ -420,6 +420,14 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(PERSISTENT_VOLUME_STATE_NAMES), "composite entry after its components in PERSISTENT_VOLUME_STATE_NAMES");
 
+    constexpr FlagName DEVICE_IO_FLAG_NAMES[]{
+        { trace::kernel::SL_READ_ACCESS_GRANTED,    L"Read Access Granted" },
+        { trace::kernel::SL_OVERRIDE_VERIFY_VOLUME, L"Override Verify Volume" },
+        { trace::kernel::SL_WRITE_ACCESS_GRANTED,   L"Write Access Granted" },
+    };
+
+    static_assert(CompositesPrecedeComponents(DEVICE_IO_FLAG_NAMES), "composite entry after its components in DEVICE_IO_FLAG_NAMES");
+
     constexpr FlagName DISK_ATTRIBUTE_NAMES[]{
         { DISK_ATTRIBUTE_OFFLINE,   L"DISK_ATTRIBUTE_OFFLINE" },
         { DISK_ATTRIBUTE_READ_ONLY, L"DISK_ATTRIBUTE_READ_ONLY" },
@@ -1674,6 +1682,12 @@ namespace mimo {
                 if (!flags) return L"None";
 
                 return RenderFlags(flags, PERSISTENT_VOLUME_STATE_NAMES, L"|");
+            }
+
+
+            std::wstring RenderDeviceIoFlags(uint8_t operationFlags) {
+
+                return RenderFlags(operationFlags, DEVICE_IO_FLAG_NAMES, L"|");
             }
 
 
