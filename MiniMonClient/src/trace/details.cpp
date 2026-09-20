@@ -11,6 +11,7 @@
 #include "details\lock.h"
 #include "details\modwrite.h"
 #include "details\mount.h"
+#include "details\pnp.h"
 #include "details\quota.h"
 #include "details\readwrite.h"
 #include "details\section.h"
@@ -106,6 +107,10 @@ namespace mimo {
                     case kernel::IRP_MJ_SET_QUOTA:
 
                         return quota::RenderSet(data);
+
+                    case kernel::IRP_MJ_PNP:
+
+                        return pnp::Render(data);
 
                     case kernel::IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION:
 

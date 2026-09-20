@@ -113,6 +113,10 @@ namespace mimo {
 
             std::wstring RenderSecurityInformation(uint32_t securityInformation);
 
+            std::wstring RenderDeviceRelationType(uint32_t type);
+
+            std::wstring RenderDeviceUsageNotificationType(uint32_t type);
+
             std::wstring RenderSectionSyncType(uint32_t syncType);
 
             std::wstring RenderPageProtection(uint32_t pageProtection);

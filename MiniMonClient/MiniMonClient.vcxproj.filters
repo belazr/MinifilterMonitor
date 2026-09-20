@@ -63,6 +63,9 @@
     <ClCompile Include="src\trace\details\mount.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\trace\details\pnp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\trace\details\quota.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -150,6 +153,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\details\payload.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trace\details\pnp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\details\quota.h">

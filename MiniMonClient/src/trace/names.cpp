@@ -1873,6 +1873,39 @@ namespace mimo {
             }
 
 
+            std::wstring RenderDeviceRelationType(uint32_t type) {
+
+                switch (type) {
+                    case kernel::BusRelations:         return L"BusRelations";
+                    case kernel::EjectionRelations:    return L"EjectionRelations";
+                    case kernel::PowerRelations:       return L"PowerRelations";
+                    case kernel::RemovalRelations:     return L"RemovalRelations";
+                    case kernel::TargetDeviceRelation: return L"TargetDeviceRelation";
+                    case kernel::SingleBusRelations:   return L"SingleBusRelations";
+                    case kernel::TransportRelations:   return L"TransportRelations";
+                }
+
+                return std::format(L"0x{:X}", type);
+            }
+
+
+            std::wstring RenderDeviceUsageNotificationType(uint32_t type) {
+
+                switch (type) {
+                    case kernel::DeviceUsageTypeUndefined:          return L"DeviceUsageTypeUndefined";
+                    case kernel::DeviceUsageTypePaging:             return L"DeviceUsageTypePaging";
+                    case kernel::DeviceUsageTypeHibernation:        return L"DeviceUsageTypeHibernation";
+                    case kernel::DeviceUsageTypeDumpFile:           return L"DeviceUsageTypeDumpFile";
+                    case kernel::DeviceUsageTypeBoot:               return L"DeviceUsageTypeBoot";
+                    case kernel::DeviceUsageTypePostDisplay:        return L"DeviceUsageTypePostDisplay";
+                    case kernel::DeviceUsageTypeGuestAssigned:      return L"DeviceUsageTypeGuestAssigned";
+                    case kernel::DeviceUsageTypeInlineCryptoEngine: return L"DeviceUsageTypeInlineCryptoEngine";
+                }
+
+                return std::format(L"0x{:X}", type);
+            }
+
+
             std::wstring RenderSectionSyncType(uint32_t syncType) {
 
                 switch (syncType) {

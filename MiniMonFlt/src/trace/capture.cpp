@@ -202,6 +202,10 @@ MIRROR_ASSERT(setQuota.length,      SetQuota.Length);
 MIRROR_ASSERT(setQuota.quotaBuffer, SetQuota.QuotaBuffer);
 MIRROR_ASSERT(setQuota.mdlAddress,  SetQuota.MdlAddress);
 
+MIRROR_ASSERT(pnp.queryDeviceRelations.type, Pnp.QueryDeviceRelations.Type);
+MIRROR_ASSERT(pnp.usageNotification.inPath,  Pnp.UsageNotification.InPath);
+MIRROR_ASSERT(pnp.usageNotification.type,    Pnp.UsageNotification.Type);
+
 MIRROR_ASSERT(acquireForSectionSynchronization.syncType,             AcquireForSectionSynchronization.SyncType);
 MIRROR_ASSERT(acquireForSectionSynchronization.pageProtection,       AcquireForSectionSynchronization.PageProtection);
 MIRROR_ASSERT(acquireForSectionSynchronization.outputInformation,    AcquireForSectionSynchronization.OutputInformation);

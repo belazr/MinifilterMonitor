@@ -1470,6 +1470,25 @@ namespace mimo {
             static_assert(offsetof(FILE_QUOTA_INFORMATION, ChangeTime) == 8u, "trace::kernel::FILE_QUOTA_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_QUOTA_INFORMATION, Sid) == 40u, "trace::kernel::FILE_QUOTA_INFORMATION x64 layout drift");
 
+            // DEVICE_RELATION_TYPE values
+            inline constexpr uint32_t BusRelations         = 0u;
+            inline constexpr uint32_t EjectionRelations    = 1u;
+            inline constexpr uint32_t PowerRelations       = 2u;
+            inline constexpr uint32_t RemovalRelations     = 3u;
+            inline constexpr uint32_t TargetDeviceRelation = 4u;
+            inline constexpr uint32_t SingleBusRelations   = 5u;
+            inline constexpr uint32_t TransportRelations   = 6u;
+
+            // DEVICE_USAGE_NOTIFICATION_TYPE values
+            inline constexpr uint32_t DeviceUsageTypeUndefined          = 0u;
+            inline constexpr uint32_t DeviceUsageTypePaging             = 1u;
+            inline constexpr uint32_t DeviceUsageTypeHibernation        = 2u;
+            inline constexpr uint32_t DeviceUsageTypeDumpFile           = 3u;
+            inline constexpr uint32_t DeviceUsageTypeBoot               = 4u;
+            inline constexpr uint32_t DeviceUsageTypePostDisplay        = 5u;
+            inline constexpr uint32_t DeviceUsageTypeGuestAssigned      = 6u;
+            inline constexpr uint32_t DeviceUsageTypeInlineCryptoEngine = 7u;
+
             // FS_FILTER_SECTION_SYNC_TYPE values
             inline constexpr uint32_t SyncTypeOther         = 0u;
             inline constexpr uint32_t SyncTypeCreateSection = 1u;

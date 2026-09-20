@@ -230,6 +230,18 @@ namespace mimo {
                 uint64_t mdlAddress;
             } setQuota;
 
+            // IRP_MJ_PNP / IRP_MN_QUERY_DEVICE_RELATIONS / IRP_MN_DEVICE_USAGE_NOTIFICATION
+            union {
+                struct {
+                    uint32_t type;          // DEVICE_RELATION_TYPE
+                } queryDeviceRelations;
+                struct {
+                    uint8_t inPath;
+                    uint8_t reserved1[7u];
+                    uint32_t type;          // DEVICE_USAGE_NOTIFICATION_TYPE
+                } usageNotification;
+            } pnp;
+
             // IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION
             struct {
                 uint32_t syncType;
@@ -372,6 +384,7 @@ namespace mimo {
         static_assert(offsetof(FltParameters, queryQuota.mdlAddress) == 40u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setQuota.quotaBuffer) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, setQuota.mdlAddress) == 16u, "protocol::FltParameters layout drift");
+        static_assert(offsetof(FltParameters, pnp.usageNotification.type) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.pageProtection) == 4u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.outputInformation) == 8u, "protocol::FltParameters layout drift");
         static_assert(offsetof(FltParameters, acquireForSectionSynchronization.flags) == 16u, "protocol::FltParameters layout drift");
