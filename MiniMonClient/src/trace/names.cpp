@@ -201,6 +201,26 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(READ_WRITE_FLAG_NAMES), "composite entry after its components in READ_WRITE_FLAG_NAMES");
 
+    constexpr FlagName RENAME_INFORMATION_FLAG_NAMES[]{
+        { trace::kernel::SL_BYPASS_ACCESS_CHECK,            L"Bypass Access Check" },
+        { trace::kernel::SL_INFO_IGNORE_READONLY_ATTRIBUTE, L"Ignore Readonly Attribute" },
+    };
+
+    static_assert(CompositesPrecedeComponents(RENAME_INFORMATION_FLAG_NAMES), "composite entry after its components in RENAME_INFORMATION_FLAG_NAMES");
+
+    constexpr FlagName CASE_SENSITIVE_INFORMATION_FLAG_NAMES[]{
+        { trace::kernel::SL_INFO_FORCE_ACCESS_CHECK,        L"Force Access Check" },
+        { trace::kernel::SL_INFO_IGNORE_READONLY_ATTRIBUTE, L"Ignore Readonly Attribute" },
+    };
+
+    static_assert(CompositesPrecedeComponents(CASE_SENSITIVE_INFORMATION_FLAG_NAMES), "composite entry after its components in CASE_SENSITIVE_INFORMATION_FLAG_NAMES");
+
+    constexpr FlagName INFORMATION_FLAG_NAMES[]{
+        { trace::kernel::SL_INFO_IGNORE_READONLY_ATTRIBUTE, L"Ignore Readonly Attribute" },
+    };
+
+    static_assert(CompositesPrecedeComponents(INFORMATION_FLAG_NAMES), "composite entry after its components in INFORMATION_FLAG_NAMES");
+
     constexpr FlagName REMOTE_PROTOCOL_FLAG_NAMES[]{
         { trace::kernel::REMOTE_PROTOCOL_FLAG_LOOPBACK,          L"Loopback" },
         { trace::kernel::REMOTE_PROTOCOL_FLAG_OFFLINE,           L"Offline" },
@@ -948,6 +968,32 @@ namespace mimo {
                 }
 
                 return std::to_wstring(fileInformationClass);
+            }
+
+
+            std::wstring RenderInformationFlags(uint32_t fileInformationClass, uint8_t operationFlags) {
+
+                switch (fileInformationClass) {
+
+                    case kernel::FileRenameInformation:
+                    case kernel::FileLinkInformation:
+                    case kernel::FileRenameInformationBypassAccessCheck:
+                    case kernel::FileLinkInformationBypassAccessCheck:
+                    case kernel::FileRenameInformationEx:
+                    case kernel::FileRenameInformationExBypassAccessCheck:
+                    case kernel::FileLinkInformationEx:
+                    case kernel::FileLinkInformationExBypassAccessCheck:
+
+                        return RenderFlags(operationFlags, RENAME_INFORMATION_FLAG_NAMES, L"|");
+
+                    case kernel::FileCaseSensitiveInformation:
+                    case kernel::FileCaseSensitiveInformationForceAccessCheck:
+
+                        return RenderFlags(operationFlags, CASE_SENSITIVE_INFORMATION_FLAG_NAMES, L"|");
+
+                }
+
+                return RenderFlags(operationFlags, INFORMATION_FLAG_NAMES, L"|");
             }
 
 

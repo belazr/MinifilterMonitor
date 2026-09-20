@@ -60,6 +60,12 @@ namespace mimo {
             inline constexpr uint8_t SL_PERSISTENT_MEMORY_FIXED_MAPPING = 0x20u;    // persistent memory writes
             inline constexpr uint8_t SL_BYPASS_IO                       = 0x40u;
 
+            // query information and set information stack-location SL_* flags carried in RecordData::operationFlags
+            // (wdm.h overloads 0x01 by class: bypass on the rename / link classes, force on FileCaseSensitiveInformation)
+            inline constexpr uint8_t SL_BYPASS_ACCESS_CHECK            = 0x01u;
+            inline constexpr uint8_t SL_INFO_FORCE_ACCESS_CHECK        = 0x01u;
+            inline constexpr uint8_t SL_INFO_IGNORE_READONLY_ATTRIBUTE = 0x40u;
+
             // query EA, query quota and directory control query stack-location SL_* flags carried in RecordData::operationFlags
             inline constexpr uint8_t SL_RESTART_SCAN                = 0x01u;
             inline constexpr uint8_t SL_RETURN_SINGLE_ENTRY         = 0x02u;

@@ -43,6 +43,8 @@ namespace mimo {
 
             std::wstring RenderFileInformationClass(uint32_t fileInformationClass);
 
+            std::wstring RenderInformationFlags(uint32_t fileInformationClass, uint8_t operationFlags);
+
             std::wstring RenderCompressionFormat(uint16_t format);
 
             std::wstring RenderRemoteProtocol(uint32_t protocol);
