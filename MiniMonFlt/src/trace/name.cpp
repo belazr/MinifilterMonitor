@@ -27,8 +27,8 @@ namespace mimo {
                     goto done;
                 }
 
-                if (KeGetCurrentIrql() >= DISPATCH_LEVEL) {
-                    formatStatus = RtlUnicodeStringCopyString(pName, L"[name unavailable: dispatch level]");
+                if (KeGetCurrentIrql() != PASSIVE_LEVEL) {
+                    formatStatus = RtlUnicodeStringCopyString(pName, L"[name unavailable: above passive level]");
 
                     goto done;
                 }
@@ -81,6 +81,8 @@ namespace mimo {
             ) {
                 PAGED_CODE();
 
+                if (KeGetCurrentIrql() != PASSIVE_LEVEL) return STATUS_UNSUCCESSFUL;
+
                 // rename and link layouts agree on RootDirectory, FileNameLength and FileName
                 const FILE_RENAME_INFORMATION* const pInfo = static_cast<const FILE_RENAME_INFORMATION*>(pData->Iopb->Parameters.SetFileInformation.InfoBuffer);
 
@@ -98,7 +100,7 @@ namespace mimo {
 
                 FLT_FILE_NAME_INFORMATION* pTargetInfo = nullptr;
 
-                if (KeGetCurrentIrql() == PASSIVE_LEVEL && FLT_IS_IRP_OPERATION(pData) && NT_SUCCESS(FltGetDestinationFileNameInformation(pFltObjects->Instance, pFltObjects->FileObject, rootDirectory, pFileName, fileNameSize, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &pTargetInfo))) {
+                if (FLT_IS_IRP_OPERATION(pData) && NT_SUCCESS(FltGetDestinationFileNameInformation(pFltObjects->Instance, pFltObjects->FileObject, rootDirectory, pFileName, fileNameSize, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &pTargetInfo))) {
                     sourceName = pTargetInfo->Name;
                 }
 
