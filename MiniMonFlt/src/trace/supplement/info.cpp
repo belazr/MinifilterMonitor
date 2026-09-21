@@ -96,9 +96,6 @@ namespace mimo {
 
                 _Use_decl_annotations_
                 void PopulateQuery(protocol::QueryInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-
-                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
-
                     const void* const pInfoBuffer = pData->Iopb->Parameters.QueryFileInformation.InfoBuffer;
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryFileInformation.Length;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
