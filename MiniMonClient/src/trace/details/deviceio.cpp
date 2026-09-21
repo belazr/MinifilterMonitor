@@ -176,6 +176,12 @@ namespace {
     }
 
 
+    std::wstring RenderDeviceNumberExPayload(const trace::kernel::STORAGE_DEVICE_NUMBER_EX& payload) {
+
+        return std::format(L"Version: {}, Size: {}, Flags: {}, DeviceType: {}, DeviceNumber: {}, DeviceGuid: {}, PartitionNumber: {}", payload.Version, payload.Size, trace::names::RenderStorageDeviceFlags(payload.Flags), trace::names::RenderDeviceType(payload.DeviceType), payload.DeviceNumber, trace::values::RenderGuid(payload.DeviceGuid), payload.PartitionNumber);
+    }
+
+
     std::wstring RenderDescriptorHeaderPayload(const trace::kernel::STORAGE_DESCRIPTOR_HEADER& payload) {
 
         return std::format(L"Version: {}, Size: {}", payload.Version, payload.Size);
@@ -271,6 +277,14 @@ namespace {
                 trace::kernel::STORAGE_DEVICE_NUMBER deviceNumber;
 
                 if (trace::details::payload::ReadValue(output, deviceNumber)) return RenderDeviceNumberPayload(deviceNumber);
+
+                break;
+            }
+
+            case IOCTL_STORAGE_GET_DEVICE_NUMBER_EX: {
+                trace::kernel::STORAGE_DEVICE_NUMBER_EX deviceNumberEx;
+
+                if (trace::details::payload::ReadValue(output, deviceNumberEx)) return RenderDeviceNumberExPayload(deviceNumberEx);
 
                 break;
             }

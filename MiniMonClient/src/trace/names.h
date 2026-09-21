@@ -117,6 +117,8 @@ namespace mimo {
 
             std::wstring RenderDiskAttributes(uint32_t attributes);
 
+            std::wstring RenderStorageDeviceFlags(uint32_t flags);
+
             std::wstring RenderSecurityInformation(uint32_t securityInformation);
 
             std::wstring RenderDeviceRelationType(uint32_t type);

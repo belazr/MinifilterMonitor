@@ -1405,6 +1405,20 @@ namespace mimo {
 
             static_assert(sizeof(STORAGE_DEVICE_NUMBER) == 12u, "trace::kernel::STORAGE_DEVICE_NUMBER x64 layout drift");
 
+            struct STORAGE_DEVICE_NUMBER_EX {
+                uint32_t Version;
+                uint32_t Size;
+                uint32_t Flags;
+                uint32_t DeviceType;    // DEVICE_TYPE in the kernel
+                uint32_t DeviceNumber;
+                uint8_t DeviceGuid[16u];
+                uint32_t PartitionNumber;
+            };
+
+            static_assert(sizeof(STORAGE_DEVICE_NUMBER_EX) == 40u, "trace::kernel::STORAGE_DEVICE_NUMBER_EX x64 layout drift");
+            static_assert(offsetof(STORAGE_DEVICE_NUMBER_EX, DeviceGuid) == 20u, "trace::kernel::STORAGE_DEVICE_NUMBER_EX x64 layout drift");
+            static_assert(offsetof(STORAGE_DEVICE_NUMBER_EX, PartitionNumber) == 36u, "trace::kernel::STORAGE_DEVICE_NUMBER_EX x64 layout drift");
+
             struct STORAGE_PROPERTY_QUERY {
                 uint32_t PropertyId;
                 uint32_t QueryType;

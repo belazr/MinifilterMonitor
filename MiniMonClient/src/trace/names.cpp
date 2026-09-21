@@ -490,6 +490,14 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(DISK_ATTRIBUTE_NAMES), "composite entry after its components in DISK_ATTRIBUTE_NAMES");
 
+    constexpr FlagName STORAGE_DEVICE_FLAG_NAMES[]{
+        { STORAGE_DEVICE_FLAGS_RANDOM_DEVICEGUID_REASON_CONFLICT, L"STORAGE_DEVICE_FLAGS_RANDOM_DEVICEGUID_REASON_CONFLICT" },
+        { STORAGE_DEVICE_FLAGS_RANDOM_DEVICEGUID_REASON_NOHWID,   L"STORAGE_DEVICE_FLAGS_RANDOM_DEVICEGUID_REASON_NOHWID" },
+        { STORAGE_DEVICE_FLAGS_PAGE_83_DEVICEGUID,                L"STORAGE_DEVICE_FLAGS_PAGE_83_DEVICEGUID" },
+    };
+
+    static_assert(CompositesPrecedeComponents(STORAGE_DEVICE_FLAG_NAMES), "composite entry after its components in STORAGE_DEVICE_FLAG_NAMES");
+
     constexpr FlagName SECURITY_INFORMATION_NAMES[]{
         { OWNER_SECURITY_INFORMATION,               L"Owner" },
         { GROUP_SECURITY_INFORMATION,               L"Group" },
@@ -1917,6 +1925,14 @@ namespace mimo {
                 if (!attributes) return L"None";
 
                 return RenderFlags(attributes, DISK_ATTRIBUTE_NAMES, L"|");
+            }
+
+
+            std::wstring RenderStorageDeviceFlags(uint32_t flags) {
+
+                if (!flags) return L"None";
+
+                return RenderFlags(flags, STORAGE_DEVICE_FLAG_NAMES, L"|");
             }
 
 
