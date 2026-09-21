@@ -4,14 +4,12 @@ namespace mimo {
 
     namespace memory {
 
-        __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
         const void* MapMdl(
             MDL* pMdl,
             const void* pExpectedAddress,
             ULONG* pBufferSize
         ) {
-            PAGED_CODE();
 
             if (!pMdl) return nullptr;
 
@@ -31,14 +29,14 @@ namespace mimo {
         }
 
 
-        __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
         bool IsRawBufferReadable(
             const FLT_CALLBACK_DATA* pData,
             const void* pRawBuffer,
             ULONG bufferSize
         ) {
-            PAGED_CODE();
+
+            if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return false;
 
             if (!pRawBuffer) return false;
 
@@ -58,7 +56,6 @@ namespace mimo {
         }
 
 
-        __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
         const void* GetReadableBuffer(
             const FLT_CALLBACK_DATA* pData,
@@ -66,10 +63,12 @@ namespace mimo {
             const void* pRawBuffer,
             ULONG* pBufferSize
         ) {
-            PAGED_CODE();
 
             // the completion wrote here, the parameter buffers are stale
             if (pData->Flags & FLTFL_CALLBACK_DATA_NEW_SYSTEM_BUFFER) {
+
+                if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return nullptr;
+
                 const ULONG_PTR writtenSize = pData->IoStatus.Information;
 
                 if (writtenSize < *pBufferSize) {

@@ -49,11 +49,8 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateRead(protocol::ReadWriteSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
-
                     const ULONG bufferSize = pData->Iopb->Parameters.Read.Length;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
 
