@@ -12,7 +12,6 @@ namespace mimo {
 
             namespace create {
 
-                __declspec(code_seg("PAGE"))
                 void Populate(_Inout_ protocol::CreateSupplement* pSupplement, _In_ FLT_CALLBACK_DATA* pData);
 
             }

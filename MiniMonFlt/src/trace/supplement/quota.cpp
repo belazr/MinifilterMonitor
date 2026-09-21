@@ -14,10 +14,10 @@ namespace mimo {
 
             namespace quota {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateSidList(protocol::QueryQuotaSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const void* const pSidList = pData->Iopb->Parameters.QueryQuota.SidList;
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryQuota.SidListLength;
@@ -39,11 +39,8 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateSet(protocol::SetQuotaSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
-
                     const ULONG bufferSize = pData->Iopb->Parameters.SetQuota.Length;
 
                     if (!bufferSize) return;
@@ -74,11 +71,8 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateQuery(protocol::QueryQuotaSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
-
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryQuota.Length;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
 

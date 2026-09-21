@@ -12,10 +12,10 @@ namespace mimo {
 
             namespace volume {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateSet(protocol::VolumeInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const void* const pVolumeBuffer = pData->Iopb->Parameters.SetVolumeInformation.VolumeBuffer;
                     const ULONG bufferSize = pData->Iopb->Parameters.SetVolumeInformation.Length;
@@ -37,10 +37,10 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateQuery(protocol::VolumeInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const void* const pVolumeBuffer = pData->Iopb->Parameters.QueryVolumeInformation.VolumeBuffer;
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryVolumeInformation.Length;

@@ -14,11 +14,8 @@ namespace mimo {
 
             namespace readwrite {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateWrite(protocol::ReadWriteSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
-
                     const ULONG bufferSize = pData->Iopb->Parameters.Write.Length;
 
                     if (!bufferSize) return;

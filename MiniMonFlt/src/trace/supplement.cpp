@@ -32,8 +32,6 @@ namespace mimo {
                 const FLT_RELATED_OBJECTS* pFltObjects
             ) {
 
-                if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
-
                 switch (pData->Iopb->MajorFunction) {
 
                     case IRP_MJ_CREATE:
@@ -175,19 +173,15 @@ namespace mimo {
 
                 if (!NT_SUCCESS(status) && status != STATUS_BUFFER_OVERFLOW) return;
 
-                // the read child is nonpaged, its MDL leg serves completions at DISPATCH_LEVEL
-                if (pData->Iopb->MajorFunction == IRP_MJ_READ) {
-
-                    if (!(pData->Iopb->MinorFunction & (IRP_MN_MDL | IRP_MN_COMPLETE)) && pData->Iopb->Parameters.Read.Length) {
-                        readwrite::PopulateRead(&pSupplement->readWrite, pData);
-                    }
-
-                    return;
-                }
-
-                if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
-
                 switch (pData->Iopb->MajorFunction) {
+
+                    case IRP_MJ_READ:
+
+                        if (!(pData->Iopb->MinorFunction & (IRP_MN_MDL | IRP_MN_COMPLETE)) && pData->Iopb->Parameters.Read.Length) {
+                            readwrite::PopulateRead(&pSupplement->readWrite, pData);
+                        }
+
+                        break;
 
                     case IRP_MJ_QUERY_INFORMATION:
 

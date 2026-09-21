@@ -14,10 +14,10 @@ namespace mimo {
 
             namespace ea {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateEaList(protocol::QueryEaSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const void* const pEaList = pData->Iopb->Parameters.QueryEa.EaList;
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryEa.EaListLength;
@@ -39,11 +39,8 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateSet(protocol::SetEaSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
-
                     const ULONG bufferSize = pData->Iopb->Parameters.SetEa.Length;
 
                     if (!bufferSize) return;
@@ -74,11 +71,8 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateQuery(protocol::QueryEaSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
-
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryEa.Length;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
 

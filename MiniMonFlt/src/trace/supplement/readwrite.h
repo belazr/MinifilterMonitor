@@ -12,7 +12,6 @@ namespace mimo {
 
             namespace readwrite {
 
-                __declspec(code_seg("PAGE"))
                 void PopulateWrite(_Inout_ protocol::ReadWriteSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData);
 
                 void PopulateRead(_Inout_ protocol::ReadWriteSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData);

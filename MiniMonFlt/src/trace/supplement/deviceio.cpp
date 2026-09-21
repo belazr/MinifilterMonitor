@@ -10,10 +10,7 @@ using namespace mimo;
 
 namespace {
 
-    __declspec(code_seg("PAGE"))
     void PopulateSecondInput(_Inout_ protocol::DeviceIoControlSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
-        PAGED_CODE();
-
         const ULONG bufferSize = pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength;
 
         if (!bufferSize) return;
@@ -57,10 +54,10 @@ namespace mimo {
 
             namespace deviceio {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateInput(protocol::DeviceIoControlSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const ULONG inSize = pData->Iopb->Parameters.DeviceIoControl.Common.InputBufferLength;
                     const ULONG outSize = pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength;
@@ -129,11 +126,8 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateOutput(protocol::DeviceIoControlSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
-
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.DeviceIoControl.Common.IoControlCode);
                     const ULONG bufferSize = pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;

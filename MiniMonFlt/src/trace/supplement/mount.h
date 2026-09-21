@@ -12,7 +12,6 @@ namespace mimo {
 
             namespace mount {
 
-                __declspec(code_seg("PAGE"))
                 void Populate(_Inout_ protocol::MountSupplement* pSupplement, _In_ const FLT_RELATED_OBJECTS* pFltObjects);
 
             }

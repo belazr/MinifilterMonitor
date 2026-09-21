@@ -10,10 +10,7 @@ using namespace mimo;
 
 namespace {
 
-    __declspec(code_seg("PAGE"))
     void PopulateSecondInput(_Inout_ protocol::FsControlSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData) {
-        PAGED_CODE();
-
         const ULONG bufferSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
 
         if (!bufferSize) return;
@@ -53,10 +50,10 @@ namespace mimo {
 
             namespace filesystem {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateInput(protocol::FsControlSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const ULONG inSize = pData->Iopb->Parameters.FileSystemControl.Common.InputBufferLength;
                     const ULONG outSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
@@ -118,11 +115,8 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateOutput(protocol::FsControlSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
-
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode);
                     const ULONG bufferSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
@@ -136,7 +130,9 @@ namespace mimo {
                     switch (method) {
 
                         case METHOD_BUFFERED:
-                            pOutputBuffer = pData->Iopb->Parameters.FileSystemControl.Buffered.SystemBuffer;
+                            if (KeGetCurrentIrql() < DISPATCH_LEVEL) {
+                                pOutputBuffer = pData->Iopb->Parameters.FileSystemControl.Buffered.SystemBuffer;
+                            }
 
                             break;
 

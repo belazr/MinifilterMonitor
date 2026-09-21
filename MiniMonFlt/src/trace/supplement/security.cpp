@@ -14,10 +14,10 @@ namespace mimo {
 
             namespace security {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateSet(protocol::SecuritySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() != PASSIVE_LEVEL) return;
 
                     PSECURITY_DESCRIPTOR const pSecurityDescriptor = pData->Iopb->Parameters.SetSecurity.SecurityDescriptor;
                     ULONG size = 0u;
@@ -48,10 +48,10 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateQuery(protocol::SecuritySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const ULONG bufferSize = pData->Iopb->Parameters.QuerySecurity.Length;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;

@@ -12,7 +12,6 @@ namespace mimo {
 
             namespace wmi {
 
-                __declspec(code_seg("PAGE"))
                 void Populate(_Inout_ protocol::WmiSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData);
 
             }

@@ -14,14 +14,11 @@ static_assert(sizeof(FILE_NETWORK_OPEN_INFORMATION) <= protocol::QUERY_INFO_PAYL
 
 namespace {
 
-    __declspec(code_seg("PAGE"))
     void PopulateTargetName(
         _Inout_ protocol::SetInfoSupplement* pSupplement,
         _In_ FLT_CALLBACK_DATA* pData,
         _In_ const FLT_RELATED_OBJECTS* pFltObjects
     ) {
-        PAGED_CODE();
-
         UNICODE_STRING targetName{};
         RtlInitEmptyUnicodeString(&targetName, pSupplement->targetName, static_cast<USHORT>(sizeof(pSupplement->targetName)));
 
@@ -48,14 +45,14 @@ namespace mimo {
 
             namespace info {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateSet(
                     protocol::SetInfoSupplement* pSupplement,
                     FLT_CALLBACK_DATA* pData,
                     const FLT_RELATED_OBJECTS* pFltObjects
                 ) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const void* const pInfoBuffer = pData->Iopb->Parameters.SetFileInformation.InfoBuffer;
                     const ULONG bufferSize = pData->Iopb->Parameters.SetFileInformation.Length;
@@ -97,10 +94,10 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateQuery(protocol::QueryInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const void* const pInfoBuffer = pData->Iopb->Parameters.QueryFileInformation.InfoBuffer;
                     const ULONG bufferSize = pData->Iopb->Parameters.QueryFileInformation.Length;
@@ -133,10 +130,10 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateQueryOpen(protocol::QueryInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const void* const pFileInformation = pData->Iopb->Parameters.QueryOpen.FileInformation;
                     const ULONG* const pLength = pData->Iopb->Parameters.QueryOpen.Length;
@@ -162,10 +159,10 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateNetworkQueryOpen(protocol::QueryInfoSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const FILE_NETWORK_OPEN_INFORMATION* const pNetworkInformation = pData->Iopb->Parameters.NetworkQueryOpen.NetworkInformation;
                     constexpr ULONG BUFFER_SIZE = static_cast<ULONG>(sizeof(FILE_NETWORK_OPEN_INFORMATION));

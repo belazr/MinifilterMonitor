@@ -12,10 +12,10 @@ namespace mimo {
 
             namespace mount {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void Populate(protocol::MountSupplement* pSupplement, const FLT_RELATED_OBJECTS* pFltObjects) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     PFLT_VOLUME const pVolume = pFltObjects->Volume;
 

@@ -12,10 +12,7 @@ static_assert(protocol::CREATE_SID_SIZE == SECURITY_MAX_SID_SIZE, "protocol::CRE
 
 namespace {
 
-    __declspec(code_seg("PAGE"))
     void PopulateImpersonatedSid(_Inout_ protocol::CreateSupplement* pSupplement, _In_ PACCESS_TOKEN pClientToken) {
-        PAGED_CODE();
-
         TOKEN_USER* pTokenUser = nullptr;
         ULONG sidSize = 0u;
 
@@ -49,10 +46,8 @@ namespace mimo {
 
             namespace create {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void Populate(protocol::CreateSupplement* pSupplement, FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
 
                     if (KeGetCurrentIrql() != PASSIVE_LEVEL) return;
 

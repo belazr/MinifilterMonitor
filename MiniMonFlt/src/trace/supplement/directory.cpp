@@ -15,10 +15,10 @@ namespace mimo {
 
             namespace directory {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateFileName(protocol::QueryDirectorySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() != PASSIVE_LEVEL) return;
 
                     const UNICODE_STRING* const pFileName = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName;
 
@@ -41,11 +41,8 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateQuery(protocol::QueryDirectorySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
-
                     const ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.QueryDirectory.Length;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
 
@@ -78,11 +75,8 @@ namespace mimo {
                 }
 
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void PopulateNotify(protocol::NotifyDirectorySupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
-
                     const ULONG bufferSize = pData->Iopb->Parameters.DirectoryControl.NotifyDirectory.Length;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
 

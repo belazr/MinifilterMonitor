@@ -16,10 +16,10 @@ namespace mimo {
 
             namespace wmi {
 
-                __declspec(code_seg("PAGE"))
                 _Use_decl_annotations_
                 void Populate(protocol::WmiSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
-                    PAGED_CODE();
+
+                    if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                     const GUID* const pGuid = static_cast<const GUID*>(pData->Iopb->Parameters.WMI.DataPath);
 
