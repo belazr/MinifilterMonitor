@@ -20,7 +20,7 @@ namespace {
 
     enum Column {
         SEQ_NUM, ALTITUDE, OPERATION_ID, TOP_LEVEL_IRP,
-        PRE_OP_TIME, POST_OP_TIME, PROCESS_ID, THREAD_ID, REQUESTOR_MODE, IO_PRIORITY_HINT, OPR, MAJOR, MINOR, NAME, STATUS, INFORMATION,
+        PRE_OP_TIME, POST_OP_TIME, PROCESS_ID, THREAD_ID, REQUESTOR_MODE, IO_PRIORITY_HINT, PRE_OP_IRQL, POST_OP_IRQL, OPR, MAJOR, MINOR, NAME, STATUS, INFORMATION,
         DETAILS, IRP_FLAGS, OPERATION_FLAGS, DEV_OBJ, FILE_OBJ, ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, REPARSE_TAG,
         TRANSACTION, TRANSACTION_SEQ, TRANSACTION_NOTIFY,
         STACK_TRACE, COLUMN_COUNT
@@ -39,6 +39,8 @@ namespace {
         labels[THREAD_ID]          = L"ThreadId";
         labels[REQUESTOR_MODE]     = L"RequestorMode";
         labels[IO_PRIORITY_HINT]   = L"IoPriorityHint";
+        labels[PRE_OP_IRQL]        = L"PreOpIrql";
+        labels[POST_OP_IRQL]       = L"PostOpIrql";
         labels[OPR]                = L"Opr";
         labels[MAJOR]              = L"Major";
         labels[MINOR]              = L"Minor";
@@ -178,6 +180,8 @@ namespace mimo {
                 else {
                     columns[REQUESTOR_MODE]   = names::RenderRequestorMode(data.requestorMode);
                     columns[IO_PRIORITY_HINT] = names::RenderIoPriorityHint(data.ioPriorityHint);
+                    columns[PRE_OP_IRQL]      = names::RenderIrql(data.preOpIrql);
+                    columns[POST_OP_IRQL]     = names::RenderIrql(data.postOpIrql);
                     columns[OPR]              = names::RenderOperationCategory(data.flags);
                     columns[OPERATION_ID]     = std::format(L"{:016X}", data.operationId);
                     columns[TOP_LEVEL_IRP]    = values::RenderTopLevelIrp(data.topLevelIrp);

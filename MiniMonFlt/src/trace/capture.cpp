@@ -306,6 +306,7 @@ namespace mimo {
                 pRecordData->operationFlags  = pData->Iopb->OperationFlags;
                 pRecordData->requestorMode   = static_cast<uint8_t>(pData->RequestorMode);
                 pRecordData->ioPriorityHint  = static_cast<uint8_t>(FltGetIoPriorityHint(pData));
+                pRecordData->preOpIrql       = static_cast<uint8_t>(KeGetCurrentIrql());
                 pRecordData->irpFlags        = static_cast<uint32_t>(pData->Iopb->IrpFlags);
                 pRecordData->flags           = static_cast<uint32_t>(pData->Flags);
                 pRecordData->operationId     = reinterpret_cast<protocol::ObjectId>(pData);
@@ -335,6 +336,7 @@ namespace mimo {
                 pRecordData->status = static_cast<int32_t>(pData->IoStatus.Status);
                 pRecordData->information = pData->IoStatus.Information;
                 pRecordData->transactionSequence = static_cast<uint32_t>(transactionSequence);
+                pRecordData->postOpIrql = static_cast<uint8_t>(KeGetCurrentIrql());
 
                 if (pData->TagData) {
                     pRecordData->reparseTag = static_cast<uint32_t>(pData->TagData->FileTag);

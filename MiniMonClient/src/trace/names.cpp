@@ -579,6 +579,18 @@ namespace mimo {
             }
 
 
+            std::wstring RenderIrql(uint8_t irql) {
+
+                switch (irql) {
+                    case PASSIVE_LEVEL:  return L"Passive";
+                    case APC_LEVEL:      return L"APC";
+                    case DISPATCH_LEVEL: return L"Dispatch";
+                }
+
+                return std::format(L"{:02X}", static_cast<uint32_t>(irql));
+            }
+
+
             std::wstring RenderOperationCategory(uint32_t flags) {
 
                 if (flags & kernel::FLT_CALLBACK_DATA_IRP_OPERATION)       return L"IRP";
