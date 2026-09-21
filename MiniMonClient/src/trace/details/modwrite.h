@@ -12,7 +12,9 @@ namespace mimo {
 
             namespace modwrite {
 
-                std::wstring Render(const protocol::RecordData& data);
+                std::wstring RenderAcquire(const protocol::RecordData& data);
+
+                std::wstring RenderRelease(const protocol::RecordData& data);
 
             }
 

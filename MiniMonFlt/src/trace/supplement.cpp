@@ -251,6 +251,14 @@ namespace mimo {
 
                         break;
 
+                    case IRP_MJ_ACQUIRE_FOR_MOD_WRITE:
+
+                        if (pData->Iopb->Parameters.AcquireForModifiedPageWriter.ResourceToRelease) {
+                            modwrite::PopulateResource(&pSupplement->modWrite, pData);
+                        }
+
+                        break;
+
                     case IRP_MJ_QUERY_OPEN:
 
                         if (pData->Iopb->Parameters.QueryOpen.FileInformation) {

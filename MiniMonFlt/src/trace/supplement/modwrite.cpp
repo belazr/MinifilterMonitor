@@ -24,6 +24,19 @@ namespace mimo {
                     return;
                 }
 
+
+                _Use_decl_annotations_
+                void PopulateResource(protocol::ModWriteSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
+                    ERESOURCE* const* const pResourceToRelease = pData->Iopb->Parameters.AcquireForModifiedPageWriter.ResourceToRelease;
+
+                    if (!pResourceToRelease) return;
+
+                    pSupplement->resource = reinterpret_cast<uint64_t>(*pResourceToRelease);
+                    pSupplement->captured |= protocol::MOD_WRITE_CAPTURED_RESOURCE;
+
+                    return;
+                }
+
             }
 
         }

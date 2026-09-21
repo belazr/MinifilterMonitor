@@ -118,7 +118,11 @@ namespace mimo {
 
                     case kernel::IRP_MJ_ACQUIRE_FOR_MOD_WRITE:
 
-                        return modwrite::Render(data);
+                        return modwrite::RenderAcquire(data);
+
+                    case kernel::IRP_MJ_RELEASE_FOR_MOD_WRITE:
+
+                        return modwrite::RenderRelease(data);
 
                     case kernel::IRP_MJ_QUERY_OPEN:
 

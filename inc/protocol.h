@@ -257,6 +257,11 @@ namespace mimo {
                 uint64_t resourceToRelease;
             } acquireForModifiedPageWriter;
 
+            // IRP_MJ_RELEASE_FOR_MOD_WRITE
+            struct {
+                uint64_t resourceToRelease;
+            } releaseForModifiedPageWriter;
+
             // IRP_MJ_QUERY_OPEN
             struct {
                 uint64_t irp;
@@ -719,17 +724,20 @@ namespace mimo {
 
         // IRP_MJ_ACQUIRE_FOR_MOD_WRITE
 
-        // capture bit for ModWriteSupplement::captured
+        // capture bits for ModWriteSupplement::captured
         inline constexpr uint32_t MOD_WRITE_CAPTURED_ENDING_OFFSET = 0x00000001u;
+        inline constexpr uint32_t MOD_WRITE_CAPTURED_RESOURCE      = 0x00000002u;
 
         struct ModWriteSupplement {
             uint32_t captured;
             uint8_t reserved[4u];
             int64_t endingOffset;
+            uint64_t resource;
         };
 
         static_assert(offsetof(ModWriteSupplement, endingOffset) == 8u, "protocol::ModWriteSupplement layout drift");
-        static_assert(sizeof(ModWriteSupplement) == 16u, "protocol::ModWriteSupplement layout drift");
+        static_assert(offsetof(ModWriteSupplement, resource) == 16u, "protocol::ModWriteSupplement layout drift");
+        static_assert(sizeof(ModWriteSupplement) == 24u, "protocol::ModWriteSupplement layout drift");
         static_assert(sizeof(ModWriteSupplement) <= SUPPLEMENT_SIZE, "protocol::ModWriteSupplement exceeds the supplement union");
 
         // IRP_MJ_VOLUME_MOUNT
