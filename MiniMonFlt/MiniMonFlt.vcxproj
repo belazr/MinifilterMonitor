@@ -115,6 +115,7 @@
     <ClCompile Include="src\trace\supplement\modwrite.cpp" />
     <ClCompile Include="src\trace\supplement\mount.cpp" />
     <ClCompile Include="src\trace\supplement\quota.cpp" />
+    <ClCompile Include="src\trace\supplement\readwrite.cpp" />
     <ClCompile Include="src\trace\supplement\security.cpp" />
     <ClCompile Include="src\trace\supplement\volume.cpp" />
     <ClCompile Include="src\trace\supplement\wmi.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="src\trace\supplement\modwrite.h" />
     <ClInclude Include="src\trace\supplement\mount.h" />
     <ClInclude Include="src\trace\supplement\quota.h" />
+    <ClInclude Include="src\trace\supplement\readwrite.h" />
     <ClInclude Include="src\trace\supplement\security.h" />
     <ClInclude Include="src\trace\supplement\volume.h" />
     <ClInclude Include="src\trace\supplement\wmi.h" />

@@ -10,6 +10,7 @@
 #include "supplement\modwrite.h"
 #include "supplement\mount.h"
 #include "supplement\quota.h"
+#include "supplement\readwrite.h"
 #include "supplement\security.h"
 #include "supplement\volume.h"
 #include "supplement\wmi.h"
@@ -38,6 +39,14 @@ namespace mimo {
                     case IRP_MJ_CREATE:
 
                         create::Populate(&pSupplement->create, pData);
+
+                        break;
+
+                    case IRP_MJ_WRITE:
+
+                        if (!(pData->Iopb->MinorFunction & (IRP_MN_MDL | IRP_MN_COMPLETE)) && pData->Iopb->Parameters.Write.Length) {
+                            readwrite::PopulateWrite(&pSupplement->readWrite, pData);
+                        }
 
                         break;
 
@@ -169,6 +178,14 @@ namespace mimo {
                 if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
                 switch (pData->Iopb->MajorFunction) {
+
+                    case IRP_MJ_READ:
+
+                        if (!(pData->Iopb->MinorFunction & (IRP_MN_MDL | IRP_MN_COMPLETE)) && pData->Iopb->Parameters.Read.Length) {
+                            readwrite::PopulateRead(&pSupplement->readWrite, pData);
+                        }
+
+                        break;
 
                     case IRP_MJ_QUERY_INFORMATION:
 

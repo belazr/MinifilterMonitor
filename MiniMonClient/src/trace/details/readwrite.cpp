@@ -93,6 +93,14 @@ namespace mimo {
                         details += std::format(L", Transferred: {}", data.information);
                     }
 
+                    const protocol::ReadWriteSupplement& readWriteSupplement = data.supplement.readWrite;
+
+                    if (readWriteSupplement.captured & protocol::READ_WRITE_CAPTURED_PAYLOAD) {
+                        const bool truncated = readWriteSupplement.captured & protocol::READ_WRITE_TRUNCATED_PAYLOAD;
+
+                        details += std::format(L", Data: {}", values::RenderBytes({ readWriteSupplement.payload, readWriteSupplement.capturedSize }, truncated));
+                    }
+
                     return details;
                 }
 

@@ -445,6 +445,24 @@ namespace mimo {
         static_assert(offsetof(CreateSupplement, eaBuffer) == 12u + CREATE_SID_SIZE, "protocol::CreateSupplement layout drift");
         static_assert(offsetof(CreateSupplement, ecpText) == 12u + CREATE_SID_SIZE + CREATE_EA_BUFFER_SIZE, "protocol::CreateSupplement layout drift");
 
+        // IRP_MJ_READ / IRP_MJ_WRITE
+
+        // capture bits for ReadWriteSupplement::captured
+        inline constexpr uint32_t READ_WRITE_CAPTURED_PAYLOAD  = 0x00000001u;
+        inline constexpr uint32_t READ_WRITE_TRUNCATED_PAYLOAD = 0x00000002u;
+
+        inline constexpr uint32_t READ_WRITE_PAYLOAD_SIZE = 32u;
+
+        struct ReadWriteSupplement {
+            uint32_t captured;
+            uint32_t capturedSize;
+            uint8_t payload[READ_WRITE_PAYLOAD_SIZE];    // the transferred data's leading bytes
+        };
+
+        static_assert(offsetof(ReadWriteSupplement, payload) == 8u, "protocol::ReadWriteSupplement layout drift");
+        static_assert(sizeof(ReadWriteSupplement) == 40u, "protocol::ReadWriteSupplement layout drift");
+        static_assert(sizeof(ReadWriteSupplement) <= SUPPLEMENT_SIZE, "protocol::ReadWriteSupplement exceeds the supplement union");
+
         // IRP_MJ_QUERY_INFORMATION / IRP_MJ_QUERY_OPEN / IRP_MJ_NETWORK_QUERY_OPEN
 
         // capture bits for QueryInfoSupplement::captured
@@ -732,6 +750,7 @@ namespace mimo {
 
         union Supplement {
             CreateSupplement create;
+            ReadWriteSupplement readWrite;
             QueryInfoSupplement queryInfo;
             SetInfoSupplement setInfo;
             QueryEaSupplement queryEa;
