@@ -446,6 +446,35 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(PERSISTENT_VOLUME_STATE_NAMES), "composite entry after its components in PERSISTENT_VOLUME_STATE_NAMES");
 
+    constexpr FlagName MARK_HANDLE_NAMES[]{
+        { MARK_HANDLE_PROTECT_CLUSTERS,                    L"MARK_HANDLE_PROTECT_CLUSTERS" },
+        { MARK_HANDLE_TXF_SYSTEM_LOG,                      L"MARK_HANDLE_TXF_SYSTEM_LOG" },
+        { MARK_HANDLE_NOT_TXF_SYSTEM_LOG,                  L"MARK_HANDLE_NOT_TXF_SYSTEM_LOG" },
+        { MARK_HANDLE_REALTIME,                            L"MARK_HANDLE_REALTIME" },
+        { MARK_HANDLE_NOT_REALTIME,                        L"MARK_HANDLE_NOT_REALTIME" },
+        { MARK_HANDLE_READ_COPY,                           L"MARK_HANDLE_READ_COPY" },
+        { MARK_HANDLE_NOT_READ_COPY,                       L"MARK_HANDLE_NOT_READ_COPY" },
+        { MARK_HANDLE_FILTER_METADATA,                     L"MARK_HANDLE_FILTER_METADATA" },
+        { MARK_HANDLE_RETURN_PURGE_FAILURE,                L"MARK_HANDLE_RETURN_PURGE_FAILURE" },
+        { MARK_HANDLE_CLOUD_SYNC,                          L"MARK_HANDLE_CLOUD_SYNC" },
+        { MARK_HANDLE_DISABLE_FILE_METADATA_OPTIMIZATION,  L"MARK_HANDLE_DISABLE_FILE_METADATA_OPTIMIZATION" },
+        { MARK_HANDLE_ENABLE_USN_SOURCE_ON_PAGING_IO,      L"MARK_HANDLE_ENABLE_USN_SOURCE_ON_PAGING_IO" },
+        { MARK_HANDLE_SKIP_COHERENCY_SYNC_DISALLOW_WRITES, L"MARK_HANDLE_SKIP_COHERENCY_SYNC_DISALLOW_WRITES" },
+        { MARK_HANDLE_SUPPRESS_VOLUME_OPEN_FLUSH,          L"MARK_HANDLE_SUPPRESS_VOLUME_OPEN_FLUSH" },
+        { MARK_HANDLE_ENABLE_CPU_CACHE,                    L"MARK_HANDLE_ENABLE_CPU_CACHE" },
+    };
+
+    static_assert(CompositesPrecedeComponents(MARK_HANDLE_NAMES), "composite entry after its components in MARK_HANDLE_NAMES");
+
+    constexpr FlagName USN_SOURCE_NAMES[]{
+        { USN_SOURCE_DATA_MANAGEMENT,               L"USN_SOURCE_DATA_MANAGEMENT" },
+        { USN_SOURCE_AUXILIARY_DATA,                L"USN_SOURCE_AUXILIARY_DATA" },
+        { USN_SOURCE_REPLICATION_MANAGEMENT,        L"USN_SOURCE_REPLICATION_MANAGEMENT" },
+        { USN_SOURCE_CLIENT_REPLICATION_MANAGEMENT, L"USN_SOURCE_CLIENT_REPLICATION_MANAGEMENT" },
+    };
+
+    static_assert(CompositesPrecedeComponents(USN_SOURCE_NAMES), "composite entry after its components in USN_SOURCE_NAMES");
+
     constexpr FlagName DEVICE_IO_FLAG_NAMES[]{
         { trace::kernel::SL_READ_ACCESS_GRANTED,    L"Read Access Granted" },
         { trace::kernel::SL_OVERRIDE_VERIFY_VOLUME, L"Override Verify Volume" },
@@ -1740,6 +1769,20 @@ namespace mimo {
                 if (!flags) return L"None";
 
                 return RenderFlags(flags, PERSISTENT_VOLUME_STATE_NAMES, L"|");
+            }
+
+
+            std::wstring RenderMarkHandleInfo(uint32_t handleInfo) {
+
+                if (!handleInfo) return L"None";
+
+                return RenderFlags(handleInfo, MARK_HANDLE_NAMES, L"|");
+            }
+
+
+            std::wstring RenderUsnSourceInfo(uint32_t usnSourceInfo) {
+
+                return RenderFlags(usnSourceInfo, USN_SOURCE_NAMES, L"|");
             }
 
 

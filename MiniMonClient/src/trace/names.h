@@ -99,6 +99,10 @@ namespace mimo {
 
             std::wstring RenderPersistentVolumeState(uint32_t flags);
 
+            std::wstring RenderMarkHandleInfo(uint32_t handleInfo);
+
+            std::wstring RenderUsnSourceInfo(uint32_t usnSourceInfo);
+
             std::wstring RenderDeviceIoFlags(uint8_t operationFlags);
 
             std::wstring RenderStoragePropertyId(uint32_t propertyId);

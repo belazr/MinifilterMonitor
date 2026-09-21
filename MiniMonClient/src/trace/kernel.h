@@ -1159,6 +1159,16 @@ namespace mimo {
             static_assert(sizeof(USN_JOURNAL_DATA_V0) == 56u, "trace::kernel::USN_JOURNAL_DATA_V0 x64 layout drift");
             static_assert(offsetof(USN_JOURNAL_DATA_V0, AllocationDelta) == 48u, "trace::kernel::USN_JOURNAL_DATA_V0 x64 layout drift");
 
+            struct MARK_HANDLE_INFO {
+                uint32_t UsnSourceInfo;     // CopyNumber under MARK_HANDLE_READ_COPY, the kernel's nameless union
+                uint64_t VolumeHandle;      // HANDLE in the kernel
+                uint32_t HandleInfo;
+            };
+
+            static_assert(sizeof(MARK_HANDLE_INFO) == 24u, "trace::kernel::MARK_HANDLE_INFO x64 layout drift");
+            static_assert(offsetof(MARK_HANDLE_INFO, VolumeHandle) == 8u, "trace::kernel::MARK_HANDLE_INFO x64 layout drift");
+            static_assert(offsetof(MARK_HANDLE_INFO, HandleInfo) == 16u, "trace::kernel::MARK_HANDLE_INFO x64 layout drift");
+
             struct FILE_PREFETCH {
                 uint32_t Type;
                 uint32_t Count;

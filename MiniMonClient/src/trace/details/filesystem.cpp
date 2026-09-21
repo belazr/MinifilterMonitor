@@ -195,6 +195,21 @@ namespace {
     }
 
 
+    std::wstring RenderMarkHandlePayload(const trace::kernel::MARK_HANDLE_INFO& payload) {
+        std::wstring result = std::format(L"HandleInfo: {}", trace::names::RenderMarkHandleInfo(payload.HandleInfo));
+
+        if (payload.UsnSourceInfo) {
+            result += std::format(L", UsnSourceInfo: {}", trace::names::RenderUsnSourceInfo(payload.UsnSourceInfo));
+        }
+
+        if (payload.VolumeHandle) {
+            result += std::format(L", VolumeHandle: 0x{:X}", static_cast<uint32_t>(payload.VolumeHandle));
+        }
+
+        return result;
+    }
+
+
     std::wstring RenderPrefetchPayload(std::span<const uint8_t> payload) {
         constexpr size_t HEADER_SIZE = offsetof(trace::kernel::FILE_PREFETCH, Prefetch);
         trace::kernel::FILE_PREFETCH_EX prefetch;
@@ -369,6 +384,14 @@ namespace {
                 trace::kernel::CREATE_USN_JOURNAL_DATA createUsn;
 
                 if (trace::details::payload::ReadValue(input, createUsn)) return RenderCreateUsnJournalPayload(createUsn);
+
+                break;
+            }
+
+            case FSCTL_MARK_HANDLE: {
+                trace::kernel::MARK_HANDLE_INFO markHandle;
+
+                if (trace::details::payload::ReadValue(input, markHandle)) return RenderMarkHandlePayload(markHandle);
 
                 break;
             }
