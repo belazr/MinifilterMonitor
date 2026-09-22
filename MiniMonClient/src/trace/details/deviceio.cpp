@@ -172,13 +172,13 @@ namespace {
 
     std::wstring RenderDeviceNumberPayload(const trace::kernel::STORAGE_DEVICE_NUMBER& payload) {
 
-        return std::format(L"DeviceType: {}, DeviceNumber: {}, PartitionNumber: {}", trace::names::RenderDeviceType(payload.DeviceType), payload.DeviceNumber, payload.PartitionNumber);
+        return std::format(L"DeviceType: {}, DeviceNumber: {}, PartitionNumber: {}", trace::names::RenderDeviceType(payload.DeviceType), payload.DeviceNumber, trace::values::RenderPartitionNumber(payload.PartitionNumber));
     }
 
 
     std::wstring RenderDeviceNumberExPayload(const trace::kernel::STORAGE_DEVICE_NUMBER_EX& payload) {
 
-        return std::format(L"Version: {}, Size: {}, Flags: {}, DeviceType: {}, DeviceNumber: {}, DeviceGuid: {}, PartitionNumber: {}", payload.Version, payload.Size, trace::names::RenderStorageDeviceFlags(payload.Flags), trace::names::RenderDeviceType(payload.DeviceType), payload.DeviceNumber, trace::values::RenderGuid(payload.DeviceGuid), payload.PartitionNumber);
+        return std::format(L"Version: {}, Size: {}, Flags: {}, DeviceType: {}, DeviceNumber: {}, DeviceGuid: {}, PartitionNumber: {}", payload.Version, payload.Size, trace::names::RenderStorageDeviceFlags(payload.Flags), trace::names::RenderDeviceType(payload.DeviceType), payload.DeviceNumber, trace::values::RenderGuid(payload.DeviceGuid), trace::values::RenderPartitionNumber(payload.PartitionNumber));
     }
 
 

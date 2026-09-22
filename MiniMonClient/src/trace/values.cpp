@@ -69,6 +69,14 @@ namespace mimo {
             }
 
 
+            std::wstring RenderPartitionNumber(uint32_t partitionNumber) {
+
+                if (partitionNumber == kernel::STORAGE_DEVICE_NUMBER_NO_PARTITION) return L"n/a";
+
+                return std::to_wstring(partitionNumber);
+            }
+
+
             std::wstring RenderObjectId(uint64_t objectId) {
 
                 if (objectId == 0u) return L"";

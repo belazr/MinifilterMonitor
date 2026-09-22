@@ -14,6 +14,8 @@ namespace mimo {
 
             std::wstring RenderByteOffset(int64_t byteOffset);
 
+            std::wstring RenderPartitionNumber(uint32_t partitionNumber);
+
             std::wstring RenderObjectId(uint64_t objectId);
 
             std::wstring RenderTopLevelIrp(uint64_t topLevelIrp);

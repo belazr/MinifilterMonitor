@@ -1397,6 +1397,9 @@ namespace mimo {
             static_assert(sizeof(STORAGE_HOTPLUG_INFO) == 8u, "trace::kernel::STORAGE_HOTPLUG_INFO x64 layout drift");
             static_assert(offsetof(STORAGE_HOTPLUG_INFO, MediaRemovable) == 4u, "trace::kernel::STORAGE_HOTPLUG_INFO x64 layout drift");
 
+            // STORAGE_DEVICE_NUMBER / STORAGE_DEVICE_NUMBER_EX PartitionNumber sentinel
+            inline constexpr uint32_t STORAGE_DEVICE_NUMBER_NO_PARTITION = 0xFFFFFFFFu;
+
             struct STORAGE_DEVICE_NUMBER {
                 uint32_t DeviceType;    // DEVICE_TYPE in the kernel
                 uint32_t DeviceNumber;
