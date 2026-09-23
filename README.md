@@ -88,7 +88,8 @@ Records are written as a semicolon-separated CSV with a header row. The single m
 
 ## Roadmap
 - Trace operation parameters with richer semantics (e.g. the information class and buffer for query/set information, offsets and lengths for reads and writes) instead of only the raw callback arguments
-- Version handshake between client and driver (the driver already answers a version query but the client does not send it yet)
+- Version handshake between client and driver
+- Improve performance of the client draining the driver queue
 
 ## License
 Copyright (C) 2026 belazr
