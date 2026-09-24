@@ -212,6 +212,7 @@ namespace {
     }
 
 
+    template <typename Entry>
     std::wstring RenderHardLinksPayload(std::span<const uint8_t> payload) {
         uint32_t bytesNeeded;
         uint32_t entriesReturned;
@@ -223,12 +224,12 @@ namespace {
         uint32_t index = 1u;
 
         while (index <= entriesReturned) {
-            constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_LINK_ENTRY_INFORMATION, FileName);
-            trace::kernel::FILE_LINK_ENTRY_INFORMATION entry;
+            constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
+            Entry entry;
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L"ParentFileId: {}, FileName: {}, ", trace::values::RenderFileId(static_cast<uint64_t>(entry.ParentFileId)), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
+            result += std::format(L"ParentFileId: {}, FileName: {}, ", trace::values::RenderFileId(entry.ParentFileId), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
             index++;
 
             if (!entry.NextEntryOffset) break;
@@ -245,6 +246,49 @@ namespace {
         }
 
         return text::MarkTruncated(result, marked);
+    }
+
+
+    std::wstring RenderProcessIdsPayload(std::span<const uint8_t> payload) {
+        constexpr size_t PROCESS_ID_LIST_OFFSET = offsetof(trace::kernel::FILE_PROCESS_IDS_USING_FILE_INFORMATION, ProcessIdList);
+        trace::kernel::FILE_PROCESS_IDS_USING_FILE_INFORMATION processIds;
+
+        if (!trace::details::payload::ReadHeader(payload, processIds, PROCESS_ID_LIST_OFFSET)) return {};
+
+        std::wstring result = std::format(L"NumberOfProcessIdsInList: {}", processIds.NumberOfProcessIdsInList);
+        size_t offset = PROCESS_ID_LIST_OFFSET;
+        std::wstring listText;
+        uint32_t index = 1u;
+
+        while (index <= processIds.NumberOfProcessIdsInList) {
+            uint64_t entry;
+
+            if (!trace::details::payload::ReadValue(payload, entry, offset)) break;
+
+            listText += std::format(L"0x{:X}", entry);
+            listText += L'|';
+            offset += sizeof(entry);
+            index++;
+        }
+
+        const bool marked = index <= processIds.NumberOfProcessIdsInList;
+
+        if (processIds.NumberOfProcessIdsInList) {
+
+            if (!marked) {
+                listText.resize(listText.size() - 1u);
+            }
+
+            result += std::format(L", ProcessIdList: {}", text::MarkTruncated(listText, marked));
+        }
+
+        return result;
+    }
+
+
+    std::wstring RenderStandardLinkPayload(const trace::kernel::FILE_STANDARD_LINK_INFORMATION& payload) {
+
+        return std::format(L"NumberOfAccessibleLinks: {}, TotalNumberOfLinks: {}, DeletePending: {}, Directory: {}", payload.NumberOfAccessibleLinks, payload.TotalNumberOfLinks, trace::values::RenderBoolean(payload.DeletePending), trace::values::RenderBoolean(payload.Directory));
     }
 
 
@@ -489,9 +533,24 @@ namespace {
             }
 
             case trace::kernel::FileHardLinkInformation:
-                payloadText = RenderHardLinksPayload(payload);
+                payloadText = RenderHardLinksPayload<trace::kernel::FILE_LINK_ENTRY_INFORMATION>(payload);
 
                 break;
+
+            case trace::kernel::FileProcessIdsUsingFileInformation:
+                payloadText = RenderProcessIdsPayload(payload);
+
+                break;
+
+            case trace::kernel::FileStandardLinkInformation: {
+                trace::kernel::FILE_STANDARD_LINK_INFORMATION standardLink;
+
+                if (trace::details::payload::ReadValue(payload, standardLink)) {
+                    payloadText = RenderStandardLinkPayload(standardLink);
+                }
+
+                break;
+            }
 
             case trace::kernel::FileRemoteProtocolInformation: {
                 trace::kernel::FILE_REMOTE_PROTOCOL_INFORMATION remoteProtocol;
@@ -512,6 +571,11 @@ namespace {
 
                 break;
             }
+
+            case trace::kernel::FileHardLinkFullIdInformation:
+                payloadText = RenderHardLinksPayload<trace::kernel::FILE_LINK_ENTRY_FULL_ID_INFORMATION>(payload);
+
+                break;
 
             case trace::kernel::FileStatInformation: {
                 trace::kernel::FILE_STAT_INFORMATION stat;

@@ -518,6 +518,24 @@ namespace mimo {
             static_assert(sizeof(FILE_LINKS_INFORMATION) == 32u, "trace::kernel::FILE_LINKS_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_LINKS_INFORMATION, Entry) == 8u, "trace::kernel::FILE_LINKS_INFORMATION x64 layout drift");
 
+            struct FILE_PROCESS_IDS_USING_FILE_INFORMATION {
+                uint32_t NumberOfProcessIdsInList;
+                uint64_t ProcessIdList[1u];    // ULONG_PTR in the kernel
+            };
+
+            static_assert(sizeof(FILE_PROCESS_IDS_USING_FILE_INFORMATION) == 16u, "trace::kernel::FILE_PROCESS_IDS_USING_FILE_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_PROCESS_IDS_USING_FILE_INFORMATION, ProcessIdList) == 8u, "trace::kernel::FILE_PROCESS_IDS_USING_FILE_INFORMATION x64 layout drift");
+
+            struct FILE_STANDARD_LINK_INFORMATION {
+                uint32_t NumberOfAccessibleLinks;
+                uint32_t TotalNumberOfLinks;
+                uint8_t DeletePending;
+                uint8_t Directory;
+            };
+
+            static_assert(sizeof(FILE_STANDARD_LINK_INFORMATION) == 12u, "trace::kernel::FILE_STANDARD_LINK_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_STANDARD_LINK_INFORMATION, DeletePending) == 8u, "trace::kernel::FILE_STANDARD_LINK_INFORMATION x64 layout drift");
+
             struct FILE_REMOTE_PROTOCOL_INFORMATION {
                 uint16_t StructureVersion;
                 uint16_t StructureSize;
@@ -542,6 +560,26 @@ namespace mimo {
 
             static_assert(sizeof(FILE_ID_INFORMATION) == 24u, "trace::kernel::FILE_ID_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_ID_INFORMATION, FileId) == 8u, "trace::kernel::FILE_ID_INFORMATION x64 layout drift");
+
+            struct FILE_LINK_ENTRY_FULL_ID_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint8_t ParentFileId[16u];
+                uint32_t FileNameLength;    // character count
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_LINK_ENTRY_FULL_ID_INFORMATION) == 28u, "trace::kernel::FILE_LINK_ENTRY_FULL_ID_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_LINK_ENTRY_FULL_ID_INFORMATION, ParentFileId) == 4u, "trace::kernel::FILE_LINK_ENTRY_FULL_ID_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_LINK_ENTRY_FULL_ID_INFORMATION, FileName) == 24u, "trace::kernel::FILE_LINK_ENTRY_FULL_ID_INFORMATION x64 layout drift");
+
+            struct FILE_LINKS_FULL_ID_INFORMATION {
+                uint32_t BytesNeeded;
+                uint32_t EntriesReturned;
+                FILE_LINK_ENTRY_FULL_ID_INFORMATION Entry;
+            };
+
+            static_assert(sizeof(FILE_LINKS_FULL_ID_INFORMATION) == 36u, "trace::kernel::FILE_LINKS_FULL_ID_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_LINKS_FULL_ID_INFORMATION, Entry) == 8u, "trace::kernel::FILE_LINKS_FULL_ID_INFORMATION x64 layout drift");
 
             struct FILE_STAT_INFORMATION {
                 int64_t FileId;
