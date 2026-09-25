@@ -98,9 +98,21 @@ namespace {
     }
 
 
+    std::wstring RenderVolumeFlagsPayload(const trace::kernel::FILE_FS_VOLUME_FLAGS_INFORMATION& payload) {
+
+        return std::format(L"Flags: 0x{:X}", payload.Flags);
+    }
+
+
     std::wstring RenderSectorSizePayload(const trace::kernel::FILE_FS_SECTOR_SIZE_INFORMATION& payload) {
 
         return std::format(L"LogicalBytesPerSector: {}, PhysicalBytesPerSectorForAtomicity: {}, PhysicalBytesPerSectorForPerformance: {}, FileSystemEffectivePhysicalBytesPerSectorForAtomicity: {}, Flags: 0x{:X}, ByteOffsetForSectorAlignment: {}, ByteOffsetForPartitionAlignment: {}", payload.LogicalBytesPerSector, payload.PhysicalBytesPerSectorForAtomicity, payload.PhysicalBytesPerSectorForPerformance, payload.FileSystemEffectivePhysicalBytesPerSectorForAtomicity, payload.Flags, payload.ByteOffsetForSectorAlignment, payload.ByteOffsetForPartitionAlignment);
+    }
+
+
+    std::wstring RenderDataCopyPayload(const trace::kernel::FILE_FS_DATA_COPY_INFORMATION& payload) {
+
+        return std::format(L"NumberOfCopies: {}", payload.NumberOfCopies);
     }
 
 
@@ -113,6 +125,12 @@ namespace {
     std::wstring RenderFullSizeExPayload(const trace::kernel::FILE_FS_FULL_SIZE_INFORMATION_EX& payload) {
 
         return std::format(L"ActualTotalAllocationUnits: {}, ActualAvailableAllocationUnits: {}, ActualPoolUnavailableAllocationUnits: {}, CallerTotalAllocationUnits: {}, CallerAvailableAllocationUnits: {}, CallerPoolUnavailableAllocationUnits: {}, UsedAllocationUnits: {}, TotalReservedAllocationUnits: {}, VolumeStorageReserveAllocationUnits: {}, AvailableCommittedAllocationUnits: {}, PoolAvailableAllocationUnits: {}, SectorsPerAllocationUnit: {}, BytesPerSector: {}", payload.ActualTotalAllocationUnits, payload.ActualAvailableAllocationUnits, payload.ActualPoolUnavailableAllocationUnits, payload.CallerTotalAllocationUnits, payload.CallerAvailableAllocationUnits, payload.CallerPoolUnavailableAllocationUnits, payload.UsedAllocationUnits, payload.TotalReservedAllocationUnits, payload.VolumeStorageReserveAllocationUnits, payload.AvailableCommittedAllocationUnits, payload.PoolAvailableAllocationUnits, payload.SectorsPerAllocationUnit, payload.BytesPerSector);
+    }
+
+
+    std::wstring RenderGuidPayload(const trace::kernel::FILE_FS_GUID_INFORMATION& payload) {
+
+        return std::format(L"FsGuid: {}", trace::values::RenderGuid(payload.FsGuid));
     }
 
 }
@@ -218,11 +236,31 @@ namespace mimo {
                             break;
                         }
 
+                        case kernel::FileFsVolumeFlagsInformation: {
+                            kernel::FILE_FS_VOLUME_FLAGS_INFORMATION volumeFlags;
+
+                            if (payload::ReadValue(payload, volumeFlags)) {
+                                payloadText = RenderVolumeFlagsPayload(volumeFlags);
+                            }
+
+                            break;
+                        }
+
                         case kernel::FileFsSectorSizeInformation: {
                             kernel::FILE_FS_SECTOR_SIZE_INFORMATION sectorSize;
 
                             if (payload::ReadValue(payload, sectorSize)) {
                                 payloadText = RenderSectorSizePayload(sectorSize);
+                            }
+
+                            break;
+                        }
+
+                        case kernel::FileFsDataCopyInformation: {
+                            kernel::FILE_FS_DATA_COPY_INFORMATION dataCopy;
+
+                            if (payload::ReadValue(payload, dataCopy)) {
+                                payloadText = RenderDataCopyPayload(dataCopy);
                             }
 
                             break;
@@ -243,6 +281,16 @@ namespace mimo {
 
                             if (payload::ReadValue(payload, fullSizeEx)) {
                                 payloadText = RenderFullSizeExPayload(fullSizeEx);
+                            }
+
+                            break;
+                        }
+
+                        case kernel::FileFsGuidInformation: {
+                            kernel::FILE_FS_GUID_INFORMATION guid;
+
+                            if (payload::ReadValue(payload, guid)) {
+                                payloadText = RenderGuidPayload(guid);
                             }
 
                             break;

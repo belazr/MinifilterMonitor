@@ -921,6 +921,12 @@ namespace mimo {
             static_assert(sizeof(FILE_FS_OBJECTID_INFORMATION) == 64u, "trace::kernel::FILE_FS_OBJECTID_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_FS_OBJECTID_INFORMATION, ExtendedInfo) == 16u, "trace::kernel::FILE_FS_OBJECTID_INFORMATION x64 layout drift");
 
+            struct FILE_FS_VOLUME_FLAGS_INFORMATION {
+                uint32_t Flags;
+            };
+
+            static_assert(sizeof(FILE_FS_VOLUME_FLAGS_INFORMATION) == 4u, "trace::kernel::FILE_FS_VOLUME_FLAGS_INFORMATION x64 layout drift");
+
             struct FILE_FS_SECTOR_SIZE_INFORMATION {
                 uint32_t LogicalBytesPerSector;
                 uint32_t PhysicalBytesPerSectorForAtomicity;
@@ -932,6 +938,12 @@ namespace mimo {
             };
 
             static_assert(sizeof(FILE_FS_SECTOR_SIZE_INFORMATION) == 28u, "trace::kernel::FILE_FS_SECTOR_SIZE_INFORMATION x64 layout drift");
+
+            struct FILE_FS_DATA_COPY_INFORMATION {
+                uint32_t NumberOfCopies;
+            };
+
+            static_assert(sizeof(FILE_FS_DATA_COPY_INFORMATION) == 4u, "trace::kernel::FILE_FS_DATA_COPY_INFORMATION x64 layout drift");
 
             struct FILE_FS_METADATA_SIZE_INFORMATION {
                 int64_t TotalMetadataAllocationUnits;
@@ -958,6 +970,12 @@ namespace mimo {
             };
 
             static_assert(sizeof(FILE_FS_FULL_SIZE_INFORMATION_EX) == 96u, "trace::kernel::FILE_FS_FULL_SIZE_INFORMATION_EX x64 layout drift");
+
+            struct FILE_FS_GUID_INFORMATION {
+                uint8_t FsGuid[16u];
+            };
+
+            static_assert(sizeof(FILE_FS_GUID_INFORMATION) == 16u, "trace::kernel::FILE_FS_GUID_INFORMATION x64 layout drift");
 
             // FILE_FS_CONTROL_INFORMATION flags
             inline constexpr uint32_t FILE_VC_QUOTA_TRACK            = 0x00000001u;
