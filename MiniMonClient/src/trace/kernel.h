@@ -1029,6 +1029,161 @@ namespace mimo {
             static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileId) == 72u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_ID_FULL_DIR_INFORMATION, FileName) == 80u, "trace::kernel::FILE_ID_FULL_DIR_INFORMATION x64 layout drift");
 
+            struct FILE_ID_GLOBAL_TX_DIR_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t FileIndex;
+                int64_t CreationTime;
+                int64_t LastAccessTime;
+                int64_t LastWriteTime;
+                int64_t ChangeTime;
+                int64_t EndOfFile;
+                int64_t AllocationSize;
+                uint32_t FileAttributes;
+                uint32_t FileNameLength;
+                int64_t FileId;
+                uint8_t LockingTransactionId[16u];
+                uint32_t TxInfoFlags;
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_ID_GLOBAL_TX_DIR_INFORMATION) == 96u, "trace::kernel::FILE_ID_GLOBAL_TX_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_GLOBAL_TX_DIR_INFORMATION, FileId) == 64u, "trace::kernel::FILE_ID_GLOBAL_TX_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_GLOBAL_TX_DIR_INFORMATION, FileName) == 92u, "trace::kernel::FILE_ID_GLOBAL_TX_DIR_INFORMATION x64 layout drift");
+
+            struct FILE_ID_EXTD_DIR_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t FileIndex;
+                int64_t CreationTime;
+                int64_t LastAccessTime;
+                int64_t LastWriteTime;
+                int64_t ChangeTime;
+                int64_t EndOfFile;
+                int64_t AllocationSize;
+                uint32_t FileAttributes;
+                uint32_t FileNameLength;
+                uint32_t EaSize;
+                uint32_t ReparsePointTag;
+                uint8_t FileId[16u];
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_ID_EXTD_DIR_INFORMATION) == 96u, "trace::kernel::FILE_ID_EXTD_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_EXTD_DIR_INFORMATION, FileId) == 72u, "trace::kernel::FILE_ID_EXTD_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_EXTD_DIR_INFORMATION, FileName) == 88u, "trace::kernel::FILE_ID_EXTD_DIR_INFORMATION x64 layout drift");
+
+            struct FILE_ID_EXTD_BOTH_DIR_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t FileIndex;
+                int64_t CreationTime;
+                int64_t LastAccessTime;
+                int64_t LastWriteTime;
+                int64_t ChangeTime;
+                int64_t EndOfFile;
+                int64_t AllocationSize;
+                uint32_t FileAttributes;
+                uint32_t FileNameLength;
+                uint32_t EaSize;
+                uint32_t ReparsePointTag;
+                uint8_t FileId[16u];
+                int8_t ShortNameLength;
+                wchar_t ShortName[12u];
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_ID_EXTD_BOTH_DIR_INFORMATION) == 120u, "trace::kernel::FILE_ID_EXTD_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_EXTD_BOTH_DIR_INFORMATION, FileId) == 72u, "trace::kernel::FILE_ID_EXTD_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_EXTD_BOTH_DIR_INFORMATION, FileName) == 114u, "trace::kernel::FILE_ID_EXTD_BOTH_DIR_INFORMATION x64 layout drift");
+
+            struct FILE_ID_64_EXTD_DIR_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t FileIndex;
+                int64_t CreationTime;
+                int64_t LastAccessTime;
+                int64_t LastWriteTime;
+                int64_t ChangeTime;
+                int64_t EndOfFile;
+                int64_t AllocationSize;
+                uint32_t FileAttributes;
+                uint32_t FileNameLength;
+                uint32_t EaSize;
+                uint32_t ReparsePointTag;
+                int64_t FileId;
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_ID_64_EXTD_DIR_INFORMATION) == 88u, "trace::kernel::FILE_ID_64_EXTD_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_64_EXTD_DIR_INFORMATION, FileId) == 72u, "trace::kernel::FILE_ID_64_EXTD_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_64_EXTD_DIR_INFORMATION, FileName) == 80u, "trace::kernel::FILE_ID_64_EXTD_DIR_INFORMATION x64 layout drift");
+
+            struct FILE_ID_64_EXTD_BOTH_DIR_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t FileIndex;
+                int64_t CreationTime;
+                int64_t LastAccessTime;
+                int64_t LastWriteTime;
+                int64_t ChangeTime;
+                int64_t EndOfFile;
+                int64_t AllocationSize;
+                uint32_t FileAttributes;
+                uint32_t FileNameLength;
+                uint32_t EaSize;
+                uint32_t ReparsePointTag;
+                int64_t FileId;
+                int8_t ShortNameLength;
+                wchar_t ShortName[12u];
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_ID_64_EXTD_BOTH_DIR_INFORMATION) == 112u, "trace::kernel::FILE_ID_64_EXTD_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_64_EXTD_BOTH_DIR_INFORMATION, FileId) == 72u, "trace::kernel::FILE_ID_64_EXTD_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_64_EXTD_BOTH_DIR_INFORMATION, FileName) == 106u, "trace::kernel::FILE_ID_64_EXTD_BOTH_DIR_INFORMATION x64 layout drift");
+
+            struct FILE_ID_ALL_EXTD_DIR_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t FileIndex;
+                int64_t CreationTime;
+                int64_t LastAccessTime;
+                int64_t LastWriteTime;
+                int64_t ChangeTime;
+                int64_t EndOfFile;
+                int64_t AllocationSize;
+                uint32_t FileAttributes;
+                uint32_t FileNameLength;
+                uint32_t EaSize;
+                uint32_t ReparsePointTag;
+                int64_t FileId;
+                uint8_t FileId128[16u];
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_ID_ALL_EXTD_DIR_INFORMATION) == 104u, "trace::kernel::FILE_ID_ALL_EXTD_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_ALL_EXTD_DIR_INFORMATION, FileId) == 72u, "trace::kernel::FILE_ID_ALL_EXTD_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_ALL_EXTD_DIR_INFORMATION, FileName) == 96u, "trace::kernel::FILE_ID_ALL_EXTD_DIR_INFORMATION x64 layout drift");
+
+            struct FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION {
+                uint32_t NextEntryOffset;
+                uint32_t FileIndex;
+                int64_t CreationTime;
+                int64_t LastAccessTime;
+                int64_t LastWriteTime;
+                int64_t ChangeTime;
+                int64_t EndOfFile;
+                int64_t AllocationSize;
+                uint32_t FileAttributes;
+                uint32_t FileNameLength;
+                uint32_t EaSize;
+                uint32_t ReparsePointTag;
+                int64_t FileId;
+                uint8_t FileId128[16u];
+                int8_t ShortNameLength;
+                wchar_t ShortName[12u];
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION) == 128u, "trace::kernel::FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION, FileId) == 72u, "trace::kernel::FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION, FileName) == 122u, "trace::kernel::FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION x64 layout drift");
+
             // directory notify entry layouts
 
             struct FILE_NOTIFY_INFORMATION {

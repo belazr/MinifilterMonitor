@@ -143,6 +143,41 @@ namespace {
 
                 break;
 
+            case trace::kernel::FileIdGlobalTxDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_GLOBAL_TX_DIR_INFORMATION>(payload);
+
+                break;
+
+            case trace::kernel::FileIdExtdDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_EXTD_DIR_INFORMATION>(payload);
+
+                break;
+
+            case trace::kernel::FileIdExtdBothDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_EXTD_BOTH_DIR_INFORMATION>(payload);
+
+                break;
+
+            case trace::kernel::FileId64ExtdDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_64_EXTD_DIR_INFORMATION>(payload);
+
+                break;
+
+            case trace::kernel::FileId64ExtdBothDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_64_EXTD_BOTH_DIR_INFORMATION>(payload);
+
+                break;
+
+            case trace::kernel::FileIdAllExtdDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_ALL_EXTD_DIR_INFORMATION>(payload);
+
+                break;
+
+            case trace::kernel::FileIdAllExtdBothDirectoryInformation:
+                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION>(payload);
+
+                break;
+
         }
 
         if (!payloadText.empty()) {
