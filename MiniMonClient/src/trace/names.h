@@ -57,6 +57,14 @@ namespace mimo {
 
             std::wstring RenderRenameFlags(uint32_t flags);
 
+            std::wstring RenderStorageTierClass(uint32_t storageTierClass);
+
+            std::wstring RenderDesiredStorageClassFlags(uint32_t flags);
+
+            std::wstring RenderStorageReserveId(uint32_t storageReserveId);
+
+            std::wstring RenderKnownFolderType(uint32_t type);
+
             std::wstring RenderEaFlags(uint8_t flags);
 
             std::wstring RenderScanFlags(uint8_t operationFlags);

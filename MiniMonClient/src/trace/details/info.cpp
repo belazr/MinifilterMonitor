@@ -311,6 +311,12 @@ namespace {
     }
 
 
+    std::wstring RenderDesiredStorageClassPayload(const trace::kernel::FILE_DESIRED_STORAGE_CLASS_INFORMATION& payload) {
+
+        return std::format(L"Class: {}, Flags: {}", trace::names::RenderStorageTierClass(payload.Class), trace::names::RenderDesiredStorageClassFlags(payload.Flags));
+    }
+
+
     std::wstring RenderStatPayload(const trace::kernel::FILE_STAT_INFORMATION& payload) {
         std::wstring result = std::format(L"FileId: {}", trace::values::RenderFileId(static_cast<uint64_t>(payload.FileId)));
 
@@ -382,6 +388,18 @@ namespace {
     }
 
 
+    std::wstring RenderStorageReserveIdPayload(const trace::kernel::FILE_STORAGE_RESERVE_ID_INFORMATION& payload) {
+
+        return std::format(L"StorageReserveId: {}", trace::names::RenderStorageReserveId(payload.StorageReserveId));
+    }
+
+
+    std::wstring RenderKnownFolderPayload(const trace::kernel::FILE_KNOWN_FOLDER_INFORMATION& payload) {
+
+        return std::format(L"Type: {}", trace::names::RenderKnownFolderType(payload.Type));
+    }
+
+
     std::wstring RenderStatBasicPayload(const trace::kernel::FILE_STAT_BASIC_INFORMATION& payload) {
         std::wstring result = std::format(L"FileId: {}", trace::values::RenderFileId(static_cast<uint64_t>(payload.FileId)));
 
@@ -414,6 +432,12 @@ namespace {
         result += std::format(L", NumberOfLinks: {}, DeviceType: {}, DeviceCharacteristics: 0x{:X}, VolumeSerialNumber: 0x{:X}, FileId128: {}", payload.NumberOfLinks, trace::names::RenderDeviceType(payload.DeviceType), payload.DeviceCharacteristics, payload.VolumeSerialNumber, trace::values::RenderFileId(payload.FileId128));
 
         return result;
+    }
+
+
+    std::wstring RenderStreamReservationPayload(const trace::kernel::FILE_STREAM_RESERVATION_INFORMATION& payload) {
+
+        return std::format(L"TrackedReservation: {}, EnforcedReservation: {}", payload.TrackedReservation, payload.EnforcedReservation);
     }
 
 
@@ -577,6 +601,16 @@ namespace {
 
                 break;
 
+            case trace::kernel::FileDesiredStorageClassInformation: {
+                trace::kernel::FILE_DESIRED_STORAGE_CLASS_INFORMATION desiredStorageClass;
+
+                if (trace::details::payload::ReadValue(payload, desiredStorageClass)) {
+                    payloadText = RenderDesiredStorageClassPayload(desiredStorageClass);
+                }
+
+                break;
+            }
+
             case trace::kernel::FileStatInformation: {
                 trace::kernel::FILE_STAT_INFORMATION stat;
 
@@ -607,11 +641,41 @@ namespace {
                 break;
             }
 
+            case trace::kernel::FileStorageReserveIdInformation: {
+                trace::kernel::FILE_STORAGE_RESERVE_ID_INFORMATION storageReserveId;
+
+                if (trace::details::payload::ReadValue(payload, storageReserveId)) {
+                    payloadText = RenderStorageReserveIdPayload(storageReserveId);
+                }
+
+                break;
+            }
+
+            case trace::kernel::FileKnownFolderInformation: {
+                trace::kernel::FILE_KNOWN_FOLDER_INFORMATION knownFolder;
+
+                if (trace::details::payload::ReadValue(payload, knownFolder)) {
+                    payloadText = RenderKnownFolderPayload(knownFolder);
+                }
+
+                break;
+            }
+
             case trace::kernel::FileStatBasicInformation: {
                 trace::kernel::FILE_STAT_BASIC_INFORMATION statBasic;
 
                 if (trace::details::payload::ReadValue(payload, statBasic)) {
                     payloadText = RenderStatBasicPayload(statBasic);
+                }
+
+                break;
+            }
+
+            case trace::kernel::FileStreamReservationInformation: {
+                trace::kernel::FILE_STREAM_RESERVATION_INFORMATION streamReservation;
+
+                if (trace::details::payload::ReadValue(payload, streamReservation)) {
+                    payloadText = RenderStreamReservationPayload(streamReservation);
                 }
 
                 break;
@@ -859,12 +923,52 @@ namespace mimo {
                             break;
                         }
 
+                        case kernel::FileDesiredStorageClassInformation: {
+                            kernel::FILE_DESIRED_STORAGE_CLASS_INFORMATION desiredStorageClass;
+
+                            if (payload::ReadValue(payload, desiredStorageClass)) {
+                                payloadText = RenderDesiredStorageClassPayload(desiredStorageClass);
+                            }
+
+                            break;
+                        }
+
                         case kernel::FileCaseSensitiveInformation:
                         case kernel::FileCaseSensitiveInformationForceAccessCheck: {
                             kernel::FILE_CASE_SENSITIVE_INFORMATION caseSensitive;
 
                             if (payload::ReadValue(payload, caseSensitive)) {
                                 payloadText = RenderCaseSensitivePayload(caseSensitive);
+                            }
+
+                            break;
+                        }
+
+                        case kernel::FileStorageReserveIdInformation: {
+                            kernel::FILE_STORAGE_RESERVE_ID_INFORMATION storageReserveId;
+
+                            if (payload::ReadValue(payload, storageReserveId)) {
+                                payloadText = RenderStorageReserveIdPayload(storageReserveId);
+                            }
+
+                            break;
+                        }
+
+                        case kernel::FileKnownFolderInformation: {
+                            kernel::FILE_KNOWN_FOLDER_INFORMATION knownFolder;
+
+                            if (payload::ReadValue(payload, knownFolder)) {
+                                payloadText = RenderKnownFolderPayload(knownFolder);
+                            }
+
+                            break;
+                        }
+
+                        case kernel::FileStreamReservationInformation: {
+                            kernel::FILE_STREAM_RESERVATION_INFORMATION streamReservation;
+
+                            if (payload::ReadValue(payload, streamReservation)) {
+                                payloadText = RenderStreamReservationPayload(streamReservation);
                             }
 
                             break;

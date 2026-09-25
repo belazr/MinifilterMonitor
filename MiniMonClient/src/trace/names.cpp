@@ -258,6 +258,13 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(RENAME_FLAG_NAMES), "composite entry after its components in RENAME_FLAG_NAMES");
 
+    constexpr FlagName DESIRED_STORAGE_CLASS_FLAG_NAMES[]{
+        { QUERY_STORAGE_CLASSES_FLAGS_MEASURE_WRITE, L"QUERY_STORAGE_CLASSES_FLAGS_MEASURE_WRITE" },
+        { QUERY_STORAGE_CLASSES_FLAGS_MEASURE_READ,  L"QUERY_STORAGE_CLASSES_FLAGS_MEASURE_READ" },
+    };
+
+    static_assert(CompositesPrecedeComponents(DESIRED_STORAGE_CLASS_FLAG_NAMES), "composite entry after its components in DESIRED_STORAGE_CLASS_FLAG_NAMES");
+
     constexpr FlagName EA_FLAG_NAMES[]{
         { trace::kernel::FILE_NEED_EA, L"FILE_NEED_EA" },
     };
@@ -1101,6 +1108,56 @@ namespace mimo {
             std::wstring RenderRenameFlags(uint32_t flags) {
 
                 return RenderFlags(flags, RENAME_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderStorageTierClass(uint32_t storageTierClass) {
+
+                switch (storageTierClass) {
+                    case FileStorageTierClassUnspecified: return L"FileStorageTierClassUnspecified";
+                    case FileStorageTierClassCapacity:    return L"FileStorageTierClassCapacity";
+                    case FileStorageTierClassPerformance: return L"FileStorageTierClassPerformance";
+                }
+
+                return std::format(L"0x{:X}", storageTierClass);
+            }
+
+
+            std::wstring RenderDesiredStorageClassFlags(uint32_t flags) {
+
+                if (!flags) return L"None";
+
+                return RenderFlags(flags, DESIRED_STORAGE_CLASS_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderStorageReserveId(uint32_t storageReserveId) {
+
+                switch (storageReserveId) {
+                    case StorageReserveIdNone:          return L"StorageReserveIdNone";
+                    case StorageReserveIdHard:          return L"StorageReserveIdHard";
+                    case StorageReserveIdSoft:          return L"StorageReserveIdSoft";
+                    case StorageReserveIdUpdateScratch: return L"StorageReserveIdUpdateScratch";
+                }
+
+                return std::format(L"0x{:X}", storageReserveId);
+            }
+
+
+            std::wstring RenderKnownFolderType(uint32_t type) {
+
+                switch (type) {
+                    case kernel::KnownFolderNone:      return L"KnownFolderNone";
+                    case kernel::KnownFolderDesktop:   return L"KnownFolderDesktop";
+                    case kernel::KnownFolderDocuments: return L"KnownFolderDocuments";
+                    case kernel::KnownFolderDownloads: return L"KnownFolderDownloads";
+                    case kernel::KnownFolderMusic:     return L"KnownFolderMusic";
+                    case kernel::KnownFolderPictures:  return L"KnownFolderPictures";
+                    case kernel::KnownFolderVideos:    return L"KnownFolderVideos";
+                    case kernel::KnownFolderOther:     return L"KnownFolderOther";
+                }
+
+                return std::format(L"0x{:X}", type);
             }
 
 

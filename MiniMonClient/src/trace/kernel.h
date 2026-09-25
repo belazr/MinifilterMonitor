@@ -581,6 +581,14 @@ namespace mimo {
             static_assert(sizeof(FILE_LINKS_FULL_ID_INFORMATION) == 36u, "trace::kernel::FILE_LINKS_FULL_ID_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_LINKS_FULL_ID_INFORMATION, Entry) == 8u, "trace::kernel::FILE_LINKS_FULL_ID_INFORMATION x64 layout drift");
 
+            struct FILE_DESIRED_STORAGE_CLASS_INFORMATION {
+                uint32_t Class;    // FILE_STORAGE_TIER_CLASS in the kernel
+                uint32_t Flags;
+            };
+
+            static_assert(sizeof(FILE_DESIRED_STORAGE_CLASS_INFORMATION) == 8u, "trace::kernel::FILE_DESIRED_STORAGE_CLASS_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_DESIRED_STORAGE_CLASS_INFORMATION, Flags) == 4u, "trace::kernel::FILE_DESIRED_STORAGE_CLASS_INFORMATION x64 layout drift");
+
             struct FILE_STAT_INFORMATION {
                 int64_t FileId;
                 int64_t CreationTime;
@@ -627,6 +635,18 @@ namespace mimo {
 
             static_assert(sizeof(FILE_CASE_SENSITIVE_INFORMATION) == 4u, "trace::kernel::FILE_CASE_SENSITIVE_INFORMATION x64 layout drift");
 
+            struct FILE_STORAGE_RESERVE_ID_INFORMATION {
+                uint32_t StorageReserveId;    // STORAGE_RESERVE_ID in the kernel
+            };
+
+            static_assert(sizeof(FILE_STORAGE_RESERVE_ID_INFORMATION) == 4u, "trace::kernel::FILE_STORAGE_RESERVE_ID_INFORMATION x64 layout drift");
+
+            struct FILE_KNOWN_FOLDER_INFORMATION {
+                uint32_t Type;    // FILE_KNOWN_FOLDER_TYPE in the kernel
+            };
+
+            static_assert(sizeof(FILE_KNOWN_FOLDER_INFORMATION) == 4u, "trace::kernel::FILE_KNOWN_FOLDER_INFORMATION x64 layout drift");
+
             struct FILE_STAT_BASIC_INFORMATION {
                 int64_t FileId;
                 int64_t CreationTime;
@@ -648,6 +668,14 @@ namespace mimo {
             static_assert(sizeof(FILE_STAT_BASIC_INFORMATION) == 104u, "trace::kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_STAT_BASIC_INFORMATION, DeviceType) == 68u, "trace::kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_STAT_BASIC_INFORMATION, FileId128) == 88u, "trace::kernel::FILE_STAT_BASIC_INFORMATION x64 layout drift");
+
+            struct FILE_STREAM_RESERVATION_INFORMATION {
+                int64_t TrackedReservation;
+                int64_t EnforcedReservation;
+            };
+
+            static_assert(sizeof(FILE_STREAM_RESERVATION_INFORMATION) == 16u, "trace::kernel::FILE_STREAM_RESERVATION_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_STREAM_RESERVATION_INFORMATION, EnforcedReservation) == 8u, "trace::kernel::FILE_STREAM_RESERVATION_INFORMATION x64 layout drift");
 
             // FILE_LINK_INFORMATION shares this layout
             struct FILE_RENAME_INFORMATION {
@@ -732,6 +760,16 @@ namespace mimo {
             inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_TARGET_SR               = 0x00000080u;
             inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_SOURCE_SR               = 0x00000100u;
             inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_SR                      = 0x00000180u;
+
+            // FILE_KNOWN_FOLDER_TYPE values
+            inline constexpr uint32_t KnownFolderNone      = 0u;
+            inline constexpr uint32_t KnownFolderDesktop   = 1u;
+            inline constexpr uint32_t KnownFolderDocuments = 2u;
+            inline constexpr uint32_t KnownFolderDownloads = 3u;
+            inline constexpr uint32_t KnownFolderMusic     = 4u;
+            inline constexpr uint32_t KnownFolderPictures  = 5u;
+            inline constexpr uint32_t KnownFolderVideos    = 6u;
+            inline constexpr uint32_t KnownFolderOther     = 7u;
 
             // extended attribute entry layouts
             struct FILE_FULL_EA_INFORMATION {
