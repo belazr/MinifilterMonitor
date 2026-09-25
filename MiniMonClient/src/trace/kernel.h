@@ -822,6 +822,18 @@ namespace mimo {
             static_assert(sizeof(FILE_FS_ATTRIBUTE_INFORMATION) == 16u, "trace::kernel::FILE_FS_ATTRIBUTE_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_FS_ATTRIBUTE_INFORMATION, FileSystemName) == 12u, "trace::kernel::FILE_FS_ATTRIBUTE_INFORMATION x64 layout drift");
 
+            struct FILE_FS_CONTROL_INFORMATION {
+                int64_t FreeSpaceStartFiltering;
+                int64_t FreeSpaceThreshold;
+                int64_t FreeSpaceStopFiltering;
+                int64_t DefaultQuotaThreshold;
+                int64_t DefaultQuotaLimit;
+                uint32_t FileSystemControlFlags;
+            };
+
+            static_assert(sizeof(FILE_FS_CONTROL_INFORMATION) == 48u, "trace::kernel::FILE_FS_CONTROL_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_FS_CONTROL_INFORMATION, FileSystemControlFlags) == 40u, "trace::kernel::FILE_FS_CONTROL_INFORMATION x64 layout drift");
+
             struct FILE_FS_FULL_SIZE_INFORMATION {
                 int64_t TotalAllocationUnits;
                 int64_t CallerAvailableAllocationUnits;
@@ -831,6 +843,14 @@ namespace mimo {
             };
 
             static_assert(sizeof(FILE_FS_FULL_SIZE_INFORMATION) == 32u, "trace::kernel::FILE_FS_FULL_SIZE_INFORMATION x64 layout drift");
+
+            struct FILE_FS_OBJECTID_INFORMATION {
+                uint8_t ObjectId[16u];
+                uint8_t ExtendedInfo[48u];
+            };
+
+            static_assert(sizeof(FILE_FS_OBJECTID_INFORMATION) == 64u, "trace::kernel::FILE_FS_OBJECTID_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_FS_OBJECTID_INFORMATION, ExtendedInfo) == 16u, "trace::kernel::FILE_FS_OBJECTID_INFORMATION x64 layout drift");
 
             struct FILE_FS_SECTOR_SIZE_INFORMATION {
                 uint32_t LogicalBytesPerSector;
@@ -843,6 +863,43 @@ namespace mimo {
             };
 
             static_assert(sizeof(FILE_FS_SECTOR_SIZE_INFORMATION) == 28u, "trace::kernel::FILE_FS_SECTOR_SIZE_INFORMATION x64 layout drift");
+
+            struct FILE_FS_METADATA_SIZE_INFORMATION {
+                int64_t TotalMetadataAllocationUnits;
+                uint32_t SectorsPerAllocationUnit;
+                uint32_t BytesPerSector;
+            };
+
+            static_assert(sizeof(FILE_FS_METADATA_SIZE_INFORMATION) == 16u, "trace::kernel::FILE_FS_METADATA_SIZE_INFORMATION x64 layout drift");
+
+            struct FILE_FS_FULL_SIZE_INFORMATION_EX {
+                uint64_t ActualTotalAllocationUnits;
+                uint64_t ActualAvailableAllocationUnits;
+                uint64_t ActualPoolUnavailableAllocationUnits;
+                uint64_t CallerTotalAllocationUnits;
+                uint64_t CallerAvailableAllocationUnits;
+                uint64_t CallerPoolUnavailableAllocationUnits;
+                uint64_t UsedAllocationUnits;
+                uint64_t TotalReservedAllocationUnits;
+                uint64_t VolumeStorageReserveAllocationUnits;
+                uint64_t AvailableCommittedAllocationUnits;
+                uint64_t PoolAvailableAllocationUnits;
+                uint32_t SectorsPerAllocationUnit;
+                uint32_t BytesPerSector;
+            };
+
+            static_assert(sizeof(FILE_FS_FULL_SIZE_INFORMATION_EX) == 96u, "trace::kernel::FILE_FS_FULL_SIZE_INFORMATION_EX x64 layout drift");
+
+            // FILE_FS_CONTROL_INFORMATION flags
+            inline constexpr uint32_t FILE_VC_QUOTA_TRACK            = 0x00000001u;
+            inline constexpr uint32_t FILE_VC_QUOTA_ENFORCE          = 0x00000002u;
+            inline constexpr uint32_t FILE_VC_CONTENT_INDEX_DISABLED = 0x00000008u;
+            inline constexpr uint32_t FILE_VC_LOG_QUOTA_THRESHOLD    = 0x00000010u;
+            inline constexpr uint32_t FILE_VC_LOG_QUOTA_LIMIT        = 0x00000020u;
+            inline constexpr uint32_t FILE_VC_LOG_VOLUME_THRESHOLD   = 0x00000040u;
+            inline constexpr uint32_t FILE_VC_LOG_VOLUME_LIMIT       = 0x00000080u;
+            inline constexpr uint32_t FILE_VC_QUOTAS_INCOMPLETE      = 0x00000100u;
+            inline constexpr uint32_t FILE_VC_QUOTAS_REBUILDING      = 0x00000200u;
 
             // completion filter flags
             inline constexpr uint32_t FILE_NOTIFY_CHANGE_EA           = 0x00000080u;

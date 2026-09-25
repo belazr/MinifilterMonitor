@@ -315,6 +315,20 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(FILE_SYSTEM_ATTRIBUTE_NAMES), "composite entry after its components in FILE_SYSTEM_ATTRIBUTE_NAMES");
 
+    constexpr FlagName FILE_SYSTEM_CONTROL_FLAG_NAMES[]{
+        { trace::kernel::FILE_VC_QUOTA_TRACK,            L"FILE_VC_QUOTA_TRACK" },
+        { trace::kernel::FILE_VC_QUOTA_ENFORCE,          L"FILE_VC_QUOTA_ENFORCE" },
+        { trace::kernel::FILE_VC_CONTENT_INDEX_DISABLED, L"FILE_VC_CONTENT_INDEX_DISABLED" },
+        { trace::kernel::FILE_VC_LOG_QUOTA_THRESHOLD,    L"FILE_VC_LOG_QUOTA_THRESHOLD" },
+        { trace::kernel::FILE_VC_LOG_QUOTA_LIMIT,        L"FILE_VC_LOG_QUOTA_LIMIT" },
+        { trace::kernel::FILE_VC_LOG_VOLUME_THRESHOLD,   L"FILE_VC_LOG_VOLUME_THRESHOLD" },
+        { trace::kernel::FILE_VC_LOG_VOLUME_LIMIT,       L"FILE_VC_LOG_VOLUME_LIMIT" },
+        { trace::kernel::FILE_VC_QUOTAS_INCOMPLETE,      L"FILE_VC_QUOTAS_INCOMPLETE" },
+        { trace::kernel::FILE_VC_QUOTAS_REBUILDING,      L"FILE_VC_QUOTAS_REBUILDING" },
+    };
+
+    static_assert(CompositesPrecedeComponents(FILE_SYSTEM_CONTROL_FLAG_NAMES), "composite entry after its components in FILE_SYSTEM_CONTROL_FLAG_NAMES");
+
     constexpr FlagName NOTIFY_FLAG_NAMES[]{
         { trace::kernel::SL_WATCH_TREE, L"Watch Tree" },
     };
@@ -1137,6 +1151,14 @@ namespace mimo {
                 if (!fileSystemAttributes) return L"None";
 
                 return RenderFlags(fileSystemAttributes, FILE_SYSTEM_ATTRIBUTE_NAMES, L"|");
+            }
+
+
+            std::wstring RenderFileSystemControlFlags(uint32_t fileSystemControlFlags) {
+
+                if (!fileSystemControlFlags) return L"None";
+
+                return RenderFlags(fileSystemControlFlags, FILE_SYSTEM_CONTROL_FLAG_NAMES, L"|");
             }
 
 

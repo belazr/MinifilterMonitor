@@ -80,15 +80,39 @@ namespace {
     }
 
 
+    std::wstring RenderControlPayload(const trace::kernel::FILE_FS_CONTROL_INFORMATION& payload) {
+
+        return std::format(L"FreeSpaceStartFiltering: {}, FreeSpaceThreshold: {}, FreeSpaceStopFiltering: {}, DefaultQuotaThreshold: {}, DefaultQuotaLimit: {}, FileSystemControlFlags: {}", payload.FreeSpaceStartFiltering, payload.FreeSpaceThreshold, payload.FreeSpaceStopFiltering, payload.DefaultQuotaThreshold, payload.DefaultQuotaLimit, trace::names::RenderFileSystemControlFlags(payload.FileSystemControlFlags));
+    }
+
+
     std::wstring RenderFullSizePayload(const trace::kernel::FILE_FS_FULL_SIZE_INFORMATION& payload) {
 
         return std::format(L"TotalAllocationUnits: {}, CallerAvailableAllocationUnits: {}, ActualAvailableAllocationUnits: {}, SectorsPerAllocationUnit: {}, BytesPerSector: {}", payload.TotalAllocationUnits, payload.CallerAvailableAllocationUnits, payload.ActualAvailableAllocationUnits, payload.SectorsPerAllocationUnit, payload.BytesPerSector);
     }
 
 
+    std::wstring RenderObjectIdPayload(const trace::kernel::FILE_FS_OBJECTID_INFORMATION& payload) {
+
+        return std::format(L"ObjectId: {}, ExtendedInfo: {}", trace::values::RenderGuid(payload.ObjectId), trace::values::RenderBytes(payload.ExtendedInfo, false));
+    }
+
+
     std::wstring RenderSectorSizePayload(const trace::kernel::FILE_FS_SECTOR_SIZE_INFORMATION& payload) {
 
         return std::format(L"LogicalBytesPerSector: {}, PhysicalBytesPerSectorForAtomicity: {}, PhysicalBytesPerSectorForPerformance: {}, FileSystemEffectivePhysicalBytesPerSectorForAtomicity: {}, Flags: 0x{:X}, ByteOffsetForSectorAlignment: {}, ByteOffsetForPartitionAlignment: {}", payload.LogicalBytesPerSector, payload.PhysicalBytesPerSectorForAtomicity, payload.PhysicalBytesPerSectorForPerformance, payload.FileSystemEffectivePhysicalBytesPerSectorForAtomicity, payload.Flags, payload.ByteOffsetForSectorAlignment, payload.ByteOffsetForPartitionAlignment);
+    }
+
+
+    std::wstring RenderMetadataSizePayload(const trace::kernel::FILE_FS_METADATA_SIZE_INFORMATION& payload) {
+
+        return std::format(L"TotalMetadataAllocationUnits: {}, SectorsPerAllocationUnit: {}, BytesPerSector: {}", payload.TotalMetadataAllocationUnits, payload.SectorsPerAllocationUnit, payload.BytesPerSector);
+    }
+
+
+    std::wstring RenderFullSizeExPayload(const trace::kernel::FILE_FS_FULL_SIZE_INFORMATION_EX& payload) {
+
+        return std::format(L"ActualTotalAllocationUnits: {}, ActualAvailableAllocationUnits: {}, ActualPoolUnavailableAllocationUnits: {}, CallerTotalAllocationUnits: {}, CallerAvailableAllocationUnits: {}, CallerPoolUnavailableAllocationUnits: {}, UsedAllocationUnits: {}, TotalReservedAllocationUnits: {}, VolumeStorageReserveAllocationUnits: {}, AvailableCommittedAllocationUnits: {}, PoolAvailableAllocationUnits: {}, SectorsPerAllocationUnit: {}, BytesPerSector: {}", payload.ActualTotalAllocationUnits, payload.ActualAvailableAllocationUnits, payload.ActualPoolUnavailableAllocationUnits, payload.CallerTotalAllocationUnits, payload.CallerAvailableAllocationUnits, payload.CallerPoolUnavailableAllocationUnits, payload.UsedAllocationUnits, payload.TotalReservedAllocationUnits, payload.VolumeStorageReserveAllocationUnits, payload.AvailableCommittedAllocationUnits, payload.PoolAvailableAllocationUnits, payload.SectorsPerAllocationUnit, payload.BytesPerSector);
     }
 
 }
@@ -164,6 +188,16 @@ namespace mimo {
                             break;
                         }
 
+                        case kernel::FileFsControlInformation: {
+                            kernel::FILE_FS_CONTROL_INFORMATION control;
+
+                            if (payload::ReadValue(payload, control)) {
+                                payloadText = RenderControlPayload(control);
+                            }
+
+                            break;
+                        }
+
                         case kernel::FileFsFullSizeInformation: {
                             kernel::FILE_FS_FULL_SIZE_INFORMATION fullSize;
 
@@ -174,11 +208,41 @@ namespace mimo {
                             break;
                         }
 
+                        case kernel::FileFsObjectIdInformation: {
+                            kernel::FILE_FS_OBJECTID_INFORMATION objectId;
+
+                            if (payload::ReadValue(payload, objectId)) {
+                                payloadText = RenderObjectIdPayload(objectId);
+                            }
+
+                            break;
+                        }
+
                         case kernel::FileFsSectorSizeInformation: {
                             kernel::FILE_FS_SECTOR_SIZE_INFORMATION sectorSize;
 
                             if (payload::ReadValue(payload, sectorSize)) {
                                 payloadText = RenderSectorSizePayload(sectorSize);
+                            }
+
+                            break;
+                        }
+
+                        case kernel::FileFsMetadataSizeInformation: {
+                            kernel::FILE_FS_METADATA_SIZE_INFORMATION metadataSize;
+
+                            if (payload::ReadValue(payload, metadataSize)) {
+                                payloadText = RenderMetadataSizePayload(metadataSize);
+                            }
+
+                            break;
+                        }
+
+                        case kernel::FileFsFullSizeInformationEx: {
+                            kernel::FILE_FS_FULL_SIZE_INFORMATION_EX fullSizeEx;
+
+                            if (payload::ReadValue(payload, fullSizeEx)) {
+                                payloadText = RenderFullSizeExPayload(fullSizeEx);
                             }
 
                             break;
