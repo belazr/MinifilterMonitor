@@ -4,6 +4,7 @@
 
 #include "..\kernel.h"
 #include "..\names.h"
+#include "..\values.h"
 
 #include "..\..\text.h"
 
@@ -85,6 +86,56 @@ namespace {
     }
 
 
+    std::wstring RenderObjectIdsPayload(std::span<const uint8_t> payload, bool truncated) {
+
+        if (payload.empty()) return {};
+
+        std::wstring result;
+        size_t offset = 0u;
+        uint32_t index = 1u;
+        trace::kernel::FILE_OBJECTID_INFORMATION objectId;
+
+        while (trace::details::payload::ReadValue(payload, objectId, offset)) {
+            result += std::format(L"{}: FileReference: {}, ObjectId: {}, ", index, trace::values::RenderFileId(static_cast<uint64_t>(objectId.FileReference)), trace::values::RenderGuid(objectId.ObjectId));
+            offset += sizeof(objectId);
+            index++;
+        }
+
+        const bool marked = truncated || result.empty();
+
+        if (!marked) {
+            result.resize(result.size() - 2u);
+        }
+
+        return text::MarkTruncated(result, marked);
+    }
+
+
+    std::wstring RenderReparsePointsPayload(std::span<const uint8_t> payload, bool truncated) {
+
+        if (payload.empty()) return {};
+
+        std::wstring result;
+        size_t offset = 0u;
+        uint32_t index = 1u;
+        trace::kernel::FILE_REPARSE_POINT_INFORMATION reparsePoint;
+
+        while (trace::details::payload::ReadValue(payload, reparsePoint, offset)) {
+            result += std::format(L"{}: FileReference: {}, Tag: {}, ", index, trace::values::RenderFileId(static_cast<uint64_t>(reparsePoint.FileReference)), trace::names::RenderReparseTag(reparsePoint.Tag));
+            offset += sizeof(reparsePoint);
+            index++;
+        }
+
+        const bool marked = truncated || result.empty();
+
+        if (!marked) {
+            result.resize(result.size() - 2u);
+        }
+
+        return text::MarkTruncated(result, marked);
+    }
+
+
     std::wstring RenderQuery(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
         std::wstring details = RenderQueryParameters(parameters.queryDirectory.fileInformationClass, parameters.queryDirectory.length);
@@ -109,6 +160,7 @@ namespace {
         }
 
         const std::span<const uint8_t> payload = ExtractPayload(queryDirectorySupplement);
+        const bool truncated = queryDirectorySupplement.captured & protocol::QUERY_DIRECTORY_TRUNCATED_PAYLOAD;
         std::wstring payloadText;
 
         switch (parameters.queryDirectory.fileInformationClass) {
@@ -130,6 +182,16 @@ namespace {
 
             case trace::kernel::FileNamesInformation:
                 payloadText = RenderEntriesPayload<trace::kernel::FILE_NAMES_INFORMATION>(payload);
+
+                break;
+
+            case trace::kernel::FileObjectIdInformation:
+                payloadText = RenderObjectIdsPayload(payload, truncated);
+
+                break;
+
+            case trace::kernel::FileReparsePointInformation:
+                payloadText = RenderReparsePointsPayload(payload, truncated);
 
                 break;
 

@@ -1074,6 +1074,25 @@ namespace mimo {
             static_assert(sizeof(FILE_NAMES_INFORMATION) == 16u, "trace::kernel::FILE_NAMES_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_NAMES_INFORMATION, FileName) == 12u, "trace::kernel::FILE_NAMES_INFORMATION x64 layout drift");
 
+            struct FILE_OBJECTID_INFORMATION {
+                int64_t FileReference;
+                uint8_t ObjectId[16u];
+                uint8_t BirthVolumeId[16u];
+                uint8_t BirthObjectId[16u];
+                uint8_t DomainId[16u];
+            };
+
+            static_assert(sizeof(FILE_OBJECTID_INFORMATION) == 72u, "trace::kernel::FILE_OBJECTID_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_OBJECTID_INFORMATION, ObjectId) == 8u, "trace::kernel::FILE_OBJECTID_INFORMATION x64 layout drift");
+
+            struct FILE_REPARSE_POINT_INFORMATION {
+                int64_t FileReference;
+                uint32_t Tag;
+            };
+
+            static_assert(sizeof(FILE_REPARSE_POINT_INFORMATION) == 16u, "trace::kernel::FILE_REPARSE_POINT_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_REPARSE_POINT_INFORMATION, Tag) == 8u, "trace::kernel::FILE_REPARSE_POINT_INFORMATION x64 layout drift");
+
             struct FILE_ID_BOTH_DIR_INFORMATION {
                 uint32_t NextEntryOffset;
                 uint32_t FileIndex;
