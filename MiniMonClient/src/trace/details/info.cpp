@@ -212,6 +212,18 @@ namespace {
     }
 
 
+    std::wstring RenderSfioReservePayload(const trace::kernel::FILE_SFIO_RESERVE_INFORMATION& payload) {
+
+        return std::format(L"RequestsPerPeriod: {}, Period: {}, RetryFailures: {}, Discardable: {}, RequestSize: {}, NumOutstandingRequests: {}", payload.RequestsPerPeriod, payload.Period, trace::values::RenderBoolean(payload.RetryFailures), trace::values::RenderBoolean(payload.Discardable), payload.RequestSize, payload.NumOutstandingRequests);
+    }
+
+
+    std::wstring RenderSfioVolumePayload(const trace::kernel::FILE_SFIO_VOLUME_INFORMATION& payload) {
+
+        return std::format(L"MaximumRequestsPerPeriod: {}, MinimumPeriod: {}, MinimumTransferSize: {}", payload.MaximumRequestsPerPeriod, payload.MinimumPeriod, payload.MinimumTransferSize);
+    }
+
+
     template <typename Entry>
     std::wstring RenderHardLinksPayload(std::span<const uint8_t> payload) {
         uint32_t bytesNeeded;
@@ -556,6 +568,26 @@ namespace {
                 break;
             }
 
+            case trace::kernel::FileSfioReserveInformation: {
+                trace::kernel::FILE_SFIO_RESERVE_INFORMATION sfioReserve;
+
+                if (trace::details::payload::ReadValue(payload, sfioReserve)) {
+                    payloadText = RenderSfioReservePayload(sfioReserve);
+                }
+
+                break;
+            }
+
+            case trace::kernel::FileSfioVolumeInformation: {
+                trace::kernel::FILE_SFIO_VOLUME_INFORMATION sfioVolume;
+
+                if (trace::details::payload::ReadValue(payload, sfioVolume)) {
+                    payloadText = RenderSfioVolumePayload(sfioVolume);
+                }
+
+                break;
+            }
+
             case trace::kernel::FileHardLinkInformation:
                 payloadText = RenderHardLinksPayload<trace::kernel::FILE_LINK_ENTRY_INFORMATION>(payload);
 
@@ -741,6 +773,19 @@ namespace {
     }
 
 
+    std::wstring RenderTrackingPayload(const trace::kernel::FILE_TRACKING_INFORMATION& payload, std::span<const uint8_t> objectInformationData) {
+        std::wstring result = std::format(L"DestinationFile: 0x{:X}, ObjectInformationLength: {}", static_cast<uint32_t>(payload.DestinationFile), payload.ObjectInformationLength);
+
+        if (payload.ObjectInformationLength) {
+            const size_t dataSize = payload.ObjectInformationLength < objectInformationData.size() ? payload.ObjectInformationLength : objectInformationData.size();
+
+            result += std::format(L", ObjectInformation: {}", trace::values::RenderBytes(objectInformationData.first(dataSize), dataSize < payload.ObjectInformationLength));
+        }
+
+        return result;
+    }
+
+
     std::wstring RenderValidDataLengthPayload(const trace::kernel::FILE_VALID_DATA_LENGTH_INFORMATION& payload) {
 
         return std::format(L"ValidDataLength: {}", payload.ValidDataLength);
@@ -877,6 +922,17 @@ namespace mimo {
 
                             break;
 
+                        case kernel::FileTrackingInformation: {
+                            constexpr size_t OBJECT_INFORMATION_OFFSET = offsetof(kernel::FILE_TRACKING_INFORMATION, ObjectInformation);
+                            kernel::FILE_TRACKING_INFORMATION tracking;
+
+                            if (payload::ReadHeader(payload, tracking, OBJECT_INFORMATION_OFFSET)) {
+                                payloadText = RenderTrackingPayload(tracking, payload.subspan(OBJECT_INFORMATION_OFFSET));
+                            }
+
+                            break;
+                        }
+
                         case kernel::FileValidDataLengthInformation: {
                             kernel::FILE_VALID_DATA_LENGTH_INFORMATION validDataLength;
 
@@ -893,6 +949,16 @@ namespace mimo {
 
                             if (payload::ReadHeader(payload, shortName, NAME_OFFSET)) {
                                 payloadText = RenderShortNamePayload(shortName, payload.subspan(NAME_OFFSET));
+                            }
+
+                            break;
+                        }
+
+                        case kernel::FileSfioReserveInformation: {
+                            kernel::FILE_SFIO_RESERVE_INFORMATION sfioReserve;
+
+                            if (payload::ReadValue(payload, sfioReserve)) {
+                                payloadText = RenderSfioReservePayload(sfioReserve);
                             }
 
                             break;

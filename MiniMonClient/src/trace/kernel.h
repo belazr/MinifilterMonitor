@@ -498,6 +498,27 @@ namespace mimo {
 
             static_assert(sizeof(FILE_ATTRIBUTE_TAG_INFORMATION) == 8u, "trace::kernel::FILE_ATTRIBUTE_TAG_INFORMATION x64 layout drift");
 
+            struct FILE_SFIO_RESERVE_INFORMATION {
+                uint32_t RequestsPerPeriod;
+                uint32_t Period;
+                uint8_t RetryFailures;
+                uint8_t Discardable;
+                uint32_t RequestSize;
+                uint32_t NumOutstandingRequests;
+            };
+
+            static_assert(sizeof(FILE_SFIO_RESERVE_INFORMATION) == 20u, "trace::kernel::FILE_SFIO_RESERVE_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_SFIO_RESERVE_INFORMATION, Discardable) == 9u, "trace::kernel::FILE_SFIO_RESERVE_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_SFIO_RESERVE_INFORMATION, RequestSize) == 12u, "trace::kernel::FILE_SFIO_RESERVE_INFORMATION x64 layout drift");
+
+            struct FILE_SFIO_VOLUME_INFORMATION {
+                uint32_t MaximumRequestsPerPeriod;
+                uint32_t MinimumPeriod;
+                uint32_t MinimumTransferSize;
+            };
+
+            static_assert(sizeof(FILE_SFIO_VOLUME_INFORMATION) == 12u, "trace::kernel::FILE_SFIO_VOLUME_INFORMATION x64 layout drift");
+
             struct FILE_LINK_ENTRY_INFORMATION {
                 uint32_t NextEntryOffset;
                 int64_t ParentFileId;
@@ -707,6 +728,16 @@ namespace mimo {
             };
 
             static_assert(sizeof(FILE_END_OF_FILE_INFORMATION) == 8u, "trace::kernel::FILE_END_OF_FILE_INFORMATION x64 layout drift");
+
+            struct FILE_TRACKING_INFORMATION {
+                uint64_t DestinationFile;    // HANDLE in the kernel, fixed 64-bit for the x64 layout
+                uint32_t ObjectInformationLength;
+                char ObjectInformation[1u];
+            };
+
+            static_assert(sizeof(FILE_TRACKING_INFORMATION) == 16u, "trace::kernel::FILE_TRACKING_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_TRACKING_INFORMATION, ObjectInformationLength) == 8u, "trace::kernel::FILE_TRACKING_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_TRACKING_INFORMATION, ObjectInformation) == 12u, "trace::kernel::FILE_TRACKING_INFORMATION x64 layout drift");
 
             struct FILE_VALID_DATA_LENGTH_INFORMATION {
                 int64_t ValidDataLength;
