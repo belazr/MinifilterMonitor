@@ -1455,6 +1455,14 @@ namespace mimo {
             static_assert(sizeof(READ_USN_JOURNAL_DATA_V0) == 40u, "trace::kernel::READ_USN_JOURNAL_DATA_V0 x64 layout drift");
             static_assert(offsetof(READ_USN_JOURNAL_DATA_V0, UsnJournalID) == 32u, "trace::kernel::READ_USN_JOURNAL_DATA_V0 x64 layout drift");
 
+            struct USN_RECORD_COMMON_HEADER {
+                uint32_t RecordLength;
+                uint16_t MajorVersion;
+                uint16_t MinorVersion;
+            };
+
+            static_assert(sizeof(USN_RECORD_COMMON_HEADER) == 8u, "trace::kernel::USN_RECORD_COMMON_HEADER x64 layout drift");
+
             struct USN_RECORD_V2 {
                 uint32_t RecordLength;
                 uint16_t MajorVersion;
@@ -1474,6 +1482,27 @@ namespace mimo {
 
             static_assert(sizeof(USN_RECORD_V2) == 64u, "trace::kernel::USN_RECORD_V2 x64 layout drift");
             static_assert(offsetof(USN_RECORD_V2, FileName) == 60u, "trace::kernel::USN_RECORD_V2 x64 layout drift");
+
+            struct USN_RECORD_V3 {
+                uint32_t RecordLength;
+                uint16_t MajorVersion;
+                uint16_t MinorVersion;
+                uint8_t FileReferenceNumber[16u];
+                uint8_t ParentFileReferenceNumber[16u];
+                int64_t Usn;
+                int64_t TimeStamp;
+                uint32_t Reason;
+                uint32_t SourceInfo;
+                uint32_t SecurityId;
+                uint32_t FileAttributes;
+                uint16_t FileNameLength;
+                uint16_t FileNameOffset;
+                wchar_t FileName[1u];
+            };
+
+            static_assert(sizeof(USN_RECORD_V3) == 80u, "trace::kernel::USN_RECORD_V3 x64 layout drift");
+            static_assert(offsetof(USN_RECORD_V3, Usn) == 40u, "trace::kernel::USN_RECORD_V3 x64 layout drift");
+            static_assert(offsetof(USN_RECORD_V3, FileName) == 76u, "trace::kernel::USN_RECORD_V3 x64 layout drift");
 
             struct FILE_SET_SPARSE_BUFFER {
                 uint8_t SetSparse;      // BOOLEAN in the kernel

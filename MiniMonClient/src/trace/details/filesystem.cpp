@@ -470,36 +470,64 @@ namespace {
     }
 
 
-    std::wstring RenderUsnRecordPayload(std::span<const uint8_t> payload) {
-        constexpr size_t HEADER_SIZE = offsetof(trace::kernel::USN_RECORD_V2, FileName);
-        trace::kernel::USN_RECORD_V2 record;
-
-        if (!trace::details::payload::ReadHeader(payload, record, HEADER_SIZE)) return {};
-
-        if (record.MajorVersion != 2u) return std::format(L"MajorVersion: {}", record.MajorVersion);
-
-        const size_t nameStart = record.FileNameOffset < payload.size() ? record.FileNameOffset : payload.size();
-        std::wstring result = std::format(L"FileName: {}", trace::details::payload::RenderName(payload.subspan(nameStart), record.FileNameLength));
-        const std::wstring reason = trace::names::RenderUsnReason(record.Reason);
+    template <typename UsnRecord>
+    std::wstring RenderUsnRecord(const UsnRecord& payload, std::span<const uint8_t> nameData) {
+        const size_t nameStart = payload.FileNameOffset < nameData.size() ? payload.FileNameOffset : nameData.size();
+        std::wstring result = std::format(L"FileName: {}", trace::details::payload::RenderName(nameData.subspan(nameStart), payload.FileNameLength));
+        const std::wstring reason = trace::names::RenderUsnReason(payload.Reason);
 
         if (!reason.empty()) {
             result += std::format(L", Reason: {}", reason);
         }
 
-        result += std::format(L", Usn: {}", record.Usn);
+        result += std::format(L", Usn: {}", payload.Usn);
 
-        if (record.TimeStamp) {
-            result += std::format(L", TimeStamp: {}", trace::values::RenderTime(record.TimeStamp));
+        if (payload.TimeStamp) {
+            result += std::format(L", TimeStamp: {}", trace::values::RenderTime(payload.TimeStamp));
         }
 
-        result += std::format(L", FileReferenceNumber: {}, ParentFileReferenceNumber: {}", trace::values::RenderFileId(record.FileReferenceNumber), trace::values::RenderFileId(record.ParentFileReferenceNumber));
+        result += std::format(L", FileReferenceNumber: {}, ParentFileReferenceNumber: {}", trace::values::RenderFileId(payload.FileReferenceNumber), trace::values::RenderFileId(payload.ParentFileReferenceNumber));
 
         return result;
     }
 
 
+    std::wstring RenderUsnRecordPayload(std::span<const uint8_t> payload) {
+        trace::kernel::USN_RECORD_COMMON_HEADER header;
+
+        if (!trace::details::payload::ReadValue(payload, header)) return {};
+
+        switch (header.MajorVersion) {
+
+            case 2u: {
+                constexpr size_t HEADER_SIZE = offsetof(trace::kernel::USN_RECORD_V2, FileName);
+                trace::kernel::USN_RECORD_V2 record;
+
+                if (!trace::details::payload::ReadHeader(payload, record, HEADER_SIZE)) return {};
+
+                if (record.RecordLength < HEADER_SIZE) return {};
+
+                return RenderUsnRecord(record, payload);
+            }
+
+            case 3u: {
+                constexpr size_t HEADER_SIZE = offsetof(trace::kernel::USN_RECORD_V3, FileName);
+                trace::kernel::USN_RECORD_V3 record;
+
+                if (!trace::details::payload::ReadHeader(payload, record, HEADER_SIZE)) return {};
+
+                if (record.RecordLength < HEADER_SIZE) return {};
+
+                return RenderUsnRecord(record, payload);
+            }
+
+        }
+
+        return std::format(L"MajorVersion: {}", header.MajorVersion);
+    }
+
+
     std::wstring RenderUsnRecordsPayload(std::span<const uint8_t> payload, bool truncated) {
-        constexpr size_t HEADER_SIZE = offsetof(trace::kernel::USN_RECORD_V2, FileName);
         int64_t nextUsn;
 
         if (!trace::details::payload::ReadValue(payload, nextUsn)) return {};
@@ -509,14 +537,18 @@ namespace {
         uint32_t index = 1u;
 
         while (true) {
-            trace::kernel::USN_RECORD_V2 record;
+            trace::kernel::USN_RECORD_COMMON_HEADER header;
 
-            if (!trace::details::payload::ReadHeader(payload, record, HEADER_SIZE, offset)) break;
+            if (!trace::details::payload::ReadValue(payload, header, offset)) break;
 
-            if (record.RecordLength < HEADER_SIZE) break;
+            if (header.RecordLength < sizeof(header)) break;
 
-            result += std::format(L"{}: {}, ", index, RenderUsnRecordPayload(payload.subspan(offset)));
-            offset += record.RecordLength;
+            const std::wstring recordText = RenderUsnRecordPayload(payload.subspan(offset));
+
+            if (recordText.empty()) break;
+
+            result += std::format(L"{}: {}, ", index, recordText);
+            offset += header.RecordLength;
             index++;
         }
 
