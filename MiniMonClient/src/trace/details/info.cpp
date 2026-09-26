@@ -317,6 +317,12 @@ namespace {
     }
 
 
+    std::wstring RenderVolumeNamePayload(const trace::kernel::FILE_VOLUME_NAME_INFORMATION& payload, std::span<const uint8_t> nameData) {
+
+        return std::format(L"DeviceName: {}", trace::details::payload::RenderName(nameData, payload.DeviceNameLength));
+    }
+
+
     std::wstring RenderIdPayload(const trace::kernel::FILE_ID_INFORMATION& payload) {
 
         return std::format(L"VolumeSerialNumber: 0x{:X}, FileId: {}", payload.VolumeSerialNumber, trace::values::RenderFileId(payload.FileId));
@@ -613,6 +619,17 @@ namespace {
 
                 if (trace::details::payload::ReadValue(payload, remoteProtocol)) {
                     payloadText = RenderRemoteProtocolPayload(remoteProtocol);
+                }
+
+                break;
+            }
+
+            case trace::kernel::FileVolumeNameInformation: {
+                constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_VOLUME_NAME_INFORMATION, DeviceName);
+                trace::kernel::FILE_VOLUME_NAME_INFORMATION volumeName;
+
+                if (trace::details::payload::ReadHeader(payload, volumeName, NAME_OFFSET)) {
+                    payloadText = RenderVolumeNamePayload(volumeName, payload.subspan(NAME_OFFSET));
                 }
 
                 break;

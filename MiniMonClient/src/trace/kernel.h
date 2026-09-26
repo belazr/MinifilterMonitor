@@ -574,6 +574,14 @@ namespace mimo {
             static_assert(offsetof(FILE_REMOTE_PROTOCOL_INFORMATION, Flags) == 16u, "trace::kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
             static_assert(offsetof(FILE_REMOTE_PROTOCOL_INFORMATION, GenericReserved) == 20u, "trace::kernel::FILE_REMOTE_PROTOCOL_INFORMATION x64 layout drift");
 
+            struct FILE_VOLUME_NAME_INFORMATION {
+                uint32_t DeviceNameLength;
+                wchar_t DeviceName[1u];
+            };
+
+            static_assert(sizeof(FILE_VOLUME_NAME_INFORMATION) == 8u, "trace::kernel::FILE_VOLUME_NAME_INFORMATION x64 layout drift");
+            static_assert(offsetof(FILE_VOLUME_NAME_INFORMATION, DeviceName) == 4u, "trace::kernel::FILE_VOLUME_NAME_INFORMATION x64 layout drift");
+
             struct FILE_ID_INFORMATION {
                 uint64_t VolumeSerialNumber;
                 uint8_t FileId[16u];
