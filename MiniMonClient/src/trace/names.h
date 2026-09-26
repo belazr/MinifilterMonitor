@@ -115,6 +115,12 @@ namespace mimo {
 
             std::wstring RenderUsnSourceInfo(uint32_t usnSourceInfo);
 
+            std::wstring RenderTxfsRmFlags(uint32_t flags);
+
+            std::wstring RenderTxfsLoggingMode(uint16_t loggingMode);
+
+            std::wstring RenderTxfsRmState(uint32_t rmState);
+
             std::wstring RenderDeviceIoFlags(uint8_t operationFlags);
 
             std::wstring RenderStoragePropertyId(uint32_t propertyId);

@@ -559,6 +559,22 @@ namespace {
     }
 
 
+    std::wstring RenderTxfsRmInformationPayload(const trace::kernel::TXFS_QUERY_RM_INFORMATION& payload, std::span<const uint8_t> nameData) {
+        std::wstring result = std::format(L"BytesRequired: {}, TailLsn: {}, CurrentLsn: {}, ArchiveTailLsn: {}, LogContainerSize: {}, HighestVirtualClock: {}, LogContainerCount: {}, LogContainerCountMax: {}, LogContainerCountMin: {}, LogGrowthIncrement: {}, LogAutoShrinkPercentage: {}, Flags: {}, LoggingMode: {}, RmState: {}, LogCapacity: {}, LogFree: {}, TopsSize: {}, TopsUsed: {}, TransactionCount: {}, OnePCCount: {}, TwoPCCount: {}, NumberLogFileFull: {}, OldestTransactionAge: {}, RMName: {}", payload.BytesRequired, payload.TailLsn, payload.CurrentLsn, payload.ArchiveTailLsn, payload.LogContainerSize, payload.HighestVirtualClock, payload.LogContainerCount, payload.LogContainerCountMax, payload.LogContainerCountMin, payload.LogGrowthIncrement, payload.LogAutoShrinkPercentage, trace::names::RenderTxfsRmFlags(payload.Flags), trace::names::RenderTxfsLoggingMode(payload.LoggingMode), trace::names::RenderTxfsRmState(payload.RmState), payload.LogCapacity, payload.LogFree, payload.TopsSize, payload.TopsUsed, payload.TransactionCount, payload.OnePCCount, payload.TwoPCCount, payload.NumberLogFileFull, payload.OldestTransactionAge, trace::values::RenderGuid(payload.RMName));
+
+        if (payload.TmLogPathOffset) {
+            const size_t start = payload.TmLogPathOffset < nameData.size() ? payload.TmLogPathOffset : nameData.size();
+            const std::wstring pathText = trace::details::payload::RenderTerminatedName(nameData.subspan(start));
+
+            if (!pathText.empty()) {
+                result += std::format(L", TmLogPath: {}", pathText);
+            }
+        }
+
+        return result;
+    }
+
+
     std::wstring RenderPersistentVolumeStateOutputPayload(const trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION& payload) {
 
         return std::format(L"VolumeFlags: {}", trace::names::RenderPersistentVolumeState(payload.VolumeFlags));
@@ -665,6 +681,14 @@ namespace {
                 trace::kernel::USN_JOURNAL_DATA_V0 journalData;
 
                 if (trace::details::payload::ReadValue(output, journalData)) return RenderUsnJournalDataPayload(journalData);
+
+                break;
+            }
+
+            case FSCTL_TXFS_QUERY_RM_INFORMATION: {
+                trace::kernel::TXFS_QUERY_RM_INFORMATION rmInformation;
+
+                if (trace::details::payload::ReadValue(output, rmInformation)) return RenderTxfsRmInformationPayload(rmInformation, output);
 
                 break;
             }

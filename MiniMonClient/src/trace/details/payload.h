@@ -59,6 +59,17 @@ namespace mimo {
                 }
 
 
+                inline std::wstring RenderTerminatedName(std::span<const uint8_t> nameData) {
+                    std::wstring buffer(nameData.size() / sizeof(wchar_t), L'\0');
+                    std::memcpy(buffer.data(), nameData.data(), buffer.size() * sizeof(wchar_t));
+
+                    const std::wstring_view name = text::Extract(buffer);
+                    const bool terminated = name.size() < buffer.size();
+
+                    return text::MarkTruncated(name, !terminated);
+                }
+
+
                 inline std::wstring RenderAsciiName(std::span<const uint8_t> nameData, uint32_t nameSize) {
                     const size_t copySize = nameSize < nameData.size() ? nameSize : nameData.size();
                     const std::string_view name{ reinterpret_cast<const char*>(nameData.data()), copySize };

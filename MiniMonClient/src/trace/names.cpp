@@ -496,6 +496,28 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(USN_SOURCE_NAMES), "composite entry after its components in USN_SOURCE_NAMES");
 
+    constexpr FlagName TXFS_RM_FLAG_NAMES[]{
+        { TXFS_RM_FLAG_LOGGING_MODE,                        L"TXFS_RM_FLAG_LOGGING_MODE" },
+        { TXFS_RM_FLAG_RENAME_RM,                           L"TXFS_RM_FLAG_RENAME_RM" },
+        { TXFS_RM_FLAG_LOG_CONTAINER_COUNT_MAX,             L"TXFS_RM_FLAG_LOG_CONTAINER_COUNT_MAX" },
+        { TXFS_RM_FLAG_LOG_CONTAINER_COUNT_MIN,             L"TXFS_RM_FLAG_LOG_CONTAINER_COUNT_MIN" },
+        { TXFS_RM_FLAG_LOG_GROWTH_INCREMENT_NUM_CONTAINERS, L"TXFS_RM_FLAG_LOG_GROWTH_INCREMENT_NUM_CONTAINERS" },
+        { TXFS_RM_FLAG_LOG_GROWTH_INCREMENT_PERCENT,        L"TXFS_RM_FLAG_LOG_GROWTH_INCREMENT_PERCENT" },
+        { TXFS_RM_FLAG_LOG_AUTO_SHRINK_PERCENTAGE,          L"TXFS_RM_FLAG_LOG_AUTO_SHRINK_PERCENTAGE" },
+        { TXFS_RM_FLAG_LOG_NO_CONTAINER_COUNT_MAX,          L"TXFS_RM_FLAG_LOG_NO_CONTAINER_COUNT_MAX" },
+        { TXFS_RM_FLAG_LOG_NO_CONTAINER_COUNT_MIN,          L"TXFS_RM_FLAG_LOG_NO_CONTAINER_COUNT_MIN" },
+        { TXFS_RM_FLAG_GROW_LOG,                            L"TXFS_RM_FLAG_GROW_LOG" },
+        { TXFS_RM_FLAG_SHRINK_LOG,                          L"TXFS_RM_FLAG_SHRINK_LOG" },
+        { TXFS_RM_FLAG_ENFORCE_MINIMUM_SIZE,                L"TXFS_RM_FLAG_ENFORCE_MINIMUM_SIZE" },
+        { TXFS_RM_FLAG_PRESERVE_CHANGES,                    L"TXFS_RM_FLAG_PRESERVE_CHANGES" },
+        { TXFS_RM_FLAG_RESET_RM_AT_NEXT_START,              L"TXFS_RM_FLAG_RESET_RM_AT_NEXT_START" },
+        { TXFS_RM_FLAG_DO_NOT_RESET_RM_AT_NEXT_START,       L"TXFS_RM_FLAG_DO_NOT_RESET_RM_AT_NEXT_START" },
+        { TXFS_RM_FLAG_PREFER_CONSISTENCY,                  L"TXFS_RM_FLAG_PREFER_CONSISTENCY" },
+        { TXFS_RM_FLAG_PREFER_AVAILABILITY,                 L"TXFS_RM_FLAG_PREFER_AVAILABILITY" },
+    };
+
+    static_assert(CompositesPrecedeComponents(TXFS_RM_FLAG_NAMES), "composite entry after its components in TXFS_RM_FLAG_NAMES");
+
     constexpr FlagName DEVICE_IO_FLAG_NAMES[]{
         { trace::kernel::SL_READ_ACCESS_GRANTED,    L"Read Access Granted" },
         { trace::kernel::SL_OVERRIDE_VERIFY_VOLUME, L"Override Verify Volume" },
@@ -1882,6 +1904,38 @@ namespace mimo {
             std::wstring RenderUsnSourceInfo(uint32_t usnSourceInfo) {
 
                 return RenderFlags(usnSourceInfo, USN_SOURCE_NAMES, L"|");
+            }
+
+
+            std::wstring RenderTxfsRmFlags(uint32_t flags) {
+
+                if (!flags) return L"None";
+
+                return RenderFlags(flags, TXFS_RM_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderTxfsLoggingMode(uint16_t loggingMode) {
+
+                switch (loggingMode) {
+                    case TXFS_LOGGING_MODE_SIMPLE: return L"TXFS_LOGGING_MODE_SIMPLE";
+                    case TXFS_LOGGING_MODE_FULL:   return L"TXFS_LOGGING_MODE_FULL";
+                }
+
+                return std::format(L"0x{:X}", loggingMode);
+            }
+
+
+            std::wstring RenderTxfsRmState(uint32_t rmState) {
+
+                switch (rmState) {
+                    case TXFS_RM_STATE_NOT_STARTED:   return L"TXFS_RM_STATE_NOT_STARTED";
+                    case TXFS_RM_STATE_STARTING:      return L"TXFS_RM_STATE_STARTING";
+                    case TXFS_RM_STATE_ACTIVE:        return L"TXFS_RM_STATE_ACTIVE";
+                    case TXFS_RM_STATE_SHUTTING_DOWN: return L"TXFS_RM_STATE_SHUTTING_DOWN";
+                }
+
+                return std::format(L"0x{:X}", rmState);
             }
 
 

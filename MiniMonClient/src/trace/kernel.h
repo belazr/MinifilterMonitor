@@ -1544,6 +1544,43 @@ namespace mimo {
             static_assert(sizeof(FILE_PREFETCH_EX) == 24u, "trace::kernel::FILE_PREFETCH_EX x64 layout drift");
             static_assert(offsetof(FILE_PREFETCH_EX, Prefetch) == 16u, "trace::kernel::FILE_PREFETCH_EX x64 layout drift");
 
+            struct TXFS_QUERY_RM_INFORMATION {
+                uint32_t BytesRequired;
+                uint64_t TailLsn;
+                uint64_t CurrentLsn;
+                uint64_t ArchiveTailLsn;
+                uint64_t LogContainerSize;
+                int64_t HighestVirtualClock;
+                uint32_t LogContainerCount;
+                uint32_t LogContainerCountMax;
+                uint32_t LogContainerCountMin;
+                uint32_t LogGrowthIncrement;
+                uint32_t LogAutoShrinkPercentage;
+                uint32_t Flags;
+                uint16_t LoggingMode;
+                uint16_t Reserved;
+                uint32_t RmState;
+                uint64_t LogCapacity;
+                uint64_t LogFree;
+                uint64_t TopsSize;
+                uint64_t TopsUsed;
+                uint64_t TransactionCount;
+                uint64_t OnePCCount;
+                uint64_t TwoPCCount;
+                uint64_t NumberLogFileFull;
+                uint64_t OldestTransactionAge;
+                uint8_t RMName[16u];
+                uint32_t TmLogPathOffset;
+            };
+
+            static_assert(sizeof(TXFS_QUERY_RM_INFORMATION) == 176u, "trace::kernel::TXFS_QUERY_RM_INFORMATION x64 layout drift");
+            static_assert(offsetof(TXFS_QUERY_RM_INFORMATION, TailLsn) == 8u, "trace::kernel::TXFS_QUERY_RM_INFORMATION x64 layout drift");
+            static_assert(offsetof(TXFS_QUERY_RM_INFORMATION, LogContainerCount) == 48u, "trace::kernel::TXFS_QUERY_RM_INFORMATION x64 layout drift");
+            static_assert(offsetof(TXFS_QUERY_RM_INFORMATION, LoggingMode) == 72u, "trace::kernel::TXFS_QUERY_RM_INFORMATION x64 layout drift");
+            static_assert(offsetof(TXFS_QUERY_RM_INFORMATION, LogCapacity) == 80u, "trace::kernel::TXFS_QUERY_RM_INFORMATION x64 layout drift");
+            static_assert(offsetof(TXFS_QUERY_RM_INFORMATION, RMName) == 152u, "trace::kernel::TXFS_QUERY_RM_INFORMATION x64 layout drift");
+            static_assert(offsetof(TXFS_QUERY_RM_INFORMATION, TmLogPathOffset) == 168u, "trace::kernel::TXFS_QUERY_RM_INFORMATION x64 layout drift");
+
             struct FILE_LEVEL_TRIM_RANGE {
                 uint64_t Offset;
                 uint64_t Length;
