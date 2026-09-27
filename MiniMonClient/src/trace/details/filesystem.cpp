@@ -165,9 +165,16 @@ namespace {
     }
 
 
-    std::wstring RenderReadUsnJournalPayload(const trace::kernel::READ_USN_JOURNAL_DATA_V0& payload) {
+    template <typename ReadUsnJournal>
+    std::wstring RenderReadUsnJournalPayload(const ReadUsnJournal& payload) {
 
         return std::format(L"StartUsn: {}, ReasonMask: {}, ReturnOnlyOnClose: {}, Timeout: {}, BytesToWaitFor: {}, UsnJournalID: 0x{:X}", payload.StartUsn, trace::names::RenderUsnReason(payload.ReasonMask), trace::values::RenderBoolean(payload.ReturnOnlyOnClose), payload.Timeout, payload.BytesToWaitFor, payload.UsnJournalID);
+    }
+
+
+    std::wstring RenderReadUsnJournalV1Payload(const trace::kernel::READ_USN_JOURNAL_DATA_V1& payload) {
+
+        return std::format(L"{}, MinMajorVersion: {}, MaxMajorVersion: {}", RenderReadUsnJournalPayload(payload), payload.MinMajorVersion, payload.MaxMajorVersion);
     }
 
 
@@ -192,6 +199,12 @@ namespace {
     std::wstring RenderCreateUsnJournalPayload(const trace::kernel::CREATE_USN_JOURNAL_DATA& payload) {
 
         return std::format(L"MaximumSize: {}, AllocationDelta: {}", payload.MaximumSize, payload.AllocationDelta);
+    }
+
+
+    std::wstring RenderReadFileUsnDataPayload(const trace::kernel::READ_FILE_USN_DATA& payload) {
+
+        return std::format(L"MinMajorVersion: {}, MaxMajorVersion: {}", payload.MinMajorVersion, payload.MaxMajorVersion);
     }
 
 
@@ -348,9 +361,12 @@ namespace {
                 return RenderReparsePayload(input);
 
             case FSCTL_READ_USN_JOURNAL: {
-                trace::kernel::READ_USN_JOURNAL_DATA_V0 readUsn;
+                trace::kernel::READ_USN_JOURNAL_DATA_V1 readUsnV1;
+                trace::kernel::READ_USN_JOURNAL_DATA_V0 readUsnV0;
 
-                if (trace::details::payload::ReadValue(input, readUsn)) return RenderReadUsnJournalPayload(readUsn);
+                if (trace::details::payload::ReadValue(input, readUsnV1)) return RenderReadUsnJournalV1Payload(readUsnV1);
+
+                if (trace::details::payload::ReadValue(input, readUsnV0)) return RenderReadUsnJournalPayload(readUsnV0);
 
                 break;
             }
@@ -384,6 +400,14 @@ namespace {
                 trace::kernel::CREATE_USN_JOURNAL_DATA createUsn;
 
                 if (trace::details::payload::ReadValue(input, createUsn)) return RenderCreateUsnJournalPayload(createUsn);
+
+                break;
+            }
+
+            case FSCTL_READ_FILE_USN_DATA: {
+                trace::kernel::READ_FILE_USN_DATA readFileUsn;
+
+                if (trace::details::payload::ReadValue(input, readFileUsn)) return RenderReadFileUsnDataPayload(readFileUsn);
 
                 break;
             }

@@ -1463,6 +1463,20 @@ namespace mimo {
             static_assert(sizeof(READ_USN_JOURNAL_DATA_V0) == 40u, "trace::kernel::READ_USN_JOURNAL_DATA_V0 x64 layout drift");
             static_assert(offsetof(READ_USN_JOURNAL_DATA_V0, UsnJournalID) == 32u, "trace::kernel::READ_USN_JOURNAL_DATA_V0 x64 layout drift");
 
+            struct READ_USN_JOURNAL_DATA_V1 {
+                int64_t StartUsn;
+                uint32_t ReasonMask;
+                uint32_t ReturnOnlyOnClose;
+                uint64_t Timeout;
+                uint64_t BytesToWaitFor;
+                uint64_t UsnJournalID;
+                uint16_t MinMajorVersion;
+                uint16_t MaxMajorVersion;
+            };
+
+            static_assert(sizeof(READ_USN_JOURNAL_DATA_V1) == 48u, "trace::kernel::READ_USN_JOURNAL_DATA_V1 x64 layout drift");
+            static_assert(offsetof(READ_USN_JOURNAL_DATA_V1, MinMajorVersion) == 40u, "trace::kernel::READ_USN_JOURNAL_DATA_V1 x64 layout drift");
+
             struct USN_RECORD_COMMON_HEADER {
                 uint32_t RecordLength;
                 uint16_t MajorVersion;
@@ -1538,6 +1552,13 @@ namespace mimo {
             };
 
             static_assert(sizeof(CREATE_USN_JOURNAL_DATA) == 16u, "trace::kernel::CREATE_USN_JOURNAL_DATA x64 layout drift");
+
+            struct READ_FILE_USN_DATA {
+                uint16_t MinMajorVersion;
+                uint16_t MaxMajorVersion;
+            };
+
+            static_assert(sizeof(READ_FILE_USN_DATA) == 4u, "trace::kernel::READ_FILE_USN_DATA x64 layout drift");
 
             struct USN_JOURNAL_DATA_V0 {
                 uint64_t UsnJournalID;
