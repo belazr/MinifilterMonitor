@@ -33,14 +33,15 @@ namespace mimo {
         bool IsRawBufferReadable(
             const FLT_CALLBACK_DATA* pData,
             const void* pRawBuffer,
-            ULONG bufferSize
+            ULONG bufferSize,
+            bool probed
         ) {
 
             if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return false;
 
             if (!pRawBuffer) return false;
 
-            if (pData->RequestorMode == KernelMode && reinterpret_cast<ULONG_PTR>(pRawBuffer) >= reinterpret_cast<ULONG_PTR>(MmSystemRangeStart)) return true;
+            if (reinterpret_cast<ULONG_PTR>(pRawBuffer) >= reinterpret_cast<ULONG_PTR>(MmSystemRangeStart)) return probed || pData->RequestorMode == KernelMode;
 
             if (!pData->Thread || IoThreadToProcess(pData->Thread) != PsGetCurrentProcess()) return false;
 
@@ -61,7 +62,8 @@ namespace mimo {
             const FLT_CALLBACK_DATA* pData,
             MDL* pMdl,
             const void* pRawBuffer,
-            ULONG* pBufferSize
+            ULONG* pBufferSize,
+            bool probed
         ) {
 
             // the completion wrote here, the parameter buffers are stale
@@ -82,7 +84,7 @@ namespace mimo {
 
             if (pBuffer) return pBuffer;
 
-            if (pRawBuffer && IsRawBufferReadable(pData, pRawBuffer, *pBufferSize)) return pRawBuffer;
+            if (pRawBuffer && IsRawBufferReadable(pData, pRawBuffer, *pBufferSize, probed)) return pRawBuffer;
 
             return nullptr;
         }

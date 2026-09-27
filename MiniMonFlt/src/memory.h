@@ -15,14 +15,16 @@ namespace mimo {
         bool IsRawBufferReadable(
             _In_ const FLT_CALLBACK_DATA* pData,
             _In_opt_ const void* pRawBuffer,
-            _In_ ULONG bufferSize
+            _In_ ULONG bufferSize,
+            _In_ bool probed = true
         );
 
         const void* GetReadableBuffer(
             _In_ const FLT_CALLBACK_DATA* pData,
             _In_opt_ MDL* pMdl,
             _In_opt_ const void* pRawBuffer,
-            _Inout_ ULONG* pBufferSize
+            _Inout_ ULONG* pBufferSize,
+            _In_ bool probed = true
         );
 
     }

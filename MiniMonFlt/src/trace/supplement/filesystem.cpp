@@ -61,6 +61,7 @@ namespace mimo {
                     if (!inSize && !outSize) return;
 
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode);
+                    const bool probed = method != METHOD_NEITHER;
 
                     const void* pInputBuffer = nullptr;
                     const void* pRawBuffer = nullptr;
@@ -85,7 +86,7 @@ namespace mimo {
 
                     }
 
-                    if (pRawBuffer && memory::IsRawBufferReadable(pData, pRawBuffer, inSize)) {
+                    if (pRawBuffer && memory::IsRawBufferReadable(pData, pRawBuffer, inSize, probed)) {
                         pInputBuffer = pRawBuffer;
                     }
 
@@ -123,6 +124,7 @@ namespace mimo {
 
                     if (method == METHOD_IN_DIRECT || !bufferSize || !writtenSize) return;
 
+                    const bool probed = method != METHOD_NEITHER;
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     ULONG readableSize = dataSize;
                     const void* pOutputBuffer = nullptr;
@@ -137,12 +139,12 @@ namespace mimo {
                             break;
 
                         case METHOD_OUT_DIRECT:
-                            pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &readableSize);
+                            pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &readableSize, probed);
 
                             break;
 
                         case METHOD_NEITHER:
-                            pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer, &readableSize);
+                            pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Neither.OutputBuffer, &readableSize, probed);
 
                             break;
 
