@@ -912,6 +912,16 @@ namespace mimo {
                             break;
                         }
 
+                        case kernel::FilePositionInformation: {
+                            kernel::FILE_POSITION_INFORMATION position;
+
+                            if (payload::ReadValue(payload, position)) {
+                                payloadText = RenderPositionPayload(position);
+                            }
+
+                            break;
+                        }
+
                         case kernel::FileAllocationInformation: {
                             kernel::FILE_ALLOCATION_INFORMATION allocation;
 
