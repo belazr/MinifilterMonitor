@@ -518,6 +518,12 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(TXFS_RM_FLAG_NAMES), "composite entry after its components in TXFS_RM_FLAG_NAMES");
 
+    constexpr FlagName USN_JOURNAL_FLAG_NAMES[]{
+        { FLAG_USN_TRACK_MODIFIED_RANGES_ENABLE, L"FLAG_USN_TRACK_MODIFIED_RANGES_ENABLE" },
+    };
+
+    static_assert(CompositesPrecedeComponents(USN_JOURNAL_FLAG_NAMES), "composite entry after its components in USN_JOURNAL_FLAG_NAMES");
+
     constexpr FlagName DEVICE_IO_FLAG_NAMES[]{
         { trace::kernel::SL_READ_ACCESS_GRANTED,    L"Read Access Granted" },
         { trace::kernel::SL_OVERRIDE_VERIFY_VOLUME, L"Override Verify Volume" },
@@ -1936,6 +1942,14 @@ namespace mimo {
                 }
 
                 return std::format(L"0x{:X}", rmState);
+            }
+
+
+            std::wstring RenderUsnJournalFlags(uint32_t flags) {
+
+                if (!flags) return L"None";
+
+                return RenderFlags(flags, USN_JOURNAL_FLAG_NAMES, L"|");
             }
 
 

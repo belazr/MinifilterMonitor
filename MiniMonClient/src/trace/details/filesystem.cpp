@@ -609,9 +609,23 @@ namespace {
     }
 
 
-    std::wstring RenderUsnJournalDataPayload(const trace::kernel::USN_JOURNAL_DATA_V0& payload) {
+    template <typename UsnJournalData>
+    std::wstring RenderUsnJournalDataPayload(const UsnJournalData& payload) {
 
         return std::format(L"UsnJournalID: 0x{:X}, FirstUsn: {}, NextUsn: {}, LowestValidUsn: {}, MaxUsn: {}, MaximumSize: {}, AllocationDelta: {}", payload.UsnJournalID, payload.FirstUsn, payload.NextUsn, payload.LowestValidUsn, payload.MaxUsn, payload.MaximumSize, payload.AllocationDelta);
+    }
+
+
+    template <typename UsnJournalData>
+    std::wstring RenderUsnJournalDataV1Payload(const UsnJournalData& payload) {
+
+        return std::format(L"{}, MinSupportedMajorVersion: {}, MaxSupportedMajorVersion: {}", RenderUsnJournalDataPayload(payload), payload.MinSupportedMajorVersion, payload.MaxSupportedMajorVersion);
+    }
+
+
+    std::wstring RenderUsnJournalDataV2Payload(const trace::kernel::USN_JOURNAL_DATA_V2& payload) {
+
+        return std::format(L"{}, Flags: {}, RangeTrackChunkSize: {}, RangeTrackFileSizeThreshold: {}", RenderUsnJournalDataV1Payload(payload), trace::names::RenderUsnJournalFlags(payload.Flags), payload.RangeTrackChunkSize, payload.RangeTrackFileSizeThreshold);
     }
 
 
@@ -734,9 +748,15 @@ namespace {
                 return RenderUsnRecordPayload(output);
 
             case FSCTL_QUERY_USN_JOURNAL: {
-                trace::kernel::USN_JOURNAL_DATA_V0 journalData;
+                trace::kernel::USN_JOURNAL_DATA_V2 journalDataV2;
+                trace::kernel::USN_JOURNAL_DATA_V1 journalDataV1;
+                trace::kernel::USN_JOURNAL_DATA_V0 journalDataV0;
 
-                if (trace::details::payload::ReadValue(output, journalData)) return RenderUsnJournalDataPayload(journalData);
+                if (trace::details::payload::ReadValue(output, journalDataV2)) return RenderUsnJournalDataV2Payload(journalDataV2);
+
+                if (trace::details::payload::ReadValue(output, journalDataV1)) return RenderUsnJournalDataV1Payload(journalDataV1);
+
+                if (trace::details::payload::ReadValue(output, journalDataV0)) return RenderUsnJournalDataPayload(journalDataV0);
 
                 break;
             }

@@ -1573,6 +1573,40 @@ namespace mimo {
             static_assert(sizeof(USN_JOURNAL_DATA_V0) == 56u, "trace::kernel::USN_JOURNAL_DATA_V0 x64 layout drift");
             static_assert(offsetof(USN_JOURNAL_DATA_V0, AllocationDelta) == 48u, "trace::kernel::USN_JOURNAL_DATA_V0 x64 layout drift");
 
+            struct USN_JOURNAL_DATA_V1 {
+                uint64_t UsnJournalID;
+                int64_t FirstUsn;
+                int64_t NextUsn;
+                int64_t LowestValidUsn;
+                int64_t MaxUsn;
+                uint64_t MaximumSize;
+                uint64_t AllocationDelta;
+                uint16_t MinSupportedMajorVersion;
+                uint16_t MaxSupportedMajorVersion;
+            };
+
+            static_assert(sizeof(USN_JOURNAL_DATA_V1) == 64u, "trace::kernel::USN_JOURNAL_DATA_V1 x64 layout drift");
+            static_assert(offsetof(USN_JOURNAL_DATA_V1, MinSupportedMajorVersion) == 56u, "trace::kernel::USN_JOURNAL_DATA_V1 x64 layout drift");
+
+            struct USN_JOURNAL_DATA_V2 {
+                uint64_t UsnJournalID;
+                int64_t FirstUsn;
+                int64_t NextUsn;
+                int64_t LowestValidUsn;
+                int64_t MaxUsn;
+                uint64_t MaximumSize;
+                uint64_t AllocationDelta;
+                uint16_t MinSupportedMajorVersion;
+                uint16_t MaxSupportedMajorVersion;
+                uint32_t Flags;
+                uint64_t RangeTrackChunkSize;
+                int64_t RangeTrackFileSizeThreshold;
+            };
+
+            static_assert(sizeof(USN_JOURNAL_DATA_V2) == 80u, "trace::kernel::USN_JOURNAL_DATA_V2 x64 layout drift");
+            static_assert(offsetof(USN_JOURNAL_DATA_V2, Flags) == 60u, "trace::kernel::USN_JOURNAL_DATA_V2 x64 layout drift");
+            static_assert(offsetof(USN_JOURNAL_DATA_V2, RangeTrackChunkSize) == 64u, "trace::kernel::USN_JOURNAL_DATA_V2 x64 layout drift");
+
             struct MARK_HANDLE_INFO {
                 uint32_t UsnSourceInfo;     // CopyNumber under MARK_HANDLE_READ_COPY, the kernel's nameless union
                 uint64_t VolumeHandle;      // HANDLE in the kernel
