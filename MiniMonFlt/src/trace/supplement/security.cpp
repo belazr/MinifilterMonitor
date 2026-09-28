@@ -58,14 +58,14 @@ namespace mimo {
 
                     if (!bufferSize || !writtenSize) return;
 
-                    ULONG readableSize = bufferSize;
-                    const void* pSecurityBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.QuerySecurity.MdlAddress, pData->Iopb->Parameters.QuerySecurity.SecurityBuffer, &readableSize);
+                    if (pData->IoStatus.Status == STATUS_BUFFER_OVERFLOW || writtenSize > bufferSize) return;
 
-                    if (!pSecurityBuffer || !readableSize) return;
+                    if (writtenSize > protocol::SECURITY_PAYLOAD_SIZE) return;
 
-                    const ULONG copySize = writtenSize < readableSize ? static_cast<ULONG>(writtenSize) : readableSize;
+                    ULONG copySize = static_cast<ULONG>(writtenSize);
+                    const void* pSecurityBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.QuerySecurity.MdlAddress, pData->Iopb->Parameters.QuerySecurity.SecurityBuffer, &copySize);
 
-                    if (copySize > protocol::SECURITY_PAYLOAD_SIZE) return;
+                    if (!pSecurityBuffer || !copySize) return;
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pSecurityBuffer, copySize);
