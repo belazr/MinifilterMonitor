@@ -29,7 +29,7 @@ namespace mimo {
                 *pCount = 0u;
                 const ULONG limit = capacity < protocol::STACK_TRACE_FRAME_COUNT ? capacity : protocol::STACK_TRACE_FRAME_COUNT;
 
-                if (limit == 0u) return;
+                if (!limit) return;
 
                 void* addresses[protocol::STACK_TRACE_FRAME_COUNT]{};
                 const USHORT captured = RtlCaptureStackBackTrace(STACK_TRACE_SKIP_FRAME_COUNT, limit, addresses, nullptr);

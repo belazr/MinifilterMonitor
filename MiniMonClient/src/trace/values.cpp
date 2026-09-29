@@ -79,7 +79,7 @@ namespace mimo {
 
             std::wstring RenderObjectId(uint64_t objectId) {
 
-                if (objectId == 0u) return L"";
+                if (!objectId) return L"";
 
                 return std::format(L"{:016X}", objectId);
             }

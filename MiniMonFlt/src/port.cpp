@@ -129,7 +129,7 @@ namespace mimo {
 
                 case protocol::Command::GetRecords:
 
-                    if (outputSize == 0u) return STATUS_INVALID_PARAMETER;
+                    if (!outputSize) return STATUS_INVALID_PARAMETER;
 
                     if (!IS_ALIGNED(pOutputBuffer, alignof(protocol::Record))) return STATUS_DATATYPE_MISALIGNMENT;
 

@@ -88,7 +88,7 @@ namespace {
 
         if (!pImageInfo->SystemModeImage) return;
 
-        if (!pFullImageName || !pFullImageName->Buffer || pFullImageName->Length == 0u) return;
+        if (!pFullImageName || !pFullImageName->Buffer || !pFullImageName->Length) return;
 
         const size_t wcharCount = pFullImageName->Length / sizeof(WCHAR);
         size_t i = wcharCount;
@@ -102,7 +102,7 @@ namespace {
         baseName.Length = static_cast<USHORT>((wcharCount - i) * sizeof(WCHAR));
         baseName.MaximumLength = baseName.Length;
 
-        if (baseName.Length == 0u) return;
+        if (!baseName.Length) return;
 
         AddModule(pImageInfo->ImageBase, pImageInfo->ImageSize, &baseName);
 
@@ -200,7 +200,7 @@ namespace mimo {
 
                 status = AuxKlibQueryModuleInformation(&bufferSize, static_cast<ULONG>(sizeof(AUX_MODULE_EXTENDED_INFO)), nullptr);
 
-                if (!NT_SUCCESS(status) || bufferSize == 0u) goto done;
+                if (!NT_SUCCESS(status) || !bufferSize) goto done;
 
                 pModules = reinterpret_cast<AUX_MODULE_EXTENDED_INFO*>(ExAllocatePool2(POOL_FLAG_PAGED, bufferSize, driver::MEM_TAG));
 
@@ -221,11 +221,11 @@ namespace mimo {
                     remaining = static_cast<USHORT>(AUX_KLIB_MODULE_PATH_LEN - pModules[i].FileNameOffset);
                     charCount = 0u;
 
-                    while (charCount < remaining && pBaseName[charCount] != 0u) {
+                    while (charCount < remaining && pBaseName[charCount] != '\0') {
                         charCount++;
                     }
 
-                    if (charCount == 0u) continue;
+                    if (!charCount) continue;
 
                     ansiName.Buffer = reinterpret_cast<PCHAR>(const_cast<UCHAR*>(pBaseName));
                     ansiName.Length = charCount;

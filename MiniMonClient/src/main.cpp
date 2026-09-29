@@ -251,7 +251,7 @@ namespace {
                 return false;
             }
 
-            if (buffer.Size() > 0u) {
+            if (buffer.Size()) {
                 const std::optional<std::span<const protocol::Record>> records = records::Parse(buffer);
 
                 if (!records.has_value()) {
