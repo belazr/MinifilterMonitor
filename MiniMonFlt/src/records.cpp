@@ -87,10 +87,7 @@ namespace mimo {
             InitializeListHead(&RecordList);
             KeInitializeSpinLock(&RecordListLock);
 
-            ExInitializeNPagedLookasideList(
-                &EntryLookaside, nullptr, nullptr,
-                POOL_NX_ALLOCATION, sizeof(Entry), driver::MEM_TAG, 0u
-            );
+            ExInitializeNPagedLookasideList(&EntryLookaside, nullptr, nullptr, POOL_NX_ALLOCATION, sizeof(Entry), driver::MEM_TAG, 0u);
 
             return;
         }

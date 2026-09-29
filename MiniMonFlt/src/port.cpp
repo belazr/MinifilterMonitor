@@ -32,10 +32,7 @@ namespace mimo {
 
             InitializeObjectAttributes(&objAttribs, &portName, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, nullptr, pSecDesc);
 
-            status = FltCreateCommunicationPort(
-                pFilter, &ServerPort, &objAttribs, nullptr,
-                Connect, Disconnect, Message, 1
-            );
+            status = FltCreateCommunicationPort(pFilter, &ServerPort, &objAttribs, nullptr, Connect, Disconnect, Message, 1);
 
         done:
 
