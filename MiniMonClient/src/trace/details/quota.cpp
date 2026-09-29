@@ -47,9 +47,8 @@ namespace {
                 break;
             }
 
-            if (entry.NextEntryOffset > sidList.size()) break;
+            if (!trace::details::payload::Advance(sidList, offset, entry.NextEntryOffset)) break;
 
-            offset += entry.NextEntryOffset;
         }
 
         if (terminated) {
@@ -114,9 +113,8 @@ namespace {
                 break;
             }
 
-            if (entry.NextEntryOffset > payload.size()) break;
+            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
-            offset += entry.NextEntryOffset;
         }
 
         if (terminated) {

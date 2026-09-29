@@ -148,9 +148,8 @@ namespace {
                 break;
             }
 
-            if (entry.NextEntryOffset > payload.size()) break;
+            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
-            offset += entry.NextEntryOffset;
         }
 
         if (terminated) {
@@ -246,9 +245,8 @@ namespace {
 
             if (!entry.NextEntryOffset) break;
 
-            if (entry.NextEntryOffset > payload.size()) break;
+            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
-            offset += entry.NextEntryOffset;
         }
 
         const bool marked = index <= entriesReturned;

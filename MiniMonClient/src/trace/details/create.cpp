@@ -75,9 +75,8 @@ namespace {
                 break;
             }
 
-            if (entry.NextEntryOffset > eaBuffer.size()) break;
+            if (!trace::details::payload::Advance(eaBuffer, offset, entry.NextEntryOffset)) break;
 
-            offset += entry.NextEntryOffset;
         }
 
         if (terminated) {

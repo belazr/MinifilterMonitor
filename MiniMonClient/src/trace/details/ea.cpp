@@ -43,9 +43,8 @@ namespace {
                 break;
             }
 
-            if (entry.NextEntryOffset > eaList.size()) break;
+            if (!trace::details::payload::Advance(eaList, offset, entry.NextEntryOffset)) break;
 
-            offset += entry.NextEntryOffset;
         }
 
         if (terminated) {
@@ -122,9 +121,8 @@ namespace {
                 break;
             }
 
-            if (entry.NextEntryOffset > payload.size()) break;
+            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
-            offset += entry.NextEntryOffset;
         }
 
         if (terminated) {
