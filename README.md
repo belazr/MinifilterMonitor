@@ -87,7 +87,6 @@ MiniMonClient /u              detach and unload the driver
 Records are written as a semicolon-separated CSV with a header row. The single merged file interleaves all altitudes and is the better view for following one I/O through the stack. `/s` is an additional per-altitude export.
 
 ## Roadmap
-- Trace operation parameters with richer semantics (e.g. the information class and buffer for query/set information, offsets and lengths for reads and writes) instead of only the raw callback arguments
 - Version handshake between client and driver
 - Improve performance of the client draining the driver queue
 
