@@ -14,13 +14,13 @@ using namespace mimo;
 
 namespace {
 
-    constexpr FLT_CONTEXT_REGISTRATION CONTEXTS[] {
+    constexpr FLT_CONTEXT_REGISTRATION CONTEXTS[]{
         { FLT_TRANSACTION_CONTEXT, 0, nullptr, sizeof(transaction::Context), driver::MEM_TAG },
         { FLT_INSTANCE_CONTEXT, 0, nullptr, sizeof(driver::InstanceContext), driver::MEM_TAG },
         { FLT_CONTEXT_END },
     };
 
-    constexpr FLT_OPERATION_REGISTRATION CALLBACKS[] {
+    constexpr FLT_OPERATION_REGISTRATION CALLBACKS[]{
         // file lifecycle
         { IRP_MJ_CREATE, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
         { IRP_MJ_CREATE_NAMED_PIPE, 0, dispatch::PreOperationCallback, dispatch::PostOperationCallback },
@@ -97,7 +97,7 @@ namespace {
 
     NTSTATUS QueryTeardown(_In_ const FLT_RELATED_OBJECTS* pFltObjects, _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS flags);
 
-    constexpr FLT_REGISTRATION FILTER_REGISTRATION {
+    constexpr FLT_REGISTRATION FILTER_REGISTRATION{
         .Size = sizeof(FLT_REGISTRATION),
         .Version = FLT_REGISTRATION_VERSION,
         .Flags = FLTFL_REGISTRATION_SUPPORT_NPFS_MSFS,

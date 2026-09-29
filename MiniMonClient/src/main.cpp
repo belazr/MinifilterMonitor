@@ -55,12 +55,12 @@ namespace {
         std::optional<std::wstring> Parameters::* member;
     };
 
-    constexpr Flag FLAG_TABLE[] = {
+    constexpr Flag FLAG_TABLE[]{
         { L"/u", &Parameters::unload },
         { L"/s", &Parameters::split },
     };
 
-    constexpr Option OPTION_TABLE[] = {
+    constexpr Option OPTION_TABLE[]{
         { L"/a", &Parameters::attach },
         { L"/m", &Parameters::attachAll },
         { L"/f", &Parameters::file },
