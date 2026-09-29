@@ -16,8 +16,8 @@
 #define VER_PRODUCTNAME_STR         "MinifilterMonitor"
 #define VER_LEGALCOPYRIGHT_STR      "Copyright (C) 2026 belazr"
 
-#define VER_FILETYPE    VFT_DRV
-#define VER_FILESUBTYPE VFT2_DRV_SYSTEM
+#define VER_FILETYPE                VFT_DRV
+#define VER_FILESUBTYPE             VFT2_DRV_SYSTEM
 #define VER_FILEDESCRIPTION_STR     "Minifilter Monitor Filter Driver"
 #define VER_INTERNALNAME_STR        "MiniMonFlt.sys"
 
