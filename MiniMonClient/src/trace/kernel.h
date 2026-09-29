@@ -709,7 +709,7 @@ namespace mimo {
             // FILE_LINK_INFORMATION shares this layout
             struct FILE_RENAME_INFORMATION {
                 uint8_t ReplaceIfExists;
-                uint64_t RootDirectory;     // HANDLE in the kernel, fixed 64-bit for the x64 layout
+                uint64_t RootDirectory;     // HANDLE in the kernel
                 uint32_t FileNameLength;
                 wchar_t FileName[1u];
             };
@@ -738,7 +738,7 @@ namespace mimo {
             static_assert(sizeof(FILE_END_OF_FILE_INFORMATION) == 8u, "trace::kernel::FILE_END_OF_FILE_INFORMATION x64 layout drift");
 
             struct FILE_TRACKING_INFORMATION {
-                uint64_t DestinationFile;    // HANDLE in the kernel, fixed 64-bit for the x64 layout
+                uint64_t DestinationFile;    // HANDLE in the kernel
                 uint32_t ObjectInformationLength;
                 char ObjectInformation[1u];
             };
@@ -762,7 +762,7 @@ namespace mimo {
             // FILE_LINK_INFORMATION_EX shares this layout
             struct FILE_RENAME_INFORMATION_EX {
                 uint32_t Flags;
-                uint64_t RootDirectory;     // HANDLE in the kernel, fixed 64-bit for the x64 layout
+                uint64_t RootDirectory;     // HANDLE in the kernel
                 uint32_t FileNameLength;
                 wchar_t FileName[1u];
             };
