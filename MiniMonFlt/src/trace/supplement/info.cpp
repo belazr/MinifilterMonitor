@@ -161,8 +161,8 @@ namespace mimo {
 
                     if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
-                    const FILE_NETWORK_OPEN_INFORMATION* const pNetworkInformation = pData->Iopb->Parameters.NetworkQueryOpen.NetworkInformation;
                     constexpr ULONG BUFFER_SIZE = static_cast<ULONG>(sizeof(FILE_NETWORK_OPEN_INFORMATION));
+                    const FILE_NETWORK_OPEN_INFORMATION* const pNetworkInformation = pData->Iopb->Parameters.NetworkQueryOpen.NetworkInformation;
                     const ULONG_PTR writtenSize = pData->IoStatus.Information;
 
                     if (!pNetworkInformation || !writtenSize) return;
