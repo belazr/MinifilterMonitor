@@ -132,6 +132,7 @@ namespace mimo {
                     switch (method) {
 
                         case METHOD_BUFFERED:
+
                             if (KeGetCurrentIrql() < DISPATCH_LEVEL) {
                                 pOutputBuffer = pData->Iopb->Parameters.FileSystemControl.Buffered.SystemBuffer;
                             }

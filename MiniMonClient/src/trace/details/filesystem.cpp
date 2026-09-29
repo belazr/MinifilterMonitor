@@ -639,6 +639,7 @@ namespace {
             if (!pathText.empty()) {
                 result += std::format(L", TmLogPath: {}", pathText);
             }
+
         }
 
         return result;

@@ -144,6 +144,7 @@ namespace mimo {
                         if (!openResult.empty()) {
                             result += std::format(L"OpenResult: {}, ", openResult);
                         }
+
                     }
 
                     const std::wstring_view ecpText = text::Extract(createSupplement.ecpText);

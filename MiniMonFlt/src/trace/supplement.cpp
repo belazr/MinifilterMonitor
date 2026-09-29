@@ -35,7 +35,6 @@ namespace mimo {
                 switch (pData->Iopb->MajorFunction) {
 
                     case IRP_MJ_CREATE:
-
                         create::Populate(&pSupplement->create, pData);
 
                         break;

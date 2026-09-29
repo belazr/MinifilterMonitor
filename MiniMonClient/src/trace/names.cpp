@@ -31,8 +31,11 @@ namespace {
         for (size_t i = 0u; i < count; i++) {
 
             for (size_t j = i + 1u; j < count; j++) {
+
                 if ((names[i].flag & names[j].flag) == names[i].flag && names[i].flag != names[j].flag) return false;
+
             }
+
         }
 
         return true;
@@ -715,15 +718,19 @@ namespace mimo {
             std::wstring RenderMinorFunction(uint8_t major, uint8_t minor) {
 
                 switch (major) {
+
                     case kernel::IRP_MJ_DIRECTORY_CONTROL:
+
                         switch (minor) {
                             case kernel::IRP_MN_QUERY_DIRECTORY:            return L"IRP_MN_QUERY_DIRECTORY";
                             case kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY:    return L"IRP_MN_NOTIFY_CHANGE_DIRECTORY";
                             case kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX: return L"IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX";
                         }
+
                         break;
 
                     case kernel::IRP_MJ_FILE_SYSTEM_CONTROL:
+
                         switch (minor) {
                             case kernel::IRP_MN_USER_FS_REQUEST:  return L"IRP_MN_USER_FS_REQUEST";
                             case kernel::IRP_MN_MOUNT_VOLUME:     return L"IRP_MN_MOUNT_VOLUME";
@@ -731,28 +738,34 @@ namespace mimo {
                             case kernel::IRP_MN_LOAD_FILE_SYSTEM: return L"IRP_MN_LOAD_FILE_SYSTEM";
                             case kernel::IRP_MN_KERNEL_CALL:      return L"IRP_MN_KERNEL_CALL";
                         }
+
                         break;
 
                     case kernel::IRP_MJ_LOCK_CONTROL:
+
                         switch (minor) {
                             case kernel::IRP_MN_LOCK:              return L"IRP_MN_LOCK";
                             case kernel::IRP_MN_UNLOCK_SINGLE:     return L"IRP_MN_UNLOCK_SINGLE";
                             case kernel::IRP_MN_UNLOCK_ALL:        return L"IRP_MN_UNLOCK_ALL";
                             case kernel::IRP_MN_UNLOCK_ALL_BY_KEY: return L"IRP_MN_UNLOCK_ALL_BY_KEY";
                         }
+
                         break;
 
                     case kernel::IRP_MJ_FLUSH_BUFFERS:
+
                         switch (minor) {
                             case kernel::IRP_MN_FLUSH_AND_PURGE:      return L"IRP_MN_FLUSH_AND_PURGE";
                             case kernel::IRP_MN_FLUSH_DATA_ONLY:      return L"IRP_MN_FLUSH_DATA_ONLY";
                             case kernel::IRP_MN_FLUSH_NO_SYNC:        return L"IRP_MN_FLUSH_NO_SYNC";
                             case kernel::IRP_MN_FLUSH_DATA_SYNC_ONLY: return L"IRP_MN_FLUSH_DATA_SYNC_ONLY";
                         }
+
                         break;
 
                     case kernel::IRP_MJ_READ:
                     case kernel::IRP_MJ_WRITE:
+
                         switch (minor) {
                             case kernel::IRP_MN_NORMAL:           return L"IRP_MN_NORMAL";
                             case kernel::IRP_MN_DPC:              return L"IRP_MN_DPC";
@@ -763,16 +776,20 @@ namespace mimo {
                             case kernel::IRP_MN_COMPLETE_MDL:     return L"IRP_MN_COMPLETE_MDL";
                             case kernel::IRP_MN_COMPLETE_MDL_DPC: return L"IRP_MN_COMPLETE_MDL_DPC";
                         }
+
                         break;
 
                     case kernel::IRP_MJ_DEVICE_CONTROL:
                     case kernel::IRP_MJ_INTERNAL_DEVICE_CONTROL:
+
                         switch (minor) {
                             case kernel::IRP_MN_SCSI_CLASS: return L"IRP_MN_SCSI_CLASS";
                         }
+
                         break;
 
                     case kernel::IRP_MJ_PNP:
+
                         switch (minor) {
                             case kernel::IRP_MN_START_DEVICE:                 return L"IRP_MN_START_DEVICE";
                             case kernel::IRP_MN_QUERY_REMOVE_DEVICE:          return L"IRP_MN_QUERY_REMOVE_DEVICE";
@@ -800,18 +817,22 @@ namespace mimo {
                             case kernel::IRP_MN_QUERY_LEGACY_BUS_INFORMATION: return L"IRP_MN_QUERY_LEGACY_BUS_INFORMATION";
                             case kernel::IRP_MN_DEVICE_ENUMERATED:            return L"IRP_MN_DEVICE_ENUMERATED";
                         }
+
                         break;
 
                     case kernel::IRP_MJ_POWER:
+
                         switch (minor) {
                             case kernel::IRP_MN_WAIT_WAKE:      return L"IRP_MN_WAIT_WAKE";
                             case kernel::IRP_MN_POWER_SEQUENCE: return L"IRP_MN_POWER_SEQUENCE";
                             case kernel::IRP_MN_SET_POWER:      return L"IRP_MN_SET_POWER";
                             case kernel::IRP_MN_QUERY_POWER:    return L"IRP_MN_QUERY_POWER";
                         }
+
                         break;
 
                     case kernel::IRP_MJ_SYSTEM_CONTROL:
+
                         switch (minor) {
                             case kernel::IRP_MN_QUERY_ALL_DATA:         return L"IRP_MN_QUERY_ALL_DATA";
                             case kernel::IRP_MN_QUERY_SINGLE_INSTANCE:  return L"IRP_MN_QUERY_SINGLE_INSTANCE";
@@ -825,6 +846,7 @@ namespace mimo {
                             case kernel::IRP_MN_EXECUTE_METHOD:         return L"IRP_MN_EXECUTE_METHOD";
                             case kernel::IRP_MN_REGINFO_EX:             return L"IRP_MN_REGINFO_EX";
                         }
+
                         break;
                 }
 

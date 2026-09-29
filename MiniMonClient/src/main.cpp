@@ -217,6 +217,7 @@ namespace {
     BOOL WINAPI CtrlHandler(DWORD ctrlType) {
 
         switch (ctrlType) {
+
             case CTRL_C_EVENT:
             case CTRL_BREAK_EVENT:
             case CTRL_CLOSE_EVENT:
@@ -302,7 +303,6 @@ int wmain(int argc, wchar_t* argv[]) {
     }
 
     if (params->attach.has_value()) {
-
         const HRESULT hRes = filter::Attach(*params->attach);
         const int result = ReportResult(hRes, "Failed to attach to volume");
 
@@ -314,7 +314,6 @@ int wmain(int argc, wchar_t* argv[]) {
     }
 
     if (params->attachAll.has_value()) {
-
         const HRESULT hRes = filter::AttachAll(*params->attachAll);
         const int result = ReportResult(hRes, "Failed to attach all installed instances to volume");
 
@@ -326,7 +325,6 @@ int wmain(int argc, wchar_t* argv[]) {
     }
 
     if (params->unload) {
-
         const HRESULT hRes = filter::Unload();
         const int result = ReportResult(hRes, "Failed to unload driver");
 
@@ -348,7 +346,6 @@ int wmain(int argc, wchar_t* argv[]) {
     const HRESULT hRes = filter::Connect(port);
 
     if (FAILED(hRes)) {
-
         const int result = ReportResult(hRes, "Failed to connect to filter port");
 
         // the comms port only exists while the driver is loaded, so a missing port means it is not running

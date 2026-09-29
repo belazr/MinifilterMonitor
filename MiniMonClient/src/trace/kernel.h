@@ -811,6 +811,7 @@ namespace mimo {
             inline constexpr uint32_t KnownFolderOther     = 7u;
 
             // extended attribute entry layouts
+
             struct FILE_FULL_EA_INFORMATION {
                 uint32_t NextEntryOffset;
                 uint8_t Flags;
@@ -1949,6 +1950,7 @@ namespace mimo {
             static_assert(offsetof(MOUNTDEV_NAME, Name) == 2u, "trace::kernel::MOUNTDEV_NAME x64 layout drift");
 
             // quota entry layouts
+
             struct SID {
                 uint8_t Revision;
                 uint8_t SubAuthorityCount;
