@@ -572,7 +572,9 @@ namespace {
             if (recordText.empty()) break;
 
             result += std::format(L"{}: {}, ", index, recordText);
-            offset += header.RecordLength;
+
+            if (!trace::details::payload::Advance(payload, offset, header.RecordLength)) break;
+
             index++;
         }
 

@@ -17,6 +17,16 @@ namespace mimo {
 
             namespace payload {
 
+                constexpr bool Fits(
+                    std::span<const uint8_t> payload,
+                    size_t offset,
+                    size_t size
+                ) {
+
+                    return offset <= payload.size() && size <= payload.size() - offset;
+                }
+
+
                 template <typename T>
                 bool ReadValue(
                     std::span<const uint8_t> payload,
@@ -24,7 +34,7 @@ namespace mimo {
                     size_t offset = 0u
                 ) {
 
-                    if (payload.size() < offset + sizeof(T)) return false;
+                    if (!Fits(payload, offset, sizeof(T))) return false;
 
                     std::memcpy(&value, payload.data() + offset, sizeof(T));
 
@@ -40,10 +50,24 @@ namespace mimo {
                     size_t offset = 0u
                 ) {
 
-                    if (payload.size() < offset + headerSize) return false;
+                    if (!Fits(payload, offset, headerSize)) return false;
 
                     std::memset(&value, 0, sizeof(value));
                     std::memcpy(&value, payload.data() + offset, headerSize);
+
+                    return true;
+                }
+
+
+                constexpr bool Advance(
+                    std::span<const uint8_t> payload,
+                    size_t& offset,
+                    size_t stride
+                ) {
+
+                    if (!Fits(payload, offset, stride)) return false;
+
+                    offset += stride;
 
                     return true;
                 }
