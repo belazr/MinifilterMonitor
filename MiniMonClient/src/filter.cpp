@@ -38,8 +38,8 @@ namespace {
 
         TOKEN_PRIVILEGES privileges{};
         privileges.PrivilegeCount = 1u;
-        privileges.Privileges[0].Luid = luid;
-        privileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+        privileges.Privileges[0u].Luid = luid;
+        privileges.Privileges[0u].Attributes = SE_PRIVILEGE_ENABLED;
 
         if (!AdjustTokenPrivileges(token.Get(), FALSE, &privileges, static_cast<DWORD>(sizeof(privileges)), nullptr, nullptr)) {
 

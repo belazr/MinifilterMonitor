@@ -295,7 +295,7 @@ namespace {
 int wmain(int argc, wchar_t* argv[]) {
     ConfigureOutputEncoding();
 
-    const std::optional<Parameters> params = ParseParameters(argc - 1, &argv[1]);
+    const std::optional<Parameters> params = ParseParameters(argc - 1, &argv[1u]);
 
     if (!params.has_value() || !ValidateParameters(*params)) {
         PrintUsage();

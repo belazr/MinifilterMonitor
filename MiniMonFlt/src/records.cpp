@@ -21,7 +21,7 @@ namespace {
     records::Entry* AllocateEntry() {
         const LONG count = InterlockedIncrement(&RecordsAllocated);
 
-        const ULONGLONG maxEntries = static_cast<ULONGLONG>(config::GetMaxMemoryKb()) * 1024ull / sizeof(records::Entry);
+        const ULONGLONG maxEntries = static_cast<ULONGLONG>(config::GetMaxMemoryKb()) * 1024u / sizeof(records::Entry);
 
         if (static_cast<ULONGLONG>(count) > maxEntries) {
             InterlockedDecrement(&RecordsAllocated);

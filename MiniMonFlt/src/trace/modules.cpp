@@ -144,7 +144,7 @@ namespace {
         }
 
         if (!found) {
-            pNameBuffer[0] = L'\0';
+            pNameBuffer[0u] = L'\0';
             *pOffset = addressVal;
         }
 
@@ -295,8 +295,8 @@ namespace mimo {
                 for (ULONG i = 0u; i < count; i++) {
 
                     if (!ppAddresses[i]) {
-                        pFrames[i].moduleName[0] = L'\0';
-                        pFrames[i].offset = 0ull;
+                        pFrames[i].moduleName[0u] = L'\0';
+                        pFrames[i].offset = 0u;
 
                         continue;
                     }
