@@ -69,7 +69,7 @@ namespace {
     std::optional<Parameters> ParseParameters(int argc, wchar_t* argv[]) {
         Parameters params{};
 
-        for (int i = 0; i < argc; ++i) {
+        for (int i = 0; i < argc; i++) {
             const std::wstring_view arg = argv[i];
             bool matched = false;
 
@@ -97,7 +97,8 @@ namespace {
 
                     if (i + 1 >= argc) return std::nullopt;
 
-                    params.*(o.member) = argv[++i];
+                    i++;
+                    params.*(o.member) = argv[i];
                     matched = true;
 
                     break;
@@ -117,11 +118,11 @@ namespace {
     bool ValidateParameters(const Parameters& params) {
         int actions = 0;
 
-        if (params.unload) ++actions;
+        if (params.unload) actions++;
 
-        if (params.attach.has_value()) ++actions;
+        if (params.attach.has_value()) actions++;
 
-        if (params.attachAll.has_value()) ++actions;
+        if (params.attachAll.has_value()) actions++;
 
         const bool capture = params.file.has_value() || params.split;
 
