@@ -335,10 +335,10 @@ namespace mimo {
                 const FLT_CALLBACK_DATA* pData,
                 ULONG transactionSequence
             ) {
-                pRecordData->status = static_cast<int32_t>(pData->IoStatus.Status);
-                pRecordData->information = pData->IoStatus.Information;
+                pRecordData->status              = static_cast<int32_t>(pData->IoStatus.Status);
+                pRecordData->information         = pData->IoStatus.Information;
                 pRecordData->transactionSequence = static_cast<uint32_t>(transactionSequence);
-                pRecordData->postOpIrql = static_cast<uint8_t>(KeGetCurrentIrql());
+                pRecordData->postOpIrql          = static_cast<uint8_t>(KeGetCurrentIrql());
 
                 if (pData->TagData) {
                     pRecordData->reparseTag = static_cast<uint32_t>(pData->TagData->FileTag);

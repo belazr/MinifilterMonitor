@@ -98,14 +98,14 @@ namespace {
     NTSTATUS QueryTeardown(_In_ const FLT_RELATED_OBJECTS* pFltObjects, _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS flags);
 
     constexpr FLT_REGISTRATION FILTER_REGISTRATION{
-        .Size = sizeof(FLT_REGISTRATION),
-        .Version = FLT_REGISTRATION_VERSION,
-        .Flags = FLTFL_REGISTRATION_SUPPORT_NPFS_MSFS,
-        .ContextRegistration = CONTEXTS,
-        .OperationRegistration = CALLBACKS,
-        .FilterUnloadCallback = FilterUnload,
-        .InstanceSetupCallback = InstanceSetup,
-        .InstanceQueryTeardownCallback = QueryTeardown,
+        .Size                            = sizeof(FLT_REGISTRATION),
+        .Version                         = FLT_REGISTRATION_VERSION,
+        .Flags                           = FLTFL_REGISTRATION_SUPPORT_NPFS_MSFS,
+        .ContextRegistration             = CONTEXTS,
+        .OperationRegistration           = CALLBACKS,
+        .FilterUnloadCallback            = FilterUnload,
+        .InstanceSetupCallback           = InstanceSetup,
+        .InstanceQueryTeardownCallback   = QueryTeardown,
         .TransactionNotificationCallback = transaction::HandleNotification,
     };
 
