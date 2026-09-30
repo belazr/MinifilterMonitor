@@ -275,7 +275,7 @@ namespace {
                 const uint32_t droppedTotal = records->back().droppedRecords;
 
                 if (droppedTotal > droppedReported) {
-                    std::cerr << "Warning: the driver dropped " << (droppedTotal - droppedReported) << " record(s) (out of memory or memory cap reached)\n";
+                    std::cerr << std::format("Warning: the driver dropped {} record(s) (out of memory or memory cap reached)\n", droppedTotal - droppedReported);
                     droppedReported = droppedTotal;
                 }
 
