@@ -87,7 +87,7 @@ namespace {
     std::wstring RenderStackTrace(const protocol::RecordData& data) {
         const uint32_t count = data.stackFrameCount < protocol::STACK_TRACE_FRAME_COUNT ? data.stackFrameCount : protocol::STACK_TRACE_FRAME_COUNT;
 
-        if (!count) return L"";
+        if (!count) return {};
 
         std::wstring result;
 

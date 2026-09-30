@@ -851,7 +851,7 @@ namespace mimo {
                 }
 
                 // a zero minor with no name is an operation that has no minor function
-                if (!minor) return L"";
+                if (!minor) return {};
 
                 return std::format(L"{:02X}", static_cast<uint32_t>(minor));
             }
@@ -859,7 +859,7 @@ namespace mimo {
 
             std::wstring RenderReparseTag(uint32_t tag) {
 
-                if (!tag) return L"";
+                if (!tag) return {};
 
                 switch (tag) {
                     case IO_REPARSE_TAG_HSM2:               return L"HSM2";
@@ -949,7 +949,7 @@ namespace mimo {
                     case kernel::FILE_DOES_NOT_EXIST: return L"Does Not Exist";
                 }
 
-                return L"";
+                return {};
             }
 
 
