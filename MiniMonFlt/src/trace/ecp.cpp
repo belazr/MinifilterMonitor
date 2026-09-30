@@ -135,7 +135,8 @@ namespace {
     void AppendOplockStates(_Inout_ EcpWriter* pWriter, _In_ const SRV_OPEN_ECP_CONTEXT* pContext) {
         PAGED_CODE();
 
-        PCWSTR states[3u]{};
+        constexpr ULONG STATE_COUNT = 3u;
+        PCWSTR states[STATE_COUNT]{};
         ULONG count = 0u;
 
         if (pContext->OplockBlockState) states[count++] = L"block";

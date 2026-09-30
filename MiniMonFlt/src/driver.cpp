@@ -130,14 +130,16 @@ namespace {
     ULONG GetInstanceAltitude(_In_ const FLT_RELATED_OBJECTS* pFltObjects) {
         PAGED_CODE();
 
-        WCHAR volumeNameBuffer[128u]{};
+        constexpr ULONG VOLUME_NAME_WCHAR_COUNT = 128u;
+        constexpr ULONG ENTRY_STRINGS_WCHAR_COUNT = 512u;
+        WCHAR volumeNameBuffer[VOLUME_NAME_WCHAR_COUNT]{};
         UNICODE_STRING volumeName{};
         volumeName.Buffer = volumeNameBuffer;
         volumeName.MaximumLength = static_cast<USHORT>(sizeof(volumeNameBuffer));
 
         if (!NT_SUCCESS(FltGetVolumeName(pFltObjects->Volume, &volumeName, nullptr))) return 0u;
 
-        UCHAR infoBuffer[sizeof(INSTANCE_FULL_INFORMATION) + 512u * sizeof(WCHAR)]{};
+        UCHAR infoBuffer[sizeof(INSTANCE_FULL_INFORMATION) + ENTRY_STRINGS_WCHAR_COUNT * sizeof(WCHAR)]{};
 
         for (ULONG index = 0u; ; index++) {
             ULONG bytesReturned = 0u;

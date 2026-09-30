@@ -149,9 +149,11 @@ namespace {
 
 
     void DisplayError(HRESULT code) {
+        constexpr uint32_t MESSAGE_WCHAR_COUNT = 1024u;
+
         std::cerr << std::format("Error: 0x{:08X}, ", static_cast<uint32_t>(code));
 
-        std::array<wchar_t, 1024u> buffer{};
+        std::array<wchar_t, MESSAGE_WCHAR_COUNT> buffer{};
         const DWORD count = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, static_cast<DWORD>(code), 0u, buffer.data(), static_cast<DWORD>(buffer.size()), nullptr);
 
         if (count) {

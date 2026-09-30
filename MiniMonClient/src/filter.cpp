@@ -80,7 +80,8 @@ namespace {
         if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, path.c_str(), 0u, KEY_READ, reinterpret_cast<HKEY*>(key.Put())) != ERROR_SUCCESS) return names;
 
         for (DWORD i = 0u; ; i++) {
-            std::array<wchar_t, 256u> buffer{};
+            constexpr uint32_t KEY_NAME_WCHAR_COUNT = 256u;
+            std::array<wchar_t, KEY_NAME_WCHAR_COUNT> buffer{};
             DWORD len = static_cast<DWORD>(buffer.size());
             const LSTATUS status = RegEnumKeyExW(static_cast<HKEY>(key.Get()), i, buffer.data(), &len, nullptr, nullptr, nullptr, nullptr);
 

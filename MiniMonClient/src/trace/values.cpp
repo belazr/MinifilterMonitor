@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <sddl.h>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -176,14 +177,14 @@ namespace mimo {
 
                 if (!inserted) return it->second;
 
-                wchar_t name[ACCOUNT_NAME_WCHAR_COUNT]{};
-                wchar_t domain[ACCOUNT_NAME_WCHAR_COUNT]{};
-                DWORD nameWcharCount = static_cast<DWORD>(ACCOUNT_NAME_WCHAR_COUNT);
-                DWORD domainWcharCount = static_cast<DWORD>(ACCOUNT_NAME_WCHAR_COUNT);
+                std::array<wchar_t, ACCOUNT_NAME_WCHAR_COUNT> name{};
+                std::array<wchar_t, ACCOUNT_NAME_WCHAR_COUNT> domain{};
+                DWORD nameWcharCount = static_cast<DWORD>(name.size());
+                DWORD domainWcharCount = static_cast<DWORD>(domain.size());
                 SID_NAME_USE use{};
 
-                if (LookupAccountSidW(nullptr, pSid, name, &nameWcharCount, domain, &domainWcharCount, &use)) {
-                    it->second = *domain ? std::format(L"{}\\{}", domain, name) : name;
+                if (LookupAccountSidW(nullptr, pSid, name.data(), &nameWcharCount, domain.data(), &domainWcharCount, &use)) {
+                    it->second = domain[0u] != L'\0' ? std::format(L"{}\\{}", domain.data(), name.data()) : name.data();
                 }
                 else {
                     it->second = it->first;
