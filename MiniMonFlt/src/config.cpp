@@ -29,7 +29,7 @@ namespace mimo {
 
             if (!NT_SUCCESS(status)) goto done;
 
-            pValuePartialInfo = reinterpret_cast<KEY_VALUE_PARTIAL_INFORMATION*>(buffer);
+            pValuePartialInfo = reinterpret_cast<const KEY_VALUE_PARTIAL_INFORMATION*>(buffer);
             status = ZwQueryValueKey(hKey, &MaxMemoryName, KeyValuePartialInformation, buffer, static_cast<ULONG>(sizeof(buffer)), &resultLength);
 
             if (NT_SUCCESS(status) && pValuePartialInfo->Type == REG_DWORD) {

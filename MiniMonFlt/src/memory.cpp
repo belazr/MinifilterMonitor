@@ -46,7 +46,7 @@ namespace mimo {
             if (!pData->Thread || IoThreadToProcess(pData->Thread) != PsGetCurrentProcess()) return false;
 
             __try {
-                ProbeForRead(const_cast<void*>(pRawBuffer), bufferSize, 1u);
+                ProbeForRead(pRawBuffer, bufferSize, 1u);
             }
             __except (EXCEPTION_EXECUTE_HANDLER) {
 

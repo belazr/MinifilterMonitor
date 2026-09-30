@@ -86,7 +86,7 @@ namespace mimo {
         ) {
             PAGED_CODE();
 
-            const Context* const pCtx = reinterpret_cast<Context*>(pContext);
+            const Context* const pCtx = reinterpret_cast<const Context*>(pContext);
             records::Entry* const pEntry = records::CreateEntry();
 
             if (!pEntry) return STATUS_SUCCESS;
