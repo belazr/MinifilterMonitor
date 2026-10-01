@@ -99,49 +99,49 @@ namespace mimo {
                 std::wstring Render(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
                     const protocol::CreateSupplement& createSupplement = data.supplement.create;
-                    std::wstring result;
+                    std::wstring details;
 
                     if (createSupplement.captured & protocol::CREATE_CAPTURED_DESIRED_ACCESS) {
-                        result += std::format(L"Desired Access: {}, ", names::RenderDesiredAccess(createSupplement.desiredAccess));
+                        details += std::format(L"Desired Access: {}, ", names::RenderDesiredAccess(createSupplement.desiredAccess));
                     }
 
                     const uint32_t disposition = parameters.create.options >> 24;
                     const uint32_t createOptions = parameters.create.options & 0x00FFFFFFu;
 
-                    result += std::format(L"Disposition: {}, ", names::RenderCreateDisposition(disposition));
+                    details += std::format(L"Disposition: {}, ", names::RenderCreateDisposition(disposition));
 
                     const std::wstring options = names::RenderCreateOptions(createOptions);
 
                     if (!options.empty()) {
-                        result += std::format(L"Options: {}, ", options);
+                        details += std::format(L"Options: {}, ", options);
                     }
 
-                    result += std::format(L"Attributes: {}, ", names::RenderFileAttributes(parameters.create.fileAttributes));
-                    result += std::format(L"ShareMode: {}, ", names::RenderShareAccess(parameters.create.shareAccess));
+                    details += std::format(L"Attributes: {}, ", names::RenderFileAttributes(parameters.create.fileAttributes));
+                    details += std::format(L"ShareMode: {}, ", names::RenderShareAccess(parameters.create.shareAccess));
 
                     if (disposition == kernel::FILE_OPEN) {
-                        result += L"AllocationSize: n/a, ";
+                        details += L"AllocationSize: n/a, ";
                     }
                     else {
-                        result += std::format(L"AllocationSize: {}, ", parameters.create.allocationSize);
+                        details += std::format(L"AllocationSize: {}, ", parameters.create.allocationSize);
                     }
 
                     const std::wstring flags = names::RenderCreateFlags(data.operationFlags);
 
                     if (!flags.empty()) {
-                        result += flags;
-                        result += L", ";
+                        details += flags;
+                        details += L", ";
                     }
 
                     if (createSupplement.captured & protocol::CREATE_CAPTURED_IMPERSONATED_SID) {
-                        result += std::format(L"Impersonating: {}, ", values::RenderSid(createSupplement.impersonatedSid));
+                        details += std::format(L"Impersonating: {}, ", values::RenderSid(createSupplement.impersonatedSid));
                     }
 
                     if (data.status == 0 || data.information == kernel::FILE_EXISTS || data.information == kernel::FILE_DOES_NOT_EXIST) {
                         const std::wstring openResult = names::RenderOpenResult(data.information);
 
                         if (!openResult.empty()) {
-                            result += std::format(L"OpenResult: {}, ", openResult);
+                            details += std::format(L"OpenResult: {}, ", openResult);
                         }
 
                     }
@@ -150,26 +150,26 @@ namespace mimo {
                     const bool truncated = createSupplement.captured & protocol::CREATE_TRUNCATED_ECP_TEXT;
 
                     if (!ecpText.empty() || truncated) {
-                        result += text::MarkTruncated(ecpText, truncated);
-                        result += L", ";
+                        details += text::MarkTruncated(ecpText, truncated);
+                        details += L", ";
                     }
 
                     if (parameters.create.eaLength) {
-                        result += std::format(L"EaLength: {}, ", parameters.create.eaLength);
+                        details += std::format(L"EaLength: {}, ", parameters.create.eaLength);
                     }
 
                     const std::wstring eaBufferText = RenderExtendedAttributes(ExtractEaBuffer(createSupplement));
 
                     if (!eaBufferText.empty()) {
-                        result += eaBufferText;
-                        result += L", ";
+                        details += eaBufferText;
+                        details += L", ";
                     }
 
-                    if (!result.empty()) {
-                        result.resize(result.size() - 2u);
+                    if (!details.empty()) {
+                        details.resize(details.size() - 2u);
                     }
 
-                    return result;
+                    return details;
                 }
 
             }

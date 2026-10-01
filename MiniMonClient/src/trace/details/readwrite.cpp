@@ -34,27 +34,27 @@ namespace {
 
 
     std::wstring RenderIoFlags(const protocol::RecordData& data) {
-        std::wstring ioFlags;
+        std::wstring result;
 
         const std::wstring irpFlagsText = trace::names::RenderIrpFlags(data.irpFlags);
 
         if (!irpFlagsText.empty()) {
-            ioFlags += irpFlagsText;
-            ioFlags += L'|';
+            result += irpFlagsText;
+            result += L'|';
         }
 
         const std::wstring operationFlagsText = trace::names::RenderReadWriteFlags(data.operationFlags);
 
         if (!operationFlagsText.empty()) {
-            ioFlags += operationFlagsText;
-            ioFlags += L'|';
+            result += operationFlagsText;
+            result += L'|';
         }
 
-        if (!ioFlags.empty()) {
-            ioFlags.resize(ioFlags.size() - 1u);
+        if (!result.empty()) {
+            result.resize(result.size() - 1u);
         }
 
-        return ioFlags;
+        return result;
     }
 
 }
