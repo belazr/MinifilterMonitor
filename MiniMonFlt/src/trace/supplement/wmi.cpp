@@ -6,7 +6,7 @@
 
 using namespace mimo;
 
-static_assert(sizeof(GUID) == sizeof(protocol::WmiSupplement::guid), "protocol::WmiSupplement guid does not mirror GUID");
+static_assert(sizeof(GUID) == sizeof(protocol::WmiSupplement::guid), "protocol::WmiSupplement mirror drift: guid");
 
 namespace mimo {
 

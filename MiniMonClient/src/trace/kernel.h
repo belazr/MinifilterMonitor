@@ -656,7 +656,7 @@ namespace mimo {
             };
 
             static_assert(sizeof(FILE_STAT_LX_INFORMATION) == 96u, "trace::kernel::FILE_STAT_LX_INFORMATION x64 layout drift");
-            static_assert(offsetof(FILE_STAT_LX_INFORMATION, LxFlags) == sizeof(FILE_STAT_INFORMATION), "trace::kernel::FILE_STAT_LX_INFORMATION does not extend FILE_STAT_INFORMATION");
+            static_assert(offsetof(FILE_STAT_LX_INFORMATION, LxFlags) == sizeof(FILE_STAT_INFORMATION), "trace::kernel::FILE_STAT_LX_INFORMATION x64 layout drift");
 
             struct FILE_CASE_SENSITIVE_INFORMATION {
                 uint32_t Flags;
