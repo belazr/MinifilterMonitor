@@ -39,13 +39,9 @@ namespace {
     }
 
 
-    std::wstring RenderDeviceNamePayload(std::span<const uint8_t> payload) {
-        constexpr size_t NAME_OFFSET = offsetof(trace::kernel::MOUNTDEV_NAME, Name);
-        trace::kernel::MOUNTDEV_NAME deviceName;
+    std::wstring RenderDeviceNamePayload(const trace::kernel::MOUNTDEV_NAME& payload, std::span<const uint8_t> nameData) {
 
-        if (!trace::details::payload::ReadHeader(payload, deviceName, NAME_OFFSET)) return {};
-
-        return std::format(L"Name: {}", trace::details::payload::RenderName(payload.subspan(NAME_OFFSET), deviceName.NameLength));
+        return std::format(L"Name: {}", trace::details::payload::RenderName(nameData, payload.NameLength));
     }
 
 
@@ -65,9 +61,14 @@ namespace {
             }
 
             case trace::kernel::IOCTL_MOUNTDEV_LINK_CREATED:
-            case trace::kernel::IOCTL_MOUNTDEV_LINK_DELETED:
+            case trace::kernel::IOCTL_MOUNTDEV_LINK_DELETED: {
+                constexpr size_t NAME_OFFSET = offsetof(trace::kernel::MOUNTDEV_NAME, Name);
+                trace::kernel::MOUNTDEV_NAME deviceName;
 
-                return RenderDeviceNamePayload(input);
+                if (trace::details::payload::ReadHeader(input, deviceName, NAME_OFFSET)) return RenderDeviceNamePayload(deviceName, input.subspan(NAME_OFFSET));
+
+                break;
+            }
 
             default:
 
@@ -317,9 +318,14 @@ namespace {
                 break;
             }
 
-            case trace::kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME:
+            case trace::kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME: {
+                constexpr size_t NAME_OFFSET = offsetof(trace::kernel::MOUNTDEV_NAME, Name);
+                trace::kernel::MOUNTDEV_NAME deviceName;
 
-                return RenderDeviceNamePayload(output);
+                if (trace::details::payload::ReadHeader(output, deviceName, NAME_OFFSET)) return RenderDeviceNamePayload(deviceName, output.subspan(NAME_OFFSET));
+
+                break;
+            }
 
             default:
 
