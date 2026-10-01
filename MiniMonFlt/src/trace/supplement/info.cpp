@@ -84,10 +84,6 @@ namespace mimo {
 
                             break;
 
-                        default:
-
-                            break;
-
                     }
 
                     return;
