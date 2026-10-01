@@ -90,27 +90,29 @@ namespace mimo {
                         pInputBuffer = pRawBuffer;
                     }
 
-                    if (pInputBuffer && inSize) {
-                        const ULONG copySize = inSize < protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE ? inSize : protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE;
-
-                        __try {
-                            RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
-
-                            if (copySize < inSize) {
-                                pSupplement->captured |= protocol::FS_CONTROL_TRUNCATED_INPUT;
-                            }
-
-                            pSupplement->capturedInputSize = static_cast<uint32_t>(copySize);
-                            pSupplement->captured |= protocol::FS_CONTROL_CAPTURED_INPUT;
-                        }
-                        __except (EXCEPTION_EXECUTE_HANDLER) {}
-
-                    }
-
                     // METHOD_IN_DIRECT: output buffer is a second input, not a result
                     if (method == METHOD_IN_DIRECT) {
                         PopulateSecondInput(pSupplement, pData);
                     }
+
+                    if (!pInputBuffer || !inSize) return;
+
+                    const ULONG copySize = inSize < protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE ? inSize : protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE;
+
+                    __try {
+                        RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
+                    }
+                    __except (EXCEPTION_EXECUTE_HANDLER) {
+
+                        return;
+                    }
+
+                    if (copySize < inSize) {
+                        pSupplement->captured |= protocol::FS_CONTROL_TRUNCATED_INPUT;
+                    }
+
+                    pSupplement->capturedInputSize = static_cast<uint32_t>(copySize);
+                    pSupplement->captured |= protocol::FS_CONTROL_CAPTURED_INPUT;
 
                     return;
                 }
