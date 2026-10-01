@@ -92,9 +92,6 @@ namespace {
         std::wstring result;
 
         for (uint32_t i = 0u; i < count; i++) {
-
-            if (i > 0u) result.push_back(L'|');
-
             const std::wstring_view modName = text::Extract(data.stackTrace[i].moduleName);
 
             if (!modName.empty()) {
@@ -103,7 +100,10 @@ namespace {
             }
 
             result.append(std::format(L"{:X}", data.stackTrace[i].offset));
+            result.push_back(L'|');
         }
+
+        result.resize(result.size() - 1u);
 
         return result;
     }
