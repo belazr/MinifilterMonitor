@@ -5,12 +5,12 @@
 #ifdef _KERNEL_MODE
 
 // kernel-mode CRT ships no <stdint.h>
-typedef unsigned __int8  uint8_t;
-typedef unsigned __int16 uint16_t;
-typedef unsigned __int32 uint32_t;
-typedef unsigned __int64 uint64_t;
-typedef __int32          int32_t;
-typedef __int64          int64_t;
+using uint8_t  = unsigned __int8;
+using uint16_t = unsigned __int16;
+using uint32_t = unsigned __int32;
+using uint64_t = unsigned __int64;
+using int32_t  = __int32;
+using int64_t  = __int64;
 
 #else
 
@@ -36,7 +36,7 @@ namespace mimo {
 
         static_assert(sizeof(Version) == 6u, "protocol::Version layout drift");
 
-        typedef uint64_t ObjectId;
+        using ObjectId = uint64_t;
 
         // platform-free mirror of the kernel's FLT_PARAMETERS, member layout pinned by the driver
         union FltParameters {
