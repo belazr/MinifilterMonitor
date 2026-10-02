@@ -60,7 +60,7 @@ namespace {
 
         while (true) {
             constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
-            Entry entry;
+            Entry entry{};
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
@@ -92,7 +92,7 @@ namespace {
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
-        trace::kernel::FILE_OBJECTID_INFORMATION objectId;
+        trace::kernel::FILE_OBJECTID_INFORMATION objectId{};
 
         while (trace::details::payload::ReadValue(payload, objectId, offset)) {
             result += std::format(L"{}: FileReference: {}, ObjectId: {}, ", index, trace::values::RenderFileId(static_cast<uint64_t>(objectId.FileReference)), trace::values::RenderGuid(objectId.ObjectId));
@@ -117,7 +117,7 @@ namespace {
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
-        trace::kernel::FILE_REPARSE_POINT_INFORMATION reparsePoint;
+        trace::kernel::FILE_REPARSE_POINT_INFORMATION reparsePoint{};
 
         while (trace::details::payload::ReadValue(payload, reparsePoint, offset)) {
             result += std::format(L"{}: FileReference: {}, Tag: {}, ", index, trace::values::RenderFileId(static_cast<uint64_t>(reparsePoint.FileReference)), trace::names::RenderReparseTag(reparsePoint.Tag));
@@ -282,7 +282,7 @@ namespace {
 
         while (true) {
             constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
-            Entry entry;
+            Entry entry{};
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 

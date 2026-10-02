@@ -155,7 +155,7 @@ namespace mimo {
 
                         case kernel::FileFsVolumeInformation: {
                             constexpr size_t LABEL_OFFSET = offsetof(kernel::FILE_FS_VOLUME_INFORMATION, VolumeLabel);
-                            kernel::FILE_FS_VOLUME_INFORMATION volume;
+                            kernel::FILE_FS_VOLUME_INFORMATION volume{};
 
                             if (payload::ReadHeader(payload, volume, LABEL_OFFSET)) {
                                 payloadText = RenderVolumePayload(volume, payload.subspan(LABEL_OFFSET));
@@ -166,7 +166,7 @@ namespace mimo {
 
                         case kernel::FileFsLabelInformation: {
                             constexpr size_t LABEL_OFFSET = offsetof(kernel::FILE_FS_LABEL_INFORMATION, VolumeLabel);
-                            kernel::FILE_FS_LABEL_INFORMATION label;
+                            kernel::FILE_FS_LABEL_INFORMATION label{};
 
                             if (payload::ReadHeader(payload, label, LABEL_OFFSET)) {
                                 payloadText = RenderLabelPayload(label, payload.subspan(LABEL_OFFSET));
@@ -176,7 +176,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsSizeInformation: {
-                            kernel::FILE_FS_SIZE_INFORMATION size;
+                            kernel::FILE_FS_SIZE_INFORMATION size{};
 
                             if (payload::ReadValue(payload, size)) {
                                 payloadText = RenderSizePayload(size);
@@ -186,7 +186,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsDeviceInformation: {
-                            kernel::FILE_FS_DEVICE_INFORMATION device;
+                            kernel::FILE_FS_DEVICE_INFORMATION device{};
 
                             if (payload::ReadValue(payload, device)) {
                                 payloadText = RenderDevicePayload(device);
@@ -197,7 +197,7 @@ namespace mimo {
 
                         case kernel::FileFsAttributeInformation: {
                             constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_FS_ATTRIBUTE_INFORMATION, FileSystemName);
-                            kernel::FILE_FS_ATTRIBUTE_INFORMATION attribute;
+                            kernel::FILE_FS_ATTRIBUTE_INFORMATION attribute{};
 
                             if (payload::ReadHeader(payload, attribute, NAME_OFFSET)) {
                                 payloadText = RenderAttributePayload(attribute, payload.subspan(NAME_OFFSET));
@@ -207,7 +207,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsControlInformation: {
-                            kernel::FILE_FS_CONTROL_INFORMATION control;
+                            kernel::FILE_FS_CONTROL_INFORMATION control{};
 
                             if (payload::ReadValue(payload, control)) {
                                 payloadText = RenderControlPayload(control);
@@ -217,7 +217,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsFullSizeInformation: {
-                            kernel::FILE_FS_FULL_SIZE_INFORMATION fullSize;
+                            kernel::FILE_FS_FULL_SIZE_INFORMATION fullSize{};
 
                             if (payload::ReadValue(payload, fullSize)) {
                                 payloadText = RenderFullSizePayload(fullSize);
@@ -227,7 +227,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsObjectIdInformation: {
-                            kernel::FILE_FS_OBJECTID_INFORMATION objectId;
+                            kernel::FILE_FS_OBJECTID_INFORMATION objectId{};
 
                             if (payload::ReadValue(payload, objectId)) {
                                 payloadText = RenderObjectIdPayload(objectId);
@@ -237,7 +237,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsVolumeFlagsInformation: {
-                            kernel::FILE_FS_VOLUME_FLAGS_INFORMATION volumeFlags;
+                            kernel::FILE_FS_VOLUME_FLAGS_INFORMATION volumeFlags{};
 
                             if (payload::ReadValue(payload, volumeFlags)) {
                                 payloadText = RenderVolumeFlagsPayload(volumeFlags);
@@ -247,7 +247,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsSectorSizeInformation: {
-                            kernel::FILE_FS_SECTOR_SIZE_INFORMATION sectorSize;
+                            kernel::FILE_FS_SECTOR_SIZE_INFORMATION sectorSize{};
 
                             if (payload::ReadValue(payload, sectorSize)) {
                                 payloadText = RenderSectorSizePayload(sectorSize);
@@ -257,7 +257,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsDataCopyInformation: {
-                            kernel::FILE_FS_DATA_COPY_INFORMATION dataCopy;
+                            kernel::FILE_FS_DATA_COPY_INFORMATION dataCopy{};
 
                             if (payload::ReadValue(payload, dataCopy)) {
                                 payloadText = RenderDataCopyPayload(dataCopy);
@@ -267,7 +267,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsMetadataSizeInformation: {
-                            kernel::FILE_FS_METADATA_SIZE_INFORMATION metadataSize;
+                            kernel::FILE_FS_METADATA_SIZE_INFORMATION metadataSize{};
 
                             if (payload::ReadValue(payload, metadataSize)) {
                                 payloadText = RenderMetadataSizePayload(metadataSize);
@@ -277,7 +277,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsFullSizeInformationEx: {
-                            kernel::FILE_FS_FULL_SIZE_INFORMATION_EX fullSizeEx;
+                            kernel::FILE_FS_FULL_SIZE_INFORMATION_EX fullSizeEx{};
 
                             if (payload::ReadValue(payload, fullSizeEx)) {
                                 payloadText = RenderFullSizeExPayload(fullSizeEx);
@@ -287,7 +287,7 @@ namespace mimo {
                         }
 
                         case kernel::FileFsGuidInformation: {
-                            kernel::FILE_FS_GUID_INFORMATION guid;
+                            kernel::FILE_FS_GUID_INFORMATION guid{};
 
                             if (payload::ReadValue(payload, guid)) {
                                 payloadText = RenderGuidPayload(guid);

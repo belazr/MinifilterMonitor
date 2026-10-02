@@ -30,7 +30,7 @@ namespace {
 
         while (true) {
             constexpr size_t SID_OFFSET = offsetof(trace::kernel::FILE_GET_QUOTA_INFORMATION, Sid);
-            trace::kernel::FILE_GET_QUOTA_INFORMATION entry;
+            trace::kernel::FILE_GET_QUOTA_INFORMATION entry{};
 
             if (!trace::details::payload::ReadHeader(sidList, entry, SID_OFFSET, offset)) break;
 
@@ -90,7 +90,7 @@ namespace {
 
         while (true) {
             constexpr size_t SID_OFFSET = offsetof(trace::kernel::FILE_QUOTA_INFORMATION, Sid);
-            trace::kernel::FILE_QUOTA_INFORMATION entry;
+            trace::kernel::FILE_QUOTA_INFORMATION entry{};
 
             if (!trace::details::payload::ReadHeader(payload, entry, SID_OFFSET, offset)) break;
 

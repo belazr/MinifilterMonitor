@@ -118,7 +118,7 @@ namespace {
 
     std::wstring RenderReparsePayload(std::span<const uint8_t> payload) {
         constexpr size_t HEADER_SIZE = offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer);
-        trace::kernel::REPARSE_DATA_BUFFER reparse;
+        trace::kernel::REPARSE_DATA_BUFFER reparse{};
 
         if (!trace::details::payload::ReadHeader(payload, reparse, HEADER_SIZE)) return {};
 
@@ -225,7 +225,7 @@ namespace {
 
     std::wstring RenderPrefetchPayload(std::span<const uint8_t> payload) {
         constexpr size_t HEADER_SIZE = offsetof(trace::kernel::FILE_PREFETCH, Prefetch);
-        trace::kernel::FILE_PREFETCH_EX prefetch;
+        trace::kernel::FILE_PREFETCH_EX prefetch{};
 
         if (!trace::details::payload::ReadHeader(payload, prefetch, HEADER_SIZE)) return {};
 
@@ -246,7 +246,7 @@ namespace {
         uint32_t index = 1u;
 
         while (index <= prefetch.Count) {
-            uint64_t entry;
+            uint64_t entry = 0u;
 
             if (!trace::details::payload::ReadValue(payload, entry, offset)) break;
 
@@ -273,7 +273,7 @@ namespace {
 
     std::wstring RenderTrimPayload(std::span<const uint8_t> payload) {
         constexpr size_t RANGES_OFFSET = offsetof(trace::kernel::FILE_LEVEL_TRIM, Ranges);
-        trace::kernel::FILE_LEVEL_TRIM trim;
+        trace::kernel::FILE_LEVEL_TRIM trim{};
 
         if (!trace::details::payload::ReadHeader(payload, trim, RANGES_OFFSET)) return {};
 
@@ -282,7 +282,7 @@ namespace {
         uint32_t index = 1u;
 
         while (index <= trim.NumRanges) {
-            trace::kernel::FILE_LEVEL_TRIM_RANGE range;
+            trace::kernel::FILE_LEVEL_TRIM_RANGE range{};
 
             if (!trace::details::payload::ReadValue(payload, range, offset)) break;
 
@@ -332,7 +332,7 @@ namespace {
         switch (parameters.fileSystemControl.fsControlCode) {
 
             case FSCTL_SET_COMPRESSION: {
-                uint16_t compressionFormat;
+                uint16_t compressionFormat = 0u;
 
                 if (trace::details::payload::ReadValue(input, compressionFormat)) return RenderCompressionPayload(compressionFormat);
 
@@ -340,7 +340,7 @@ namespace {
             }
 
             case FSCTL_MOVE_FILE: {
-                trace::kernel::MOVE_FILE_DATA moveFile;
+                trace::kernel::MOVE_FILE_DATA moveFile{};
 
                 if (trace::details::payload::ReadValue(input, moveFile)) return RenderMoveFilePayload(moveFile);
 
@@ -348,7 +348,7 @@ namespace {
             }
 
             case FSCTL_SET_OBJECT_ID: {
-                trace::kernel::FILE_OBJECTID_BUFFER objectId;
+                trace::kernel::FILE_OBJECTID_BUFFER objectId{};
 
                 if (trace::details::payload::ReadValue(input, objectId)) return RenderObjectIdPayload(objectId);
 
@@ -361,8 +361,8 @@ namespace {
                 return RenderReparsePayload(input);
 
             case FSCTL_READ_USN_JOURNAL: {
-                trace::kernel::READ_USN_JOURNAL_DATA_V1 readUsnV1;
-                trace::kernel::READ_USN_JOURNAL_DATA_V0 readUsnV0;
+                trace::kernel::READ_USN_JOURNAL_DATA_V1 readUsnV1{};
+                trace::kernel::READ_USN_JOURNAL_DATA_V0 readUsnV0{};
 
                 if (trace::details::payload::ReadValue(input, readUsnV1)) return RenderReadUsnJournalV1Payload(readUsnV1);
 
@@ -381,7 +381,7 @@ namespace {
             }
 
             case FSCTL_SET_ZERO_DATA: {
-                trace::kernel::FILE_ZERO_DATA_INFORMATION zeroData;
+                trace::kernel::FILE_ZERO_DATA_INFORMATION zeroData{};
 
                 if (trace::details::payload::ReadValue(input, zeroData)) return RenderZeroDataPayload(zeroData);
 
@@ -389,7 +389,7 @@ namespace {
             }
 
             case FSCTL_QUERY_ALLOCATED_RANGES: {
-                trace::kernel::FILE_ALLOCATED_RANGE_BUFFER range;
+                trace::kernel::FILE_ALLOCATED_RANGE_BUFFER range{};
 
                 if (trace::details::payload::ReadValue(input, range)) return RenderAllocatedRangePayload(range);
 
@@ -397,7 +397,7 @@ namespace {
             }
 
             case FSCTL_CREATE_USN_JOURNAL: {
-                trace::kernel::CREATE_USN_JOURNAL_DATA createUsn;
+                trace::kernel::CREATE_USN_JOURNAL_DATA createUsn{};
 
                 if (trace::details::payload::ReadValue(input, createUsn)) return RenderCreateUsnJournalPayload(createUsn);
 
@@ -405,7 +405,7 @@ namespace {
             }
 
             case FSCTL_READ_FILE_USN_DATA: {
-                trace::kernel::READ_FILE_USN_DATA readFileUsn;
+                trace::kernel::READ_FILE_USN_DATA readFileUsn{};
 
                 if (trace::details::payload::ReadValue(input, readFileUsn)) return RenderReadFileUsnDataPayload(readFileUsn);
 
@@ -413,7 +413,7 @@ namespace {
             }
 
             case FSCTL_MARK_HANDLE: {
-                trace::kernel::MARK_HANDLE_INFO markHandle;
+                trace::kernel::MARK_HANDLE_INFO markHandle{};
 
                 if (trace::details::payload::ReadValue(input, markHandle)) return RenderMarkHandlePayload(markHandle);
 
@@ -430,7 +430,7 @@ namespace {
 
             case FSCTL_SET_PERSISTENT_VOLUME_STATE:
             case FSCTL_QUERY_PERSISTENT_VOLUME_STATE: {
-                trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION persistentState;
+                trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION persistentState{};
 
                 if (trace::details::payload::ReadValue(input, persistentState)) return RenderPersistentVolumeStateInputPayload(persistentState);
 
@@ -438,7 +438,7 @@ namespace {
             }
 
             case FSCTL_REQUEST_OPLOCK: {
-                trace::kernel::REQUEST_OPLOCK_INPUT_BUFFER oplock;
+                trace::kernel::REQUEST_OPLOCK_INPUT_BUFFER oplock{};
 
                 if (trace::details::payload::ReadValue(input, oplock)) return RenderOplockInputPayload(oplock);
 
@@ -446,7 +446,7 @@ namespace {
             }
 
             case FSCTL_QUERY_FILE_REGIONS: {
-                trace::kernel::FILE_REGION_INPUT region;
+                trace::kernel::FILE_REGION_INPUT region{};
 
                 if (trace::details::payload::ReadValue(input, region)) return RenderFileRegionInputPayload(region);
 
@@ -454,7 +454,7 @@ namespace {
             }
 
             case FSCTL_DUPLICATE_EXTENTS_TO_FILE: {
-                trace::kernel::DUPLICATE_EXTENTS_DATA duplicateExtents;
+                trace::kernel::DUPLICATE_EXTENTS_DATA duplicateExtents{};
 
                 if (trace::details::payload::ReadValue(input, duplicateExtents)) return RenderDuplicateExtentsPayload(duplicateExtents);
 
@@ -517,7 +517,7 @@ namespace {
 
 
     std::wstring RenderUsnRecordPayload(std::span<const uint8_t> payload) {
-        trace::kernel::USN_RECORD_COMMON_HEADER header;
+        trace::kernel::USN_RECORD_COMMON_HEADER header{};
 
         if (!trace::details::payload::ReadValue(payload, header)) return {};
 
@@ -525,7 +525,7 @@ namespace {
 
             case 2u: {
                 constexpr size_t HEADER_SIZE = offsetof(trace::kernel::USN_RECORD_V2, FileName);
-                trace::kernel::USN_RECORD_V2 record;
+                trace::kernel::USN_RECORD_V2 record{};
 
                 if (!trace::details::payload::ReadHeader(payload, record, HEADER_SIZE)) return {};
 
@@ -536,7 +536,7 @@ namespace {
 
             case 3u: {
                 constexpr size_t HEADER_SIZE = offsetof(trace::kernel::USN_RECORD_V3, FileName);
-                trace::kernel::USN_RECORD_V3 record;
+                trace::kernel::USN_RECORD_V3 record{};
 
                 if (!trace::details::payload::ReadHeader(payload, record, HEADER_SIZE)) return {};
 
@@ -552,7 +552,7 @@ namespace {
 
 
     std::wstring RenderUsnRecordsPayload(std::span<const uint8_t> payload, bool truncated) {
-        int64_t nextUsn;
+        int64_t nextUsn = 0;
 
         if (!trace::details::payload::ReadValue(payload, nextUsn)) return {};
 
@@ -561,7 +561,7 @@ namespace {
         uint32_t index = 1u;
 
         while (true) {
-            trace::kernel::USN_RECORD_COMMON_HEADER header;
+            trace::kernel::USN_RECORD_COMMON_HEADER header{};
 
             if (!trace::details::payload::ReadValue(payload, header, offset)) break;
 
@@ -593,7 +593,7 @@ namespace {
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
-        trace::kernel::FILE_ALLOCATED_RANGE_BUFFER range;
+        trace::kernel::FILE_ALLOCATED_RANGE_BUFFER range{};
 
         while (trace::details::payload::ReadValue(payload, range, offset)) {
             result += std::format(L"{}: {}, ", index, RenderAllocatedRangePayload(range));
@@ -667,7 +667,7 @@ namespace {
 
     std::wstring RenderFileRegionOutputPayload(std::span<const uint8_t> payload) {
         constexpr size_t REGION_OFFSET = offsetof(trace::kernel::FILE_REGION_OUTPUT, Region);
-        trace::kernel::FILE_REGION_OUTPUT regions;
+        trace::kernel::FILE_REGION_OUTPUT regions{};
 
         if (!trace::details::payload::ReadHeader(payload, regions, REGION_OFFSET)) return {};
 
@@ -676,7 +676,7 @@ namespace {
         uint32_t index = 1u;
 
         while (index <= regions.RegionEntryCount) {
-            trace::kernel::FILE_REGION_INFO region;
+            trace::kernel::FILE_REGION_INFO region{};
 
             if (!trace::details::payload::ReadValue(payload, region, offset)) break;
 
@@ -702,7 +702,7 @@ namespace {
         switch (fsControlCode) {
 
             case FSCTL_GET_COMPRESSION: {
-                uint16_t compressionFormat;
+                uint16_t compressionFormat = 0u;
 
                 if (trace::details::payload::ReadValue(output, compressionFormat)) return RenderCompressionPayload(compressionFormat);
 
@@ -710,7 +710,7 @@ namespace {
             }
 
             case FSCTL_FILESYSTEM_GET_STATISTICS: {
-                trace::kernel::FILESYSTEM_STATISTICS statistics;
+                trace::kernel::FILESYSTEM_STATISTICS statistics{};
 
                 if (trace::details::payload::ReadValue(output, statistics)) return RenderStatisticsPayload(statistics);
 
@@ -718,7 +718,7 @@ namespace {
             }
 
             case FSCTL_GET_NTFS_VOLUME_DATA: {
-                trace::kernel::NTFS_VOLUME_DATA_BUFFER volumeData;
+                trace::kernel::NTFS_VOLUME_DATA_BUFFER volumeData{};
 
                 if (trace::details::payload::ReadValue(output, volumeData)) return RenderNtfsVolumeDataPayload(volumeData);
 
@@ -727,7 +727,7 @@ namespace {
 
             case FSCTL_GET_OBJECT_ID:
             case FSCTL_CREATE_OR_GET_OBJECT_ID: {
-                trace::kernel::FILE_OBJECTID_BUFFER objectId;
+                trace::kernel::FILE_OBJECTID_BUFFER objectId{};
 
                 if (trace::details::payload::ReadValue(output, objectId)) return RenderObjectIdPayload(objectId);
 
@@ -751,9 +751,9 @@ namespace {
                 return RenderUsnRecordPayload(output);
 
             case FSCTL_QUERY_USN_JOURNAL: {
-                trace::kernel::USN_JOURNAL_DATA_V2 journalDataV2;
-                trace::kernel::USN_JOURNAL_DATA_V1 journalDataV1;
-                trace::kernel::USN_JOURNAL_DATA_V0 journalDataV0;
+                trace::kernel::USN_JOURNAL_DATA_V2 journalDataV2{};
+                trace::kernel::USN_JOURNAL_DATA_V1 journalDataV1{};
+                trace::kernel::USN_JOURNAL_DATA_V0 journalDataV0{};
 
                 if (trace::details::payload::ReadValue(output, journalDataV2)) return RenderUsnJournalDataV2Payload(journalDataV2);
 
@@ -765,7 +765,7 @@ namespace {
             }
 
             case FSCTL_TXFS_QUERY_RM_INFORMATION: {
-                trace::kernel::TXFS_QUERY_RM_INFORMATION rmInformation;
+                trace::kernel::TXFS_QUERY_RM_INFORMATION rmInformation{};
 
                 if (trace::details::payload::ReadValue(output, rmInformation)) return RenderTxfsRmInformationPayload(rmInformation, output);
 
@@ -773,7 +773,7 @@ namespace {
             }
 
             case FSCTL_QUERY_PERSISTENT_VOLUME_STATE: {
-                trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION persistentState;
+                trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION persistentState{};
 
                 if (trace::details::payload::ReadValue(output, persistentState)) return RenderPersistentVolumeStateOutputPayload(persistentState);
 
@@ -781,7 +781,7 @@ namespace {
             }
 
             case FSCTL_REQUEST_OPLOCK: {
-                trace::kernel::REQUEST_OPLOCK_OUTPUT_BUFFER oplock;
+                trace::kernel::REQUEST_OPLOCK_OUTPUT_BUFFER oplock{};
 
                 if (trace::details::payload::ReadValue(output, oplock)) return RenderOplockOutputPayload(oplock);
 
@@ -793,7 +793,7 @@ namespace {
                 return RenderFileRegionOutputPayload(output);
 
             case FSCTL_FILESYSTEM_GET_STATISTICS_EX: {
-                trace::kernel::FILESYSTEM_STATISTICS_EX statistics;
+                trace::kernel::FILESYSTEM_STATISTICS_EX statistics{};
 
                 if (trace::details::payload::ReadValue(output, statistics)) return RenderStatisticsPayload(statistics);
 

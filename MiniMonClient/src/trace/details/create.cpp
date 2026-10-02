@@ -47,7 +47,7 @@ namespace {
 
         while (true) {
             constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_FULL_EA_INFORMATION, EaName);
-            trace::kernel::FILE_FULL_EA_INFORMATION entry;
+            trace::kernel::FILE_FULL_EA_INFORMATION entry{};
 
             if (!trace::details::payload::ReadHeader(eaBuffer, entry, NAME_OFFSET, offset)) break;
 

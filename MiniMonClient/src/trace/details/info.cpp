@@ -136,7 +136,7 @@ namespace {
 
         while (true) {
             constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_STREAM_INFORMATION, StreamName);
-            trace::kernel::FILE_STREAM_INFORMATION entry;
+            trace::kernel::FILE_STREAM_INFORMATION entry{};
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
@@ -225,8 +225,8 @@ namespace {
 
     template <typename Entry>
     std::wstring RenderHardLinksPayload(std::span<const uint8_t> payload) {
-        uint32_t bytesNeeded;
-        uint32_t entriesReturned;
+        uint32_t bytesNeeded = 0u;
+        uint32_t entriesReturned = 0u;
 
         if (!trace::details::payload::ReadValue(payload, bytesNeeded) || !trace::details::payload::ReadValue(payload, entriesReturned, offsetof(trace::kernel::FILE_LINKS_INFORMATION, EntriesReturned))) return {};
 
@@ -236,7 +236,7 @@ namespace {
 
         while (index <= entriesReturned) {
             constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
-            Entry entry;
+            Entry entry{};
 
             if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
@@ -261,7 +261,7 @@ namespace {
 
     std::wstring RenderProcessIdsPayload(std::span<const uint8_t> payload) {
         constexpr size_t PROCESS_ID_LIST_OFFSET = offsetof(trace::kernel::FILE_PROCESS_IDS_USING_FILE_INFORMATION, ProcessIdList);
-        trace::kernel::FILE_PROCESS_IDS_USING_FILE_INFORMATION processIds;
+        trace::kernel::FILE_PROCESS_IDS_USING_FILE_INFORMATION processIds{};
 
         if (!trace::details::payload::ReadHeader(payload, processIds, PROCESS_ID_LIST_OFFSET)) return {};
 
@@ -271,7 +271,7 @@ namespace {
         uint32_t index = 1u;
 
         while (index <= processIds.NumberOfProcessIdsInList) {
-            uint64_t entry;
+            uint64_t entry = 0u;
 
             if (!trace::details::payload::ReadValue(payload, entry, offset)) break;
 
@@ -369,7 +369,7 @@ namespace {
 
 
     std::wstring RenderStatLxPayload(const trace::kernel::FILE_STAT_LX_INFORMATION& payload) {
-        trace::kernel::FILE_STAT_INFORMATION stat;
+        trace::kernel::FILE_STAT_INFORMATION stat{};
         std::memcpy(&stat, &payload, sizeof(stat));
 
         std::wstring result = RenderStatPayload(stat);
@@ -463,7 +463,7 @@ namespace {
         switch (fileInformationClass) {
 
             case trace::kernel::FileBasicInformation: {
-                trace::kernel::FILE_BASIC_INFORMATION basic;
+                trace::kernel::FILE_BASIC_INFORMATION basic{};
 
                 if (trace::details::payload::ReadValue(payload, basic)) {
                     payloadText = RenderBasicPayload(basic);
@@ -473,7 +473,7 @@ namespace {
             }
 
             case trace::kernel::FileStandardInformation: {
-                trace::kernel::FILE_STANDARD_INFORMATION standard;
+                trace::kernel::FILE_STANDARD_INFORMATION standard{};
 
                 if (trace::details::payload::ReadValue(payload, standard)) {
                     payloadText = RenderStandardPayload(standard);
@@ -483,7 +483,7 @@ namespace {
             }
 
             case trace::kernel::FileInternalInformation: {
-                trace::kernel::FILE_INTERNAL_INFORMATION internal;
+                trace::kernel::FILE_INTERNAL_INFORMATION internal{};
 
                 if (trace::details::payload::ReadValue(payload, internal)) {
                     payloadText = RenderInternalPayload(internal);
@@ -493,7 +493,7 @@ namespace {
             }
 
             case trace::kernel::FileEaInformation: {
-                trace::kernel::FILE_EA_INFORMATION ea;
+                trace::kernel::FILE_EA_INFORMATION ea{};
 
                 if (trace::details::payload::ReadValue(payload, ea)) {
                     payloadText = RenderEaPayload(ea);
@@ -507,7 +507,7 @@ namespace {
             case trace::kernel::FileNormalizedNameInformation:
             case trace::kernel::FileNetworkPhysicalNameInformation: {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_NAME_INFORMATION, FileName);
-                trace::kernel::FILE_NAME_INFORMATION name;
+                trace::kernel::FILE_NAME_INFORMATION name{};
 
                 if (trace::details::payload::ReadHeader(payload, name, NAME_OFFSET)) {
                     payloadText = RenderNamePayload(name, payload.subspan(NAME_OFFSET));
@@ -517,7 +517,7 @@ namespace {
             }
 
             case trace::kernel::FilePositionInformation: {
-                trace::kernel::FILE_POSITION_INFORMATION position;
+                trace::kernel::FILE_POSITION_INFORMATION position{};
 
                 if (trace::details::payload::ReadValue(payload, position)) {
                     payloadText = RenderPositionPayload(position);
@@ -528,7 +528,7 @@ namespace {
 
             case trace::kernel::FileAllInformation: {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_ALL_INFORMATION, NameInformation.FileName);
-                trace::kernel::FILE_ALL_INFORMATION all;
+                trace::kernel::FILE_ALL_INFORMATION all{};
 
                 if (trace::details::payload::ReadHeader(payload, all, NAME_OFFSET)) {
                     payloadText = RenderAllPayload(all, payload.subspan(NAME_OFFSET));
@@ -543,7 +543,7 @@ namespace {
                 break;
 
             case trace::kernel::FileCompressionInformation: {
-                trace::kernel::FILE_COMPRESSION_INFORMATION compression;
+                trace::kernel::FILE_COMPRESSION_INFORMATION compression{};
 
                 if (trace::details::payload::ReadValue(payload, compression)) {
                     payloadText = RenderCompressionPayload(compression);
@@ -553,7 +553,7 @@ namespace {
             }
 
             case trace::kernel::FileNetworkOpenInformation: {
-                trace::kernel::FILE_NETWORK_OPEN_INFORMATION networkOpen;
+                trace::kernel::FILE_NETWORK_OPEN_INFORMATION networkOpen{};
 
                 if (trace::details::payload::ReadValue(payload, networkOpen)) {
                     payloadText = RenderNetworkOpenPayload(networkOpen);
@@ -563,7 +563,7 @@ namespace {
             }
 
             case trace::kernel::FileAttributeTagInformation: {
-                trace::kernel::FILE_ATTRIBUTE_TAG_INFORMATION attributeTag;
+                trace::kernel::FILE_ATTRIBUTE_TAG_INFORMATION attributeTag{};
 
                 if (trace::details::payload::ReadValue(payload, attributeTag)) {
                     payloadText = RenderAttributeTagPayload(attributeTag);
@@ -573,7 +573,7 @@ namespace {
             }
 
             case trace::kernel::FileSfioReserveInformation: {
-                trace::kernel::FILE_SFIO_RESERVE_INFORMATION sfioReserve;
+                trace::kernel::FILE_SFIO_RESERVE_INFORMATION sfioReserve{};
 
                 if (trace::details::payload::ReadValue(payload, sfioReserve)) {
                     payloadText = RenderSfioReservePayload(sfioReserve);
@@ -583,7 +583,7 @@ namespace {
             }
 
             case trace::kernel::FileSfioVolumeInformation: {
-                trace::kernel::FILE_SFIO_VOLUME_INFORMATION sfioVolume;
+                trace::kernel::FILE_SFIO_VOLUME_INFORMATION sfioVolume{};
 
                 if (trace::details::payload::ReadValue(payload, sfioVolume)) {
                     payloadText = RenderSfioVolumePayload(sfioVolume);
@@ -603,7 +603,7 @@ namespace {
                 break;
 
             case trace::kernel::FileStandardLinkInformation: {
-                trace::kernel::FILE_STANDARD_LINK_INFORMATION standardLink;
+                trace::kernel::FILE_STANDARD_LINK_INFORMATION standardLink{};
 
                 if (trace::details::payload::ReadValue(payload, standardLink)) {
                     payloadText = RenderStandardLinkPayload(standardLink);
@@ -613,7 +613,7 @@ namespace {
             }
 
             case trace::kernel::FileRemoteProtocolInformation: {
-                trace::kernel::FILE_REMOTE_PROTOCOL_INFORMATION remoteProtocol;
+                trace::kernel::FILE_REMOTE_PROTOCOL_INFORMATION remoteProtocol{};
 
                 if (trace::details::payload::ReadValue(payload, remoteProtocol)) {
                     payloadText = RenderRemoteProtocolPayload(remoteProtocol);
@@ -624,7 +624,7 @@ namespace {
 
             case trace::kernel::FileVolumeNameInformation: {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_VOLUME_NAME_INFORMATION, DeviceName);
-                trace::kernel::FILE_VOLUME_NAME_INFORMATION volumeName;
+                trace::kernel::FILE_VOLUME_NAME_INFORMATION volumeName{};
 
                 if (trace::details::payload::ReadHeader(payload, volumeName, NAME_OFFSET)) {
                     payloadText = RenderVolumeNamePayload(volumeName, payload.subspan(NAME_OFFSET));
@@ -634,7 +634,7 @@ namespace {
             }
 
             case trace::kernel::FileIdInformation: {
-                trace::kernel::FILE_ID_INFORMATION id;
+                trace::kernel::FILE_ID_INFORMATION id{};
 
                 if (trace::details::payload::ReadValue(payload, id)) {
                     payloadText = RenderIdPayload(id);
@@ -649,7 +649,7 @@ namespace {
                 break;
 
             case trace::kernel::FileDesiredStorageClassInformation: {
-                trace::kernel::FILE_DESIRED_STORAGE_CLASS_INFORMATION desiredStorageClass;
+                trace::kernel::FILE_DESIRED_STORAGE_CLASS_INFORMATION desiredStorageClass{};
 
                 if (trace::details::payload::ReadValue(payload, desiredStorageClass)) {
                     payloadText = RenderDesiredStorageClassPayload(desiredStorageClass);
@@ -659,7 +659,7 @@ namespace {
             }
 
             case trace::kernel::FileStatInformation: {
-                trace::kernel::FILE_STAT_INFORMATION stat;
+                trace::kernel::FILE_STAT_INFORMATION stat{};
 
                 if (trace::details::payload::ReadValue(payload, stat)) {
                     payloadText = RenderStatPayload(stat);
@@ -669,7 +669,7 @@ namespace {
             }
 
             case trace::kernel::FileStatLxInformation: {
-                trace::kernel::FILE_STAT_LX_INFORMATION statLx;
+                trace::kernel::FILE_STAT_LX_INFORMATION statLx{};
 
                 if (trace::details::payload::ReadValue(payload, statLx)) {
                     payloadText = RenderStatLxPayload(statLx);
@@ -679,7 +679,7 @@ namespace {
             }
 
             case trace::kernel::FileCaseSensitiveInformation: {
-                trace::kernel::FILE_CASE_SENSITIVE_INFORMATION caseSensitive;
+                trace::kernel::FILE_CASE_SENSITIVE_INFORMATION caseSensitive{};
 
                 if (trace::details::payload::ReadValue(payload, caseSensitive)) {
                     payloadText = RenderCaseSensitivePayload(caseSensitive);
@@ -689,7 +689,7 @@ namespace {
             }
 
             case trace::kernel::FileStorageReserveIdInformation: {
-                trace::kernel::FILE_STORAGE_RESERVE_ID_INFORMATION storageReserveId;
+                trace::kernel::FILE_STORAGE_RESERVE_ID_INFORMATION storageReserveId{};
 
                 if (trace::details::payload::ReadValue(payload, storageReserveId)) {
                     payloadText = RenderStorageReserveIdPayload(storageReserveId);
@@ -699,7 +699,7 @@ namespace {
             }
 
             case trace::kernel::FileKnownFolderInformation: {
-                trace::kernel::FILE_KNOWN_FOLDER_INFORMATION knownFolder;
+                trace::kernel::FILE_KNOWN_FOLDER_INFORMATION knownFolder{};
 
                 if (trace::details::payload::ReadValue(payload, knownFolder)) {
                     payloadText = RenderKnownFolderPayload(knownFolder);
@@ -709,7 +709,7 @@ namespace {
             }
 
             case trace::kernel::FileStatBasicInformation: {
-                trace::kernel::FILE_STAT_BASIC_INFORMATION statBasic;
+                trace::kernel::FILE_STAT_BASIC_INFORMATION statBasic{};
 
                 if (trace::details::payload::ReadValue(payload, statBasic)) {
                     payloadText = RenderStatBasicPayload(statBasic);
@@ -719,7 +719,7 @@ namespace {
             }
 
             case trace::kernel::FileStreamReservationInformation: {
-                trace::kernel::FILE_STREAM_RESERVATION_INFORMATION streamReservation;
+                trace::kernel::FILE_STREAM_RESERVATION_INFORMATION streamReservation{};
 
                 if (trace::details::payload::ReadValue(payload, streamReservation)) {
                     payloadText = RenderStreamReservationPayload(streamReservation);
@@ -882,7 +882,7 @@ namespace mimo {
                     switch (parameters.setFileInformation.fileInformationClass) {
 
                         case kernel::FileBasicInformation: {
-                            kernel::FILE_BASIC_INFORMATION basic;
+                            kernel::FILE_BASIC_INFORMATION basic{};
 
                             if (payload::ReadValue(payload, basic)) {
                                 payloadText = RenderBasicPayload(basic);
@@ -901,7 +901,7 @@ namespace mimo {
                             break;
 
                         case kernel::FileDispositionInformation: {
-                            kernel::FILE_DISPOSITION_INFORMATION disposition;
+                            kernel::FILE_DISPOSITION_INFORMATION disposition{};
 
                             if (payload::ReadValue(payload, disposition)) {
                                 payloadText = RenderDispositionPayload(disposition);
@@ -911,7 +911,7 @@ namespace mimo {
                         }
 
                         case kernel::FilePositionInformation: {
-                            kernel::FILE_POSITION_INFORMATION position;
+                            kernel::FILE_POSITION_INFORMATION position{};
 
                             if (payload::ReadValue(payload, position)) {
                                 payloadText = RenderPositionPayload(position);
@@ -921,7 +921,7 @@ namespace mimo {
                         }
 
                         case kernel::FileAllocationInformation: {
-                            kernel::FILE_ALLOCATION_INFORMATION allocation;
+                            kernel::FILE_ALLOCATION_INFORMATION allocation{};
 
                             if (payload::ReadValue(payload, allocation)) {
                                 payloadText = RenderAllocationPayload(allocation);
@@ -933,7 +933,7 @@ namespace mimo {
                         case kernel::FileEndOfFileInformation: {
                             parametersText = RenderEndOfFileParameters(parameters);
 
-                            kernel::FILE_END_OF_FILE_INFORMATION endOfFile;
+                            kernel::FILE_END_OF_FILE_INFORMATION endOfFile{};
 
                             if (payload::ReadValue(payload, endOfFile)) {
                                 payloadText = RenderEndOfFilePayload(endOfFile);
@@ -949,7 +949,7 @@ namespace mimo {
 
                         case kernel::FileTrackingInformation: {
                             constexpr size_t OBJECT_INFORMATION_OFFSET = offsetof(kernel::FILE_TRACKING_INFORMATION, ObjectInformation);
-                            kernel::FILE_TRACKING_INFORMATION tracking;
+                            kernel::FILE_TRACKING_INFORMATION tracking{};
 
                             if (payload::ReadHeader(payload, tracking, OBJECT_INFORMATION_OFFSET)) {
                                 payloadText = RenderTrackingPayload(tracking, payload.subspan(OBJECT_INFORMATION_OFFSET));
@@ -959,7 +959,7 @@ namespace mimo {
                         }
 
                         case kernel::FileValidDataLengthInformation: {
-                            kernel::FILE_VALID_DATA_LENGTH_INFORMATION validDataLength;
+                            kernel::FILE_VALID_DATA_LENGTH_INFORMATION validDataLength{};
 
                             if (payload::ReadValue(payload, validDataLength)) {
                                 payloadText = RenderValidDataLengthPayload(validDataLength);
@@ -970,7 +970,7 @@ namespace mimo {
 
                         case kernel::FileShortNameInformation: {
                             constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_NAME_INFORMATION, FileName);
-                            kernel::FILE_NAME_INFORMATION shortName;
+                            kernel::FILE_NAME_INFORMATION shortName{};
 
                             if (payload::ReadHeader(payload, shortName, NAME_OFFSET)) {
                                 payloadText = RenderShortNamePayload(shortName, payload.subspan(NAME_OFFSET));
@@ -980,7 +980,7 @@ namespace mimo {
                         }
 
                         case kernel::FileSfioReserveInformation: {
-                            kernel::FILE_SFIO_RESERVE_INFORMATION sfioReserve;
+                            kernel::FILE_SFIO_RESERVE_INFORMATION sfioReserve{};
 
                             if (payload::ReadValue(payload, sfioReserve)) {
                                 payloadText = RenderSfioReservePayload(sfioReserve);
@@ -990,7 +990,7 @@ namespace mimo {
                         }
 
                         case kernel::FileDispositionInformationEx: {
-                            kernel::FILE_DISPOSITION_INFORMATION_EX dispositionEx;
+                            kernel::FILE_DISPOSITION_INFORMATION_EX dispositionEx{};
 
                             if (payload::ReadValue(payload, dispositionEx)) {
                                 payloadText = RenderDispositionExPayload(dispositionEx);
@@ -1003,7 +1003,7 @@ namespace mimo {
                         case kernel::FileRenameInformationExBypassAccessCheck:
                         case kernel::FileLinkInformationEx:
                         case kernel::FileLinkInformationExBypassAccessCheck: {
-                            kernel::FILE_RENAME_INFORMATION_EX renameEx;
+                            kernel::FILE_RENAME_INFORMATION_EX renameEx{};
 
                             if (payload::ReadHeader(payload, renameEx, offsetof(kernel::FILE_RENAME_INFORMATION_EX, FileName))) {
                                 payloadText = RenderRenameExPayload(renameEx);
@@ -1015,7 +1015,7 @@ namespace mimo {
                         }
 
                         case kernel::FileDesiredStorageClassInformation: {
-                            kernel::FILE_DESIRED_STORAGE_CLASS_INFORMATION desiredStorageClass;
+                            kernel::FILE_DESIRED_STORAGE_CLASS_INFORMATION desiredStorageClass{};
 
                             if (payload::ReadValue(payload, desiredStorageClass)) {
                                 payloadText = RenderDesiredStorageClassPayload(desiredStorageClass);
@@ -1026,7 +1026,7 @@ namespace mimo {
 
                         case kernel::FileCaseSensitiveInformation:
                         case kernel::FileCaseSensitiveInformationForceAccessCheck: {
-                            kernel::FILE_CASE_SENSITIVE_INFORMATION caseSensitive;
+                            kernel::FILE_CASE_SENSITIVE_INFORMATION caseSensitive{};
 
                             if (payload::ReadValue(payload, caseSensitive)) {
                                 payloadText = RenderCaseSensitivePayload(caseSensitive);
@@ -1036,7 +1036,7 @@ namespace mimo {
                         }
 
                         case kernel::FileStorageReserveIdInformation: {
-                            kernel::FILE_STORAGE_RESERVE_ID_INFORMATION storageReserveId;
+                            kernel::FILE_STORAGE_RESERVE_ID_INFORMATION storageReserveId{};
 
                             if (payload::ReadValue(payload, storageReserveId)) {
                                 payloadText = RenderStorageReserveIdPayload(storageReserveId);
@@ -1046,7 +1046,7 @@ namespace mimo {
                         }
 
                         case kernel::FileKnownFolderInformation: {
-                            kernel::FILE_KNOWN_FOLDER_INFORMATION knownFolder;
+                            kernel::FILE_KNOWN_FOLDER_INFORMATION knownFolder{};
 
                             if (payload::ReadValue(payload, knownFolder)) {
                                 payloadText = RenderKnownFolderPayload(knownFolder);
@@ -1056,7 +1056,7 @@ namespace mimo {
                         }
 
                         case kernel::FileStreamReservationInformation: {
-                            kernel::FILE_STREAM_RESERVATION_INFORMATION streamReservation;
+                            kernel::FILE_STREAM_RESERVATION_INFORMATION streamReservation{};
 
                             if (payload::ReadValue(payload, streamReservation)) {
                                 payloadText = RenderStreamReservationPayload(streamReservation);
@@ -1103,7 +1103,7 @@ namespace mimo {
 
                 std::wstring RenderNetworkQueryOpen(const protocol::RecordData& data) {
                     const std::span<const uint8_t> payload = ExtractPayload(data.supplement.queryInfo);
-                    kernel::FILE_NETWORK_OPEN_INFORMATION networkOpen;
+                    kernel::FILE_NETWORK_OPEN_INFORMATION networkOpen{};
 
                     if (!payload::ReadValue(payload, networkOpen)) return {};
 
