@@ -21,7 +21,7 @@ namespace {
     };
 
     __declspec(code_seg("PAGE"))
-    void AppendText(_Inout_ EcpWriter* pWriter, _In_ _Printf_format_string_ PCWSTR pFormat, ...) {
+    void AppendText(_Inout_ EcpWriter* pWriter, _In_z_ _Printf_format_string_ const WCHAR* pFormat, ...) {
         PAGED_CODE();
 
         va_list args;
@@ -42,7 +42,7 @@ namespace {
     __declspec(code_seg("PAGE"))
     void AppendGuid(
         _Inout_ EcpWriter* pWriter,
-        _In_ PCWSTR pLabel,
+        _In_z_ const WCHAR* pLabel,
         _In_ const GUID& guid
     ) {
         PAGED_CODE();
@@ -92,7 +92,7 @@ namespace {
 
     __declspec(code_seg("PAGE"))
     _Success_(return)
-    bool FormatEndpoint(_In_ PSOCKADDR_STORAGE_NFS pAddr, _Out_writes_z_(INET6_ADDRSTRLEN) CHAR* pText) {
+    bool FormatEndpoint(_In_ SOCKADDR_STORAGE* pAddr, _Out_writes_z_(INET6_ADDRSTRLEN) CHAR* pText) {
         PAGED_CODE();
 
         ULONG charCount = INET6_ADDRSTRLEN;
@@ -136,7 +136,7 @@ namespace {
         PAGED_CODE();
 
         constexpr ULONG STATE_COUNT = 3u;
-        PCWSTR states[STATE_COUNT]{};
+        const WCHAR* states[STATE_COUNT]{};
         ULONG count = 0u;
 
         if (pContext->OplockBlockState) states[count++] = L"block";

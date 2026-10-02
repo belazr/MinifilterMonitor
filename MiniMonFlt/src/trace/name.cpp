@@ -89,7 +89,7 @@ namespace mimo {
                 if (!pInfo) return STATUS_INVALID_PARAMETER;
 
                 HANDLE const rootDirectory = pInfo->RootDirectory;
-                PWSTR const pFileName = const_cast<PWSTR>(pInfo->FileName);
+                WCHAR* const pFileName = const_cast<WCHAR*>(pInfo->FileName);
                 const ULONG fileNameSize = pInfo->FileNameLength;
 
                 // copy source, defaulted to the raw, possibly relative name from the info buffer

@@ -153,14 +153,14 @@ namespace {
             const INSTANCE_FULL_INFORMATION* const pInfo = reinterpret_cast<const INSTANCE_FULL_INFORMATION*>(infoBuffer);
 
             UNICODE_STRING infoVolumeName{};
-            infoVolumeName.Buffer = reinterpret_cast<PWCH>(infoBuffer + pInfo->VolumeNameBufferOffset);
+            infoVolumeName.Buffer = reinterpret_cast<WCHAR*>(infoBuffer + pInfo->VolumeNameBufferOffset);
             infoVolumeName.Length = pInfo->VolumeNameLength;
             infoVolumeName.MaximumLength = pInfo->VolumeNameLength;
 
             if (!RtlEqualUnicodeString(&infoVolumeName, &volumeName, TRUE)) continue;
 
             UNICODE_STRING infoInstanceName{};
-            infoInstanceName.Buffer = reinterpret_cast<PWCH>(infoBuffer + pInfo->InstanceNameBufferOffset);
+            infoInstanceName.Buffer = reinterpret_cast<WCHAR*>(infoBuffer + pInfo->InstanceNameBufferOffset);
             infoInstanceName.Length = pInfo->InstanceNameLength;
             infoInstanceName.MaximumLength = pInfo->InstanceNameLength;
 
@@ -174,7 +174,7 @@ namespace {
             if (!found) continue;
 
             UNICODE_STRING infoAltitude{};
-            infoAltitude.Buffer = reinterpret_cast<PWCH>(infoBuffer + pInfo->AltitudeBufferOffset);
+            infoAltitude.Buffer = reinterpret_cast<WCHAR*>(infoBuffer + pInfo->AltitudeBufferOffset);
             infoAltitude.Length = pInfo->AltitudeLength;
             infoAltitude.MaximumLength = pInfo->AltitudeLength;
 

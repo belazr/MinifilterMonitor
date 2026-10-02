@@ -80,9 +80,9 @@ namespace {
 
 
     void OnImageLoad(
-        _In_opt_ PUNICODE_STRING pFullImageName,
+        _In_opt_ UNICODE_STRING* pFullImageName,
         _In_ HANDLE processId,
-        _In_ PIMAGE_INFO pImageInfo
+        _In_ IMAGE_INFO* pImageInfo
     ) {
         UNREFERENCED_PARAMETER(processId);
 
@@ -227,7 +227,7 @@ namespace mimo {
 
                     if (!charCount) continue;
 
-                    ansiName.Buffer = reinterpret_cast<PCHAR>(const_cast<UCHAR*>(pBaseName));
+                    ansiName.Buffer = reinterpret_cast<CHAR*>(const_cast<UCHAR*>(pBaseName));
                     ansiName.Length = charCount;
                     ansiName.MaximumLength = charCount;
 
