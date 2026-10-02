@@ -338,7 +338,7 @@ int wmain(int argc, wchar_t* argv[]) {
         return result;
     }
 
-    std::unique_ptr<Sink> sink = MakeSink(*params);
+    const std::unique_ptr<Sink> sink = MakeSink(*params);
 
     if (!sink) {
 
