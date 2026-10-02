@@ -16,11 +16,11 @@ namespace {
         if (!bufferSize) return;
 
         const bool isFastIo = FLT_IS_FASTIO_OPERATION(pData);
-        MDL* pMdl = isFastIo ? nullptr : pData->Iopb->Parameters.DeviceIoControl.Direct.OutputMdlAddress;
-        const void* pRawBuffer = isFastIo ? pData->Iopb->Parameters.DeviceIoControl.FastIo.OutputBuffer : pData->Iopb->Parameters.DeviceIoControl.Direct.OutputBuffer;
+        MDL* const pMdl = isFastIo ? nullptr : pData->Iopb->Parameters.DeviceIoControl.Direct.OutputMdlAddress;
+        const void* const pRawBuffer = isFastIo ? pData->Iopb->Parameters.DeviceIoControl.FastIo.OutputBuffer : pData->Iopb->Parameters.DeviceIoControl.Direct.OutputBuffer;
 
         ULONG readableSize = bufferSize;
-        const void* pSecondInput = memory::GetReadableBuffer(pData, pMdl, pRawBuffer, &readableSize);
+        const void* const pSecondInput =memory::GetReadableBuffer(pData, pMdl, pRawBuffer, &readableSize);
 
         if (!pSecondInput || !readableSize) return;
 

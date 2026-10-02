@@ -50,7 +50,7 @@ namespace mimo {
 
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     ULONG readableSize = dataSize;
-                    const void* pDirectoryBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &readableSize);
+                    const void* const pDirectoryBuffer =memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer, &readableSize);
 
                     if (!pDirectoryBuffer || !readableSize) return;
 
@@ -84,7 +84,7 @@ namespace mimo {
 
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     ULONG readableSize = dataSize;
-                    const void* pDirectoryBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DirectoryControl.NotifyDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.NotifyDirectory.DirectoryBuffer, &readableSize);
+                    const void* const pDirectoryBuffer =memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DirectoryControl.NotifyDirectory.MdlAddress, pData->Iopb->Parameters.DirectoryControl.NotifyDirectory.DirectoryBuffer, &readableSize);
 
                     if (!pDirectoryBuffer || !readableSize) return;
 

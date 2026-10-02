@@ -46,7 +46,7 @@ namespace mimo {
                     if (!bufferSize) return;
 
                     ULONG readableSize = bufferSize;
-                    const void* pQuotaBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.SetQuota.MdlAddress, pData->Iopb->Parameters.SetQuota.QuotaBuffer, &readableSize);
+                    const void* const pQuotaBuffer =memory::GetReadableBuffer(pData, pData->Iopb->Parameters.SetQuota.MdlAddress, pData->Iopb->Parameters.SetQuota.QuotaBuffer, &readableSize);
 
                     if (!pQuotaBuffer || !readableSize) return;
 
@@ -80,7 +80,7 @@ namespace mimo {
 
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     ULONG readableSize = dataSize;
-                    const void* pQuotaBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.QueryQuota.MdlAddress, pData->Iopb->Parameters.QueryQuota.QuotaBuffer, &readableSize);
+                    const void* const pQuotaBuffer =memory::GetReadableBuffer(pData, pData->Iopb->Parameters.QueryQuota.MdlAddress, pData->Iopb->Parameters.QueryQuota.QuotaBuffer, &readableSize);
 
                     if (!pQuotaBuffer || !readableSize) return;
 

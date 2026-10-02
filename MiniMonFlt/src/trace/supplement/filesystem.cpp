@@ -16,7 +16,7 @@ namespace {
         if (!bufferSize) return;
 
         ULONG readableSize = bufferSize;
-        const void* pSecondInput = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &readableSize);
+        const void* const pSecondInput =memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &readableSize);
 
         if (!pSecondInput || !readableSize) return;
 

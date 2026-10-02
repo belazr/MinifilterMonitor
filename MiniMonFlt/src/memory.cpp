@@ -15,7 +15,7 @@ namespace mimo {
 
             if (pExpectedAddress && MmGetMdlVirtualAddress(pMdl) != pExpectedAddress) return nullptr;
 
-            const void* pBuffer = MmGetSystemAddressForMdlSafe(pMdl, NormalPagePriority | MdlMappingNoExecute);
+            const void* const pBuffer = MmGetSystemAddressForMdlSafe(pMdl, NormalPagePriority | MdlMappingNoExecute);
 
             if (!pBuffer) return nullptr;
 
@@ -80,7 +80,7 @@ namespace mimo {
                 return FltGetNewSystemBufferAddress(const_cast<FLT_CALLBACK_DATA*>(pData));
             }
 
-            const void* pBuffer = MapMdl(pMdl, pRawBuffer, pBufferSize);
+            const void* const pBuffer = MapMdl(pMdl, pRawBuffer, pBufferSize);
 
             if (pBuffer) return pBuffer;
 

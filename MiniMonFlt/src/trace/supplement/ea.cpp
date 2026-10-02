@@ -46,7 +46,7 @@ namespace mimo {
                     if (!bufferSize) return;
 
                     ULONG readableSize = bufferSize;
-                    const void* pEaBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.SetEa.MdlAddress, pData->Iopb->Parameters.SetEa.EaBuffer, &readableSize);
+                    const void* const pEaBuffer =memory::GetReadableBuffer(pData, pData->Iopb->Parameters.SetEa.MdlAddress, pData->Iopb->Parameters.SetEa.EaBuffer, &readableSize);
 
                     if (!pEaBuffer || !readableSize) return;
 
@@ -80,7 +80,7 @@ namespace mimo {
 
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     ULONG readableSize = dataSize;
-                    const void* pEaBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.QueryEa.MdlAddress, pData->Iopb->Parameters.QueryEa.EaBuffer, &readableSize);
+                    const void* const pEaBuffer =memory::GetReadableBuffer(pData, pData->Iopb->Parameters.QueryEa.MdlAddress, pData->Iopb->Parameters.QueryEa.EaBuffer, &readableSize);
 
                     if (!pEaBuffer || !readableSize) return;
 
