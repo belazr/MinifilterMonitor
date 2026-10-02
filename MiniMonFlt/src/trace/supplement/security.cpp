@@ -19,7 +19,7 @@ namespace mimo {
 
                     if (KeGetCurrentIrql() != PASSIVE_LEVEL) return;
 
-                    PSECURITY_DESCRIPTOR const pSecurityDescriptor = pData->Iopb->Parameters.SetSecurity.SecurityDescriptor;
+                    const PSECURITY_DESCRIPTOR pSecurityDescriptor = pData->Iopb->Parameters.SetSecurity.SecurityDescriptor;
                     ULONG size = 0u;
 
                     if (!pSecurityDescriptor) return;

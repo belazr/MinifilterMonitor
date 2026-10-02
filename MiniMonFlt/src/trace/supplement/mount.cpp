@@ -17,7 +17,7 @@ namespace mimo {
 
                     if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
-                    PFLT_VOLUME const pVolume = pFltObjects->Volume;
+                    const PFLT_VOLUME pVolume = pFltObjects->Volume;
 
                     if (!pVolume) return;
 

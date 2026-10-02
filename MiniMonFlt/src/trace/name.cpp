@@ -88,7 +88,7 @@ namespace mimo {
 
                 if (!pInfo) return STATUS_INVALID_PARAMETER;
 
-                HANDLE const rootDirectory = pInfo->RootDirectory;
+                const HANDLE rootDirectory = pInfo->RootDirectory;
                 WCHAR* const pFileName = const_cast<WCHAR*>(pInfo->FileName);
                 const ULONG fileNameSize = pInfo->FileNameLength;
 

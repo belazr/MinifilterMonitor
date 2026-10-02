@@ -83,7 +83,7 @@ namespace mimo {
 
                     if (!pSecurityContext->AccessState) return;
 
-                    PACCESS_TOKEN const pClientToken = pSecurityContext->AccessState->SubjectSecurityContext.ClientToken;
+                    const PACCESS_TOKEN pClientToken = pSecurityContext->AccessState->SubjectSecurityContext.ClientToken;
 
                     if (!pClientToken) return;
 
