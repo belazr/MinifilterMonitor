@@ -26,7 +26,7 @@ namespace {
 
     // an entry that is a subset of a later entry would make the later one unreachable in flag rendering
     template <size_t count>
-    constexpr bool CompositesPrecedeComponents(const FlagName (&names)[count]) noexcept {
+    constexpr bool CompositesPrecedeComponents(const FlagName (&names)[count]) {
 
         for (size_t i = 0u; i < count; i++) {
 

@@ -10,9 +10,9 @@ namespace mimo {
     template <auto CloseFn, HANDLE sentinel = nullptr>
     class Handle {
     public:
-        Handle() noexcept = default;
+        Handle() = default;
 
-        explicit Handle(HANDLE h) noexcept : handle(h) {}
+        explicit Handle(HANDLE h) : handle(h) {}
 
 
         ~Handle() {
@@ -38,19 +38,19 @@ namespace mimo {
         }
 
 
-        HANDLE Get() const noexcept {
+        HANDLE Get() const {
 
             return this->handle;
         }
 
 
-        HANDLE Release() noexcept {
+        HANDLE Release() {
 
             return std::exchange(this->handle, sentinel);
         }
 
 
-        HANDLE* Put() noexcept {
+        HANDLE* Put() {
             this->Close();
             this->handle = sentinel;
 
@@ -58,7 +58,7 @@ namespace mimo {
         }
 
 
-        explicit operator bool() const noexcept {
+        explicit operator bool() const {
 
             return this->handle != sentinel;
         }
@@ -66,7 +66,7 @@ namespace mimo {
     private:
         HANDLE handle = sentinel;
 
-        void Close() noexcept {
+        void Close() {
 
             if (this->handle != sentinel) {
                 CloseFn(this->handle);
@@ -76,7 +76,7 @@ namespace mimo {
 
     };
 
-    inline LSTATUS CloseRegKey(HANDLE h) noexcept {
+    inline LSTATUS CloseRegKey(HANDLE h) {
 
         return RegCloseKey(static_cast<HKEY>(h));
     }
