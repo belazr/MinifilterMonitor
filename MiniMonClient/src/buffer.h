@@ -7,9 +7,6 @@
 namespace mimo {
 
     class AlignedBuffer final {
-        using Block = std::max_align_t;
-        std::vector<Block> buffer;
-
     public:
         explicit AlignedBuffer(uint32_t size) : buffer((size + sizeof(Block) - 1u) / sizeof(Block)) {}
 
@@ -38,6 +35,9 @@ namespace mimo {
             return;
         }
 
+    private:
+        using Block = std::max_align_t;
+        std::vector<Block> buffer;
     };
 
 }

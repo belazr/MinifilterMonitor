@@ -28,22 +28,19 @@ namespace mimo {
     };
 
     class ConsoleSink final : public Sink {
-        std::ostream& out;
-        bool headerWritten;
-
     public:
         ConsoleSink(std::ostream& stream, std::wstring_view headerText);
 
         bool Write(uint32_t altitude, std::wstring_view line) override;
 
         void Flush() override;
+
+    private:
+        std::ostream& out;
+        bool headerWritten;
     };
 
     class FileSink final : public Sink {
-        std::wstring basePath;
-        bool split;
-        std::map<std::wstring, std::ofstream> files;
-
     public:
         FileSink(
             std::wstring path,
@@ -56,6 +53,10 @@ namespace mimo {
         void Flush() override;
 
     private:
+        std::wstring basePath;
+        bool split;
+        std::map<std::wstring, std::ofstream> files;
+
         std::wstring MakeSplitPath(uint32_t altitude) const;
     };
 
