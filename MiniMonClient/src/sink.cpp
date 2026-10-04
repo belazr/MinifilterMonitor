@@ -11,7 +11,7 @@ namespace mimo {
     Sink::Sink(std::wstring_view headerText) : header(headerText) {}
 
 
-    ConsoleSink::ConsoleSink(std::ostream& stream, std::wstring_view headerText) : Sink(headerText), out(stream), headerWritten(false) {}
+    ConsoleSink::ConsoleSink(std::ostream& stream, std::wstring_view headerText) : Sink(headerText), out(stream) {}
 
 
     bool ConsoleSink::Write(uint32_t, std::wstring_view line) {

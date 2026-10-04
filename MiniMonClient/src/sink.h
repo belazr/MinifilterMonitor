@@ -37,7 +37,7 @@ namespace mimo {
 
     private:
         std::ostream& out;
-        bool headerWritten;
+        bool headerWritten = false;
     };
 
     class FileSink final : public Sink {
