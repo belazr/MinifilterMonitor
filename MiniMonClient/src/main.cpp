@@ -37,7 +37,7 @@ namespace {
     }
 
 
-    struct Parameters final {
+    struct Parameters {
         std::optional<std::wstring> attach;
         std::optional<std::wstring> attachAll;
         std::optional<std::wstring> file;
@@ -45,12 +45,12 @@ namespace {
         bool split = false;
     };
 
-    struct Flag final {
+    struct Flag {
         std::wstring_view name;
         bool Parameters::* member;
     };
 
-    struct Option final {
+    struct Option {
         std::wstring_view name;
         std::optional<std::wstring> Parameters::* member;
     };

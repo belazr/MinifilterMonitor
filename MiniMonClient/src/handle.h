@@ -8,7 +8,7 @@
 namespace mimo {
 
     template <auto CloseFn, HANDLE sentinel = nullptr>
-    class Handle {
+    class Handle final {
     public:
         Handle() = default;
 
