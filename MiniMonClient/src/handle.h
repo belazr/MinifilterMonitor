@@ -7,12 +7,12 @@
 
 namespace mimo {
 
-    template <auto CloseFn, HANDLE sentinel = nullptr>
+    template <auto CloseFn, HANDLE hSentinel = nullptr>
     class Handle final {
     public:
         Handle() = default;
 
-        explicit Handle(HANDLE h) : handle(h) {}
+        explicit Handle(HANDLE h) : hNative(h) {}
 
 
         ~Handle() {
@@ -24,14 +24,14 @@ namespace mimo {
 
         Handle& operator=(const Handle&) = delete;
 
-        Handle(Handle&& h) noexcept : handle(std::exchange(h.handle, sentinel)) {}
+        Handle(Handle&& h) noexcept : hNative(std::exchange(h.hNative, hSentinel)) {}
 
 
         Handle& operator=(Handle&& h) noexcept {
 
             if (this != &h) {
                 this->Close();
-                this->handle = std::exchange(h.handle, sentinel);
+                this->hNative = std::exchange(h.hNative, hSentinel);
             }
 
             return *this;
@@ -40,36 +40,36 @@ namespace mimo {
 
         HANDLE Get() const {
 
-            return this->handle;
+            return this->hNative;
         }
 
 
         HANDLE Release() {
 
-            return std::exchange(this->handle, sentinel);
+            return std::exchange(this->hNative, hSentinel);
         }
 
 
         HANDLE* Put() {
             this->Close();
-            this->handle = sentinel;
+            this->hNative = hSentinel;
 
-            return &this->handle;
+            return &this->hNative;
         }
 
 
         explicit operator bool() const {
 
-            return this->handle != sentinel;
+            return this->hNative != hSentinel;
         }
 
     private:
-        HANDLE handle = sentinel;
+        HANDLE hNative = hSentinel;
 
         void Close() {
 
-            if (this->handle != sentinel) {
-                CloseFn(this->handle);
+            if (this->hNative != hSentinel) {
+                CloseFn(this->hNative);
             }
 
         }

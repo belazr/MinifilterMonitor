@@ -229,7 +229,7 @@ namespace mimo {
 
                 ECP_LIST* pEcpList = nullptr;
 
-                if (!NT_SUCCESS(FltGetEcpListFromCallbackData(driver::Filter, pData, &pEcpList)) || !pEcpList) return STATUS_SUCCESS;
+                if (!NT_SUCCESS(FltGetEcpListFromCallbackData(driver::pFilter, pData, &pEcpList)) || !pEcpList) return STATUS_SUCCESS;
 
                 EcpWriter writer{ pEcpString->Buffer, pEcpString->MaximumLength };
                 ULONG total = 0u;
@@ -238,10 +238,10 @@ namespace mimo {
                 GUID guid{};
                 ULONG contextSize = 0u;
 
-                while (NT_SUCCESS(FltGetNextExtraCreateParameter(driver::Filter, pEcpList, pContext, &guid, &pContext, &contextSize))) {
+                while (NT_SUCCESS(FltGetNextExtraCreateParameter(driver::pFilter, pEcpList, pContext, &guid, &pContext, &contextSize))) {
                     total++;
 
-                    if (FltIsEcpFromUserMode(driver::Filter, pContext)) continue;
+                    if (FltIsEcpFromUserMode(driver::pFilter, pContext)) continue;
 
                     if (AppendEcp(&writer, guid, pContext)) recognized++;
 

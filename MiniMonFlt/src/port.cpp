@@ -9,8 +9,8 @@
 
 namespace {
 
-    PFLT_PORT ServerPort;
-    PFLT_PORT ClientPort;
+    PFLT_PORT pServerPort;
+    PFLT_PORT pClientPort;
 
 }
 
@@ -32,7 +32,7 @@ namespace mimo {
 
             InitializeObjectAttributes(&objAttribs, &portName, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, nullptr, pSecDesc);
 
-            status = FltCreateCommunicationPort(pFilter, &ServerPort, &objAttribs, nullptr, Connect, Disconnect, Message, 1);
+            status = FltCreateCommunicationPort(pFilter, &pServerPort, &objAttribs, nullptr, Connect, Disconnect, Message, 1);
 
         done:
 
@@ -46,9 +46,9 @@ namespace mimo {
 
         void Close() {
 
-            if (ServerPort) {
-                FltCloseCommunicationPort(ServerPort);
-                ServerPort = nullptr;
+            if (pServerPort) {
+                FltCloseCommunicationPort(pServerPort);
+                pServerPort = nullptr;
             }
 
             return;
@@ -58,7 +58,7 @@ namespace mimo {
         __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
         NTSTATUS Connect(
-            PFLT_PORT pClientPort,
+            PFLT_PORT pNewClientPort,
             void* pServerPortCookie,
             void* pConnectionContext,
             ULONG sizeOfContext,
@@ -71,7 +71,7 @@ namespace mimo {
             UNREFERENCED_PARAMETER(sizeOfContext);
             UNREFERENCED_PARAMETER(ppConnectionCookie);
 
-            void* const pOldClientPort = InterlockedCompareExchangePointer(reinterpret_cast<void**>(&ClientPort), pClientPort, nullptr);
+            void* const pOldClientPort = InterlockedCompareExchangePointer(reinterpret_cast<void**>(&pClientPort), pNewClientPort, nullptr);
 
             if (pOldClientPort) {
 
@@ -89,7 +89,7 @@ namespace mimo {
 
             UNREFERENCED_PARAMETER(pConnectionCookie);
 
-            FltCloseClientPort(driver::Filter, &ClientPort);
+            FltCloseClientPort(driver::pFilter, &pClientPort);
 
             return;
         }

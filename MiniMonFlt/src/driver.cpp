@@ -117,7 +117,7 @@ namespace {
         UNREFERENCED_PARAMETER(flags);
 
         port::Close();
-        FltUnregisterFilter(driver::Filter);
+        FltUnregisterFilter(driver::pFilter);
 
         trace::modules::Delete();
         records::Delete();
@@ -246,7 +246,7 @@ namespace mimo {
 
     namespace driver {
 
-        PFLT_FILTER Filter;
+        PFLT_FILTER pFilter;
 
     }
 
@@ -265,11 +265,11 @@ extern "C" NTSTATUS DriverEntry(DRIVER_OBJECT* pDriverObject, UNICODE_STRING* pR
     trace::modules::Create();
     config::Create(pDriverObject);
 
-    status = FltRegisterFilter(pDriverObject, &FILTER_REGISTRATION, &driver::Filter);
+    status = FltRegisterFilter(pDriverObject, &FILTER_REGISTRATION, &driver::pFilter);
 
     if (!NT_SUCCESS(status)) goto done;
 
-    status = port::Open(driver::Filter);
+    status = port::Open(driver::pFilter);
 
     if (!NT_SUCCESS(status)) goto done;
 
@@ -277,15 +277,15 @@ extern "C" NTSTATUS DriverEntry(DRIVER_OBJECT* pDriverObject, UNICODE_STRING* pR
 
     if (!NT_SUCCESS(status)) goto done;
 
-    status = FltStartFiltering(driver::Filter);
+    status = FltStartFiltering(driver::pFilter);
 
 done:
 
     if (!NT_SUCCESS(status)) {
         port::Close();
 
-        if (driver::Filter) {
-            FltUnregisterFilter(driver::Filter);
+        if (driver::pFilter) {
+            FltUnregisterFilter(driver::pFilter);
         }
 
         trace::modules::Delete();

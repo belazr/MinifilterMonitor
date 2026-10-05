@@ -13,7 +13,7 @@ namespace mimo {
 
         __declspec(code_seg("PAGE"))
         NTSTATUS Connect(
-            _In_ PFLT_PORT pClientPort,
+            _In_ PFLT_PORT pNewClientPort,
             _In_ void* pServerPortCookie,
             _In_reads_bytes_(sizeOfContext) void* pConnectionContext,
             _In_ ULONG sizeOfContext,

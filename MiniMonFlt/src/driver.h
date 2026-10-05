@@ -12,7 +12,7 @@ namespace mimo {
 
         inline constexpr ULONG MEM_TAG = 'oMiM';
 
-        extern PFLT_FILTER Filter;
+        extern PFLT_FILTER pFilter;
 
     }
 

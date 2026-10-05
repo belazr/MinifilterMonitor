@@ -88,7 +88,7 @@ namespace mimo {
 
                 if (!pInfo) return STATUS_INVALID_PARAMETER;
 
-                const HANDLE rootDirectory = pInfo->RootDirectory;
+                const HANDLE hRootDirectory = pInfo->RootDirectory;
                 WCHAR* const pFileName = const_cast<WCHAR*>(pInfo->FileName);
                 const ULONG fileNameSize = pInfo->FileNameLength;
 
@@ -100,17 +100,17 @@ namespace mimo {
 
                 FLT_FILE_NAME_INFORMATION* pTargetInfo = nullptr;
 
-                if (FLT_IS_IRP_OPERATION(pData) && NT_SUCCESS(FltGetDestinationFileNameInformation(pFltObjects->Instance, pFltObjects->FileObject, rootDirectory, pFileName, fileNameSize, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &pTargetInfo))) {
+                if (FLT_IS_IRP_OPERATION(pData) && NT_SUCCESS(FltGetDestinationFileNameInformation(pFltObjects->Instance, pFltObjects->FileObject, hRootDirectory, pFileName, fileNameSize, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_DEFAULT, &pTargetInfo))) {
                     sourceName = pTargetInfo->Name;
                 }
 
-                const NTSTATUS copyStatus = RtlUnicodeStringCopy(pName, &sourceName);
+                const NTSTATUS status = RtlUnicodeStringCopy(pName, &sourceName);
 
                 if (pTargetInfo) {
                     FltReleaseFileNameInformation(pTargetInfo);
                 }
 
-                return copyStatus;
+                return status;
             }
 
         }
