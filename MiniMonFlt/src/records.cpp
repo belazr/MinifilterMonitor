@@ -137,14 +137,14 @@ namespace mimo {
             ULONG size,
             ULONG* pBytesWritten
         ) {
-            constexpr ULONG RECORD_STRIDE = static_cast<ULONG>(sizeof(protocol::Record));
+            constexpr ULONG RECORD_SIZE = static_cast<ULONG>(sizeof(protocol::Record));
 
             ULONG bytesWritten = 0u;
             bool tooSmall = false;
 
             for (Entry* pEntry = RemoveHead(); pEntry; pEntry = RemoveHead()) {
 
-                if (size - bytesWritten < RECORD_STRIDE) {
+                if (size - bytesWritten < RECORD_SIZE) {
                     InsertHead(pEntry);
                     tooSmall = true;
 
@@ -152,7 +152,7 @@ namespace mimo {
                 }
 
                 __try {
-                    RtlCopyMemory(pBuffer + bytesWritten, &pEntry->record, RECORD_STRIDE);
+                    RtlCopyMemory(pBuffer + bytesWritten, &pEntry->record, RECORD_SIZE);
                 }
                 __except (EXCEPTION_EXECUTE_HANDLER) {
                     InsertHead(pEntry);
@@ -163,7 +163,7 @@ namespace mimo {
 
                 DeleteEntry(pEntry);
 
-                bytesWritten += RECORD_STRIDE;
+                bytesWritten += RECORD_SIZE;
             }
 
             *pBytesWritten = bytesWritten;
