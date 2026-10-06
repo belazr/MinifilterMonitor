@@ -82,14 +82,14 @@ namespace {
         for (DWORD i = 0u; ; i++) {
             constexpr uint32_t KEY_NAME_WCHAR_COUNT = 256u;
             std::array<wchar_t, KEY_NAME_WCHAR_COUNT> buffer{};
-            DWORD len = static_cast<DWORD>(buffer.size());
-            const LSTATUS status = RegEnumKeyExW(static_cast<HKEY>(key.Get()), i, buffer.data(), &len, nullptr, nullptr, nullptr, nullptr);
+            DWORD wcharCount = static_cast<DWORD>(buffer.size());
+            const LSTATUS status = RegEnumKeyExW(static_cast<HKEY>(key.Get()), i, buffer.data(), &wcharCount, nullptr, nullptr, nullptr, nullptr);
 
             if (status == ERROR_MORE_DATA) continue;
 
             if (status != ERROR_SUCCESS) break;
 
-            names.emplace_back(buffer.data(), static_cast<size_t>(len));
+            names.emplace_back(buffer.data(), static_cast<size_t>(wcharCount));
         }
 
         return names;

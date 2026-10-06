@@ -10,12 +10,12 @@ namespace mimo {
 
             if (text.empty()) return {};
 
-            const int length = WideCharToMultiByte(CP_UTF8, 0u, text.data(), static_cast<int>(text.size()), nullptr, 0, nullptr, nullptr);
+            const int utf8Size = WideCharToMultiByte(CP_UTF8, 0u, text.data(), static_cast<int>(text.size()), nullptr, 0, nullptr, nullptr);
 
-            if (length <= 0) return {};
+            if (utf8Size <= 0) return {};
 
-            std::string utf8(static_cast<size_t>(length), '\0');
-            WideCharToMultiByte(CP_UTF8, 0u, text.data(), static_cast<int>(text.size()), utf8.data(), length, nullptr, nullptr);
+            std::string utf8(static_cast<size_t>(utf8Size), '\0');
+            WideCharToMultiByte(CP_UTF8, 0u, text.data(), static_cast<int>(text.size()), utf8.data(), utf8Size, nullptr, nullptr);
 
             return utf8;
         }

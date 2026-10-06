@@ -23,9 +23,9 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderInformationParameters(uint32_t fileInformationClass, uint32_t length) {
+    std::wstring RenderInformationParameters(uint32_t fileInformationClass, uint32_t size) {
 
-        return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(fileInformationClass), length);
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(fileInformationClass), size);
     }
 
 

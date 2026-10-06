@@ -18,9 +18,9 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderInformationParameters(uint32_t fsInformationClass, uint32_t length) {
+    std::wstring RenderInformationParameters(uint32_t fsInformationClass, uint32_t size) {
 
-        return std::format(L"Class: {}, Length: {}", trace::names::RenderFsInformationClass(fsInformationClass), length);
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderFsInformationClass(fsInformationClass), size);
     }
 
 
