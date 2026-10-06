@@ -13,23 +13,14 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderLength(const protocol::LockControlSupplement& supplement) {
-
-        if (!(supplement.captured & protocol::LOCK_CONTROL_CAPTURED_LENGTH)) return {};
-
-        return std::format(L"Length: {}", static_cast<uint64_t>(supplement.length));
-    }
-
-
     std::wstring RenderLockRange(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
         std::wstring details = std::format(L"Offset: {}", static_cast<uint64_t>(parameters.lockControl.byteOffset));
 
-        const std::wstring lengthText = RenderLength(data.supplement.lockControl);
+        const protocol::LockControlSupplement& lockControlSupplement = data.supplement.lockControl;
 
-        if (!lengthText.empty()) {
-            details += L", ";
-            details += lengthText;
+        if (lockControlSupplement.captured & protocol::LOCK_CONTROL_CAPTURED_LENGTH) {
+            details += std::format(L", Length: {}", static_cast<uint64_t>(lockControlSupplement.length));
         }
 
         if (parameters.lockControl.key) {
