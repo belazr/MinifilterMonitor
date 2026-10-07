@@ -21,7 +21,7 @@ namespace {
 
     struct FlagName {
         uint32_t flag;
-        const wchar_t* name;
+        const wchar_t* pName;
     };
 
     // an entry that is a subset of a later entry would make the later one unreachable in flag rendering
@@ -53,7 +53,7 @@ namespace {
 
             if ((flags & entry.flag) != entry.flag) continue;
 
-            result += entry.name;
+            result += entry.pName;
             result += separator;
             flags &= ~entry.flag;
         }
