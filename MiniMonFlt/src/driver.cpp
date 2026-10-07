@@ -141,9 +141,9 @@ namespace {
 
         UCHAR infoBuffer[sizeof(INSTANCE_FULL_INFORMATION) + ENTRY_STRINGS_WCHAR_COUNT * sizeof(WCHAR)]{};
 
-        for (ULONG index = 0u; ; index++) {
+        for (ULONG i = 0u; ; i++) {
             ULONG bytesReturned = 0u;
-            const NTSTATUS status = FltEnumerateInstanceInformationByFilter(pFltObjects->Filter, index, InstanceFullInformation, infoBuffer, static_cast<ULONG>(sizeof(infoBuffer)), &bytesReturned);
+            const NTSTATUS status = FltEnumerateInstanceInformationByFilter(pFltObjects->Filter, i, InstanceFullInformation, infoBuffer, static_cast<ULONG>(sizeof(infoBuffer)), &bytesReturned);
 
             // this volume's entries always fit: its name fit above and instance names cap at INSTANCE_NAME_MAX_CHARS
             if (status == STATUS_BUFFER_TOO_SMALL) continue;

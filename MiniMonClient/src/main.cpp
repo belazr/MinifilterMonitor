@@ -73,13 +73,13 @@ namespace {
             const std::wstring_view arg = argv[i];
             bool matched = false;
 
-            for (const Flag& f : FLAG_TABLE) {
+            for (const Flag& flag : FLAG_TABLE) {
 
-                if (std::ranges::equal(arg, f.name, [](wchar_t x, wchar_t y) { return std::towlower(x) == std::towlower(y); })) {
+                if (std::ranges::equal(arg, flag.name, [](wchar_t left, wchar_t right) { return std::towlower(left) == std::towlower(right); })) {
 
-                    if (params.*(f.member)) return std::nullopt;
+                    if (params.*(flag.member)) return std::nullopt;
 
-                    params.*(f.member) = true;
+                    params.*(flag.member) = true;
                     matched = true;
 
                     break;
@@ -89,16 +89,16 @@ namespace {
 
             if (matched) continue;
 
-            for (const Option& o : OPTION_TABLE) {
+            for (const Option& option : OPTION_TABLE) {
 
-                if (std::ranges::equal(arg, o.name, [](wchar_t x, wchar_t y) { return std::towlower(x) == std::towlower(y); })) {
+                if (std::ranges::equal(arg, option.name, [](wchar_t left, wchar_t right) { return std::towlower(left) == std::towlower(right); })) {
 
-                    if ((params.*(o.member)).has_value()) return std::nullopt;
+                    if ((params.*(option.member)).has_value()) return std::nullopt;
 
                     if (i + 1 >= argc) return std::nullopt;
 
                     i++;
-                    params.*(o.member) = argv[i];
+                    params.*(option.member) = argv[i];
                     matched = true;
 
                     break;
