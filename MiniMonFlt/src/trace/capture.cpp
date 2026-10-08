@@ -253,17 +253,17 @@ MIRROR_ASSERT(mountVolume.deviceType, MountVolume.DeviceType);
 namespace {
 
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {
-        DEVICE_OBJECT* pDevObj = nullptr;
-        const NTSTATUS status = FltGetDeviceObject(pFltObjects->Volume, &pDevObj);
+        DEVICE_OBJECT* pDeviceObject = nullptr;
+        const NTSTATUS status = FltGetDeviceObject(pFltObjects->Volume, &pDeviceObject);
 
         if (NT_SUCCESS(status)) {
-            ObDereferenceObject(pDevObj);
+            ObDereferenceObject(pDeviceObject);
         }
         else {
-            pDevObj = nullptr;
+            pDeviceObject = nullptr;
         }
 
-        pRecordData->deviceObject = reinterpret_cast<protocol::ObjectId>(pDevObj);
+        pRecordData->deviceObject = reinterpret_cast<protocol::ObjectId>(pDeviceObject);
         pRecordData->fileObject   = reinterpret_cast<protocol::ObjectId>(pFltObjects->FileObject);
         pRecordData->transaction  = reinterpret_cast<protocol::ObjectId>(pFltObjects->Transaction);
         pRecordData->processId    = reinterpret_cast<protocol::ObjectId>(PsGetCurrentProcessId());

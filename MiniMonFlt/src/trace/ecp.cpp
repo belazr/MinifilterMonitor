@@ -92,19 +92,19 @@ namespace {
 
     __declspec(code_seg("PAGE"))
     _Success_(return)
-    bool FormatEndpoint(_In_ SOCKADDR_STORAGE* pAddr, _Out_writes_z_(INET6_ADDRSTRLEN) CHAR* pText) {
+    bool FormatEndpoint(_In_ SOCKADDR_STORAGE* pAddress, _Out_writes_z_(INET6_ADDRSTRLEN) CHAR* pText) {
         PAGED_CODE();
 
         ULONG charCount = INET6_ADDRSTRLEN;
         NTSTATUS status = STATUS_INVALID_PARAMETER;
 
-        if (pAddr->ss_family == AF_INET) {
-            const SOCKADDR_IN* const pIpv4 = reinterpret_cast<const SOCKADDR_IN*>(pAddr);
-            status = RtlIpv4AddressToStringEx(&pIpv4->sin_addr, pIpv4->sin_port, pText, &charCount);
+        if (pAddress->ss_family == AF_INET) {
+            const SOCKADDR_IN* const pIpv4Address = reinterpret_cast<const SOCKADDR_IN*>(pAddress);
+            status = RtlIpv4AddressToStringEx(&pIpv4Address->sin_addr, pIpv4Address->sin_port, pText, &charCount);
         }
-        else if (pAddr->ss_family == AF_INET6) {
-            const SOCKADDR_IN6* const pIpv6 = reinterpret_cast<const SOCKADDR_IN6*>(pAddr);
-            status = RtlIpv6AddressToStringEx(&pIpv6->sin6_addr, 0u, pIpv6->sin6_port, pText, &charCount);
+        else if (pAddress->ss_family == AF_INET6) {
+            const SOCKADDR_IN6* const pIpv6Address = reinterpret_cast<const SOCKADDR_IN6*>(pAddress);
+            status = RtlIpv6AddressToStringEx(&pIpv6Address->sin6_addr, 0u, pIpv6Address->sin6_port, pText, &charCount);
         }
 
         return NT_SUCCESS(status);

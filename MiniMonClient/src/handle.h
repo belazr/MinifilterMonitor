@@ -76,14 +76,14 @@ namespace mimo {
 
     };
 
-    inline LSTATUS CloseRegKey(HANDLE h) {
+    inline LSTATUS CloseRegistryKey(HANDLE h) {
 
         return RegCloseKey(static_cast<HKEY>(h));
     }
 
 
     using NullHandle = Handle<CloseHandle>;
-    using InvHandle = Handle<CloseHandle, INVALID_HANDLE_VALUE>;
-    using RegKeyHandle = Handle<CloseRegKey>;
+    using InvalidHandle = Handle<CloseHandle, INVALID_HANDLE_VALUE>;
+    using RegistryKeyHandle = Handle<CloseRegistryKey>;
 
 }

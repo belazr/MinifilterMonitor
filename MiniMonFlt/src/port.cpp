@@ -21,23 +21,23 @@ namespace mimo {
         __declspec(code_seg("INIT"))
         _Use_decl_annotations_
         NTSTATUS Open(PFLT_FILTER pFilter) {
-            SECURITY_DESCRIPTOR* pSecDesc = nullptr;
-            OBJECT_ATTRIBUTES objAttribs{};
+            SECURITY_DESCRIPTOR* pSecurityDescriptor = nullptr;
+            OBJECT_ATTRIBUTES objectAttributes{};
             UNICODE_STRING portName = RTL_CONSTANT_STRING(PORT_NAME);
             NTSTATUS status = STATUS_SUCCESS;
 
-            status = FltBuildDefaultSecurityDescriptor(reinterpret_cast<void**>(&pSecDesc), FLT_PORT_ALL_ACCESS);
+            status = FltBuildDefaultSecurityDescriptor(reinterpret_cast<void**>(&pSecurityDescriptor), FLT_PORT_ALL_ACCESS);
 
             if (!NT_SUCCESS(status)) goto done;
 
-            InitializeObjectAttributes(&objAttribs, &portName, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, nullptr, pSecDesc);
+            InitializeObjectAttributes(&objectAttributes, &portName, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, nullptr, pSecurityDescriptor);
 
-            status = FltCreateCommunicationPort(pFilter, &pServerPort, &objAttribs, nullptr, Connect, Disconnect, Message, 1);
+            status = FltCreateCommunicationPort(pFilter, &pServerPort, &objectAttributes, nullptr, Connect, Disconnect, Message, 1);
 
         done:
 
-            if (pSecDesc) {
-                FltFreeSecurityDescriptor(pSecDesc);
+            if (pSecurityDescriptor) {
+                FltFreeSecurityDescriptor(pSecurityDescriptor);
             }
 
             return status;

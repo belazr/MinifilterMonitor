@@ -58,9 +58,9 @@ namespace {
 
 
     HRESULT Load() {
-        const HRESULT hPrivRes = EnableLoadDriverPrivilege();
+        const HRESULT hPrivilegeRes = EnableLoadDriverPrivilege();
 
-        if (FAILED(hPrivRes)) return hPrivRes;
+        if (FAILED(hPrivilegeRes)) return hPrivilegeRes;
 
         const HRESULT hLoadRes = FilterLoad(MINIMON_NAME);
 
@@ -75,7 +75,7 @@ namespace {
 
     std::vector<std::wstring> EnumerateSubKeys(const std::wstring& path) {
         std::vector<std::wstring> names;
-        RegKeyHandle key{};
+        RegistryKeyHandle key{};
 
         if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, path.c_str(), 0u, KEY_READ, reinterpret_cast<HKEY*>(key.Put())) != ERROR_SUCCESS) return names;
 
@@ -153,9 +153,9 @@ namespace mimo {
 
 
         HRESULT Unload() {
-            const HRESULT hPrivRes = EnableLoadDriverPrivilege();
+            const HRESULT hPrivilegeRes = EnableLoadDriverPrivilege();
 
-            if (FAILED(hPrivRes)) return hPrivRes;
+            if (FAILED(hPrivilegeRes)) return hPrivilegeRes;
 
             const HRESULT hUnloadRes = FilterUnload(MINIMON_NAME);
 
@@ -165,18 +165,18 @@ namespace mimo {
         }
 
 
-        HRESULT Connect(InvHandle& port) {
+        HRESULT Connect(InvalidHandle& port) {
 
             return FilterConnectCommunicationPort(PORT_NAME, 0u, nullptr, 0u, nullptr, port.Put());
         }
 
 
-        HRESULT GetRecords(const InvHandle& port, AlignedBuffer& records) {
-            protocol::CommandMessage cmdMsg{};
-            cmdMsg.command = protocol::Command::GetRecords;
-            DWORD bytesRet = 0u;
+        HRESULT GetRecords(const InvalidHandle& port, AlignedBuffer& records) {
+            protocol::CommandMessage commandMessage{};
+            commandMessage.command = protocol::Command::GetRecords;
+            DWORD bytesReturned = 0u;
 
-            const HRESULT hRes = FilterSendMessage(port.Get(), &cmdMsg, static_cast<DWORD>(sizeof(cmdMsg)), records.Data(), static_cast<DWORD>(records.Size()), &bytesRet);
+            const HRESULT hRes = FilterSendMessage(port.Get(), &commandMessage, static_cast<DWORD>(sizeof(commandMessage)), records.Data(), static_cast<DWORD>(records.Size()), &bytesReturned);
 
             // empty list on an idle volume: STATUS_NO_MORE_ENTRIES surfaces as ERROR_NO_MORE_ITEMS
             // report zero records and keep polling
@@ -187,7 +187,7 @@ namespace mimo {
             }
 
             if (SUCCEEDED(hRes)) {
-                records.Resize(bytesRet);
+                records.Resize(bytesReturned);
             }
 
             return hRes;

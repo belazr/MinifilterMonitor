@@ -15,8 +15,8 @@ using namespace mimo;
 namespace {
 
     constexpr FLT_CONTEXT_REGISTRATION CONTEXTS[]{
-        { FLT_TRANSACTION_CONTEXT, 0, nullptr, sizeof(transaction::Context), driver::MEM_TAG },
-        { FLT_INSTANCE_CONTEXT, 0, nullptr, sizeof(driver::InstanceContext), driver::MEM_TAG },
+        { FLT_TRANSACTION_CONTEXT, 0, nullptr, sizeof(transaction::Context), driver::POOL_TAG },
+        { FLT_INSTANCE_CONTEXT, 0, nullptr, sizeof(driver::InstanceContext), driver::POOL_TAG },
         { FLT_CONTEXT_END },
     };
 

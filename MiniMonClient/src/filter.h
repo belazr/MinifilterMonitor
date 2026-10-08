@@ -17,9 +17,9 @@ namespace mimo {
 
         HRESULT Unload();
 
-        HRESULT Connect(InvHandle& port);
+        HRESULT Connect(InvalidHandle& port);
 
-        HRESULT GetRecords(const InvHandle& port, AlignedBuffer& records);
+        HRESULT GetRecords(const InvalidHandle& port, AlignedBuffer& records);
 
     }
 

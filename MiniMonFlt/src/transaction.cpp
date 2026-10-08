@@ -81,17 +81,17 @@ namespace mimo {
         _Use_decl_annotations_
         NTSTATUS HandleNotification(
             const FLT_RELATED_OBJECTS* pFltObjects,
-            PFLT_CONTEXT pContext,
+            PFLT_CONTEXT pTransactionContext,
             ULONG notificationMask
         ) {
             PAGED_CODE();
 
-            const Context* const pCtx = reinterpret_cast<const Context*>(pContext);
+            const Context* const pContext = reinterpret_cast<const Context*>(pTransactionContext);
             records::Entry* const pEntry = records::CreateEntry();
 
             if (!pEntry) return STATUS_SUCCESS;
 
-            trace::capture::PopulateTransactionEventRecordData(&pEntry->record.data, pFltObjects, notificationMask, pCtx->sequence);
+            trace::capture::PopulateTransactionEventRecordData(&pEntry->record.data, pFltObjects, notificationMask, pContext->sequence);
             records::Append(pEntry);
 
             return STATUS_SUCCESS;

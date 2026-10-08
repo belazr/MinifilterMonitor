@@ -92,10 +92,10 @@ namespace {
         std::wstring result;
 
         for (uint32_t i = 0u; i < count; i++) {
-            const std::wstring_view modName = text::Extract(data.stackTrace[i].moduleName);
+            const std::wstring_view moduleName = text::Extract(data.stackTrace[i].moduleName);
 
-            if (!modName.empty()) {
-                result.append(modName);
+            if (!moduleName.empty()) {
+                result.append(moduleName);
                 result.push_back(L'+');
             }
 

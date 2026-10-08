@@ -67,7 +67,7 @@ namespace {
     };
 
     std::optional<Parameters> ParseParameters(int argc, wchar_t* argv[]) {
-        Parameters params{};
+        Parameters parameters{};
 
         for (int i = 0; i < argc; i++) {
             const std::wstring_view arg = argv[i];
@@ -77,9 +77,9 @@ namespace {
 
                 if (std::ranges::equal(arg, flag.name, [](wchar_t left, wchar_t right) { return std::towlower(left) == std::towlower(right); })) {
 
-                    if (params.*(flag.member)) return std::nullopt;
+                    if (parameters.*(flag.member)) return std::nullopt;
 
-                    params.*(flag.member) = true;
+                    parameters.*(flag.member) = true;
                     matched = true;
 
                     break;
@@ -93,12 +93,12 @@ namespace {
 
                 if (std::ranges::equal(arg, option.name, [](wchar_t left, wchar_t right) { return std::towlower(left) == std::towlower(right); })) {
 
-                    if ((params.*(option.member)).has_value()) return std::nullopt;
+                    if ((parameters.*(option.member)).has_value()) return std::nullopt;
 
                     if (i + 1 >= argc) return std::nullopt;
 
                     i++;
-                    params.*(option.member) = argv[i];
+                    parameters.*(option.member) = argv[i];
                     matched = true;
 
                     break;
@@ -111,26 +111,26 @@ namespace {
             return std::nullopt;
         }
 
-        return params;
+        return parameters;
     }
 
 
-    bool ValidateParameters(const Parameters& params) {
+    bool ValidateParameters(const Parameters& parameters) {
         int actions = 0;
 
-        if (params.unload) actions++;
+        if (parameters.unload) actions++;
 
-        if (params.attach.has_value()) actions++;
+        if (parameters.attach.has_value()) actions++;
 
-        if (params.attachAll.has_value()) actions++;
+        if (parameters.attachAll.has_value()) actions++;
 
-        const bool capture = params.file.has_value() || params.split;
+        const bool capture = parameters.file.has_value() || parameters.split;
 
         if (actions > 1) return false;
 
         if (actions > 0 && capture) return false;
 
-        if (params.split && !params.file.has_value()) return false;
+        if (parameters.split && !parameters.file.has_value()) return false;
 
         return true;
     }
@@ -169,11 +169,11 @@ namespace {
     }
 
 
-    int ReportResult(HRESULT hRes, std::string_view errorMsg) {
+    int ReportResult(HRESULT hRes, std::string_view errorMessage) {
 
         if (SUCCEEDED(hRes)) return EXIT_SUCCESS;
 
-        std::cerr << errorMsg << "\n";
+        std::cerr << errorMessage << "\n";
         DisplayError(hRes);
 
         return EXIT_FAILURE;
@@ -192,19 +192,19 @@ namespace {
 
         if (parent.empty()) return true;
 
-        std::error_code ec;
+        std::error_code errorCode;
 
-        return std::filesystem::is_directory(parent, ec);
+        return std::filesystem::is_directory(parent, errorCode);
     }
 
 
-    std::unique_ptr<Sink> MakeSink(const Parameters& params) {
+    std::unique_ptr<Sink> MakeSink(const Parameters& parameters) {
 
-        if (!params.file.has_value()) return std::make_unique<ConsoleSink>(std::cout, trace::format::GetHeader());
+        if (!parameters.file.has_value()) return std::make_unique<ConsoleSink>(std::cout, trace::format::GetHeader());
 
-        if (!DoesParentDirectoryExist(*params.file)) return nullptr;
+        if (!DoesParentDirectoryExist(*parameters.file)) return nullptr;
 
-        return std::make_unique<FileSink>(*params.file, params.split, trace::format::GetHeader());
+        return std::make_unique<FileSink>(*parameters.file, parameters.split, trace::format::GetHeader());
     }
 
 
@@ -235,7 +235,7 @@ namespace {
     }
 
 
-    bool CaptureLoop(const InvHandle& port, Sink& sink) {
+    bool CaptureLoop(const InvalidHandle& port, Sink& sink) {
         constexpr uint32_t BUFFER_SIZE = 1000u * sizeof(protocol::Record);
         constexpr DWORD POLL_INTERVAL_MS = 200u;
 
@@ -297,16 +297,16 @@ namespace {
 int wmain(int argc, wchar_t* argv[]) {
     ConfigureOutputEncoding();
 
-    const std::optional<Parameters> params = ParseParameters(argc - 1, &argv[1u]);
+    const std::optional<Parameters> parameters = ParseParameters(argc - 1, &argv[1u]);
 
-    if (!params.has_value() || !ValidateParameters(*params)) {
+    if (!parameters.has_value() || !ValidateParameters(*parameters)) {
         PrintUsage();
 
         return EXIT_FAILURE;
     }
 
-    if (params->attach.has_value()) {
-        const HRESULT hRes = filter::Attach(*params->attach);
+    if (parameters->attach.has_value()) {
+        const HRESULT hRes = filter::Attach(*parameters->attach);
         const int result = ReportResult(hRes, "Failed to attach to volume");
 
         if (hRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED)) {
@@ -316,8 +316,8 @@ int wmain(int argc, wchar_t* argv[]) {
         return result;
     }
 
-    if (params->attachAll.has_value()) {
-        const HRESULT hRes = filter::AttachAll(*params->attachAll);
+    if (parameters->attachAll.has_value()) {
+        const HRESULT hRes = filter::AttachAll(*parameters->attachAll);
         const int result = ReportResult(hRes, "Failed to attach all installed instances to volume");
 
         if (hRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED)) {
@@ -327,7 +327,7 @@ int wmain(int argc, wchar_t* argv[]) {
         return result;
     }
 
-    if (params->unload) {
+    if (parameters->unload) {
         const HRESULT hRes = filter::Unload();
         const int result = ReportResult(hRes, "Failed to unload driver");
 
@@ -338,14 +338,14 @@ int wmain(int argc, wchar_t* argv[]) {
         return result;
     }
 
-    const std::unique_ptr<Sink> sink = MakeSink(*params);
+    const std::unique_ptr<Sink> sink = MakeSink(*parameters);
 
     if (!sink) {
 
         return ReportResult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), "Failed to open output file");
     }
 
-    InvHandle port;
+    InvalidHandle port;
     const HRESULT hRes = filter::Connect(port);
 
     if (FAILED(hRes)) {

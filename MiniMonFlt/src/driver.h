@@ -10,7 +10,7 @@ namespace mimo {
             ULONG altitude;
         };
 
-        inline constexpr ULONG MEM_TAG = 'oMiM';
+        inline constexpr ULONG POOL_TAG = 'oMiM';
 
         extern PFLT_FILTER pFilter;
 

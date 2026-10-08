@@ -33,7 +33,7 @@ namespace {
     ) {
         FLT_ASSERT(pName);
 
-        ModuleEntry* const pNewEntry = reinterpret_cast<ModuleEntry*>(ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(ModuleEntry), driver::MEM_TAG));
+        ModuleEntry* const pNewEntry = reinterpret_cast<ModuleEntry*>(ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(ModuleEntry), driver::POOL_TAG));
 
         if (!pNewEntry) return;
 
@@ -72,7 +72,7 @@ namespace {
         KeReleaseSpinLock(&ModuleListLock, oldIrql);
 
         if (duplicate) {
-            ExFreePoolWithTag(pNewEntry, driver::MEM_TAG);
+            ExFreePoolWithTag(pNewEntry, driver::POOL_TAG);
         }
 
         return;
@@ -115,16 +115,16 @@ namespace {
         _Out_writes_z_(STACK_FRAME_NAME_WCHAR_COUNT) WCHAR* pNameBuffer,
         _Out_ ULONGLONG* pOffset
     ) {
-        const ULONG_PTR addressVal = reinterpret_cast<ULONG_PTR>(pAddress);
+        const ULONG_PTR address = reinterpret_cast<ULONG_PTR>(pAddress);
         bool found = false;
 
         for (LIST_ENTRY* pListEntry = ModuleList.Flink; pListEntry != &ModuleList; pListEntry = pListEntry->Flink) {
             const ModuleEntry* const pEntry = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
-            const ULONG_PTR baseVal = reinterpret_cast<ULONG_PTR>(pEntry->pBase);
+            const ULONG_PTR base = reinterpret_cast<ULONG_PTR>(pEntry->pBase);
 
-            if (addressVal < baseVal) continue;
+            if (address < base) continue;
 
-            const ULONG_PTR offset = addressVal - baseVal;
+            const ULONG_PTR offset = address - base;
 
             if (offset >= pEntry->size) continue;
 
@@ -145,7 +145,7 @@ namespace {
 
         if (!found) {
             pNameBuffer[0u] = L'\0';
-            *pOffset = addressVal;
+            *pOffset = address;
         }
 
         return;
@@ -202,7 +202,7 @@ namespace mimo {
 
                 if (!NT_SUCCESS(status) || !bufferSize) goto done;
 
-                pModules = reinterpret_cast<AUX_MODULE_EXTENDED_INFO*>(ExAllocatePool2(POOL_FLAG_PAGED, bufferSize, driver::MEM_TAG));
+                pModules = reinterpret_cast<AUX_MODULE_EXTENDED_INFO*>(ExAllocatePool2(POOL_FLAG_PAGED, bufferSize, driver::POOL_TAG));
 
                 if (!pModules) {
                     status = STATUS_INSUFFICIENT_RESOURCES;
@@ -245,7 +245,7 @@ namespace mimo {
             done:
 
                 if (pModules) {
-                    ExFreePoolWithTag(pModules, driver::MEM_TAG);
+                    ExFreePoolWithTag(pModules, driver::POOL_TAG);
                 }
 
                 if (!NT_SUCCESS(status) && ImageNotifyRegistered) {
@@ -273,7 +273,7 @@ namespace mimo {
                     LIST_ENTRY* const pListEntry = RemoveHeadList(&ModuleList);
                     KeReleaseSpinLock(&ModuleListLock, oldIrql);
                     ModuleEntry* const pEntry = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
-                    ExFreePoolWithTag(pEntry, driver::MEM_TAG);
+                    ExFreePoolWithTag(pEntry, driver::POOL_TAG);
                     KeAcquireSpinLock(&ModuleListLock, &oldIrql);
                 }
 
