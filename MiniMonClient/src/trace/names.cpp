@@ -372,9 +372,9 @@ namespace {
 
     constexpr const wchar_t* CONTROL_ACCESS_NAMES[]{ L"FILE_ANY_ACCESS", L"FILE_READ_ACCESS", L"FILE_WRITE_ACCESS", L"FILE_READ_ACCESS|FILE_WRITE_ACCESS" };
 
-    std::wstring RenderControlCode(uint32_t controlCode) {
+    std::wstring RenderControlCode(uint32_t code) {
 
-        return std::format(L"0x{:X} (Device: {}, Function: {}, Method: {}, Access: {})", controlCode, trace::names::RenderDeviceType(controlCode >> 16), (controlCode >> 2) & 0xFFFu, CONTROL_METHOD_NAMES[controlCode & 3u], CONTROL_ACCESS_NAMES[(controlCode >> 14) & 3u]);
+        return std::format(L"0x{:X} (Device: {}, Function: {}, Method: {}, Access: {})", code, trace::names::RenderDeviceType(code >> 16), (code >> 2) & 0xFFFu, CONTROL_METHOD_NAMES[code & 3u], CONTROL_ACCESS_NAMES[(code >> 14) & 3u]);
     }
 
 
@@ -953,49 +953,49 @@ namespace mimo {
             }
 
 
-            std::wstring RenderDesiredAccess(uint32_t desiredAccess) {
+            std::wstring RenderDesiredAccess(uint32_t access) {
 
-                return RenderFlags(desiredAccess, DESIRED_ACCESS_NAMES, L"|");
+                return RenderFlags(access, DESIRED_ACCESS_NAMES, L"|");
             }
 
 
-            std::wstring RenderCreateOptions(uint32_t createOptions) {
+            std::wstring RenderCreateOptions(uint32_t options) {
 
-                return RenderFlags(createOptions, CREATE_OPTION_NAMES, L"|");
+                return RenderFlags(options, CREATE_OPTION_NAMES, L"|");
             }
 
 
-            std::wstring RenderShareAccess(uint32_t shareAccess) {
+            std::wstring RenderShareAccess(uint32_t access) {
 
-                if (!shareAccess) return L"None";
+                if (!access) return L"None";
 
-                return RenderFlags(shareAccess, SHARE_ACCESS_NAMES, L"|");
+                return RenderFlags(access, SHARE_ACCESS_NAMES, L"|");
             }
 
 
-            std::wstring RenderFileAttributes(uint32_t fileAttributes) {
+            std::wstring RenderFileAttributes(uint32_t attributes) {
 
-                if (!fileAttributes) return L"n/a";
+                if (!attributes) return L"n/a";
 
-                return RenderFlags(fileAttributes, FILE_ATTRIBUTE_LETTERS, L"");
+                return RenderFlags(attributes, FILE_ATTRIBUTE_LETTERS, L"");
             }
 
 
-            std::wstring RenderCreateFlags(uint8_t operationFlags) {
+            std::wstring RenderCreateFlags(uint8_t flags) {
 
-                return RenderFlags(operationFlags, CREATE_FLAG_NAMES, L"|");
+                return RenderFlags(flags, CREATE_FLAG_NAMES, L"|");
             }
 
 
-            std::wstring RenderIrpFlags(uint32_t irpFlags) {
+            std::wstring RenderIrpFlags(uint32_t flags) {
 
-                return RenderFlags(irpFlags, IRP_FLAG_NAMES, L"|");
+                return RenderFlags(flags, IRP_FLAG_NAMES, L"|");
             }
 
 
-            std::wstring RenderReadWriteFlags(uint8_t operationFlags) {
+            std::wstring RenderReadWriteFlags(uint8_t flags) {
 
-                return RenderFlags(operationFlags, READ_WRITE_FLAG_NAMES, L"|");
+                return RenderFlags(flags, READ_WRITE_FLAG_NAMES, L"|");
             }
 
 
@@ -1091,9 +1091,9 @@ namespace mimo {
             }
 
 
-            std::wstring RenderInformationFlags(uint32_t fileInformationClass, uint8_t operationFlags) {
+            std::wstring RenderInformationFlags(uint32_t infoClass, uint8_t flags) {
 
-                switch (fileInformationClass) {
+                switch (infoClass) {
 
                     case kernel::FileRenameInformation:
                     case kernel::FileLinkInformation:
@@ -1104,16 +1104,16 @@ namespace mimo {
                     case kernel::FileLinkInformationEx:
                     case kernel::FileLinkInformationExBypassAccessCheck:
 
-                        return RenderFlags(operationFlags, RENAME_INFORMATION_FLAG_NAMES, L"|");
+                        return RenderFlags(flags, RENAME_INFORMATION_FLAG_NAMES, L"|");
 
                     case kernel::FileCaseSensitiveInformation:
                     case kernel::FileCaseSensitiveInformationForceAccessCheck:
 
-                        return RenderFlags(operationFlags, CASE_SENSITIVE_INFORMATION_FLAG_NAMES, L"|");
+                        return RenderFlags(flags, CASE_SENSITIVE_INFORMATION_FLAG_NAMES, L"|");
 
                 }
 
-                return RenderFlags(operationFlags, INFORMATION_FLAG_NAMES, L"|");
+                return RenderFlags(flags, INFORMATION_FLAG_NAMES, L"|");
             }
 
 
@@ -1161,15 +1161,15 @@ namespace mimo {
             }
 
 
-            std::wstring RenderStorageTierClass(uint32_t storageTierClass) {
+            std::wstring RenderStorageTierClass(uint32_t tier) {
 
-                switch (storageTierClass) {
+                switch (tier) {
                     case FileStorageTierClassUnspecified: return L"FileStorageTierClassUnspecified";
                     case FileStorageTierClassCapacity:    return L"FileStorageTierClassCapacity";
                     case FileStorageTierClassPerformance: return L"FileStorageTierClassPerformance";
                 }
 
-                return std::format(L"0x{:X}", storageTierClass);
+                return std::format(L"0x{:X}", tier);
             }
 
 
@@ -1181,16 +1181,16 @@ namespace mimo {
             }
 
 
-            std::wstring RenderStorageReserveId(uint32_t storageReserveId) {
+            std::wstring RenderStorageReserveId(uint32_t id) {
 
-                switch (storageReserveId) {
+                switch (id) {
                     case StorageReserveIdNone:          return L"StorageReserveIdNone";
                     case StorageReserveIdHard:          return L"StorageReserveIdHard";
                     case StorageReserveIdSoft:          return L"StorageReserveIdSoft";
                     case StorageReserveIdUpdateScratch: return L"StorageReserveIdUpdateScratch";
                 }
 
-                return std::format(L"0x{:X}", storageReserveId);
+                return std::format(L"0x{:X}", id);
             }
 
 
@@ -1217,15 +1217,15 @@ namespace mimo {
             }
 
 
-            std::wstring RenderScanFlags(uint8_t operationFlags) {
+            std::wstring RenderScanFlags(uint8_t flags) {
 
-                return RenderFlags(operationFlags, SCAN_FLAG_NAMES, L"|");
+                return RenderFlags(flags, SCAN_FLAG_NAMES, L"|");
             }
 
 
-            std::wstring RenderFlushFlags(uint8_t operationFlags) {
+            std::wstring RenderFlushFlags(uint8_t flags) {
 
-                return RenderFlags(operationFlags, FLUSH_FLAG_NAMES, L"|");
+                return RenderFlags(flags, FLUSH_FLAG_NAMES, L"|");
             }
 
 
@@ -1253,43 +1253,43 @@ namespace mimo {
             }
 
 
-            std::wstring RenderFileSystemAttributes(uint32_t fileSystemAttributes) {
+            std::wstring RenderFileSystemAttributes(uint32_t attributes) {
 
-                if (!fileSystemAttributes) return L"None";
+                if (!attributes) return L"None";
 
-                return RenderFlags(fileSystemAttributes, FILE_SYSTEM_ATTRIBUTE_NAMES, L"|");
+                return RenderFlags(attributes, FILE_SYSTEM_ATTRIBUTE_NAMES, L"|");
             }
 
 
-            std::wstring RenderFileSystemControlFlags(uint32_t fileSystemControlFlags) {
+            std::wstring RenderFileSystemControlFlags(uint32_t flags) {
 
-                if (!fileSystemControlFlags) return L"None";
+                if (!flags) return L"None";
 
-                return RenderFlags(fileSystemControlFlags, FILE_SYSTEM_CONTROL_FLAG_NAMES, L"|");
+                return RenderFlags(flags, FILE_SYSTEM_CONTROL_FLAG_NAMES, L"|");
             }
 
 
-            std::wstring RenderNotifyFlags(uint8_t operationFlags) {
+            std::wstring RenderNotifyFlags(uint8_t flags) {
 
-                return RenderFlags(operationFlags, NOTIFY_FLAG_NAMES, L"|");
+                return RenderFlags(flags, NOTIFY_FLAG_NAMES, L"|");
             }
 
 
-            std::wstring RenderCompletionFilter(uint32_t completionFilter) {
+            std::wstring RenderCompletionFilter(uint32_t filter) {
 
-                return RenderFlags(completionFilter, COMPLETION_FILTER_NAMES, L"|");
+                return RenderFlags(filter, COMPLETION_FILTER_NAMES, L"|");
             }
 
 
-            std::wstring RenderDirectoryNotifyInformationClass(uint32_t directoryNotifyInformationClass) {
+            std::wstring RenderDirectoryNotifyInformationClass(uint32_t infoClass) {
 
-                switch (directoryNotifyInformationClass) {
+                switch (infoClass) {
                     case kernel::DirectoryNotifyInformation:         return L"DirectoryNotifyInformation";
                     case kernel::DirectoryNotifyExtendedInformation: return L"DirectoryNotifyExtendedInformation";
                     case kernel::DirectoryNotifyFullInformation:     return L"DirectoryNotifyFullInformation";
                 }
 
-                return std::to_wstring(directoryNotifyInformationClass);
+                return std::to_wstring(infoClass);
             }
 
 
@@ -1313,9 +1313,9 @@ namespace mimo {
             }
 
 
-            std::wstring RenderVerifyVolumeFlags(uint8_t operationFlags) {
+            std::wstring RenderVerifyVolumeFlags(uint8_t flags) {
 
-                return RenderFlags(operationFlags, VERIFY_VOLUME_FLAG_NAMES, L"|");
+                return RenderFlags(flags, VERIFY_VOLUME_FLAG_NAMES, L"|");
             }
 
 
@@ -1921,17 +1921,17 @@ namespace mimo {
             }
 
 
-            std::wstring RenderMarkHandleInfo(uint32_t handleInfo) {
+            std::wstring RenderMarkHandleInfo(uint32_t info) {
 
-                if (!handleInfo) return L"None";
+                if (!info) return L"None";
 
-                return RenderFlags(handleInfo, MARK_HANDLE_NAMES, L"|");
+                return RenderFlags(info, MARK_HANDLE_NAMES, L"|");
             }
 
 
-            std::wstring RenderUsnSourceInfo(uint32_t usnSourceInfo) {
+            std::wstring RenderUsnSourceInfo(uint32_t info) {
 
-                return RenderFlags(usnSourceInfo, USN_SOURCE_NAMES, L"|");
+                return RenderFlags(info, USN_SOURCE_NAMES, L"|");
             }
 
 
@@ -1943,27 +1943,27 @@ namespace mimo {
             }
 
 
-            std::wstring RenderTxfsLoggingMode(uint16_t loggingMode) {
+            std::wstring RenderTxfsLoggingMode(uint16_t mode) {
 
-                switch (loggingMode) {
+                switch (mode) {
                     case TXFS_LOGGING_MODE_SIMPLE: return L"TXFS_LOGGING_MODE_SIMPLE";
                     case TXFS_LOGGING_MODE_FULL:   return L"TXFS_LOGGING_MODE_FULL";
                 }
 
-                return std::format(L"0x{:X}", loggingMode);
+                return std::format(L"0x{:X}", mode);
             }
 
 
-            std::wstring RenderTxfsRmState(uint32_t rmState) {
+            std::wstring RenderTxfsRmState(uint32_t state) {
 
-                switch (rmState) {
+                switch (state) {
                     case TXFS_RM_STATE_NOT_STARTED:   return L"TXFS_RM_STATE_NOT_STARTED";
                     case TXFS_RM_STATE_STARTING:      return L"TXFS_RM_STATE_STARTING";
                     case TXFS_RM_STATE_ACTIVE:        return L"TXFS_RM_STATE_ACTIVE";
                     case TXFS_RM_STATE_SHUTTING_DOWN: return L"TXFS_RM_STATE_SHUTTING_DOWN";
                 }
 
-                return std::format(L"0x{:X}", rmState);
+                return std::format(L"0x{:X}", state);
             }
 
 
@@ -1975,9 +1975,9 @@ namespace mimo {
             }
 
 
-            std::wstring RenderDeviceIoFlags(uint8_t operationFlags) {
+            std::wstring RenderDeviceIoFlags(uint8_t flags) {
 
-                return RenderFlags(operationFlags, DEVICE_IO_FLAG_NAMES, L"|");
+                return RenderFlags(flags, DEVICE_IO_FLAG_NAMES, L"|");
             }
 
 
@@ -2030,15 +2030,15 @@ namespace mimo {
             }
 
 
-            std::wstring RenderStorageQueryType(uint32_t queryType) {
+            std::wstring RenderStorageQueryType(uint32_t type) {
 
-                switch (queryType) {
+                switch (type) {
                     case PropertyStandardQuery: return L"PropertyStandardQuery";
                     case PropertyExistsQuery:   return L"PropertyExistsQuery";
                     case PropertyMaskQuery:     return L"PropertyMaskQuery";
                 }
 
-                return std::to_wstring(queryType);
+                return std::to_wstring(type);
             }
 
 
@@ -2077,15 +2077,15 @@ namespace mimo {
             }
 
 
-            std::wstring RenderPartitionStyle(uint32_t partitionStyle) {
+            std::wstring RenderPartitionStyle(uint32_t style) {
 
-                switch (partitionStyle) {
+                switch (style) {
                     case PARTITION_STYLE_MBR: return L"MBR";
                     case PARTITION_STYLE_GPT: return L"GPT";
                     case PARTITION_STYLE_RAW: return L"RAW";
                 }
 
-                return std::format(L"0x{:X}", partitionStyle);
+                return std::format(L"0x{:X}", style);
             }
 
 
@@ -2105,11 +2105,11 @@ namespace mimo {
             }
 
 
-            std::wstring RenderSecurityInformation(uint32_t securityInformation) {
+            std::wstring RenderSecurityInformation(uint32_t information) {
 
-                if (!securityInformation) return L"None";
+                if (!information) return L"None";
 
-                return RenderFlags(securityInformation, SECURITY_INFORMATION_NAMES, L"|");
+                return RenderFlags(information, SECURITY_INFORMATION_NAMES, L"|");
             }
 
 
@@ -2146,20 +2146,20 @@ namespace mimo {
             }
 
 
-            std::wstring RenderSectionSyncType(uint32_t syncType) {
+            std::wstring RenderSectionSyncType(uint32_t type) {
 
-                switch (syncType) {
+                switch (type) {
                     case kernel::SyncTypeOther:         return L"SyncTypeOther";
                     case kernel::SyncTypeCreateSection: return L"SyncTypeCreateSection";
                 }
 
-                return std::to_wstring(syncType);
+                return std::to_wstring(type);
             }
 
 
-            std::wstring RenderPageProtection(uint32_t pageProtection) {
+            std::wstring RenderPageProtection(uint32_t protection) {
 
-                return RenderFlags(pageProtection, PAGE_PROTECTION_NAMES, L"|");
+                return RenderFlags(protection, PAGE_PROTECTION_NAMES, L"|");
             }
 
 
@@ -2169,9 +2169,9 @@ namespace mimo {
             }
 
 
-            std::wstring RenderAllocationAttributes(uint32_t allocationAttributes) {
+            std::wstring RenderAllocationAttributes(uint32_t attributes) {
 
-                return RenderFlags(allocationAttributes, ALLOCATION_ATTRIBUTE_NAMES, L"|");
+                return RenderFlags(attributes, ALLOCATION_ATTRIBUTE_NAMES, L"|");
             }
 
 

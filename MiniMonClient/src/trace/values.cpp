@@ -60,35 +60,35 @@ namespace mimo {
             }
 
 
-            std::wstring RenderByteOffset(int64_t byteOffset) {
+            std::wstring RenderByteOffset(int64_t offset) {
 
-                if (byteOffset == kernel::FILE_WRITE_TO_END_OF_FILE) return L"EOF";
+                if (offset == kernel::FILE_WRITE_TO_END_OF_FILE) return L"EOF";
 
-                if (byteOffset == kernel::FILE_USE_FILE_POINTER_POSITION) return L"Current";
+                if (offset == kernel::FILE_USE_FILE_POINTER_POSITION) return L"Current";
 
-                return std::to_wstring(byteOffset);
+                return std::to_wstring(offset);
             }
 
 
-            std::wstring RenderPartitionNumber(uint32_t partitionNumber) {
+            std::wstring RenderPartitionNumber(uint32_t number) {
 
-                if (partitionNumber == kernel::STORAGE_DEVICE_NUMBER_NO_PARTITION) return L"n/a";
+                if (number == kernel::STORAGE_DEVICE_NUMBER_NO_PARTITION) return L"n/a";
 
-                return std::to_wstring(partitionNumber);
+                return std::to_wstring(number);
             }
 
 
-            std::wstring RenderObjectId(uint64_t objectId) {
+            std::wstring RenderObjectId(uint64_t id) {
 
-                if (!objectId) return {};
+                if (!id) return {};
 
-                return std::format(L"{:016X}", objectId);
+                return std::format(L"{:016X}", id);
             }
 
 
-            std::wstring RenderTopLevelIrp(uint64_t topLevelIrp) {
+            std::wstring RenderTopLevelIrp(uint64_t irp) {
 
-                switch (topLevelIrp) {
+                switch (irp) {
                     case kernel::FSRTL_FSP_TOP_LEVEL_IRP:               return L"FSP";
                     case kernel::FSRTL_CACHE_TOP_LEVEL_IRP:             return L"CACHE";
                     case kernel::FSRTL_MOD_WRITE_TOP_LEVEL_IRP:         return L"MOD_WRITE";
@@ -99,22 +99,22 @@ namespace mimo {
                     case kernel::FSRTL_VOLSNAP_TOP_LEVEL_IRP:           return L"VOLSNAP";
                 }
 
-                return RenderObjectId(topLevelIrp);
+                return RenderObjectId(irp);
             }
 
 
-            std::wstring RenderFileId(uint64_t fileId) {
+            std::wstring RenderFileId(uint64_t id) {
 
-                return std::format(L"0x{:X}", fileId);
+                return std::format(L"0x{:X}", id);
             }
 
 
-            std::wstring RenderFileId(std::span<const uint8_t, 16u> fileId) {
+            std::wstring RenderFileId(std::span<const uint8_t, 16u> id) {
                 uint64_t low = 0u;
                 uint64_t high = 0u;
 
-                std::memcpy(&low, fileId.data(), sizeof(low));
-                std::memcpy(&high, fileId.data() + sizeof(low), sizeof(high));
+                std::memcpy(&low, id.data(), sizeof(low));
+                std::memcpy(&high, id.data() + sizeof(low), sizeof(high));
 
                 if (!high) return RenderFileId(low);
 
@@ -136,13 +136,13 @@ namespace mimo {
             }
 
 
-            std::wstring RenderOperationTime(int64_t operationTime) {
+            std::wstring RenderOperationTime(int64_t time) {
                 constexpr uint64_t TICKS_PER_SECOND = 10000000u;
-                const std::optional<SYSTEMTIME> localTime = MakeLocalTime(operationTime);
+                const std::optional<SYSTEMTIME> localTime = MakeLocalTime(time);
 
                 if (!localTime.has_value()) return L"[invalid time]";
 
-                const uint64_t ticks = static_cast<uint64_t>(operationTime);
+                const uint64_t ticks = static_cast<uint64_t>(time);
                 const uint32_t subSecond = static_cast<uint32_t>(ticks % TICKS_PER_SECOND);
 
                 return std::format(L"{:02}:{:02}:{:02}.{:07}", localTime->wHour, localTime->wMinute, localTime->wSecond, subSecond);

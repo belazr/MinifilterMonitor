@@ -32,9 +32,9 @@ namespace {
     }
 
 
-    std::wstring RenderCompressionPayload(uint16_t compressionFormat) {
+    std::wstring RenderCompressionPayload(uint16_t format) {
 
-        return std::format(L"CompressionFormat: {}", trace::names::RenderCompressionFormat(compressionFormat));
+        return std::format(L"CompressionFormat: {}", trace::names::RenderCompressionFormat(format));
     }
 
 

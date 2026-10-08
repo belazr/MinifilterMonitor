@@ -57,7 +57,7 @@ namespace {
     }
 
 
-    HRESULT Load() {
+    HRESULT LoadFilter() {
         const HRESULT hPrivilegeRes = EnableLoadDriverPrivilege();
 
         if (FAILED(hPrivilegeRes)) return hPrivilegeRes;
@@ -116,7 +116,7 @@ namespace mimo {
     namespace filter {
 
         HRESULT Attach(const std::wstring& volumeName) {
-            const HRESULT hLoadRes = Load();
+            const HRESULT hLoadRes = LoadFilter();
 
             if (FAILED(hLoadRes)) return hLoadRes;
 
@@ -125,7 +125,7 @@ namespace mimo {
 
 
         HRESULT AttachAll(const std::wstring& volumeName) {
-            const HRESULT hLoadRes = Load();
+            const HRESULT hLoadRes = LoadFilter();
 
             if (FAILED(hLoadRes)) return hLoadRes;
 

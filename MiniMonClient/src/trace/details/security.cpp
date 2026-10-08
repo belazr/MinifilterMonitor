@@ -24,14 +24,14 @@ namespace {
     }
 
 
-    std::wstring RenderDescriptorPayload(std::span<const uint8_t> payload, uint32_t securityInformation) {
+    std::wstring RenderDescriptorPayload(std::span<const uint8_t> payload, uint32_t information) {
 
         if (payload.empty()) return {};
 
         const PSECURITY_DESCRIPTOR pSecurityDescriptor = const_cast<uint8_t*>(payload.data());
         wchar_t* pText = nullptr;
 
-        if (!ConvertSecurityDescriptorToStringSecurityDescriptorW(pSecurityDescriptor, SDDL_REVISION_1, static_cast<DWORD>(securityInformation), &pText, nullptr)) return L"Descriptor: [invalid descriptor]";
+        if (!ConvertSecurityDescriptorToStringSecurityDescriptorW(pSecurityDescriptor, SDDL_REVISION_1, static_cast<DWORD>(information), &pText, nullptr)) return L"Descriptor: [invalid descriptor]";
 
         const std::wstring descriptor = *pText ? std::format(L"Descriptor: {}", pText) : L"Descriptor: [no matching components]";
         LocalFree(pText);

@@ -21,9 +21,9 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderQueryParameters(uint32_t fileInformationClass, uint32_t size) {
+    std::wstring RenderQueryParameters(uint32_t infoClass, uint32_t size) {
 
-        return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(fileInformationClass), size);
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(infoClass), size);
     }
 
 
@@ -256,9 +256,9 @@ namespace {
     }
 
 
-    std::wstring RenderNotifyExParameters(uint32_t directoryNotifyInformationClass, uint32_t size) {
+    std::wstring RenderNotifyExParameters(uint32_t infoClass, uint32_t size) {
 
-        return std::format(L"Class: {}, Length: {}", trace::names::RenderDirectoryNotifyInformationClass(directoryNotifyInformationClass), size);
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderDirectoryNotifyInformationClass(infoClass), size);
     }
 
 

@@ -215,7 +215,7 @@ namespace {
     }
 
 
-    std::atomic<bool> stop{ false };
+    std::atomic<bool> stopRequested{ false };
 
     BOOL WINAPI CtrlHandler(DWORD ctrlType) {
 
@@ -226,7 +226,7 @@ namespace {
             case CTRL_CLOSE_EVENT:
             case CTRL_LOGOFF_EVENT:
             case CTRL_SHUTDOWN_EVENT:
-                stop.store(true, std::memory_order_relaxed);
+                stopRequested.store(true, std::memory_order_relaxed);
 
                 return TRUE;
         }
@@ -242,7 +242,7 @@ namespace {
         AlignedBuffer buffer{ BUFFER_SIZE };
         uint32_t droppedReported = 0u;
 
-        while (!stop.load(std::memory_order_relaxed)) {
+        while (!stopRequested.load(std::memory_order_relaxed)) {
             buffer.Resize(BUFFER_SIZE);
             const HRESULT hRes = filter::GetRecords(port, buffer);
 
