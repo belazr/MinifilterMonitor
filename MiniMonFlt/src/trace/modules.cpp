@@ -170,7 +170,7 @@ namespace mimo {
 
 
             __declspec(code_seg("INIT"))
-            NTSTATUS Init() {
+            NTSTATUS Start() {
                 NTSTATUS status = STATUS_SUCCESS;
                 ULONG bufferSize = 0u;
                 AUX_MODULE_EXTENDED_INFO* pModules = nullptr;

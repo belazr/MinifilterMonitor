@@ -273,7 +273,7 @@ extern "C" NTSTATUS DriverEntry(DRIVER_OBJECT* pDriverObject, UNICODE_STRING* pR
 
     if (!NT_SUCCESS(status)) goto done;
 
-    status = trace::modules::Init();
+    status = trace::modules::Start();
 
     if (!NT_SUCCESS(status)) goto done;
 

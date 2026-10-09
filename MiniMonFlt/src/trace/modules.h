@@ -14,7 +14,7 @@ namespace mimo {
             void Create();
 
             __declspec(code_seg("INIT"))
-            NTSTATUS Init();
+            NTSTATUS Start();
 
             void Delete();
 
