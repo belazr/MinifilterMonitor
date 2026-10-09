@@ -32,7 +32,7 @@ namespace mimo {
 
             InitializeObjectAttributes(&objectAttributes, &portName, OBJ_KERNEL_HANDLE | OBJ_CASE_INSENSITIVE, nullptr, pSecurityDescriptor);
 
-            status = FltCreateCommunicationPort(pFilter, &pServerPort, &objectAttributes, nullptr, Connect, Disconnect, Message, 1);
+            status = FltCreateCommunicationPort(pFilter, &pServerPort, &objectAttributes, nullptr, ConnectNotify, DisconnectNotify, MessageNotify, 1);
 
         done:
 
@@ -57,7 +57,7 @@ namespace mimo {
 
         __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
-        NTSTATUS Connect(
+        NTSTATUS ConnectNotify(
             PFLT_PORT pNewClientPort,
             void* pServerPortCookie,
             void* pConnectionContext,
@@ -84,7 +84,7 @@ namespace mimo {
 
         __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
-        void Disconnect(void* pConnectionCookie) {
+        void DisconnectNotify(void* pConnectionCookie) {
             PAGED_CODE();
 
             UNREFERENCED_PARAMETER(pConnectionCookie);
@@ -97,7 +97,7 @@ namespace mimo {
 
         __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
-        NTSTATUS Message(
+        NTSTATUS MessageNotify(
             void* pConnectionCookie,
             void* pInputBuffer,
             ULONG inputSize,

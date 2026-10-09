@@ -12,7 +12,7 @@ namespace mimo {
         void Close();
 
         __declspec(code_seg("PAGE"))
-        NTSTATUS Connect(
+        NTSTATUS ConnectNotify(
             _In_ PFLT_PORT pNewClientPort,
             _In_ void* pServerPortCookie,
             _In_reads_bytes_(sizeOfContext) void* pConnectionContext,
@@ -21,10 +21,10 @@ namespace mimo {
         );
 
         __declspec(code_seg("PAGE"))
-        void Disconnect(_In_opt_ void* pConnectionCookie);
+        void DisconnectNotify(_In_opt_ void* pConnectionCookie);
 
         __declspec(code_seg("PAGE"))
-        NTSTATUS Message(
+        NTSTATUS MessageNotify(
             _In_ void* pConnectionCookie,
             _In_reads_bytes_opt_(inputSize) void* pInputBuffer,
             _In_ ULONG inputSize,

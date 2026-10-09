@@ -79,7 +79,7 @@ namespace {
     }
 
 
-    void OnImageLoad(
+    void LoadImageNotifyRoutine(
         _In_opt_ UNICODE_STRING* pFullImageName,
         _In_ HANDLE processId,
         _In_ IMAGE_INFO* pImageInfo
@@ -188,7 +188,7 @@ namespace mimo {
                     goto done;
                 }
 
-                status = PsSetLoadImageNotifyRoutine(OnImageLoad);
+                status = PsSetLoadImageNotifyRoutine(LoadImageNotifyRoutine);
 
                 if (!NT_SUCCESS(status)) goto done;
 
@@ -249,7 +249,7 @@ namespace mimo {
                 }
 
                 if (!NT_SUCCESS(status) && ImageNotifyRegistered) {
-                    PsRemoveLoadImageNotifyRoutine(OnImageLoad);
+                    PsRemoveLoadImageNotifyRoutine(LoadImageNotifyRoutine);
                     ImageNotifyRegistered = false;
                 }
 
@@ -260,7 +260,7 @@ namespace mimo {
             void Delete() {
 
                 if (ImageNotifyRegistered) {
-                    PsRemoveLoadImageNotifyRoutine(OnImageLoad);
+                    PsRemoveLoadImageNotifyRoutine(LoadImageNotifyRoutine);
                     ImageNotifyRegistered = false;
                 }
 

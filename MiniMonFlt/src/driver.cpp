@@ -86,16 +86,16 @@ namespace {
         { IRP_MJ_OPERATION_END }
     };
 
-    NTSTATUS FilterUnload(_In_ FLT_FILTER_UNLOAD_FLAGS flags);
+    NTSTATUS FilterUnloadCallback(_In_ FLT_FILTER_UNLOAD_FLAGS flags);
 
-    NTSTATUS InstanceSetup(
+    NTSTATUS InstanceSetupCallback(
         _In_ const FLT_RELATED_OBJECTS* pFltObjects,
         _In_ FLT_INSTANCE_SETUP_FLAGS flags,
         _In_ DEVICE_TYPE volumeDeviceType,
         _In_ FLT_FILESYSTEM_TYPE volumeFilesystemType
     );
 
-    NTSTATUS QueryTeardown(_In_ const FLT_RELATED_OBJECTS* pFltObjects, _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS flags);
+    NTSTATUS InstanceQueryTeardownCallback(_In_ const FLT_RELATED_OBJECTS* pFltObjects, _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS flags);
 
     constexpr FLT_REGISTRATION FILTER_REGISTRATION{
         .Size                            = sizeof(FLT_REGISTRATION),
@@ -103,15 +103,15 @@ namespace {
         .Flags                           = FLTFL_REGISTRATION_SUPPORT_NPFS_MSFS,
         .ContextRegistration             = CONTEXTS,
         .OperationRegistration           = CALLBACKS,
-        .FilterUnloadCallback            = FilterUnload,
-        .InstanceSetupCallback           = InstanceSetup,
-        .InstanceQueryTeardownCallback   = QueryTeardown,
-        .TransactionNotificationCallback = transaction::HandleNotification,
+        .FilterUnloadCallback            = FilterUnloadCallback,
+        .InstanceSetupCallback           = InstanceSetupCallback,
+        .InstanceQueryTeardownCallback   = InstanceQueryTeardownCallback,
+        .TransactionNotificationCallback = transaction::TransactionNotificationCallback,
     };
 
     __declspec(code_seg("PAGE"))
     _Use_decl_annotations_
-    NTSTATUS FilterUnload(FLT_FILTER_UNLOAD_FLAGS flags) {
+    NTSTATUS FilterUnloadCallback(FLT_FILTER_UNLOAD_FLAGS flags) {
         PAGED_CODE();
 
         UNREFERENCED_PARAMETER(flags);
@@ -191,7 +191,7 @@ namespace {
 
     __declspec(code_seg("PAGE"))
     _Use_decl_annotations_
-    NTSTATUS InstanceSetup(
+    NTSTATUS InstanceSetupCallback(
         const FLT_RELATED_OBJECTS* pFltObjects,
         FLT_INSTANCE_SETUP_FLAGS flags,
         DEVICE_TYPE volumeDeviceType,
@@ -231,7 +231,7 @@ namespace {
 
     __declspec(code_seg("PAGE"))
     _Use_decl_annotations_
-    NTSTATUS QueryTeardown(const FLT_RELATED_OBJECTS* pFltObjects, FLT_INSTANCE_QUERY_TEARDOWN_FLAGS flags) {
+    NTSTATUS InstanceQueryTeardownCallback(const FLT_RELATED_OBJECTS* pFltObjects, FLT_INSTANCE_QUERY_TEARDOWN_FLAGS flags) {
         PAGED_CODE();
 
         UNREFERENCED_PARAMETER(pFltObjects);

@@ -79,7 +79,7 @@ namespace mimo {
 
         __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
-        NTSTATUS HandleNotification(
+        NTSTATUS TransactionNotificationCallback(
             const FLT_RELATED_OBJECTS* pFltObjects,
             PFLT_CONTEXT pTransactionContext,
             ULONG notificationMask
