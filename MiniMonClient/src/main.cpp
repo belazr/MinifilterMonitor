@@ -38,6 +38,12 @@ namespace {
     }
 
 
+    bool IsSameName(std::wstring_view arg, std::wstring_view name) {
+
+        return std::ranges::equal(arg, name, [](wchar_t left, wchar_t right) { return std::towlower(left) == std::towlower(right); });
+    }
+
+
     struct Parameters {
         std::optional<std::wstring> attach;
         std::optional<std::wstring> attachAll;
@@ -76,7 +82,7 @@ namespace {
 
             for (const Flag& flag : FLAG_TABLE) {
 
-                if (std::ranges::equal(arg, flag.name, [](wchar_t left, wchar_t right) { return std::towlower(left) == std::towlower(right); })) {
+                if (IsSameName(arg, flag.name)) {
 
                     if (parameters.*(flag.member)) return std::nullopt;
 
@@ -92,7 +98,7 @@ namespace {
 
             for (const Option& option : OPTION_TABLE) {
 
-                if (std::ranges::equal(arg, option.name, [](wchar_t left, wchar_t right) { return std::towlower(left) == std::towlower(right); })) {
+                if (IsSameName(arg, option.name)) {
 
                     if ((parameters.*(option.member)).has_value()) return std::nullopt;
 
@@ -185,6 +191,17 @@ namespace {
         std::cerr << "This operation requires administrator rights - run from an elevated command prompt.\n";
 
         return;
+    }
+
+
+    int ReportActionResult(HRESULT hRes, std::string_view errorMessage) {
+        const int result = ReportResult(hRes, errorMessage);
+
+        if (hRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED)) {
+            DisplayAdminRightsError();
+        }
+
+        return result;
     }
 
 
@@ -306,38 +323,11 @@ int wmain(int argc, wchar_t* argv[]) {
         return EXIT_FAILURE;
     }
 
-    if (parameters->attach.has_value()) {
-        const HRESULT hRes = filter::Attach(*parameters->attach);
-        const int result = ReportResult(hRes, "Failed to attach to volume");
+    if (parameters->attach.has_value()) return ReportActionResult(filter::Attach(*parameters->attach), "Failed to attach to volume");
 
-        if (hRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED)) {
-            DisplayAdminRightsError();
-        }
+    if (parameters->attachAll.has_value()) return ReportActionResult(filter::AttachAll(*parameters->attachAll), "Failed to attach all installed instances to volume");
 
-        return result;
-    }
-
-    if (parameters->attachAll.has_value()) {
-        const HRESULT hRes = filter::AttachAll(*parameters->attachAll);
-        const int result = ReportResult(hRes, "Failed to attach all installed instances to volume");
-
-        if (hRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED)) {
-            DisplayAdminRightsError();
-        }
-
-        return result;
-    }
-
-    if (parameters->unload) {
-        const HRESULT hRes = filter::Unload();
-        const int result = ReportResult(hRes, "Failed to unload driver");
-
-        if (hRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED)) {
-            DisplayAdminRightsError();
-        }
-
-        return result;
-    }
+    if (parameters->unload) return ReportActionResult(filter::Unload(), "Failed to unload driver");
 
     const std::unique_ptr<Sink> sink = MakeSink(*parameters);
 
