@@ -75,10 +75,7 @@ namespace mimo {
 
             void* const pOldClientPort = InterlockedCompareExchangePointer(reinterpret_cast<void**>(&pClientPort), pNewClientPort, nullptr);
 
-            if (pOldClientPort) {
-
-                return STATUS_DEVICE_BUSY;
-            }
+            if (pOldClientPort) return STATUS_DEVICE_BUSY;
 
             return STATUS_SUCCESS;
         }

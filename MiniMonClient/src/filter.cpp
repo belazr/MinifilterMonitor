@@ -25,34 +25,22 @@ namespace {
     HRESULT EnableLoadDriverPrivilege() {
         NullHandle token{};
 
-        if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, token.Put())) {
-
-            return HRESULT_FROM_WIN32(GetLastError());
-        }
+        if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, token.Put())) return HRESULT_FROM_WIN32(GetLastError());
 
         LUID luid{};
 
-        if (!LookupPrivilegeValueW(nullptr, SE_LOAD_DRIVER_NAME, &luid)) {
-
-            return HRESULT_FROM_WIN32(GetLastError());
-        }
+        if (!LookupPrivilegeValueW(nullptr, SE_LOAD_DRIVER_NAME, &luid)) return HRESULT_FROM_WIN32(GetLastError());
 
         TOKEN_PRIVILEGES privileges{};
         privileges.PrivilegeCount = 1u;
         privileges.Privileges[0u].Luid = luid;
         privileges.Privileges[0u].Attributes = SE_PRIVILEGE_ENABLED;
 
-        if (!AdjustTokenPrivileges(token.Get(), FALSE, &privileges, static_cast<DWORD>(sizeof(privileges)), nullptr, nullptr)) {
-
-            return HRESULT_FROM_WIN32(GetLastError());
-        }
+        if (!AdjustTokenPrivileges(token.Get(), FALSE, &privileges, static_cast<DWORD>(sizeof(privileges)), nullptr, nullptr)) return HRESULT_FROM_WIN32(GetLastError());
 
         // AdjustTokenPrivileges returns TRUE even when it enabled nothing
         // with a single privilege, ERROR_NOT_ALL_ASSIGNED means that privilege isn't held (e.g. not elevated)
-        if (GetLastError() == ERROR_NOT_ALL_ASSIGNED) {
-
-            return HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED);
-        }
+        if (GetLastError() == ERROR_NOT_ALL_ASSIGNED) return HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED);
 
         return S_OK;
     }

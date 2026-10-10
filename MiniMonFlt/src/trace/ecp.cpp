@@ -139,11 +139,17 @@ namespace {
         const WCHAR* states[STATE_COUNT]{};
         ULONG count = 0u;
 
-        if (pContext->OplockBlockState) states[count++] = L"block";
+        if (pContext->OplockBlockState) {
+            states[count++] = L"block";
+        }
 
-        if (pContext->OplockAppState) states[count++] = L"app";
+        if (pContext->OplockAppState) {
+            states[count++] = L"app";
+        }
 
-        if (pContext->OplockFinalState) states[count++] = L"final";
+        if (pContext->OplockFinalState) {
+            states[count++] = L"final";
+        }
 
         AppendText(pWriter, L"state=");
 
@@ -243,7 +249,9 @@ namespace mimo {
 
                     if (FltIsEcpFromUserMode(driver::pFilter, pContext)) continue;
 
-                    if (AppendEcp(&writer, guid, pContext)) recognized++;
+                    if (AppendEcp(&writer, guid, pContext)) {
+                        recognized++;
+                    }
 
                 }
 

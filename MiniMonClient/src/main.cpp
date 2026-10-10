@@ -125,11 +125,17 @@ namespace {
     bool ValidateParameters(const Parameters& parameters) {
         int actions = 0;
 
-        if (parameters.unload) actions++;
+        if (parameters.unload) {
+            actions++;
+        }
 
-        if (parameters.attach.has_value()) actions++;
+        if (parameters.attach.has_value()) {
+            actions++;
+        }
 
-        if (parameters.attachAll.has_value()) actions++;
+        if (parameters.attachAll.has_value()) {
+            actions++;
+        }
 
         const bool capture = parameters.file.has_value() || parameters.split;
 
@@ -331,10 +337,7 @@ int wmain(int argc, wchar_t* argv[]) {
 
     const std::unique_ptr<Sink> sink = MakeSink(*parameters);
 
-    if (!sink) {
-
-        return ReportResult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), "Failed to open output file");
-    }
+    if (!sink) return ReportResult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), "Failed to open output file");
 
     InvalidHandle port;
     const HRESULT hRes = filter::Connect(port);
@@ -350,10 +353,7 @@ int wmain(int argc, wchar_t* argv[]) {
         return result;
     }
 
-    if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) {
-
-        return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
-    }
+    if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
 
     return CaptureLoop(port, *sink) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
