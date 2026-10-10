@@ -10,6 +10,8 @@
 
 #include <fltKernel.h>
 
+#include <stddef.h>
+
 using namespace mimo;
 
 #define MIRROR_ASSERT(mirrorMember, fltMember) static_assert( \

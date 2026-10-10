@@ -2,6 +2,7 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
+#include <cstdint>
 #include <format>
 #include <string>
 

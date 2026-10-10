@@ -2,8 +2,13 @@
 
 #include "text.h"
 
+#include <cstdint>
 #include <filesystem>
 #include <format>
+#include <fstream>
+#include <ostream>
+#include <string>
+#include <string_view>
 #include <utility>
 
 namespace mimo {

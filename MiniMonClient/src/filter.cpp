@@ -5,6 +5,7 @@
 
 #include "..\..\inc\protocol.h"
 
+#include <Windows.h>
 #include <fltUser.h>
 
 #include <array>

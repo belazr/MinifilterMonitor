@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Windows.h>
-#include <fltUser.h>
 
 #include <utility>
 

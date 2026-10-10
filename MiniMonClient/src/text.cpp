@@ -2,6 +2,10 @@
 
 #include <Windows.h>
 
+#include <cstddef>
+#include <string>
+#include <string_view>
+
 namespace mimo {
 
     namespace text {

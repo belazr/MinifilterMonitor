@@ -5,6 +5,7 @@
 #include "..\..\inc\protocol.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <span>
 

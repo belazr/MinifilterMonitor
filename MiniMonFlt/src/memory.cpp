@@ -1,5 +1,7 @@
 #include "memory.h"
 
+#include <fltKernel.h>
+
 namespace mimo {
 
     namespace memory {
