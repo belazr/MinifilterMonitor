@@ -24,7 +24,8 @@ namespace {
 
     KSPIN_LOCK ModuleListLock;
     LIST_ENTRY ModuleList;
-    bool ImageNotifyRegistered;
+    bool Created;
+    bool Started;
 
     void AddModule(
         _In_ const void* pBase,
@@ -110,6 +111,30 @@ namespace {
     }
 
 
+    void Stop() {
+
+        if (!Started) return;
+
+        PsRemoveLoadImageNotifyRoutine(LoadImageNotifyRoutine);
+
+        KIRQL oldIrql{};
+        KeAcquireSpinLock(&ModuleListLock, &oldIrql);
+
+        while (!IsListEmpty(&ModuleList)) {
+            LIST_ENTRY* const pListEntry = RemoveHeadList(&ModuleList);
+            KeReleaseSpinLock(&ModuleListLock, oldIrql);
+            ModuleEntry* const pEntry = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
+            ExFreePoolWithTag(pEntry, driver::POOL_TAG);
+            KeAcquireSpinLock(&ModuleListLock, &oldIrql);
+        }
+
+        KeReleaseSpinLock(&ModuleListLock, oldIrql);
+        Started = false;
+
+        return;
+    }
+
+
     void ResolveAddress(
         _In_ const void* pAddress,
         _Out_writes_z_(STACK_FRAME_NAME_WCHAR_COUNT) WCHAR* pNameBuffer,
@@ -161,9 +186,12 @@ namespace mimo {
 
             __declspec(code_seg("INIT"))
             void Create() {
+
+                if (Created) return;
+
                 InitializeListHead(&ModuleList);
                 KeInitializeSpinLock(&ModuleListLock);
-                ImageNotifyRegistered = false;
+                Created = true;
 
                 return;
             }
@@ -182,17 +210,19 @@ namespace mimo {
                 USHORT charCount = 0u;
                 USHORT remaining = 0u;
 
-                if (!ModuleList.Flink) {
+                if (!Created) {
                     status = STATUS_INVALID_DEVICE_STATE;
 
                     goto done;
                 }
 
+                if (Started) goto done;
+
                 status = PsSetLoadImageNotifyRoutine(LoadImageNotifyRoutine);
 
                 if (!NT_SUCCESS(status)) goto done;
 
-                ImageNotifyRegistered = true;
+                Started = true;
 
                 status = AuxKlibInitialize();
 
@@ -248,9 +278,8 @@ namespace mimo {
                     ExFreePoolWithTag(pModules, driver::POOL_TAG);
                 }
 
-                if (!NT_SUCCESS(status) && ImageNotifyRegistered) {
-                    PsRemoveLoadImageNotifyRoutine(LoadImageNotifyRoutine);
-                    ImageNotifyRegistered = false;
+                if (!NT_SUCCESS(status)) {
+                    Stop();
                 }
 
                 return status;
@@ -258,26 +287,8 @@ namespace mimo {
 
 
             void Delete() {
-
-                if (ImageNotifyRegistered) {
-                    PsRemoveLoadImageNotifyRoutine(LoadImageNotifyRoutine);
-                    ImageNotifyRegistered = false;
-                }
-
-                if (!ModuleList.Flink) return;
-
-                KIRQL oldIrql{};
-                KeAcquireSpinLock(&ModuleListLock, &oldIrql);
-
-                while (!IsListEmpty(&ModuleList)) {
-                    LIST_ENTRY* const pListEntry = RemoveHeadList(&ModuleList);
-                    KeReleaseSpinLock(&ModuleListLock, oldIrql);
-                    ModuleEntry* const pEntry = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
-                    ExFreePoolWithTag(pEntry, driver::POOL_TAG);
-                    KeAcquireSpinLock(&ModuleListLock, &oldIrql);
-                }
-
-                KeReleaseSpinLock(&ModuleListLock, oldIrql);
+                Stop();
+                Created = false;
 
                 return;
             }

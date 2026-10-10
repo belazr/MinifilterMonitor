@@ -26,6 +26,8 @@ namespace mimo {
             UNICODE_STRING portName = RTL_CONSTANT_STRING(PORT_NAME);
             NTSTATUS status = STATUS_SUCCESS;
 
+            if (pServerPort) goto done;
+
             status = FltBuildDefaultSecurityDescriptor(reinterpret_cast<void**>(&pSecurityDescriptor), FLT_PORT_ALL_ACCESS);
 
             if (!NT_SUCCESS(status)) goto done;

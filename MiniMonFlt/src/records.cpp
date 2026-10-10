@@ -17,6 +17,7 @@ namespace {
     volatile LONG RecordsAllocated;
     volatile LONG DroppedRecords;
     volatile LONG RecordSequenceNumber;
+    bool Created;
 
     records::Entry* AllocateEntry() {
         const LONG count = InterlockedIncrement(&RecordsAllocated);
@@ -84,10 +85,14 @@ namespace mimo {
 
         __declspec(code_seg("INIT"))
         void Create() {
+
+            if (Created) return;
+
             InitializeListHead(&RecordList);
             KeInitializeSpinLock(&RecordListLock);
 
             ExInitializeNPagedLookasideList(&EntryLookaside, nullptr, nullptr, POOL_NX_ALLOCATION, sizeof(Entry), driver::POOL_TAG, 0u);
+            Created = true;
 
             return;
         }
@@ -176,13 +181,14 @@ namespace mimo {
 
         void Delete() {
 
-            if (!RecordList.Flink) return;
+            if (!Created) return;
 
             for (Entry* pEntry = RemoveHead(); pEntry; pEntry = RemoveHead()) {
                 DeleteEntry(pEntry);
             }
 
             ExDeleteNPagedLookasideList(&EntryLookaside);
+            Created = false;
 
             return;
         }
