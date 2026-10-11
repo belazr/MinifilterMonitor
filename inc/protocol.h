@@ -155,7 +155,7 @@ namespace mimo {
                 uint8_t reserved2[4u];
                 uint32_t fsControlCode;
                 uint8_t reserved3[4u];
-                uint64_t inputBuffer;       // METHOD_BUFFERED: the shared input/output system buffer
+                uint64_t inputBuffer;       // METHOD_BUFFERED: shared input/output system buffer
                 uint64_t outputBuffer;
                 uint64_t outputMdlAddress;
             } fileSystemControl;
@@ -168,18 +168,18 @@ namespace mimo {
                 uint8_t reserved2[4u];
                 uint32_t ioControlCode;
                 uint8_t reserved3[4u];
-                uint64_t inputBuffer;       // METHOD_BUFFERED: the shared input/output system buffer
+                uint64_t inputBuffer;       // METHOD_BUFFERED: shared input/output system buffer
                 uint64_t outputBuffer;
                 uint64_t outputMdlAddress;
             } deviceIoControl;
 
             // IRP_MJ_LOCK_CONTROL
             struct {
-                uint64_t length;
+                uint64_t length;            // PLARGE_INTEGER
                 uint32_t key;
                 uint8_t reserved1[4u];
                 int64_t byteOffset;
-                uint64_t processId;         // fast I/O only
+                uint64_t processId;         // PEPROCESS, fast I/O only
                 uint8_t failImmediately;    // fast I/O only (IRP operations carry SL_FAIL_IMMEDIATELY)
                 uint8_t exclusiveLock;      // fast I/O only (IRP operations carry SL_EXCLUSIVE_LOCK)
             } lockControl;
@@ -247,7 +247,7 @@ namespace mimo {
                 uint32_t syncType;
                 uint32_t pageProtection;
                 uint64_t outputInformation;
-                uint32_t flags;
+                uint32_t flags;                   // FS_FILTER_SECTION_SYNC_IN_FLAG_* flags
                 uint32_t allocationAttributes;    // SyncTypeCreateSection only
             } acquireForSectionSynchronization;
 
@@ -266,7 +266,7 @@ namespace mimo {
             struct {
                 uint64_t irp;
                 uint64_t fileInformation;
-                uint64_t length;
+                uint64_t length;    // PULONG
                 uint32_t fileInformationClass;
             } queryOpen;
 
@@ -425,7 +425,7 @@ namespace mimo {
 
         // IRP_MJ_CREATE
 
-        // capture bits for CreateSupplement::captured
+        // CreateSupplement::captured
         inline constexpr uint32_t CREATE_CAPTURED_DESIRED_ACCESS   = 0x00000001u;
         inline constexpr uint32_t CREATE_CAPTURED_IMPERSONATED_SID = 0x00000002u;
         inline constexpr uint32_t CREATE_TRUNCATED_ECP_TEXT        = 0x00000004u;
@@ -452,7 +452,7 @@ namespace mimo {
 
         // IRP_MJ_READ / IRP_MJ_WRITE
 
-        // capture bits for ReadWriteSupplement::captured
+        // ReadWriteSupplement::captured
         inline constexpr uint32_t READ_WRITE_CAPTURED_PAYLOAD  = 0x00000001u;
         inline constexpr uint32_t READ_WRITE_TRUNCATED_PAYLOAD = 0x00000002u;
 
@@ -461,7 +461,7 @@ namespace mimo {
         struct ReadWriteSupplement {
             uint32_t captured;
             uint32_t capturedSize;
-            uint8_t payload[READ_WRITE_PAYLOAD_SIZE];    // the transferred data's leading bytes
+            uint8_t payload[READ_WRITE_PAYLOAD_SIZE];    // transferred data's leading bytes
         };
 
         static_assert(offsetof(ReadWriteSupplement, payload) == 8u, "protocol::ReadWriteSupplement layout drift");
@@ -470,7 +470,7 @@ namespace mimo {
 
         // IRP_MJ_QUERY_INFORMATION / IRP_MJ_QUERY_OPEN / IRP_MJ_NETWORK_QUERY_OPEN
 
-        // capture bits for QueryInfoSupplement::captured
+        // QueryInfoSupplement::captured
         inline constexpr uint32_t QUERY_INFO_CAPTURED_PAYLOAD  = 0x00000001u;
         inline constexpr uint32_t QUERY_INFO_TRUNCATED_PAYLOAD = 0x00000002u;
 
@@ -486,7 +486,7 @@ namespace mimo {
 
         // IRP_MJ_SET_INFORMATION
 
-        // capture bits for SetInfoSupplement::captured
+        // SetInfoSupplement::captured
         inline constexpr uint32_t SET_INFO_CAPTURED_PAYLOAD      = 0x00000001u;
         inline constexpr uint32_t SET_INFO_CAPTURED_TARGET_NAME  = 0x00000002u;
         inline constexpr uint32_t SET_INFO_TRUNCATED_PAYLOAD     = 0x00000004u;
@@ -508,7 +508,7 @@ namespace mimo {
 
         // IRP_MJ_QUERY_EA
 
-        // capture bits for QueryEaSupplement::captured
+        // QueryEaSupplement::captured
         inline constexpr uint32_t QUERY_EA_CAPTURED_LIST     = 0x00000001u;
         inline constexpr uint32_t QUERY_EA_CAPTURED_PAYLOAD  = 0x00000002u;
         inline constexpr uint32_t QUERY_EA_TRUNCATED_LIST    = 0x00000004u;
@@ -530,7 +530,7 @@ namespace mimo {
 
         // IRP_MJ_SET_EA
 
-        // capture bits for SetEaSupplement::captured
+        // SetEaSupplement::captured
         inline constexpr uint32_t SET_EA_CAPTURED_PAYLOAD  = 0x00000001u;
         inline constexpr uint32_t SET_EA_TRUNCATED_PAYLOAD = 0x00000002u;
 
@@ -546,7 +546,7 @@ namespace mimo {
 
         // IRP_MJ_QUERY_VOLUME_INFORMATION / IRP_MJ_SET_VOLUME_INFORMATION
 
-        // capture bits for VolumeInfoSupplement::captured
+        // VolumeInfoSupplement::captured
         inline constexpr uint32_t VOLUME_INFO_CAPTURED_PAYLOAD  = 0x00000001u;
         inline constexpr uint32_t VOLUME_INFO_TRUNCATED_PAYLOAD = 0x00000002u;
 
@@ -562,7 +562,7 @@ namespace mimo {
 
         // IRP_MJ_DIRECTORY_CONTROL
 
-        // capture bits for QueryDirectorySupplement::captured
+        // QueryDirectorySupplement::captured
         inline constexpr uint32_t QUERY_DIRECTORY_CAPTURED_PAYLOAD    = 0x00000001u;
         inline constexpr uint32_t QUERY_DIRECTORY_CAPTURED_FILE_NAME  = 0x00000002u;
         inline constexpr uint32_t QUERY_DIRECTORY_TRUNCATED_PAYLOAD   = 0x00000004u;
@@ -582,7 +582,7 @@ namespace mimo {
         static_assert(offsetof(QueryDirectorySupplement, payload) == 8u, "protocol::QueryDirectorySupplement layout drift");
         static_assert(offsetof(QueryDirectorySupplement, fileName) == 8u + QUERY_DIRECTORY_PAYLOAD_SIZE, "protocol::QueryDirectorySupplement layout drift");
 
-        // capture bits for NotifyDirectorySupplement::captured
+        // NotifyDirectorySupplement::captured
         inline constexpr uint32_t NOTIFY_DIRECTORY_CAPTURED_PAYLOAD  = 0x00000001u;
         inline constexpr uint32_t NOTIFY_DIRECTORY_TRUNCATED_PAYLOAD = 0x00000002u;
 
@@ -598,7 +598,7 @@ namespace mimo {
 
         // IRP_MJ_FILE_SYSTEM_CONTROL
 
-        // capture bits for FsControlSupplement::captured
+        // FsControlSupplement::captured
         inline constexpr uint32_t FS_CONTROL_CAPTURED_INPUT   = 0x00000001u;
         inline constexpr uint32_t FS_CONTROL_CAPTURED_OUTPUT  = 0x00000002u;
         inline constexpr uint32_t FS_CONTROL_TRUNCATED_INPUT  = 0x00000004u;
@@ -612,7 +612,7 @@ namespace mimo {
             uint32_t capturedInputSize;
             uint32_t capturedOutputSize;
             uint8_t inputPayload[FS_CONTROL_INPUT_PAYLOAD_SIZE];
-            uint8_t outputPayload[FS_CONTROL_OUTPUT_PAYLOAD_SIZE];    // METHOD_IN_DIRECT: the second input buffer, captured pre-operation
+            uint8_t outputPayload[FS_CONTROL_OUTPUT_PAYLOAD_SIZE];    // METHOD_IN_DIRECT: second input buffer, captured pre-operation
         };
 
         static_assert(offsetof(FsControlSupplement, inputPayload) == 12u, "protocol::FsControlSupplement layout drift");
@@ -620,7 +620,7 @@ namespace mimo {
 
         // IRP_MJ_DEVICE_CONTROL / IRP_MJ_INTERNAL_DEVICE_CONTROL
 
-        // capture bits for DeviceIoControlSupplement::captured
+        // DeviceIoControlSupplement::captured
         inline constexpr uint32_t DEVICE_IO_CONTROL_CAPTURED_INPUT   = 0x00000001u;
         inline constexpr uint32_t DEVICE_IO_CONTROL_CAPTURED_OUTPUT  = 0x00000002u;
         inline constexpr uint32_t DEVICE_IO_CONTROL_TRUNCATED_INPUT  = 0x00000004u;
@@ -634,7 +634,7 @@ namespace mimo {
             uint32_t capturedInputSize;
             uint32_t capturedOutputSize;
             uint8_t inputPayload[DEVICE_IO_CONTROL_INPUT_PAYLOAD_SIZE];
-            uint8_t outputPayload[DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_SIZE];    // METHOD_IN_DIRECT: the second input buffer, captured pre-operation
+            uint8_t outputPayload[DEVICE_IO_CONTROL_OUTPUT_PAYLOAD_SIZE];    // METHOD_IN_DIRECT: second input buffer, captured pre-operation
         };
 
         static_assert(offsetof(DeviceIoControlSupplement, inputPayload) == 12u, "protocol::DeviceIoControlSupplement layout drift");
@@ -642,7 +642,7 @@ namespace mimo {
 
         // IRP_MJ_LOCK_CONTROL
 
-        // capture bit for LockControlSupplement::captured
+        // LockControlSupplement::captured
         inline constexpr uint32_t LOCK_CONTROL_CAPTURED_LENGTH = 0x00000001u;
 
         struct LockControlSupplement {
@@ -657,7 +657,7 @@ namespace mimo {
 
         // IRP_MJ_QUERY_SECURITY / IRP_MJ_SET_SECURITY
 
-        // capture bit for SecuritySupplement::captured
+        // SecuritySupplement::captured
         inline constexpr uint32_t SECURITY_CAPTURED_PAYLOAD = 0x00000001u;
 
         inline constexpr uint32_t SECURITY_PAYLOAD_SIZE = SUPPLEMENT_SIZE - 2u * sizeof(uint32_t);
@@ -672,12 +672,12 @@ namespace mimo {
 
         // IRP_MJ_SYSTEM_CONTROL
 
-        // capture bit for WmiSupplement::captured
+        // WmiSupplement::captured
         inline constexpr uint32_t WMI_CAPTURED_GUID = 0x00000001u;
 
         struct WmiSupplement {
             uint32_t captured;
-            uint8_t guid[16u];    // the data block GUID DataPath addresses, absent for the REGINFO minors
+            uint8_t guid[16u];    // data block GUID DataPath addresses, absent for the REGINFO minors
         };
 
         static_assert(offsetof(WmiSupplement, guid) == 4u, "protocol::WmiSupplement layout drift");
@@ -686,7 +686,7 @@ namespace mimo {
 
         // IRP_MJ_QUERY_QUOTA
 
-        // capture bits for QueryQuotaSupplement::captured
+        // QueryQuotaSupplement::captured
         inline constexpr uint32_t QUERY_QUOTA_CAPTURED_SID_LIST  = 0x00000001u;
         inline constexpr uint32_t QUERY_QUOTA_CAPTURED_PAYLOAD   = 0x00000002u;
         inline constexpr uint32_t QUERY_QUOTA_TRUNCATED_SID_LIST = 0x00000004u;
@@ -708,7 +708,7 @@ namespace mimo {
 
         // IRP_MJ_SET_QUOTA
 
-        // capture bits for SetQuotaSupplement::captured
+        // SetQuotaSupplement::captured
         inline constexpr uint32_t SET_QUOTA_CAPTURED_PAYLOAD  = 0x00000001u;
         inline constexpr uint32_t SET_QUOTA_TRUNCATED_PAYLOAD = 0x00000002u;
 
@@ -724,7 +724,7 @@ namespace mimo {
 
         // IRP_MJ_ACQUIRE_FOR_MOD_WRITE
 
-        // capture bits for ModWriteSupplement::captured
+        // ModWriteSupplement::captured
         inline constexpr uint32_t MOD_WRITE_CAPTURED_ENDING_OFFSET = 0x00000001u;
         inline constexpr uint32_t MOD_WRITE_CAPTURED_RESOURCE      = 0x00000002u;
 
@@ -742,7 +742,7 @@ namespace mimo {
 
         // IRP_MJ_VOLUME_MOUNT
 
-        // capture bits for MountSupplement::captured
+        // MountSupplement::captured
         inline constexpr uint32_t MOUNT_CAPTURED_VOLUME_NAME      = 0x00000001u;
         inline constexpr uint32_t MOUNT_CAPTURED_FILE_SYSTEM_TYPE = 0x00000002u;
 
@@ -751,7 +751,7 @@ namespace mimo {
         struct MountSupplement {
             uint32_t captured;
             uint32_t fileSystemType;                              // FLT_FILESYSTEM_TYPE
-            wchar_t volumeName[MOUNT_VOLUME_NAME_WCHAR_COUNT];    // the storage volume's device name, whole or absent
+            wchar_t volumeName[MOUNT_VOLUME_NAME_WCHAR_COUNT];    // storage volume's device name, whole or absent
         };
 
         static_assert(offsetof(MountSupplement, volumeName) == 8u, "protocol::MountSupplement layout drift");
@@ -793,7 +793,7 @@ namespace mimo {
         static_assert(sizeof(MountSupplement) == SUPPLEMENT_SIZE, "protocol::MountSupplement does not exactly fill the union: re-balance a capacity or SUPPLEMENT_SIZE");
         static_assert(sizeof(Supplement) == SUPPLEMENT_SIZE, "protocol::Supplement layout drift");
 
-        // truncation bit for RecordData::truncated
+        // RecordData::truncated
         inline constexpr uint8_t TRUNCATED_NAME = 0x01u;
 
         inline constexpr uint32_t NAME_WCHAR_COUNT = 512u;
@@ -811,17 +811,17 @@ namespace mimo {
             uint64_t information;
             int32_t status;                 // NTSTATUS
             uint32_t irpFlags;
-            uint32_t flags;
+            uint32_t flags;                 // FLTFL_CALLBACK_DATA_* flags
             uint32_t reparseTag;            // IO_REPARSE_TAG_* of a reparse-point hit, 0 if none
             uint8_t callbackMajorId;
             uint8_t callbackMinorId;
             uint8_t operationFlags;         // IRP stack-location SL_* flags
-            uint8_t truncated;              // TRUNCATED_* bits
+            uint8_t truncated;
             uint8_t requestorMode;          // KPROCESSOR_MODE
             uint8_t ioPriorityHint;
             uint8_t preOpIrql;
             uint8_t postOpIrql;
-            uint32_t transactionNotify;     // raw TRANSACTION_NOTIFY_* code, non-zero marks a transaction lifecycle event, not an operation
+            uint32_t transactionNotify;     // TRANSACTION_NOTIFY_* code, non-zero marks a transaction lifecycle event, not an operation
             uint32_t transactionSequence;   // per-transaction id, 0 if the operation is not transacted
             FltParameters parameters;
             uint32_t altitude;
