@@ -17,6 +17,7 @@ namespace mimo {
 
             namespace mount {
 
+                // FltMgr builds this callback data without an IRP: IrpFlags and OperationFlags are always 0
                 std::wstring Render(const protocol::RecordData& data) {
                     std::wstring details = std::format(L"DeviceType: {}", names::RenderDeviceType(data.parameters.mountVolume.deviceType));
 

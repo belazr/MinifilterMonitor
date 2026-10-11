@@ -9,12 +9,12 @@ namespace mimo {
 
         namespace kernel {
 
-            // operation category flags carried in RecordData::flags
-            inline constexpr uint32_t FLT_CALLBACK_DATA_IRP_OPERATION       = 0x00000001u;
-            inline constexpr uint32_t FLT_CALLBACK_DATA_FAST_IO_OPERATION   = 0x00000002u;
-            inline constexpr uint32_t FLT_CALLBACK_DATA_FS_FILTER_OPERATION = 0x00000004u;
+            // RecordData::flags, operation category flags
+            inline constexpr uint32_t FLTFL_CALLBACK_DATA_IRP_OPERATION       = 0x00000001u;
+            inline constexpr uint32_t FLTFL_CALLBACK_DATA_FAST_IO_OPERATION   = 0x00000002u;
+            inline constexpr uint32_t FLTFL_CALLBACK_DATA_FS_FILTER_OPERATION = 0x00000004u;
 
-            // IoGetTopLevelIrp sentinels carried in RecordData::topLevelIrp
+            // RecordData::topLevelIrp, IoGetTopLevelIrp sentinels
             inline constexpr uint64_t FSRTL_FSP_TOP_LEVEL_IRP               = 0x01u;
             inline constexpr uint64_t FSRTL_CACHE_TOP_LEVEL_IRP             = 0x02u;
             inline constexpr uint64_t FSRTL_MOD_WRITE_TOP_LEVEL_IRP         = 0x03u;
@@ -24,25 +24,26 @@ namespace mimo {
             inline constexpr uint64_t FSRTL_ASYNC_CACHED_READ_TOP_LEVEL_IRP = 0x07u;
             inline constexpr uint64_t FSRTL_VOLSNAP_TOP_LEVEL_IRP           = 0x08u;
 
-            // IRP flags carried in RecordData::irpFlags, the read/write reading of the two overloaded values
-            // (0x2 is IRP_MOUNT_COMPLETION on a mount, 0x40 IRP_INPUT_OPERATION on a device control)
-            inline constexpr uint32_t IRP_NOCACHE                 = 0x00000001u;
-            inline constexpr uint32_t IRP_PAGING_IO               = 0x00000002u;
-            inline constexpr uint32_t IRP_SYNCHRONOUS_API         = 0x00000004u;
-            inline constexpr uint32_t IRP_ASSOCIATED_IRP          = 0x00000008u;
-            inline constexpr uint32_t IRP_BUFFERED_IO             = 0x00000010u;
-            inline constexpr uint32_t IRP_DEALLOCATE_BUFFER       = 0x00000020u;
-            inline constexpr uint32_t IRP_SYNCHRONOUS_PAGING_IO   = 0x00000040u;
-            inline constexpr uint32_t IRP_CREATE_OPERATION        = 0x00000080u;
-            inline constexpr uint32_t IRP_READ_OPERATION          = 0x00000100u;
-            inline constexpr uint32_t IRP_WRITE_OPERATION         = 0x00000200u;
-            inline constexpr uint32_t IRP_CLOSE_OPERATION         = 0x00000400u;
-            inline constexpr uint32_t IRP_DEFER_IO_COMPLETION     = 0x00000800u;
-            inline constexpr uint32_t IRP_OB_QUERY_NAME           = 0x00001000u;
-            inline constexpr uint32_t IRP_HOLD_DEVICE_QUEUE       = 0x00002000u;
-            inline constexpr uint32_t IRP_UM_DRIVER_INITIATED_IO  = 0x00400000u;
+            // RecordData::irpFlags, IRP flags
+            inline constexpr uint32_t IRP_NOCACHE                = 0x00000001u;
+            inline constexpr uint32_t IRP_PAGING_IO              = 0x00000002u;
+            inline constexpr uint32_t IRP_MOUNT_COMPLETION       = 0x00000002u;    // volume mount or verify
+            inline constexpr uint32_t IRP_SYNCHRONOUS_API        = 0x00000004u;
+            inline constexpr uint32_t IRP_ASSOCIATED_IRP         = 0x00000008u;
+            inline constexpr uint32_t IRP_BUFFERED_IO            = 0x00000010u;
+            inline constexpr uint32_t IRP_DEALLOCATE_BUFFER      = 0x00000020u;
+            inline constexpr uint32_t IRP_INPUT_OPERATION        = 0x00000040u;    // buffered I/O returning data
+            inline constexpr uint32_t IRP_SYNCHRONOUS_PAGING_IO  = 0x00000040u;
+            inline constexpr uint32_t IRP_CREATE_OPERATION       = 0x00000080u;
+            inline constexpr uint32_t IRP_READ_OPERATION         = 0x00000100u;
+            inline constexpr uint32_t IRP_WRITE_OPERATION        = 0x00000200u;
+            inline constexpr uint32_t IRP_CLOSE_OPERATION        = 0x00000400u;
+            inline constexpr uint32_t IRP_DEFER_IO_COMPLETION    = 0x00000800u;
+            inline constexpr uint32_t IRP_OB_QUERY_NAME          = 0x00001000u;
+            inline constexpr uint32_t IRP_HOLD_DEVICE_QUEUE      = 0x00002000u;
+            inline constexpr uint32_t IRP_UM_DRIVER_INITIATED_IO = 0x00400000u;
 
-            // create stack-location SL_* flags carried in RecordData::operationFlags
+            // RecordData::operationFlags, create stack-location SL_* flags
             inline constexpr uint8_t SL_FORCE_ACCESS_CHECK        = 0x01u;
             inline constexpr uint8_t SL_OPEN_PAGING_FILE          = 0x02u;
             inline constexpr uint8_t SL_OPEN_TARGET_DIRECTORY     = 0x04u;
@@ -50,7 +51,7 @@ namespace mimo {
             inline constexpr uint8_t SL_IGNORE_READONLY_ATTRIBUTE = 0x40u;
             inline constexpr uint8_t SL_CASE_SENSITIVE            = 0x80u;
 
-            // read/write stack-location SL_* flags carried in RecordData::operationFlags
+            // RecordData::operationFlags, read/write stack-location SL_* flags
             inline constexpr uint8_t SL_KEY_SPECIFIED                   = 0x01u;
             inline constexpr uint8_t SL_OVERRIDE_VERIFY_VOLUME          = 0x02u;
             inline constexpr uint8_t SL_WRITE_THROUGH                   = 0x04u;
@@ -60,42 +61,40 @@ namespace mimo {
             inline constexpr uint8_t SL_PERSISTENT_MEMORY_FIXED_MAPPING = 0x20u;    // persistent memory writes
             inline constexpr uint8_t SL_BYPASS_IO                       = 0x40u;
 
-            // query information and set information stack-location SL_* flags carried in RecordData::operationFlags
-            // (wdm.h overloads 0x01 by class: bypass on the rename / link classes, force on FileCaseSensitiveInformation)
-            inline constexpr uint8_t SL_BYPASS_ACCESS_CHECK            = 0x01u;
-            inline constexpr uint8_t SL_INFO_FORCE_ACCESS_CHECK        = 0x01u;
+            // RecordData::operationFlags, query information and set information stack-location SL_* flags
+            inline constexpr uint8_t SL_BYPASS_ACCESS_CHECK            = 0x01u;    // rename/link classes
+            inline constexpr uint8_t SL_INFO_FORCE_ACCESS_CHECK        = 0x01u;    // FileCaseSensitiveInformation
             inline constexpr uint8_t SL_INFO_IGNORE_READONLY_ATTRIBUTE = 0x40u;
 
-            // query EA, query quota and directory control query stack-location SL_* flags carried in RecordData::operationFlags
+            // RecordData::operationFlags, query EA, query quota and directory control query stack-location SL_* flags
             inline constexpr uint8_t SL_RESTART_SCAN                = 0x01u;
             inline constexpr uint8_t SL_RETURN_SINGLE_ENTRY         = 0x02u;
             inline constexpr uint8_t SL_INDEX_SPECIFIED             = 0x04u;
             inline constexpr uint8_t SL_RETURN_ON_DISK_ENTRIES_ONLY = 0x08u;
             inline constexpr uint8_t SL_NO_CURSOR_UPDATE            = 0x10u;
 
-            // flush buffers stack-location SL_* flag carried in RecordData::operationFlags
+            // RecordData::operationFlags, flush buffers stack-location SL_* flag
             inline constexpr uint8_t SL_FORCE_ASYNCHRONOUS = 0x01u;
 
-            // directory control notify stack-location SL_* flag carried in RecordData::operationFlags
+            // RecordData::operationFlags, directory control notify stack-location SL_* flag
             inline constexpr uint8_t SL_WATCH_TREE = 0x01u;
 
-            // file system control verify volume stack-location SL_* flag carried in RecordData::operationFlags
-            // (the mount minor reaches a minifilter as IRP_MJ_VOLUME_MOUNT, whose callback data FltMgr builds without it)
+            // RecordData::operationFlags, file system control verify volume stack-location SL_* flag
             inline constexpr uint8_t SL_ALLOW_RAW_MOUNT = 0x01u;
 
-            // device control and file system control stack-location SL_* flags carried in RecordData::operationFlags
+            // RecordData::operationFlags, device control and file system control stack-location SL_* flags
             inline constexpr uint8_t SL_READ_ACCESS_GRANTED  = 0x01u;
             inline constexpr uint8_t SL_WRITE_ACCESS_GRANTED = 0x04u;
 
-            // lock control stack-location SL_* flags carried in RecordData::operationFlags
+            // RecordData::operationFlags, lock control stack-location SL_* flags
             inline constexpr uint8_t SL_FAIL_IMMEDIATELY = 0x01u;
             inline constexpr uint8_t SL_EXCLUSIVE_LOCK   = 0x02u;
 
-            // KPROCESSOR_MODE values carried in RecordData::requestorMode
+            // RecordData::requestorMode, KPROCESSOR_MODE values
             inline constexpr uint8_t KernelMode = 0u;
             inline constexpr uint8_t UserMode   = 1u;
 
-            // IO_PRIORITY_HINT values carried in RecordData::ioPriorityHint
+            // RecordData::ioPriorityHint, IO_PRIORITY_HINT values
             inline constexpr uint8_t IoPriorityVeryLow  = 0u;
             inline constexpr uint8_t IoPriorityLow      = 1u;
             inline constexpr uint8_t IoPriorityNormal   = 2u;
@@ -131,7 +130,7 @@ namespace mimo {
             inline constexpr uint8_t IRP_MJ_QUERY_QUOTA              = 0x19u;
             inline constexpr uint8_t IRP_MJ_SET_QUOTA                = 0x1Au;
             inline constexpr uint8_t IRP_MJ_PNP                      = 0x1Bu;
-            inline constexpr uint8_t IRP_MJ_MAXIMUM_FUNCTION         = 0x1Bu;
+            inline constexpr uint8_t IRP_MJ_SCSI                     = IRP_MJ_INTERNAL_DEVICE_CONTROL;
 
             // FltMgr extension major codes
             inline constexpr uint8_t IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION = static_cast<uint8_t>(-1);
@@ -151,7 +150,7 @@ namespace mimo {
             inline constexpr uint8_t IRP_MJ_VOLUME_MOUNT                        = static_cast<uint8_t>(-19);
             inline constexpr uint8_t IRP_MJ_VOLUME_DISMOUNT                     = static_cast<uint8_t>(-20);
 
-            // IRP minor codes, meaning is scoped by the major code
+            // IRP minor codes
 
             // directory control
             inline constexpr uint8_t IRP_MN_QUERY_DIRECTORY            = 0x01u;
@@ -223,7 +222,7 @@ namespace mimo {
             inline constexpr uint8_t IRP_MN_SET_POWER      = 0x02u;
             inline constexpr uint8_t IRP_MN_QUERY_POWER    = 0x03u;
 
-            // system control (WMI)
+            // system control
             inline constexpr uint8_t IRP_MN_QUERY_ALL_DATA         = 0x00u;
             inline constexpr uint8_t IRP_MN_QUERY_SINGLE_INSTANCE  = 0x01u;
             inline constexpr uint8_t IRP_MN_CHANGE_SINGLE_INSTANCE = 0x02u;
@@ -236,7 +235,7 @@ namespace mimo {
             inline constexpr uint8_t IRP_MN_EXECUTE_METHOD         = 0x09u;
             inline constexpr uint8_t IRP_MN_REGINFO_EX             = 0x0Bu;
 
-            // WSL reparse tags live in kernel-only ntifs.h
+            // ntifs.h WSL reparse tags
             inline constexpr uint32_t IO_REPARSE_TAG_LX_SYMLINK = 0xA000001Du;
             inline constexpr uint32_t IO_REPARSE_TAG_LX_FIFO    = 0x80000024u;
             inline constexpr uint32_t IO_REPARSE_TAG_LX_CHR     = 0x80000025u;
@@ -665,7 +664,7 @@ namespace mimo {
             static_assert(sizeof(FILE_CASE_SENSITIVE_INFORMATION) == 4u, "trace::kernel::FILE_CASE_SENSITIVE_INFORMATION x64 layout drift");
 
             struct FILE_STORAGE_RESERVE_ID_INFORMATION {
-                uint32_t StorageReserveId;    // STORAGE_RESERVE_ID in the kernel
+                uint32_t StorageReserveId;
             };
 
             static_assert(sizeof(FILE_STORAGE_RESERVE_ID_INFORMATION) == 4u, "trace::kernel::FILE_STORAGE_RESERVE_ID_INFORMATION x64 layout drift");
@@ -759,7 +758,7 @@ namespace mimo {
 
             static_assert(sizeof(FILE_DISPOSITION_INFORMATION_EX) == 4u, "trace::kernel::FILE_DISPOSITION_INFORMATION_EX x64 layout drift");
 
-            // FILE_LINK_INFORMATION_EX shares this layout
+            // FILE_RENAME_INFORMATION under the Ex classes, FILE_LINK_INFORMATION shares this layout
             struct FILE_RENAME_INFORMATION_EX {
                 uint32_t Flags;
                 uint64_t RootDirectory;     // HANDLE in the kernel
@@ -787,10 +786,10 @@ namespace mimo {
             inline constexpr uint32_t FILE_DISPOSITION_ON_CLOSE                  = 0x00000008u;
             inline constexpr uint32_t FILE_DISPOSITION_IGNORE_READONLY_ATTRIBUTE = 0x00000010u;
 
-            // FILE_RENAME_INFORMATION_EX flags, FILE_LINK_INFORMATION_EX shares the values
+            // FILE_RENAME_INFORMATION_EX flags
             inline constexpr uint32_t FILE_RENAME_REPLACE_IF_EXISTS                    = 0x00000001u;
             inline constexpr uint32_t FILE_RENAME_POSIX_SEMANTICS                      = 0x00000002u;
-            inline constexpr uint32_t FILE_RENAME_SUPPRESS_PIN_STATE_INHERITANCE       = 0x00000004u;
+            inline constexpr uint32_t FILE_RENAME_SUPPRESS_PIN_STATE_INHERITANCE       = 0x00000004u;    // rename only
             inline constexpr uint32_t FILE_RENAME_SUPPRESS_STORAGE_RESERVE_INHERITANCE = 0x00000008u;
             inline constexpr uint32_t FILE_RENAME_NO_INCREASE_AVAILABLE_SPACE          = 0x00000010u;
             inline constexpr uint32_t FILE_RENAME_NO_DECREASE_AVAILABLE_SPACE          = 0x00000020u;
@@ -997,7 +996,7 @@ namespace mimo {
             inline constexpr uint32_t FILE_VC_QUOTAS_INCOMPLETE      = 0x00000100u;
             inline constexpr uint32_t FILE_VC_QUOTAS_REBUILDING      = 0x00000200u;
 
-            // completion filter flags
+            // ntifs.h completion filter flags
             inline constexpr uint32_t FILE_NOTIFY_CHANGE_EA           = 0x00000080u;
             inline constexpr uint32_t FILE_NOTIFY_CHANGE_STREAM_NAME  = 0x00000200u;
             inline constexpr uint32_t FILE_NOTIFY_CHANGE_STREAM_SIZE  = 0x00000400u;
@@ -1008,7 +1007,7 @@ namespace mimo {
             inline constexpr uint32_t DirectoryNotifyExtendedInformation = 2u;
             inline constexpr uint32_t DirectoryNotifyFullInformation     = 3u;
 
-            // stream and tunnelling file actions live in kernel-only ntifs.h
+            // ntifs.h stream and tunnelling file actions
             inline constexpr uint32_t FILE_ACTION_ADDED_STREAM           = 0x00000006u;
             inline constexpr uint32_t FILE_ACTION_REMOVED_STREAM         = 0x00000007u;
             inline constexpr uint32_t FILE_ACTION_MODIFIED_STREAM        = 0x00000008u;
@@ -1528,7 +1527,7 @@ namespace mimo {
             static_assert(offsetof(USN_RECORD_V3, FileName) == 76u, "trace::kernel::USN_RECORD_V3 x64 layout drift");
 
             struct FILE_SET_SPARSE_BUFFER {
-                uint8_t SetSparse;      // BOOLEAN in the kernel
+                uint8_t SetSparse;
             };
 
             static_assert(sizeof(FILE_SET_SPARSE_BUFFER) == 1u, "trace::kernel::FILE_SET_SPARSE_BUFFER x64 layout drift");
@@ -1821,7 +1820,7 @@ namespace mimo {
 
             struct PARTITION_INFORMATION_MBR {
                 uint8_t PartitionType;
-                uint8_t BootIndicator;  // BOOLEAN in the kernel
+                uint8_t BootIndicator;
                 uint8_t RecognizedPartition;
                 uint32_t HiddenSectors;
                 uint8_t PartitionId[16u];
@@ -1843,12 +1842,12 @@ namespace mimo {
             static_assert(offsetof(PARTITION_INFORMATION_GPT, Name) == 40u, "trace::kernel::PARTITION_INFORMATION_GPT x64 layout drift");
 
             struct PARTITION_INFORMATION_EX {
-                uint32_t PartitionStyle;     // PARTITION_STYLE in the kernel
+                uint32_t PartitionStyle;
                 uint16_t PartitionOrdinal;
                 int64_t StartingOffset;
                 int64_t PartitionLength;
                 uint32_t PartitionNumber;
-                uint8_t RewritePartition;    // BOOLEAN in the kernel
+                uint8_t RewritePartition;
                 uint8_t IsServicePartition;
                 union {
                     PARTITION_INFORMATION_MBR Mbr;
@@ -1874,7 +1873,7 @@ namespace mimo {
 
             struct STORAGE_HOTPLUG_INFO {
                 uint32_t Size;
-                uint8_t MediaRemovable;    // BOOLEAN in the kernel
+                uint8_t MediaRemovable;
                 uint8_t MediaHotplug;
                 uint8_t DeviceHotplug;
                 uint8_t WriteCacheEnableOverride;
@@ -1887,7 +1886,7 @@ namespace mimo {
             inline constexpr uint32_t STORAGE_DEVICE_NUMBER_NO_PARTITION = 0xFFFFFFFFu;
 
             struct STORAGE_DEVICE_NUMBER {
-                uint32_t DeviceType;    // DEVICE_TYPE in the kernel
+                uint32_t DeviceType;
                 uint32_t DeviceNumber;
                 uint32_t PartitionNumber;
             };
@@ -1898,7 +1897,7 @@ namespace mimo {
                 uint32_t Version;
                 uint32_t Size;
                 uint32_t Flags;
-                uint32_t DeviceType;    // DEVICE_TYPE in the kernel
+                uint32_t DeviceType;
                 uint32_t DeviceNumber;
                 uint8_t DeviceGuid[16u];
                 uint32_t PartitionNumber;
@@ -2007,7 +2006,7 @@ namespace mimo {
             inline constexpr uint32_t SyncTypeOther         = 0u;
             inline constexpr uint32_t SyncTypeCreateSection = 1u;
 
-            // section synchronization input flags live in kernel-only ntifs.h
+            // section synchronization input flags
             inline constexpr uint32_t FS_FILTER_SECTION_SYNC_IN_FLAG_DONT_UPDATE_LAST_ACCESS = 0x00000001u;
             inline constexpr uint32_t FS_FILTER_SECTION_SYNC_IN_FLAG_DONT_UPDATE_LAST_WRITE  = 0x00000002u;
 

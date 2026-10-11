@@ -653,11 +653,11 @@ namespace mimo {
 
             std::wstring RenderOperationCategory(uint32_t flags) {
 
-                if (flags & kernel::FLT_CALLBACK_DATA_IRP_OPERATION)       return L"IRP";
+                if (flags & kernel::FLTFL_CALLBACK_DATA_IRP_OPERATION)       return L"IRP";
 
-                if (flags & kernel::FLT_CALLBACK_DATA_FAST_IO_OPERATION)   return L"FASTIO";
+                if (flags & kernel::FLTFL_CALLBACK_DATA_FAST_IO_OPERATION)   return L"FASTIO";
 
-                if (flags & kernel::FLT_CALLBACK_DATA_FS_FILTER_OPERATION) return L"FSFILTER";
+                if (flags & kernel::FLTFL_CALLBACK_DATA_FS_FILTER_OPERATION) return L"FSFILTER";
 
                 return L"OTHER";
             }

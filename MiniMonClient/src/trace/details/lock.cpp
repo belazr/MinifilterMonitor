@@ -33,7 +33,7 @@ namespace {
 
     std::wstring RenderLock(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
-        const bool fastIo = data.flags & trace::kernel::FLT_CALLBACK_DATA_FAST_IO_OPERATION;
+        const bool fastIo = data.flags & trace::kernel::FLTFL_CALLBACK_DATA_FAST_IO_OPERATION;
         const bool exclusiveLock = fastIo ? parameters.lockControl.exclusiveLock : (data.operationFlags & trace::kernel::SL_EXCLUSIVE_LOCK);
         const bool failImmediately = fastIo ? parameters.lockControl.failImmediately : (data.operationFlags & trace::kernel::SL_FAIL_IMMEDIATELY);
 
