@@ -111,9 +111,9 @@ namespace mimo {
 
             std::wstring RenderFileId(std::span<const uint8_t, 16u> id) {
                 uint64_t low = 0u;
-                uint64_t high = 0u;
-
                 std::memcpy(&low, id.data(), sizeof(low));
+
+                uint64_t high = 0u;
                 std::memcpy(&high, id.data() + sizeof(low), sizeof(high));
 
                 if (!high) return RenderFileId(low);
