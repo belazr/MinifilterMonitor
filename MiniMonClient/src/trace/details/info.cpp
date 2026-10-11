@@ -841,11 +841,10 @@ namespace mimo {
                 std::wstring RenderQuery(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = RenderInformationParameters(parameters.queryFileInformation.fileInformationClass, parameters.queryFileInformation.length);
-                    const std::wstring flags = names::RenderInformationFlags(parameters.queryFileInformation.fileInformationClass, data.operationFlags);
 
-                    if (!flags.empty()) {
+                    if (data.operationFlags) {
                         details += L", ";
-                        details += flags;
+                        details += names::RenderInformationFlags(parameters.queryFileInformation.fileInformationClass, data.operationFlags);
                     }
 
                     const protocol::QueryInfoSupplement& queryInfoSupplement = data.supplement.queryInfo;
@@ -865,11 +864,10 @@ namespace mimo {
                 std::wstring RenderSet(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = RenderInformationParameters(parameters.setFileInformation.fileInformationClass, parameters.setFileInformation.length);
-                    const std::wstring flags = names::RenderInformationFlags(parameters.setFileInformation.fileInformationClass, data.operationFlags);
 
-                    if (!flags.empty()) {
+                    if (data.operationFlags) {
                         details += L", ";
-                        details += flags;
+                        details += names::RenderInformationFlags(parameters.setFileInformation.fileInformationClass, data.operationFlags);
                     }
 
                     const protocol::SetInfoSupplement& setInfoSupplement = data.supplement.setInfo;

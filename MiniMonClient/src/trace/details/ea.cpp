@@ -107,10 +107,8 @@ namespace {
                 result += std::format(L", EaValue: {}", RenderEaValue(payload.subspan(valueStart), entry.EaValueLength));
             }
 
-            const std::wstring flags = trace::names::RenderEaFlags(entry.Flags);
-
-            if (!flags.empty()) {
-                result += std::format(L", Flags: {}", flags);
+            if (entry.Flags) {
+                result += std::format(L", Flags: {}", trace::names::RenderEaFlags(entry.Flags));
             }
 
             result += L", ";
@@ -158,11 +156,9 @@ namespace mimo {
                         details += std::format(L", EaIndex: {}", parameters.queryEa.eaIndex);
                     }
 
-                    const std::wstring flags = names::RenderScanFlags(data.operationFlags);
-
-                    if (!flags.empty()) {
+                    if (data.operationFlags) {
                         details += L", ";
-                        details += flags;
+                        details += names::RenderScanFlags(data.operationFlags);
                     }
 
                     const protocol::QueryEaSupplement& queryEaSupplement = data.supplement.queryEa;

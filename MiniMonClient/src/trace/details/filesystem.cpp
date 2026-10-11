@@ -77,10 +77,8 @@ namespace {
             result += L", ";
         }
 
-        const std::wstring flags = trace::names::RenderSymlinkFlags(payload.SymbolicLinkReparseBuffer.Flags);
-
-        if (!flags.empty()) {
-            result += std::format(L"Flags: {}, ", flags);
+        if (payload.SymbolicLinkReparseBuffer.Flags) {
+            result += std::format(L"Flags: {}, ", trace::names::RenderSymlinkFlags(payload.SymbolicLinkReparseBuffer.Flags));
         }
 
         if (!result.empty()) {
@@ -498,10 +496,9 @@ namespace {
     std::wstring RenderUsnRecord(const UsnRecord& payload, std::span<const uint8_t> nameData) {
         const size_t nameStart = payload.FileNameOffset < nameData.size() ? payload.FileNameOffset : nameData.size();
         std::wstring result = std::format(L"FileName: {}", trace::details::payload::RenderName(nameData.subspan(nameStart), payload.FileNameLength));
-        const std::wstring reason = trace::names::RenderUsnReason(payload.Reason);
 
-        if (!reason.empty()) {
-            result += std::format(L", Reason: {}", reason);
+        if (payload.Reason) {
+            result += std::format(L", Reason: {}", trace::names::RenderUsnReason(payload.Reason));
         }
 
         result += std::format(L", Usn: {}", payload.Usn);
@@ -829,11 +826,10 @@ namespace mimo {
 
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", names::RenderFsControlCode(parameters.fileSystemControl.fsControlCode), parameters.fileSystemControl.inputBufferLength, parameters.fileSystemControl.outputBufferLength);
-                    const std::wstring flags = names::RenderDeviceIoFlags(data.operationFlags);
 
-                    if (!flags.empty()) {
+                    if (data.operationFlags) {
                         details += L", ";
-                        details += flags;
+                        details += names::RenderDeviceIoFlags(data.operationFlags);
                     }
 
                     const protocol::FsControlSupplement& fsControlSupplement = data.supplement.fsControl;

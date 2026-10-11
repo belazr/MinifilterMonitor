@@ -36,17 +36,13 @@ namespace {
     std::wstring RenderIoFlags(const protocol::RecordData& data) {
         std::wstring result;
 
-        const std::wstring irpFlagsText = trace::names::RenderIrpFlags(data.irpFlags);
-
-        if (!irpFlagsText.empty()) {
-            result += irpFlagsText;
+        if (data.irpFlags) {
+            result += trace::names::RenderIrpFlags(data.irpFlags);
             result += L'|';
         }
 
-        const std::wstring operationFlagsText = trace::names::RenderReadWriteFlags(data.operationFlags);
-
-        if (!operationFlagsText.empty()) {
-            result += operationFlagsText;
+        if (data.operationFlags) {
+            result += trace::names::RenderReadWriteFlags(data.operationFlags);
             result += L'|';
         }
 

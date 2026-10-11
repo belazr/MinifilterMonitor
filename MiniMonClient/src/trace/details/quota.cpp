@@ -146,11 +146,9 @@ namespace mimo {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = std::format(L"Length: {}, SidListLength: {}", parameters.queryQuota.length, parameters.queryQuota.sidListLength);
 
-                    const std::wstring flags = names::RenderScanFlags(data.operationFlags);
-
-                    if (!flags.empty()) {
+                    if (data.operationFlags) {
                         details += L", ";
-                        details += flags;
+                        details += names::RenderScanFlags(data.operationFlags);
                     }
 
                     const protocol::QueryQuotaSupplement& queryQuotaSupplement = data.supplement.queryQuota;

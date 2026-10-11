@@ -143,11 +143,9 @@ namespace {
             details += std::format(L", FileIndex: {}", parameters.queryDirectory.fileIndex);
         }
 
-        const std::wstring flags = trace::names::RenderScanFlags(data.operationFlags);
-
-        if (!flags.empty()) {
+        if (data.operationFlags) {
             details += L", ";
-            details += flags;
+            details += trace::names::RenderScanFlags(data.operationFlags);
         }
 
         const protocol::QueryDirectorySupplement& queryDirectorySupplement = data.supplement.queryDirectory;
@@ -318,17 +316,13 @@ namespace {
             details = RenderNotifyExParameters(parameters.notifyDirectory.directoryNotifyInformationClass, parameters.notifyDirectory.length);
         }
 
-        const std::wstring flags = trace::names::RenderNotifyFlags(data.operationFlags);
-
-        if (!flags.empty()) {
+        if (data.operationFlags) {
             details += L", ";
-            details += flags;
+            details += trace::names::RenderNotifyFlags(data.operationFlags);
         }
 
-        const std::wstring completionFilter = trace::names::RenderCompletionFilter(parameters.notifyDirectory.completionFilter);
-
-        if (!completionFilter.empty()) {
-            details += std::format(L", Filter: {}", completionFilter);
+        if (parameters.notifyDirectory.completionFilter) {
+            details += std::format(L", Filter: {}", trace::names::RenderCompletionFilter(parameters.notifyDirectory.completionFilter));
         }
 
         const std::span<const uint8_t> payload = ExtractPayload(data.supplement.notifyDirectory);

@@ -61,10 +61,8 @@ namespace {
                 result += std::format(L", EaValue: {}", RenderEaValue(eaBuffer.subspan(valueStart), entry.EaValueLength));
             }
 
-            const std::wstring flags = trace::names::RenderEaFlags(entry.Flags);
-
-            if (!flags.empty()) {
-                result += std::format(L", Flags: {}", flags);
+            if (entry.Flags) {
+                result += std::format(L", Flags: {}", trace::names::RenderEaFlags(entry.Flags));
             }
 
             result += L", ";
@@ -110,10 +108,8 @@ namespace mimo {
 
                     details += std::format(L"Disposition: {}, ", names::RenderCreateDisposition(disposition));
 
-                    const std::wstring options = names::RenderCreateOptions(createOptions);
-
-                    if (!options.empty()) {
-                        details += std::format(L"Options: {}, ", options);
+                    if (createOptions) {
+                        details += std::format(L"Options: {}, ", names::RenderCreateOptions(createOptions));
                     }
 
                     details += std::format(L"Attributes: {}, ", names::RenderFileAttributes(parameters.create.fileAttributes));
@@ -126,10 +122,8 @@ namespace mimo {
                         details += std::format(L"AllocationSize: {}, ", parameters.create.allocationSize);
                     }
 
-                    const std::wstring flags = names::RenderCreateFlags(data.operationFlags);
-
-                    if (!flags.empty()) {
-                        details += flags;
+                    if (data.operationFlags) {
+                        details += names::RenderCreateFlags(data.operationFlags);
                         details += L", ";
                     }
 
