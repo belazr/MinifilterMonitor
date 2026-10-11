@@ -23,7 +23,7 @@ namespace {
     constexpr wchar_t MINIMON_NAME[] = L"MiniMonFlt";
 
     HRESULT EnableLoadDriverPrivilege() {
-        NullHandle token{};
+        NullHandle token;
 
         if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, token.Put())) return HRESULT_FROM_WIN32(GetLastError());
 
@@ -64,7 +64,7 @@ namespace {
 
     std::vector<std::wstring> EnumerateSubKeys(const std::wstring& path) {
         std::vector<std::wstring> names;
-        RegistryKeyHandle key{};
+        RegistryKeyHandle key;
 
         if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, path.c_str(), 0u, KEY_READ, reinterpret_cast<HKEY*>(key.Put())) != ERROR_SUCCESS) return names;
 

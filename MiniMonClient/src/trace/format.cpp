@@ -27,7 +27,7 @@ namespace {
     };
 
     constexpr std::array<std::wstring_view, COLUMN_COUNT> MakeColumnLabels() {
-        std::array<std::wstring_view, COLUMN_COUNT> labels{};
+        std::array<std::wstring_view, COLUMN_COUNT> labels;
 
         labels[SEQ_NUM]            = L"SeqNum";
         labels[ALTITUDE]           = L"Altitude";

@@ -74,7 +74,7 @@ namespace {
     };
 
     std::optional<Parameters> ParseParameters(int argc, wchar_t* argv[]) {
-        Parameters parameters{};
+        Parameters parameters;
 
         for (int i = 0; i < argc; i++) {
             const std::wstring_view arg = argv[i];
