@@ -71,6 +71,7 @@ namespace mimo {
                 CloseFn(this->hNative);
             }
 
+            return;
         }
 
     };
