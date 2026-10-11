@@ -262,7 +262,6 @@ namespace {
     bool CaptureLoop(const InvalidHandle& port, Sink& sink) {
         constexpr uint32_t BUFFER_SIZE = 1000u * sizeof(protocol::Record);
         constexpr DWORD POLL_INTERVAL_MS = 200u;
-
         AlignedBuffer buffer{ BUFFER_SIZE };
         uint32_t droppedReported = 0u;
 

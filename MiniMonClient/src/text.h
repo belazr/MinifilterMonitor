@@ -18,7 +18,6 @@ namespace mimo {
 
         constexpr std::wstring ConvertFromAscii(std::string_view text) {
             constexpr std::wstring_view HEX_DIGITS = L"0123456789ABCDEF";
-
             std::wstring result;
 
             for (const char character : text) {
@@ -41,7 +40,6 @@ namespace mimo {
 
         constexpr std::wstring MarkTruncated(std::wstring_view value, bool truncated) {
             constexpr std::wstring_view TRUNCATION_MARK = L"...";
-
             std::wstring result{ value };
 
             if (truncated) {

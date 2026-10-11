@@ -143,7 +143,6 @@ namespace mimo {
             ULONG* pBytesWritten
         ) {
             constexpr ULONG RECORD_SIZE = static_cast<ULONG>(sizeof(protocol::Record));
-
             ULONG bytesWritten = 0u;
             bool tooSmall = false;
 
