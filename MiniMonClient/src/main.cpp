@@ -239,7 +239,7 @@ namespace {
     }
 
 
-    std::atomic<bool> stopRequested{ false };
+    std::atomic<bool> stopRequested;
 
     BOOL WINAPI CtrlHandler(DWORD ctrlType) {
 
