@@ -172,14 +172,31 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(CREATE_FLAG_NAMES), "composite entry after its components in CREATE_FLAG_NAMES");
 
-    constexpr FlagName IRP_FLAG_NAMES[]{
+    constexpr FlagName PAGING_IRP_FLAG_NAMES[]{
         { trace::kernel::IRP_NOCACHE,                L"Non-cached" },
         { trace::kernel::IRP_PAGING_IO,              L"Paging I/O" },
         { trace::kernel::IRP_SYNCHRONOUS_API,        L"Synchronous" },
         { trace::kernel::IRP_ASSOCIATED_IRP,         L"Associated IRP" },
+        { trace::kernel::IRP_SYNCHRONOUS_PAGING_IO,  L"Synchronous Paging I/O" },
+        { trace::kernel::IRP_CREATE_OPERATION,       L"Create Operation" },
+        { trace::kernel::IRP_READ_OPERATION,         L"Read Operation" },
+        { trace::kernel::IRP_WRITE_OPERATION,        L"Write Operation" },
+        { trace::kernel::IRP_CLOSE_OPERATION,        L"Close Operation" },
+        { trace::kernel::IRP_DEFER_IO_COMPLETION,    L"Defer I/O Completion" },
+        { trace::kernel::IRP_OB_QUERY_NAME,          L"Ob Query Name" },
+        { trace::kernel::IRP_HOLD_DEVICE_QUEUE,      L"Hold Device Queue" },
+        { trace::kernel::IRP_UM_DRIVER_INITIATED_IO, L"UM Driver Initiated I/O" },
+    };
+
+    static_assert(CompositesPrecedeComponents(PAGING_IRP_FLAG_NAMES), "composite entry after its components in PAGING_IRP_FLAG_NAMES");
+
+    constexpr FlagName IRP_FLAG_NAMES[]{
+        { trace::kernel::IRP_NOCACHE,                L"Non-cached" },
+        { trace::kernel::IRP_SYNCHRONOUS_API,        L"Synchronous" },
+        { trace::kernel::IRP_ASSOCIATED_IRP,         L"Associated IRP" },
         { trace::kernel::IRP_BUFFERED_IO,            L"Buffered I/O" },
         { trace::kernel::IRP_DEALLOCATE_BUFFER,      L"Deallocate Buffer" },
-        { trace::kernel::IRP_SYNCHRONOUS_PAGING_IO,  L"Synchronous Paging I/O" },
+        { trace::kernel::IRP_INPUT_OPERATION,        L"Input Operation" },
         { trace::kernel::IRP_CREATE_OPERATION,       L"Create Operation" },
         { trace::kernel::IRP_READ_OPERATION,         L"Read Operation" },
         { trace::kernel::IRP_WRITE_OPERATION,        L"Write Operation" },
@@ -1003,6 +1020,8 @@ namespace mimo {
 
 
             std::wstring RenderIrpFlags(uint32_t flags) {
+
+                if (flags & kernel::IRP_PAGING_IO) return RenderFlags(flags, PAGING_IRP_FLAG_NAMES, L"|");
 
                 return RenderFlags(flags, IRP_FLAG_NAMES, L"|");
             }
