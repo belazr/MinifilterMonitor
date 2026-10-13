@@ -828,6 +828,14 @@ namespace {
         return std::format(L"Flags: {}", trace::names::RenderRenameFlags(payload.Flags));
     }
 
+
+    std::wstring RenderLinkExPayload(const trace::kernel::FILE_RENAME_INFORMATION_EX& payload) {
+
+        if (!payload.Flags) return {};
+
+        return std::format(L"Flags: {}", trace::names::RenderLinkFlags(payload.Flags));
+    }
+
 }
 
 namespace mimo {
@@ -998,9 +1006,7 @@ namespace mimo {
                         }
 
                         case kernel::FileRenameInformationEx:
-                        case kernel::FileRenameInformationExBypassAccessCheck:
-                        case kernel::FileLinkInformationEx:
-                        case kernel::FileLinkInformationExBypassAccessCheck: {
+                        case kernel::FileRenameInformationExBypassAccessCheck: {
                             kernel::FILE_RENAME_INFORMATION_EX renameEx{};
 
                             if (payload::ReadHeader(payload, renameEx, offsetof(kernel::FILE_RENAME_INFORMATION_EX, FileName))) {
@@ -1018,6 +1024,19 @@ namespace mimo {
                             if (payload::ReadValue(payload, desiredStorageClass)) {
                                 payloadText = RenderDesiredStorageClassPayload(desiredStorageClass);
                             }
+
+                            break;
+                        }
+
+                        case kernel::FileLinkInformationEx:
+                        case kernel::FileLinkInformationExBypassAccessCheck: {
+                            kernel::FILE_RENAME_INFORMATION_EX linkEx{};
+
+                            if (payload::ReadHeader(payload, linkEx, offsetof(kernel::FILE_RENAME_INFORMATION_EX, FileName))) {
+                                payloadText = RenderLinkExPayload(linkEx);
+                            }
+
+                            targetText = RenderTargetName(setInfoSupplement);
 
                             break;
                         }

@@ -789,7 +789,7 @@ namespace mimo {
             // FILE_RENAME_INFORMATION_EX flags
             inline constexpr uint32_t FILE_RENAME_REPLACE_IF_EXISTS                    = 0x00000001u;
             inline constexpr uint32_t FILE_RENAME_POSIX_SEMANTICS                      = 0x00000002u;
-            inline constexpr uint32_t FILE_RENAME_SUPPRESS_PIN_STATE_INHERITANCE       = 0x00000004u;    // rename only
+            inline constexpr uint32_t FILE_RENAME_SUPPRESS_PIN_STATE_INHERITANCE       = 0x00000004u;
             inline constexpr uint32_t FILE_RENAME_SUPPRESS_STORAGE_RESERVE_INHERITANCE = 0x00000008u;
             inline constexpr uint32_t FILE_RENAME_NO_INCREASE_AVAILABLE_SPACE          = 0x00000010u;
             inline constexpr uint32_t FILE_RENAME_NO_DECREASE_AVAILABLE_SPACE          = 0x00000020u;
@@ -798,6 +798,18 @@ namespace mimo {
             inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_TARGET_SR               = 0x00000080u;
             inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_SOURCE_SR               = 0x00000100u;
             inline constexpr uint32_t FILE_RENAME_FORCE_RESIZE_SR                      = 0x00000180u;
+
+            // FILE_LINK_INFORMATION flags
+            inline constexpr uint32_t FILE_LINK_REPLACE_IF_EXISTS                    = 0x00000001u;
+            inline constexpr uint32_t FILE_LINK_POSIX_SEMANTICS                      = 0x00000002u;
+            inline constexpr uint32_t FILE_LINK_SUPPRESS_STORAGE_RESERVE_INHERITANCE = 0x00000008u;
+            inline constexpr uint32_t FILE_LINK_NO_INCREASE_AVAILABLE_SPACE          = 0x00000010u;
+            inline constexpr uint32_t FILE_LINK_NO_DECREASE_AVAILABLE_SPACE          = 0x00000020u;
+            inline constexpr uint32_t FILE_LINK_PRESERVE_AVAILABLE_SPACE             = 0x00000030u;
+            inline constexpr uint32_t FILE_LINK_IGNORE_READONLY_ATTRIBUTE            = 0x00000040u;
+            inline constexpr uint32_t FILE_LINK_FORCE_RESIZE_TARGET_SR               = 0x00000080u;
+            inline constexpr uint32_t FILE_LINK_FORCE_RESIZE_SOURCE_SR               = 0x00000100u;
+            inline constexpr uint32_t FILE_LINK_FORCE_RESIZE_SR                      = 0x00000180u;
 
             // FILE_KNOWN_FOLDER_TYPE values
             inline constexpr uint32_t KnownFolderNone      = 0u;

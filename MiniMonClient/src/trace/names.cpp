@@ -261,6 +261,21 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(RENAME_FLAG_NAMES), "composite entry after its components in RENAME_FLAG_NAMES");
 
+    constexpr FlagName LINK_FLAG_NAMES[]{
+        { trace::kernel::FILE_LINK_FORCE_RESIZE_SR,                      L"Force Resize SR" },
+        { trace::kernel::FILE_LINK_PRESERVE_AVAILABLE_SPACE,             L"Preserve Available Space" },
+        { trace::kernel::FILE_LINK_REPLACE_IF_EXISTS,                    L"Replace If Exists" },
+        { trace::kernel::FILE_LINK_POSIX_SEMANTICS,                      L"POSIX Semantics" },
+        { trace::kernel::FILE_LINK_SUPPRESS_STORAGE_RESERVE_INHERITANCE, L"Suppress Storage Reserve Inheritance" },
+        { trace::kernel::FILE_LINK_NO_INCREASE_AVAILABLE_SPACE,          L"No Increase Available Space" },
+        { trace::kernel::FILE_LINK_NO_DECREASE_AVAILABLE_SPACE,          L"No Decrease Available Space" },
+        { trace::kernel::FILE_LINK_IGNORE_READONLY_ATTRIBUTE,            L"Ignore Readonly Attribute" },
+        { trace::kernel::FILE_LINK_FORCE_RESIZE_TARGET_SR,               L"Force Resize Target SR" },
+        { trace::kernel::FILE_LINK_FORCE_RESIZE_SOURCE_SR,               L"Force Resize Source SR" },
+    };
+
+    static_assert(CompositesPrecedeComponents(LINK_FLAG_NAMES), "composite entry after its components in LINK_FLAG_NAMES");
+
     constexpr FlagName DESIRED_STORAGE_CLASS_FLAG_NAMES[]{
         { QUERY_STORAGE_CLASSES_FLAGS_MEASURE_WRITE, L"QUERY_STORAGE_CLASSES_FLAGS_MEASURE_WRITE" },
         { QUERY_STORAGE_CLASSES_FLAGS_MEASURE_READ,  L"QUERY_STORAGE_CLASSES_FLAGS_MEASURE_READ" },
@@ -1158,6 +1173,12 @@ namespace mimo {
             std::wstring RenderRenameFlags(uint32_t flags) {
 
                 return RenderFlags(flags, RENAME_FLAG_NAMES, L"|");
+            }
+
+
+            std::wstring RenderLinkFlags(uint32_t flags) {
+
+                return RenderFlags(flags, LINK_FLAG_NAMES, L"|");
             }
 
 
