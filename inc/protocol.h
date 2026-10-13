@@ -806,7 +806,7 @@ namespace mimo {
             ObjectId transaction;
             ObjectId processId;
             ObjectId threadId;
-            ObjectId operationId;
+            ObjectId callbackData;
             ObjectId topLevelIrp;
             uint64_t information;
             int32_t status;                 // NTSTATUS

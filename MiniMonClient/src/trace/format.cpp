@@ -183,7 +183,7 @@ namespace mimo {
                     columns[PRE_OP_IRQL]      = names::RenderIrql(data.preOpIrql);
                     columns[POST_OP_IRQL]     = names::RenderIrql(data.postOpIrql);
                     columns[OPR]              = names::RenderOperationCategory(data.flags);
-                    columns[OPERATION_ID]     = std::format(L"{:016X}", data.operationId);
+                    columns[OPERATION_ID]     = std::format(L"{:016X}", data.callbackData);
                     columns[TOP_LEVEL_IRP]    = values::RenderTopLevelIrp(data.topLevelIrp);
                     columns[POST_OP_TIME]     = values::RenderOperationTime(data.completionTime);
                     columns[MAJOR]            = names::RenderMajorFunction(data.callbackMajorId);

@@ -313,7 +313,7 @@ namespace mimo {
                 pRecordData->preOpIrql       = static_cast<uint8_t>(KeGetCurrentIrql());
                 pRecordData->irpFlags        = static_cast<uint32_t>(pData->Iopb->IrpFlags);
                 pRecordData->flags           = static_cast<uint32_t>(pData->Flags);
-                pRecordData->operationId     = reinterpret_cast<protocol::ObjectId>(pData);
+                pRecordData->callbackData    = reinterpret_cast<protocol::ObjectId>(pData);
                 pRecordData->topLevelIrp     = reinterpret_cast<protocol::ObjectId>(IoGetTopLevelIrp());
 
                 RtlCopyMemory(&pRecordData->parameters, &pData->Iopb->Parameters, sizeof(pRecordData->parameters));
