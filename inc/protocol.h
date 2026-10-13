@@ -794,9 +794,11 @@ namespace mimo {
         static_assert(sizeof(Supplement) == SUPPLEMENT_SIZE, "protocol::Supplement layout drift");
 
         // RecordData::truncated
-        inline constexpr uint8_t TRUNCATED_NAME = 0x01u;
+        inline constexpr uint8_t TRUNCATED_NAME     = 0x01u;
+        inline constexpr uint8_t TRUNCATED_ALTITUDE = 0x02u;
 
-        inline constexpr uint32_t NAME_WCHAR_COUNT = 512u;
+        inline constexpr uint32_t NAME_WCHAR_COUNT     = 512u;
+        inline constexpr uint32_t ALTITUDE_WCHAR_COUNT = 16u;
 
         struct RecordData {
             int64_t originatingTime;        // 100 ns ticks since 1601
@@ -824,14 +826,15 @@ namespace mimo {
             uint32_t transactionNotify;     // TRANSACTION_NOTIFY_* code, non-zero marks a transaction lifecycle event, not an operation
             uint32_t transactionSequence;   // per-transaction id, 0 if the operation is not transacted
             FltParameters parameters;
-            uint32_t altitude;
             uint32_t stackFrameCount;
+            uint8_t reserved[4u];
             StackFrame stackTrace[STACK_TRACE_FRAME_COUNT];
             wchar_t name[NAME_WCHAR_COUNT];
+            wchar_t altitude[ALTITUDE_WCHAR_COUNT];
             Supplement supplement;
         };
 
-        static_assert(sizeof(RecordData) == 2872u, "protocol::RecordData layout drift");
+        static_assert(sizeof(RecordData) == 2904u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, deviceObject) == 16u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, requestorMode) == 100u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, preOpIrql) == 102u, "protocol::RecordData layout drift");
@@ -840,7 +843,8 @@ namespace mimo {
         static_assert(offsetof(RecordData, parameters) == 112u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, stackTrace) == 168u, "protocol::RecordData layout drift");
         static_assert(offsetof(RecordData, name) == 744u, "protocol::RecordData layout drift");
-        static_assert(offsetof(RecordData, supplement) == 1768u, "protocol::RecordData layout drift");
+        static_assert(offsetof(RecordData, altitude) == 1768u, "protocol::RecordData layout drift");
+        static_assert(offsetof(RecordData, supplement) == 1800u, "protocol::RecordData layout drift");
 
         struct Record {
             uint32_t sequenceNumber;
@@ -849,7 +853,7 @@ namespace mimo {
             RecordData data;
         };
 
-        static_assert(sizeof(Record) == 2888u, "protocol::Record layout drift");
+        static_assert(sizeof(Record) == 2920u, "protocol::Record layout drift");
         static_assert(offsetof(Record, data) == 16u, "protocol::Record layout drift");
 
         enum class Command : uint32_t {

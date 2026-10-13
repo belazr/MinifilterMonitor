@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <fstream>
 #include <map>
 #include <ostream>
@@ -17,7 +16,7 @@ namespace mimo {
 
         Sink& operator=(const Sink&) = delete;
 
-        virtual bool Write(uint32_t altitude, std::wstring_view line) = 0;
+        virtual bool Write(std::wstring_view altitude, std::wstring_view line) = 0;
 
         virtual void Flush() = 0;
 
@@ -31,7 +30,7 @@ namespace mimo {
     public:
         ConsoleSink(std::ostream& stream, std::wstring_view headerText);
 
-        bool Write(uint32_t altitude, std::wstring_view line) override;
+        bool Write(std::wstring_view altitude, std::wstring_view line) override;
 
         void Flush() override;
 
@@ -48,7 +47,7 @@ namespace mimo {
             std::wstring_view headerText
         );
 
-        bool Write(uint32_t altitude, std::wstring_view line) override;
+        bool Write(std::wstring_view altitude, std::wstring_view line) override;
 
         void Flush() override;
 
@@ -57,7 +56,7 @@ namespace mimo {
         bool split;
         std::map<std::wstring, std::ofstream> files;
 
-        std::wstring MakeSplitPath(uint32_t altitude) const;
+        std::wstring MakeSplitPath(std::wstring_view altitude) const;
     };
 
 }

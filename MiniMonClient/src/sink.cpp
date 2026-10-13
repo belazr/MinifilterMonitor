@@ -2,7 +2,6 @@
 
 #include "text.h"
 
-#include <cstdint>
 #include <filesystem>
 #include <format>
 #include <fstream>
@@ -19,7 +18,7 @@ namespace mimo {
     ConsoleSink::ConsoleSink(std::ostream& stream, std::wstring_view headerText) : Sink(headerText), out(stream) {}
 
 
-    bool ConsoleSink::Write(uint32_t, std::wstring_view line) {
+    bool ConsoleSink::Write(std::wstring_view, std::wstring_view line) {
 
         if (!this->headerWritten) {
             this->out << text::ConvertToUtf8(this->header);
@@ -46,8 +45,8 @@ namespace mimo {
     ) : Sink(headerText), basePath(std::move(path)), split(splitByAltitude) {}
 
 
-    bool FileSink::Write(uint32_t altitude, std::wstring_view line) {
-        const std::wstring filePath = this->split ? this->MakeSplitPath(altitude) : this->basePath;
+    bool FileSink::Write(std::wstring_view altitude, std::wstring_view line) {
+        const std::wstring filePath = this->split && !altitude.empty() ? this->MakeSplitPath(altitude) : this->basePath;
         const auto [it, inserted] = this->files.try_emplace(filePath);
 
         if (inserted) {
@@ -78,7 +77,7 @@ namespace mimo {
     }
 
 
-    std::wstring FileSink::MakeSplitPath(uint32_t altitude) const {
+    std::wstring FileSink::MakeSplitPath(std::wstring_view altitude) const {
         std::filesystem::path path{ this->basePath };
         const std::wstring extension = path.extension().wstring();
         path.replace_extension();

@@ -164,7 +164,7 @@ namespace mimo {
                 std::array<std::wstring, COLUMN_COUNT> columns;
 
                 columns[SEQ_NUM]         = std::format(L"{:08X}", record.sequenceNumber);
-                columns[ALTITUDE]        = std::to_wstring(data.altitude);
+                columns[ALTITUDE]        = EscapeCsvField(text::MarkTruncated(text::Extract(data.altitude), data.truncated & protocol::TRUNCATED_ALTITUDE));
                 columns[PRE_OP_TIME]     = values::RenderOperationTime(data.originatingTime);
                 columns[PROCESS_ID]      = std::format(L"{:X}", data.processId);
                 columns[THREAD_ID]       = std::format(L"{:X}", data.threadId);

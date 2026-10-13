@@ -9,6 +9,7 @@
 #include "transaction.h"
 
 #include <fltKernel.h>
+#include <ntstrsafe.h>
 
 using namespace mimo;
 
@@ -127,7 +128,7 @@ namespace {
 
 
     __declspec(code_seg("PAGE"))
-    ULONG GetInstanceAltitude(_In_ const FLT_RELATED_OBJECTS* pFltObjects) {
+    NTSTATUS FormatInstanceAltitude(_In_ const FLT_RELATED_OBJECTS* pFltObjects, _Inout_ UNICODE_STRING* pAltitude) {
         PAGED_CODE();
 
         constexpr ULONG VOLUME_NAME_WCHAR_COUNT = 128u;
@@ -136,14 +137,15 @@ namespace {
         UNICODE_STRING volumeName{};
         volumeName.Buffer = volumeNameBuffer;
         volumeName.MaximumLength = static_cast<USHORT>(sizeof(volumeNameBuffer));
+        NTSTATUS status = FltGetVolumeName(pFltObjects->Volume, &volumeName, nullptr);
 
-        if (!NT_SUCCESS(FltGetVolumeName(pFltObjects->Volume, &volumeName, nullptr))) return 0u;
+        if (!NT_SUCCESS(status)) return status;
 
         UCHAR infoBuffer[sizeof(INSTANCE_FULL_INFORMATION) + ENTRY_STRINGS_WCHAR_COUNT * sizeof(WCHAR)]{};
 
         for (ULONG i = 0u; ; i++) {
             ULONG bytesReturned = 0u;
-            const NTSTATUS status = FltEnumerateInstanceInformationByFilter(pFltObjects->Filter, i, InstanceFullInformation, infoBuffer, static_cast<ULONG>(sizeof(infoBuffer)), &bytesReturned);
+            status = FltEnumerateInstanceInformationByFilter(pFltObjects->Filter, i, InstanceFullInformation, infoBuffer, static_cast<ULONG>(sizeof(infoBuffer)), &bytesReturned);
 
             // this volume's entries always fit: its name fit above and instance names cap at INSTANCE_NAME_MAX_CHARS
             if (status == STATUS_BUFFER_TOO_SMALL) continue;
@@ -178,14 +180,10 @@ namespace {
             infoAltitude.Length = pInfo->AltitudeLength;
             infoAltitude.MaximumLength = pInfo->AltitudeLength;
 
-            ULONG altitude = 0u;
-
-            if (!NT_SUCCESS(RtlUnicodeStringToInteger(&infoAltitude, 10u, &altitude))) return 0u;
-
-            return altitude;
+            return RtlUnicodeStringCopy(pAltitude, &infoAltitude);
         }
 
-        return 0u;
+        return status;
     }
 
 
@@ -205,13 +203,15 @@ namespace {
 
         driver::InstanceContext* pContext = nullptr;
         NTSTATUS status = STATUS_SUCCESS;
-        const ULONG altitude = GetInstanceAltitude(pFltObjects);
+        UNICODE_STRING altitude{};
 
         status = FltAllocateContext(pFltObjects->Filter, FLT_INSTANCE_CONTEXT, sizeof(driver::InstanceContext), NonPagedPool, reinterpret_cast<PFLT_CONTEXT*>(&pContext));
 
         if (!NT_SUCCESS(status)) goto done;
 
-        pContext->altitude = altitude;
+        RtlZeroMemory(pContext, sizeof(driver::InstanceContext));
+        RtlInitEmptyUnicodeString(&altitude, pContext->altitude, static_cast<USHORT>(sizeof(pContext->altitude)));
+        pContext->altitudeTruncated = FormatInstanceAltitude(pFltObjects, &altitude) == STATUS_BUFFER_OVERFLOW;
 
         status = FltSetInstanceContext(pFltObjects->Instance, FLT_SET_CONTEXT_KEEP_IF_EXISTS, pContext, nullptr);
 

@@ -71,7 +71,7 @@ MiniMonClient [/a <volume> | /m <volume> | /u | /f <output_file> [/s]]
 - `/m <volume>`: loads the driver and attaches every installed instance (all altitudes) to `<volume>`
 - `/u`: unloads the driver
 - `/f <output_file>`: writes captured records to `<output_file>` (without `/f`, records go to stdout)
-- `/s`: with `/f`, writes each altitude to its own file (`<base>.<altitude>.<ext>`)
+- `/s`: with `/f`, writes each altitude to its own file (`<base>.<altitude>.<ext>`). Records without an altitude, such as volume mounts, go to `<output_file>` itself
 
 A volume is given by its drive letter, e.g. `C:`. Without an action the client connects to the driver and captures the live trace to stdout. Press Ctrl+C to stop. To inspect which volumes the filter is attached to, use `fltmc instances`.
 

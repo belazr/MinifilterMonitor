@@ -287,7 +287,7 @@ namespace {
 
                 for (const protocol::Record& record : *records) {
 
-                    if (!sink.Write(record.data.altitude, trace::format::Render(record))) {
+                    if (!sink.Write(text::Extract(record.data.altitude), trace::format::Render(record))) {
                         std::cerr << "Failed to write log records\n";
 
                         return false;

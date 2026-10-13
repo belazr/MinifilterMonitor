@@ -252,6 +252,8 @@ MIRROR_ASSERT(mdlWriteComplete.mdlChain,   MdlWriteComplete.MdlChain);
 
 MIRROR_ASSERT(mountVolume.deviceType, MountVolume.DeviceType);
 
+static_assert(sizeof(driver::InstanceContext::altitude) == sizeof(protocol::RecordData::altitude), "driver::InstanceContext mirror drift: altitude");
+
 namespace {
 
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {
@@ -274,7 +276,12 @@ namespace {
         driver::InstanceContext* pInstanceContext = nullptr;
 
         if (pFltObjects->Instance && NT_SUCCESS(FltGetInstanceContext(pFltObjects->Instance, reinterpret_cast<PFLT_CONTEXT*>(&pInstanceContext)))) {
-            pRecordData->altitude = static_cast<uint32_t>(pInstanceContext->altitude);
+            RtlCopyMemory(pRecordData->altitude, pInstanceContext->altitude, sizeof(pRecordData->altitude));
+
+            if (pInstanceContext->altitudeTruncated) {
+                pRecordData->truncated |= protocol::TRUNCATED_ALTITUDE;
+            }
+
             FltReleaseContext(pInstanceContext);
         }
 
