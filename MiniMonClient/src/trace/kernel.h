@@ -1417,7 +1417,6 @@ namespace mimo {
             static_assert(sizeof(FILE_OBJECTID_BUFFER) == 64u, "trace::kernel::FILE_OBJECTID_BUFFER x64 layout drift");
             static_assert(offsetof(FILE_OBJECTID_BUFFER, BirthVolumeId) == 16u, "trace::kernel::FILE_OBJECTID_BUFFER x64 layout drift");
 
-            // symbolic link reparse point flag
             inline constexpr uint32_t SYMLINK_FLAG_RELATIVE = 0x00000001u;
 
             struct REPARSE_DATA_BUFFER {
@@ -2003,7 +2002,6 @@ namespace mimo {
             inline constexpr uint32_t SyncTypeOther         = 0u;
             inline constexpr uint32_t SyncTypeCreateSection = 1u;
 
-            // section synchronization input flags
             inline constexpr uint32_t FS_FILTER_SECTION_SYNC_IN_FLAG_DONT_UPDATE_LAST_ACCESS = 0x00000001u;
             inline constexpr uint32_t FS_FILTER_SECTION_SYNC_IN_FLAG_DONT_UPDATE_LAST_WRITE  = 0x00000002u;
 
