@@ -30,10 +30,10 @@ namespace mimo {
 
                     FLT_FILESYSTEM_TYPE fileSystemType = FLT_FSTYPE_UNKNOWN;
 
-                    if (NT_SUCCESS(FltGetFileSystemType(pVolume, &fileSystemType))) {
-                        pSupplement->fileSystemType = static_cast<uint32_t>(fileSystemType);
-                        pSupplement->captured |= protocol::MOUNT_CAPTURED_FILE_SYSTEM_TYPE;
-                    }
+                    if (!NT_SUCCESS(FltGetFileSystemType(pVolume, &fileSystemType))) return;
+
+                    pSupplement->fileSystemType = static_cast<uint32_t>(fileSystemType);
+                    pSupplement->captured |= protocol::MOUNT_CAPTURED_FILE_SYSTEM_TYPE;
 
                     return;
                 }
