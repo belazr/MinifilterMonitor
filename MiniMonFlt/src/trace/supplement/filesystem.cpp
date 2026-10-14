@@ -16,7 +16,7 @@ namespace {
         if (!bufferSize) return;
 
         ULONG readableSize = bufferSize;
-        const void* const pSecondInput =memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &readableSize);
+        const void* const pSecondInput = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.FileSystemControl.Direct.OutputMdlAddress, pData->Iopb->Parameters.FileSystemControl.Direct.OutputBuffer, &readableSize);
 
         if (!pSecondInput || !readableSize) return;
 
@@ -62,7 +62,6 @@ namespace mimo {
 
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode);
                     const bool probed = method != METHOD_NEITHER;
-
                     const void* pInputBuffer = nullptr;
                     const void* pRawBuffer = nullptr;
 

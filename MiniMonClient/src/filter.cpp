@@ -164,7 +164,6 @@ namespace mimo {
             protocol::CommandMessage commandMessage{};
             commandMessage.command = protocol::Command::GetRecords;
             DWORD bytesReturned = 0u;
-
             const HRESULT hRes = FilterSendMessage(port.Get(), &commandMessage, static_cast<DWORD>(sizeof(commandMessage)), records.Data(), static_cast<DWORD>(records.Size()), &bytesReturned);
 
             // empty list on an idle volume: STATUS_NO_MORE_ENTRIES surfaces as ERROR_NO_MORE_ITEMS

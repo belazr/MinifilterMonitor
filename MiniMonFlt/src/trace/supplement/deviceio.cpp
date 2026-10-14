@@ -18,9 +18,8 @@ namespace {
         const bool isFastIo = FLT_IS_FASTIO_OPERATION(pData);
         MDL* const pMdl = isFastIo ? nullptr : pData->Iopb->Parameters.DeviceIoControl.Direct.OutputMdlAddress;
         const void* const pRawBuffer = isFastIo ? pData->Iopb->Parameters.DeviceIoControl.FastIo.OutputBuffer : pData->Iopb->Parameters.DeviceIoControl.Direct.OutputBuffer;
-
         ULONG readableSize = bufferSize;
-        const void* const pSecondInput =memory::GetReadableBuffer(pData, pMdl, pRawBuffer, &readableSize);
+        const void* const pSecondInput = memory::GetReadableBuffer(pData, pMdl, pRawBuffer, &readableSize);
 
         if (!pSecondInput || !readableSize) return;
 
@@ -66,7 +65,6 @@ namespace mimo {
 
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.DeviceIoControl.Common.IoControlCode);
                     const bool probed = method != METHOD_NEITHER;
-
                     const void* pInputBuffer = nullptr;
                     const void* pRawBuffer = nullptr;
 
