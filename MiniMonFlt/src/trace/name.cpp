@@ -84,13 +84,13 @@ namespace mimo {
                 if (KeGetCurrentIrql() != PASSIVE_LEVEL) return STATUS_UNSUCCESSFUL;
 
                 // rename and link layouts agree on RootDirectory, FileNameLength and FileName
-                const FILE_RENAME_INFORMATION* const pInfo = static_cast<const FILE_RENAME_INFORMATION*>(pData->Iopb->Parameters.SetFileInformation.InfoBuffer);
+                const FILE_RENAME_INFORMATION* const pInfoBuffer = static_cast<const FILE_RENAME_INFORMATION*>(pData->Iopb->Parameters.SetFileInformation.InfoBuffer);
 
-                if (!pInfo) return STATUS_INVALID_PARAMETER;
+                if (!pInfoBuffer) return STATUS_INVALID_PARAMETER;
 
-                const HANDLE hRootDirectory = pInfo->RootDirectory;
-                WCHAR* const pFileName = const_cast<WCHAR*>(pInfo->FileName);
-                const ULONG fileNameSize = pInfo->FileNameLength;
+                const HANDLE hRootDirectory = pInfoBuffer->RootDirectory;
+                WCHAR* const pFileName = const_cast<WCHAR*>(pInfoBuffer->FileName);
+                const ULONG fileNameSize = pInfoBuffer->FileNameLength;
 
                 // copy source, defaulted to the raw, possibly relative name from the info buffer
                 UNICODE_STRING sourceName{};
