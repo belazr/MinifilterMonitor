@@ -21,11 +21,11 @@ namespace mimo {
 
                     if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
-                    const GUID* const pGuid = static_cast<const GUID*>(pData->Iopb->Parameters.WMI.DataPath);
+                    const void* const pDataPath = pData->Iopb->Parameters.WMI.DataPath;
 
-                    if (!pGuid) return;
+                    if (!pDataPath) return;
 
-                    RtlCopyMemory(pSupplement->guid, pGuid, sizeof(pSupplement->guid));
+                    RtlCopyMemory(pSupplement->guid, pDataPath, sizeof(pSupplement->guid));
                     pSupplement->captured |= protocol::WMI_CAPTURED_GUID;
 
                     return;

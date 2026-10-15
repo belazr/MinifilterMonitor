@@ -13,7 +13,7 @@ namespace mimo {
             namespace modwrite {
 
                 _Use_decl_annotations_
-                void Populate(protocol::ModWriteSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
+                void PopulateEndingOffset(protocol::ModWriteSupplement* pSupplement, const FLT_CALLBACK_DATA* pData) {
                     const LARGE_INTEGER* const pEndingOffset = pData->Iopb->Parameters.AcquireForModifiedPageWriter.EndingOffset;
 
                     if (!pEndingOffset) return;

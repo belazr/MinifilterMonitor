@@ -147,7 +147,7 @@ namespace mimo {
                     case IRP_MJ_ACQUIRE_FOR_MOD_WRITE:
 
                         if (pData->Iopb->Parameters.AcquireForModifiedPageWriter.EndingOffset) {
-                            modwrite::Populate(&pSupplement->modWrite, pData);
+                            modwrite::PopulateEndingOffset(&pSupplement->modWrite, pData);
                         }
 
                         break;

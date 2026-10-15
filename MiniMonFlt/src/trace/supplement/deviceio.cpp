@@ -58,10 +58,10 @@ namespace mimo {
 
                     if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
-                    const ULONG inSize = pData->Iopb->Parameters.DeviceIoControl.Common.InputBufferLength;
-                    const ULONG outSize = pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength;
+                    const ULONG inputSize = pData->Iopb->Parameters.DeviceIoControl.Common.InputBufferLength;
+                    const ULONG outputSize = pData->Iopb->Parameters.DeviceIoControl.Common.OutputBufferLength;
 
-                    if (!inSize && !outSize) return;
+                    if (!inputSize && !outputSize) return;
 
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.DeviceIoControl.Common.IoControlCode);
                     const bool probed = method != METHOD_NEITHER;
@@ -95,7 +95,7 @@ namespace mimo {
 
                     }
 
-                    if (pRawBuffer && memory::IsRawBufferReadable(pData, pRawBuffer, inSize, probed)) {
+                    if (pRawBuffer && memory::IsRawBufferReadable(pData, pRawBuffer, inputSize, probed)) {
                         pInputBuffer = pRawBuffer;
                     }
 
@@ -104,9 +104,9 @@ namespace mimo {
                         PopulateSecondInput(pSupplement, pData);
                     }
 
-                    if (!pInputBuffer || !inSize) return;
+                    if (!pInputBuffer || !inputSize) return;
 
-                    const ULONG copySize = inSize < protocol::DEVICE_IO_CONTROL_INPUT_PAYLOAD_SIZE ? inSize : protocol::DEVICE_IO_CONTROL_INPUT_PAYLOAD_SIZE;
+                    const ULONG copySize = inputSize < protocol::DEVICE_IO_CONTROL_INPUT_PAYLOAD_SIZE ? inputSize : protocol::DEVICE_IO_CONTROL_INPUT_PAYLOAD_SIZE;
 
                     __try {
                         RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
@@ -116,7 +116,7 @@ namespace mimo {
                         return;
                     }
 
-                    if (copySize < inSize) {
+                    if (copySize < inputSize) {
                         pSupplement->captured |= protocol::DEVICE_IO_CONTROL_TRUNCATED_INPUT;
                     }
 

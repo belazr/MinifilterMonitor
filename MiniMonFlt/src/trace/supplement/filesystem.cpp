@@ -55,10 +55,10 @@ namespace mimo {
 
                     if (KeGetCurrentIrql() >= DISPATCH_LEVEL) return;
 
-                    const ULONG inSize = pData->Iopb->Parameters.FileSystemControl.Common.InputBufferLength;
-                    const ULONG outSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
+                    const ULONG inputSize = pData->Iopb->Parameters.FileSystemControl.Common.InputBufferLength;
+                    const ULONG outputSize = pData->Iopb->Parameters.FileSystemControl.Common.OutputBufferLength;
 
-                    if (!inSize && !outSize) return;
+                    if (!inputSize && !outputSize) return;
 
                     const ULONG method = METHOD_FROM_CTL_CODE(pData->Iopb->Parameters.FileSystemControl.Common.FsControlCode);
                     const bool probed = method != METHOD_NEITHER;
@@ -85,7 +85,7 @@ namespace mimo {
 
                     }
 
-                    if (pRawBuffer && memory::IsRawBufferReadable(pData, pRawBuffer, inSize, probed)) {
+                    if (pRawBuffer && memory::IsRawBufferReadable(pData, pRawBuffer, inputSize, probed)) {
                         pInputBuffer = pRawBuffer;
                     }
 
@@ -94,9 +94,9 @@ namespace mimo {
                         PopulateSecondInput(pSupplement, pData);
                     }
 
-                    if (!pInputBuffer || !inSize) return;
+                    if (!pInputBuffer || !inputSize) return;
 
-                    const ULONG copySize = inSize < protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE ? inSize : protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE;
+                    const ULONG copySize = inputSize < protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE ? inputSize : protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE;
 
                     __try {
                         RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
@@ -106,7 +106,7 @@ namespace mimo {
                         return;
                     }
 
-                    if (copySize < inSize) {
+                    if (copySize < inputSize) {
                         pSupplement->captured |= protocol::FS_CONTROL_TRUNCATED_INPUT;
                     }
 

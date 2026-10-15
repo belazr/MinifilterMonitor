@@ -12,7 +12,7 @@ namespace mimo {
 
             namespace modwrite {
 
-                void Populate(_Inout_ protocol::ModWriteSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData);
+                void PopulateEndingOffset(_Inout_ protocol::ModWriteSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData);
 
                 void PopulateResource(_Inout_ protocol::ModWriteSupplement* pSupplement, _In_ const FLT_CALLBACK_DATA* pData);
 
