@@ -54,9 +54,9 @@ namespace {
 
         if (!nameSize) return {};
 
-        const size_t start = nameOffset < nameData.size() ? nameOffset : nameData.size();
+        const size_t nameStart = nameOffset < nameData.size() ? nameOffset : nameData.size();
 
-        return std::format(L"{}: {}", label, trace::details::payload::RenderName(nameData.subspan(start), nameSize));
+        return std::format(L"{}: {}", label, trace::details::payload::RenderName(nameData.subspan(nameStart), nameSize));
     }
 
 
@@ -115,10 +115,10 @@ namespace {
 
 
     std::wstring RenderReparsePayload(std::span<const uint8_t> payload) {
-        constexpr size_t HEADER_SIZE = offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer);
+        constexpr size_t REPARSE_BUFFER_OFFSET = offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer);
         trace::kernel::REPARSE_DATA_BUFFER reparse{};
 
-        if (!trace::details::payload::ReadHeader(payload, reparse, HEADER_SIZE)) return {};
+        if (!trace::details::payload::ReadHeader(payload, reparse, REPARSE_BUFFER_OFFSET)) return {};
 
         if (!reparse.ReparseTag) return {};
 
@@ -222,13 +222,13 @@ namespace {
 
 
     std::wstring RenderPrefetchPayload(std::span<const uint8_t> payload) {
-        constexpr size_t HEADER_SIZE = offsetof(trace::kernel::FILE_PREFETCH, Prefetch);
+        constexpr size_t PREFETCH_OFFSET = offsetof(trace::kernel::FILE_PREFETCH, Prefetch);
         trace::kernel::FILE_PREFETCH_EX prefetch{};
 
-        if (!trace::details::payload::ReadHeader(payload, prefetch, HEADER_SIZE)) return {};
+        if (!trace::details::payload::ReadHeader(payload, prefetch, PREFETCH_OFFSET)) return {};
 
         std::wstring result = std::format(L"Type: {}, Count: {}", trace::names::RenderFilePrefetchType(prefetch.Type), prefetch.Count);
-        size_t offset = HEADER_SIZE;
+        size_t offset = PREFETCH_OFFSET;
 
         if (prefetch.Type == FILE_PREFETCH_TYPE_FOR_CREATE_EX || prefetch.Type == FILE_PREFETCH_TYPE_FOR_DIRENUM_EX) {
             constexpr size_t CONTEXT_OFFSET = offsetof(trace::kernel::FILE_PREFETCH_EX, Context);
@@ -521,23 +521,23 @@ namespace {
         switch (header.MajorVersion) {
 
             case 2u: {
-                constexpr size_t HEADER_SIZE = offsetof(trace::kernel::USN_RECORD_V2, FileName);
+                constexpr size_t NAME_OFFSET = offsetof(trace::kernel::USN_RECORD_V2, FileName);
                 trace::kernel::USN_RECORD_V2 record{};
 
-                if (!trace::details::payload::ReadHeader(payload, record, HEADER_SIZE)) return {};
+                if (!trace::details::payload::ReadHeader(payload, record, NAME_OFFSET)) return {};
 
-                if (record.RecordLength < HEADER_SIZE) return {};
+                if (record.RecordLength < NAME_OFFSET) return {};
 
                 return RenderUsnRecord(record, payload);
             }
 
             case 3u: {
-                constexpr size_t HEADER_SIZE = offsetof(trace::kernel::USN_RECORD_V3, FileName);
+                constexpr size_t NAME_OFFSET = offsetof(trace::kernel::USN_RECORD_V3, FileName);
                 trace::kernel::USN_RECORD_V3 record{};
 
-                if (!trace::details::payload::ReadHeader(payload, record, HEADER_SIZE)) return {};
+                if (!trace::details::payload::ReadHeader(payload, record, NAME_OFFSET)) return {};
 
-                if (record.RecordLength < HEADER_SIZE) return {};
+                if (record.RecordLength < NAME_OFFSET) return {};
 
                 return RenderUsnRecord(record, payload);
             }
@@ -632,8 +632,8 @@ namespace {
         std::wstring result = std::format(L"BytesRequired: {}, TailLsn: {}, CurrentLsn: {}, ArchiveTailLsn: {}, LogContainerSize: {}, HighestVirtualClock: {}, LogContainerCount: {}, LogContainerCountMax: {}, LogContainerCountMin: {}, LogGrowthIncrement: {}, LogAutoShrinkPercentage: {}, Flags: {}, LoggingMode: {}, RmState: {}, LogCapacity: {}, LogFree: {}, TopsSize: {}, TopsUsed: {}, TransactionCount: {}, OnePCCount: {}, TwoPCCount: {}, NumberLogFileFull: {}, OldestTransactionAge: {}, RMName: {}", payload.BytesRequired, payload.TailLsn, payload.CurrentLsn, payload.ArchiveTailLsn, payload.LogContainerSize, payload.HighestVirtualClock, payload.LogContainerCount, payload.LogContainerCountMax, payload.LogContainerCountMin, payload.LogGrowthIncrement, payload.LogAutoShrinkPercentage, trace::names::RenderTxfsRmFlags(payload.Flags), trace::names::RenderTxfsLoggingMode(payload.LoggingMode), trace::names::RenderTxfsRmState(payload.RmState), payload.LogCapacity, payload.LogFree, payload.TopsSize, payload.TopsUsed, payload.TransactionCount, payload.OnePCCount, payload.TwoPCCount, payload.NumberLogFileFull, payload.OldestTransactionAge, trace::values::RenderGuid(payload.RMName));
 
         if (payload.TmLogPathOffset) {
-            const size_t start = payload.TmLogPathOffset < nameData.size() ? payload.TmLogPathOffset : nameData.size();
-            const std::wstring pathText = trace::details::payload::RenderTerminatedName(nameData.subspan(start));
+            const size_t pathStart = payload.TmLogPathOffset < nameData.size() ? payload.TmLogPathOffset : nameData.size();
+            const std::wstring pathText = trace::details::payload::RenderTerminatedName(nameData.subspan(pathStart));
 
             if (!pathText.empty()) {
                 result += std::format(L", TmLogPath: {}", pathText);

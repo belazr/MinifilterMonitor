@@ -53,11 +53,11 @@ namespace mimo {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = std::format(L"Information: {}, Length: {}", names::RenderSecurityInformation(parameters.querySecurity.securityInformation), parameters.querySecurity.length);
 
-                    const std::wstring descriptor = RenderDescriptorPayload(ExtractPayload(data.supplement.security), parameters.querySecurity.securityInformation);
+                    const std::wstring payloadText = RenderDescriptorPayload(ExtractPayload(data.supplement.security), parameters.querySecurity.securityInformation);
 
-                    if (!descriptor.empty()) {
+                    if (!payloadText.empty()) {
                         details += L", ";
-                        details += descriptor;
+                        details += payloadText;
                     }
 
                     return details;
@@ -68,11 +68,11 @@ namespace mimo {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = std::format(L"Information: {}", names::RenderSecurityInformation(parameters.setSecurity.securityInformation));
 
-                    const std::wstring descriptor = RenderDescriptorPayload(ExtractPayload(data.supplement.security), parameters.setSecurity.securityInformation);
+                    const std::wstring payloadText = RenderDescriptorPayload(ExtractPayload(data.supplement.security), parameters.setSecurity.securityInformation);
 
-                    if (!descriptor.empty()) {
+                    if (!payloadText.empty()) {
                         details += L", ";
-                        details += descriptor;
+                        details += payloadText;
                     }
 
                     return details;
