@@ -115,7 +115,7 @@ namespace {
 
 
     std::wstring RenderReparsePayload(std::span<const uint8_t> payload) {
-        constexpr size_t REPARSE_BUFFER_OFFSET = offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer);
+        constexpr size_t REPARSE_BUFFER_OFFSET = offsetof(trace::kernel::REPARSE_DATA_BUFFER, GenericReparseBuffer);
         trace::kernel::REPARSE_DATA_BUFFER reparse{};
 
         if (!trace::details::payload::ReadHeader(payload, reparse, REPARSE_BUFFER_OFFSET)) return {};
@@ -232,12 +232,13 @@ namespace {
 
         if (prefetch.Type == FILE_PREFETCH_TYPE_FOR_CREATE_EX || prefetch.Type == FILE_PREFETCH_TYPE_FOR_DIRENUM_EX) {
             constexpr size_t CONTEXT_OFFSET = offsetof(trace::kernel::FILE_PREFETCH_EX, Context);
+            constexpr size_t PREFETCH_EX_OFFSET = offsetof(trace::kernel::FILE_PREFETCH_EX, Prefetch);
 
             if (trace::details::payload::ReadValue(payload, prefetch.Context, CONTEXT_OFFSET) && prefetch.Context) {
                 result += std::format(L", Context: {}", trace::values::RenderObjectId(prefetch.Context));
             }
 
-            offset = offsetof(trace::kernel::FILE_PREFETCH_EX, Prefetch);
+            offset = PREFETCH_EX_OFFSET;
         }
 
         std::wstring listText;
