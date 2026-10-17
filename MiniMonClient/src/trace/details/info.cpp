@@ -225,16 +225,16 @@ namespace {
 
     template <typename Entry>
     std::wstring RenderHardLinksPayload(std::span<const uint8_t> payload) {
-        uint32_t bytesNeeded = 0u;
-        uint32_t entriesReturned = 0u;
+        constexpr size_t ENTRY_OFFSET = offsetof(trace::kernel::FILE_LINKS_INFORMATION, Entry);
+        trace::kernel::FILE_LINKS_INFORMATION links{};
 
-        if (!trace::details::payload::ReadValue(payload, bytesNeeded) || !trace::details::payload::ReadValue(payload, entriesReturned, offsetof(trace::kernel::FILE_LINKS_INFORMATION, EntriesReturned))) return {};
+        if (!trace::details::payload::ReadHeader(payload, links, ENTRY_OFFSET)) return {};
 
-        std::wstring result = std::format(L"BytesNeeded: {}, EntriesReturned: {}, ", bytesNeeded, entriesReturned);
-        size_t offset = offsetof(trace::kernel::FILE_LINKS_INFORMATION, Entry);
+        std::wstring result = std::format(L"BytesNeeded: {}, EntriesReturned: {}, ", links.BytesNeeded, links.EntriesReturned);
+        size_t offset = ENTRY_OFFSET;
         uint32_t index = 1u;
 
-        while (index <= entriesReturned) {
+        while (index <= links.EntriesReturned) {
             constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
             Entry entry{};
 
@@ -249,7 +249,7 @@ namespace {
 
         }
 
-        const bool marked = index <= entriesReturned;
+        const bool marked = index <= links.EntriesReturned;
 
         if (!marked) {
             result.resize(result.size() - 2u);
@@ -1005,9 +1005,10 @@ namespace mimo {
 
                         case kernel::FileRenameInformationEx:
                         case kernel::FileRenameInformationExBypassAccessCheck: {
+                            constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_RENAME_INFORMATION_EX, FileName);
                             kernel::FILE_RENAME_INFORMATION_EX renameEx{};
 
-                            if (payload::ReadHeader(payload, renameEx, offsetof(kernel::FILE_RENAME_INFORMATION_EX, FileName))) {
+                            if (payload::ReadHeader(payload, renameEx, NAME_OFFSET)) {
                                 payloadText = RenderRenameExPayload(renameEx);
                             }
 
@@ -1028,9 +1029,10 @@ namespace mimo {
 
                         case kernel::FileLinkInformationEx:
                         case kernel::FileLinkInformationExBypassAccessCheck: {
+                            constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_RENAME_INFORMATION_EX, FileName);
                             kernel::FILE_RENAME_INFORMATION_EX linkEx{};
 
-                            if (payload::ReadHeader(payload, linkEx, offsetof(kernel::FILE_RENAME_INFORMATION_EX, FileName))) {
+                            if (payload::ReadHeader(payload, linkEx, NAME_OFFSET)) {
                                 payloadText = RenderLinkExPayload(linkEx);
                             }
 

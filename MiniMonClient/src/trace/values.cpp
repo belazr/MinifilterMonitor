@@ -160,8 +160,9 @@ namespace mimo {
 
 
             std::wstring RenderSid(std::span<const uint8_t> sidData) {
+                constexpr size_t SUB_AUTHORITY_OFFSET = offsetof(SID, SubAuthority);
 
-                if (sidData.size() < offsetof(SID, SubAuthority)) return L"[invalid sid]";
+                if (sidData.size() < SUB_AUTHORITY_OFFSET) return L"[invalid sid]";
 
                 const PSID pSid = const_cast<uint8_t*>(sidData.data());
 
