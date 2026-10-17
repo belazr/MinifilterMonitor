@@ -99,7 +99,6 @@ namespace mimo {
                         pInputBuffer = pRawBuffer;
                     }
 
-                    // METHOD_IN_DIRECT: output buffer is a second input, not a result
                     if (method == METHOD_IN_DIRECT) {
                         PopulateSecondInput(pSupplement, pData);
                     }
@@ -161,8 +160,6 @@ namespace mimo {
                                 pOutputBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.DeviceIoControl.Neither.OutputMdlAddress, pData->Iopb->Parameters.DeviceIoControl.Neither.OutputBuffer, &readableSize, probed);
 
                                 break;
-
-                            // METHOD_IN_DIRECT: the output buffer is a second input, not a result
 
                         }
 
