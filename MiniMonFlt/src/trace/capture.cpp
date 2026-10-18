@@ -286,7 +286,7 @@ namespace {
         }
 
         ULONG stackFrameCount = 0u;
-        trace::stack::CaptureStackTrace(pRecordData->stackTrace, static_cast<ULONG>(protocol::STACK_TRACE_FRAME_COUNT), &stackFrameCount);
+        trace::stack::CaptureStackTrace(pRecordData->stackTrace, static_cast<ULONG>(ARRAYSIZE(pRecordData->stackTrace)), &stackFrameCount);
         pRecordData->stackFrameCount = static_cast<uint32_t>(stackFrameCount);
 
         LARGE_INTEGER originatingTime{};
