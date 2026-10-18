@@ -147,8 +147,7 @@ namespace mimo {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = RenderInformationParameters(parameters.volumeInformation.fsInformationClass, parameters.volumeInformation.length);
 
-                    const protocol::VolumeInfoSupplement& volumeInfoSupplement = data.supplement.volumeInfo;
-                    const std::span<const uint8_t> payload = ExtractPayload(volumeInfoSupplement);
+                    const std::span<const uint8_t> payload = ExtractPayload(data.supplement.volumeInfo);
                     std::wstring payloadText;
 
                     switch (parameters.volumeInformation.fsInformationClass) {

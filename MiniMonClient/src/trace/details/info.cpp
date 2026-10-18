@@ -855,8 +855,7 @@ namespace mimo {
                         details += names::RenderInformationFlags(parameters.queryFileInformation.fileInformationClass, data.operationFlags);
                     }
 
-                    const protocol::QueryInfoSupplement& queryInfoSupplement = data.supplement.queryInfo;
-                    const std::span<const uint8_t> payload = ExtractPayload(queryInfoSupplement);
+                    const std::span<const uint8_t> payload = ExtractPayload(data.supplement.queryInfo);
                     const std::wstring payloadText = RenderQueryInfoPayload(parameters.queryFileInformation.fileInformationClass, payload);
 
                     if (!payloadText.empty()) {
