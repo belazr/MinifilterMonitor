@@ -24,7 +24,7 @@ namespace mimo {
 
                     if (!pSidList || !bufferSize) return;
 
-                    const ULONG copySize = bufferSize < protocol::QUERY_QUOTA_SID_LIST_SIZE ? bufferSize : protocol::QUERY_QUOTA_SID_LIST_SIZE;
+                    const ULONG copySize = bufferSize < sizeof(pSupplement->sidList) ? bufferSize : sizeof(pSupplement->sidList);
 
                     RtlCopyMemory(pSupplement->sidList, pSidList, copySize);
 
@@ -50,7 +50,7 @@ namespace mimo {
 
                     if (!pQuotaBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::SET_QUOTA_PAYLOAD_SIZE ? readableSize : protocol::SET_QUOTA_PAYLOAD_SIZE;
+                    const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pQuotaBuffer, copySize);
@@ -84,7 +84,7 @@ namespace mimo {
 
                     if (!pQuotaBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::QUERY_QUOTA_PAYLOAD_SIZE ? readableSize : protocol::QUERY_QUOTA_PAYLOAD_SIZE;
+                    const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pQuotaBuffer, copySize);

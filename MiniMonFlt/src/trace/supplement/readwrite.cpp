@@ -25,7 +25,7 @@ namespace mimo {
 
                     if (!pWriteBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::READ_WRITE_PAYLOAD_SIZE ? readableSize : protocol::READ_WRITE_PAYLOAD_SIZE;
+                    const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pWriteBuffer, copySize);
@@ -59,7 +59,7 @@ namespace mimo {
 
                     if (!pReadBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::READ_WRITE_PAYLOAD_SIZE ? readableSize : protocol::READ_WRITE_PAYLOAD_SIZE;
+                    const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pReadBuffer, copySize);

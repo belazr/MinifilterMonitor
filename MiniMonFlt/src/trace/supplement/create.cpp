@@ -62,7 +62,7 @@ namespace mimo {
                     const ULONG bufferSize = pData->Iopb->Parameters.Create.EaLength;
 
                     if (pEaBuffer && bufferSize) {
-                        const ULONG copySize = bufferSize < protocol::CREATE_EA_BUFFER_SIZE ? bufferSize : protocol::CREATE_EA_BUFFER_SIZE;
+                        const ULONG copySize = bufferSize < sizeof(pSupplement->eaBuffer) ? bufferSize : sizeof(pSupplement->eaBuffer);
 
                         RtlCopyMemory(pSupplement->eaBuffer, pEaBuffer, copySize);
 

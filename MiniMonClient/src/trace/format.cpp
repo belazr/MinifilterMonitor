@@ -11,6 +11,7 @@
 #include <array>
 #include <cstdint>
 #include <format>
+#include <iterator>
 #include <string>
 #include <string_view>
 
@@ -85,7 +86,7 @@ namespace {
     static_assert(AllColumnsLabeled(), "every Column needs a header label in COLUMN_LABELS");
 
     std::wstring RenderStackTrace(const protocol::RecordData& data) {
-        const uint32_t count = data.stackFrameCount < protocol::STACK_TRACE_FRAME_COUNT ? data.stackFrameCount : protocol::STACK_TRACE_FRAME_COUNT;
+        const uint32_t count = data.stackFrameCount < std::size(data.stackTrace) ? data.stackFrameCount : std::size(data.stackTrace);
 
         if (!count) return {};
 

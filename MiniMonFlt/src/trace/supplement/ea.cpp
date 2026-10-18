@@ -24,7 +24,7 @@ namespace mimo {
 
                     if (!pEaList || !bufferSize) return;
 
-                    const ULONG copySize = bufferSize < protocol::QUERY_EA_LIST_SIZE ? bufferSize : protocol::QUERY_EA_LIST_SIZE;
+                    const ULONG copySize = bufferSize < sizeof(pSupplement->eaList) ? bufferSize : sizeof(pSupplement->eaList);
 
                     RtlCopyMemory(pSupplement->eaList, pEaList, copySize);
 
@@ -50,7 +50,7 @@ namespace mimo {
 
                     if (!pEaBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::SET_EA_PAYLOAD_SIZE ? readableSize : protocol::SET_EA_PAYLOAD_SIZE;
+                    const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pEaBuffer, copySize);
@@ -84,7 +84,7 @@ namespace mimo {
 
                     if (!pEaBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::QUERY_EA_PAYLOAD_SIZE ? readableSize : protocol::QUERY_EA_PAYLOAD_SIZE;
+                    const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pEaBuffer, copySize);

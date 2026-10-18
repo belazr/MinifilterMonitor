@@ -20,7 +20,7 @@ namespace {
 
         if (!pSecondInput || !readableSize) return;
 
-        const ULONG copySize = readableSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_SIZE ? readableSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_SIZE;
+        const ULONG copySize = readableSize < sizeof(pSupplement->outputPayload) ? readableSize : sizeof(pSupplement->outputPayload);
 
         __try {
             RtlCopyMemory(pSupplement->outputPayload, pSecondInput, copySize);
@@ -95,7 +95,7 @@ namespace mimo {
 
                     if (!pInputBuffer || !inputSize) return;
 
-                    const ULONG copySize = inputSize < protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE ? inputSize : protocol::FS_CONTROL_INPUT_PAYLOAD_SIZE;
+                    const ULONG copySize = inputSize < sizeof(pSupplement->inputPayload) ? inputSize : sizeof(pSupplement->inputPayload);
 
                     __try {
                         RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
@@ -153,7 +153,7 @@ namespace mimo {
 
                     if (!pOutputBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::FS_CONTROL_OUTPUT_PAYLOAD_SIZE ? readableSize : protocol::FS_CONTROL_OUTPUT_PAYLOAD_SIZE;
+                    const ULONG copySize = readableSize < sizeof(pSupplement->outputPayload) ? readableSize : sizeof(pSupplement->outputPayload);
 
                     __try {
                         RtlCopyMemory(pSupplement->outputPayload, pOutputBuffer, copySize);

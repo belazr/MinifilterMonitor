@@ -22,7 +22,7 @@ namespace mimo {
 
                     if (!pVolumeBuffer || !bufferSize) return;
 
-                    const ULONG copySize = bufferSize < protocol::VOLUME_INFO_PAYLOAD_SIZE ? bufferSize : protocol::VOLUME_INFO_PAYLOAD_SIZE;
+                    const ULONG copySize = bufferSize < sizeof(pSupplement->payload) ? bufferSize : sizeof(pSupplement->payload);
 
                     RtlCopyMemory(pSupplement->payload, pVolumeBuffer, copySize);
 
@@ -49,7 +49,7 @@ namespace mimo {
                     if (!pVolumeBuffer || !bufferSize || !writtenSize) return;
 
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
-                    const ULONG copySize = dataSize < protocol::VOLUME_INFO_PAYLOAD_SIZE ? dataSize : protocol::VOLUME_INFO_PAYLOAD_SIZE;
+                    const ULONG copySize = dataSize < sizeof(pSupplement->payload) ? dataSize : sizeof(pSupplement->payload);
 
                     RtlCopyMemory(pSupplement->payload, pVolumeBuffer, copySize);
 

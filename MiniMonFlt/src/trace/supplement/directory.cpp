@@ -54,7 +54,7 @@ namespace mimo {
 
                     if (!pDirectoryBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::QUERY_DIRECTORY_PAYLOAD_SIZE ? readableSize : protocol::QUERY_DIRECTORY_PAYLOAD_SIZE;
+                    const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pDirectoryBuffer, copySize);
@@ -88,7 +88,7 @@ namespace mimo {
 
                     if (!pDirectoryBuffer || !readableSize) return;
 
-                    const ULONG copySize = readableSize < protocol::NOTIFY_DIRECTORY_PAYLOAD_SIZE ? readableSize : protocol::NOTIFY_DIRECTORY_PAYLOAD_SIZE;
+                    const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pDirectoryBuffer, copySize);

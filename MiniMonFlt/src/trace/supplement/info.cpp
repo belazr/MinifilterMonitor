@@ -59,7 +59,7 @@ namespace mimo {
 
                     if (!pInfoBuffer || !bufferSize) return;
 
-                    const ULONG copySize = bufferSize < protocol::SET_INFO_PAYLOAD_SIZE ? bufferSize : protocol::SET_INFO_PAYLOAD_SIZE;
+                    const ULONG copySize = bufferSize < sizeof(pSupplement->payload) ? bufferSize : sizeof(pSupplement->payload);
 
                     RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
 
@@ -102,7 +102,7 @@ namespace mimo {
 
                     if (FLT_IS_FASTIO_OPERATION(pData) && !memory::IsRawBufferReadable(pData, pInfoBuffer, dataSize)) return;
 
-                    const ULONG copySize = dataSize < protocol::QUERY_INFO_PAYLOAD_SIZE ? dataSize : protocol::QUERY_INFO_PAYLOAD_SIZE;
+                    const ULONG copySize = dataSize < sizeof(pSupplement->payload) ? dataSize : sizeof(pSupplement->payload);
 
                     __try {
                         RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
@@ -137,7 +137,7 @@ namespace mimo {
 
                     if (!bufferSize) return;
 
-                    const ULONG copySize = bufferSize < protocol::QUERY_INFO_PAYLOAD_SIZE ? bufferSize : protocol::QUERY_INFO_PAYLOAD_SIZE;
+                    const ULONG copySize = bufferSize < sizeof(pSupplement->payload) ? bufferSize : sizeof(pSupplement->payload);
 
                     RtlCopyMemory(pSupplement->payload, pFileInformation, copySize);
 
