@@ -20,6 +20,12 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderQueryParameters(uint32_t size, uint32_t eaListSize) {
+
+        return std::format(L"Length: {}, EaListLength: {}", size, eaListSize);
+    }
+
+
     std::wstring RenderEaNames(std::span<const uint8_t> eaList) {
 
         if (eaList.empty()) return {};
@@ -131,6 +137,12 @@ namespace {
     }
 
 
+    std::wstring RenderSetParameters(uint32_t size) {
+
+        return std::format(L"Length: {}", size);
+    }
+
+
     std::span<const uint8_t> ExtractPayload(const protocol::SetEaSupplement& supplement) {
 
         if (!(supplement.captured & protocol::SET_EA_CAPTURED_PAYLOAD)) return {};
@@ -150,7 +162,7 @@ namespace mimo {
 
                 std::wstring RenderQuery(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Length: {}, EaListLength: {}", parameters.queryEa.length, parameters.queryEa.eaListLength);
+                    std::wstring details = RenderQueryParameters(parameters.queryEa.length, parameters.queryEa.eaListLength);
 
                     if ((data.operationFlags & kernel::SL_INDEX_SPECIFIED) || parameters.queryEa.eaIndex) {
                         details += std::format(L", EaIndex: {}", parameters.queryEa.eaIndex);
@@ -181,7 +193,7 @@ namespace mimo {
 
 
                 std::wstring RenderSet(const protocol::RecordData& data) {
-                    std::wstring details = std::format(L"Length: {}", data.parameters.setEa.length);
+                    std::wstring details = RenderSetParameters(data.parameters.setEa.length);
 
                     const std::wstring payloadText = RenderExtendedAttributesPayload(ExtractPayload(data.supplement.setEa));
 

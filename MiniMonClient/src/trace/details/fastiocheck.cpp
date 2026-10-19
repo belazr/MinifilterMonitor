@@ -4,8 +4,20 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
+#include <cstdint>
 #include <format>
 #include <string>
+
+using namespace mimo;
+
+namespace {
+
+    std::wstring RenderFastIoCheckParameters(bool checkForReadOperation, int64_t fileOffset, uint32_t size) {
+
+        return std::format(L"Operation: {}, Offset: {}, Length: {}", checkForReadOperation ? L"Read" : L"Write", trace::values::RenderByteOffset(fileOffset), size);
+    }
+
+}
 
 namespace mimo {
 
@@ -17,7 +29,7 @@ namespace mimo {
 
                 std::wstring Render(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Operation: {}, Offset: {}, Length: {}", parameters.fastIoCheckIfPossible.checkForReadOperation ? L"Read" : L"Write", values::RenderByteOffset(parameters.fastIoCheckIfPossible.fileOffset), parameters.fastIoCheckIfPossible.length);
+                    std::wstring details = RenderFastIoCheckParameters(parameters.fastIoCheckIfPossible.checkForReadOperation, parameters.fastIoCheckIfPossible.fileOffset, parameters.fastIoCheckIfPossible.length);
 
                     if (parameters.fastIoCheckIfPossible.lockKey) {
                         details += std::format(L", Key: 0x{:X}", parameters.fastIoCheckIfPossible.lockKey);

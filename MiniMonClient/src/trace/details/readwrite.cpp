@@ -33,6 +33,12 @@ namespace {
     }
 
 
+    std::wstring RenderReadWriteParameters(int64_t offset, uint32_t size) {
+
+        return std::format(L"Offset: {}, Length: {}", trace::values::RenderByteOffset(offset), size);
+    }
+
+
     std::wstring RenderIoFlags(const protocol::RecordData& data) {
         std::wstring result;
 
@@ -72,7 +78,7 @@ namespace mimo {
                         return isWrite ? RenderWriteComplete(parameters.readWrite.byteOffset, parameters.readWrite.mdlAddress) : RenderReadComplete(parameters.readWrite.mdlAddress);
                     }
 
-                    std::wstring details = std::format(L"Offset: {}, Length: {}", values::RenderByteOffset(parameters.readWrite.byteOffset), parameters.readWrite.length);
+                    std::wstring details = RenderReadWriteParameters(parameters.readWrite.byteOffset, parameters.readWrite.length);
 
                     if ((data.operationFlags & kernel::SL_KEY_SPECIFIED) || parameters.readWrite.key) {
                         details += std::format(L", Key: 0x{:X}", parameters.readWrite.key);
@@ -103,7 +109,7 @@ namespace mimo {
 
                 std::wstring RenderMdl(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Offset: {}, Length: {}", values::RenderByteOffset(parameters.mdlReadWrite.fileOffset), parameters.mdlReadWrite.length);
+                    std::wstring details = RenderReadWriteParameters(parameters.mdlReadWrite.fileOffset, parameters.mdlReadWrite.length);
 
                     if (parameters.mdlReadWrite.key) {
                         details += std::format(L", Key: 0x{:X}", parameters.mdlReadWrite.key);

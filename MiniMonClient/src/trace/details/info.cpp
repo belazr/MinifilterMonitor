@@ -836,6 +836,12 @@ namespace {
         return std::format(L"Flags: {}", trace::names::RenderLinkFlags(payload.Flags));
     }
 
+
+    std::wstring RenderQueryOpenParameters(uint32_t infoClass) {
+
+        return std::format(L"Class: {}", trace::names::RenderFileInformationClass(infoClass));
+    }
+
 }
 
 namespace mimo {
@@ -1104,7 +1110,7 @@ namespace mimo {
 
                 std::wstring RenderQueryOpen(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Class: {}", names::RenderFileInformationClass(parameters.queryOpen.fileInformationClass));
+                    std::wstring details = RenderQueryOpenParameters(parameters.queryOpen.fileInformationClass);
 
                     const std::wstring payloadText = RenderQueryInfoPayload(parameters.queryOpen.fileInformationClass, ExtractPayload(data.supplement.queryInfo));
 

@@ -16,6 +16,12 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderQueryParameters(uint32_t information, uint32_t size) {
+
+        return std::format(L"Information: {}, Length: {}", trace::names::RenderSecurityInformation(information), size);
+    }
+
+
     std::span<const uint8_t> ExtractPayload(const protocol::SecuritySupplement& supplement) {
 
         if (!(supplement.captured & protocol::SECURITY_CAPTURED_PAYLOAD)) return {};
@@ -39,6 +45,12 @@ namespace {
         return descriptor;
     }
 
+
+    std::wstring RenderSetParameters(uint32_t information) {
+
+        return std::format(L"Information: {}", trace::names::RenderSecurityInformation(information));
+    }
+
 }
 
 namespace mimo {
@@ -51,7 +63,7 @@ namespace mimo {
 
                 std::wstring RenderQuery(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Information: {}, Length: {}", names::RenderSecurityInformation(parameters.querySecurity.securityInformation), parameters.querySecurity.length);
+                    std::wstring details = RenderQueryParameters(parameters.querySecurity.securityInformation, parameters.querySecurity.length);
 
                     const std::wstring payloadText = RenderDescriptorPayload(ExtractPayload(data.supplement.security), parameters.querySecurity.securityInformation);
 
@@ -66,7 +78,7 @@ namespace mimo {
 
                 std::wstring RenderSet(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Information: {}", names::RenderSecurityInformation(parameters.setSecurity.securityInformation));
+                    std::wstring details = RenderSetParameters(parameters.setSecurity.securityInformation);
 
                     const std::wstring payloadText = RenderDescriptorPayload(ExtractPayload(data.supplement.security), parameters.setSecurity.securityInformation);
 

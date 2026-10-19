@@ -20,6 +20,12 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderQueryParameters(uint32_t size, uint32_t sidListSize) {
+
+        return std::format(L"Length: {}, SidListLength: {}", size, sidListSize);
+    }
+
+
     std::wstring RenderSids(std::span<const uint8_t> sidList) {
 
         if (sidList.empty()) return {};
@@ -125,6 +131,12 @@ namespace {
     }
 
 
+    std::wstring RenderSetParameters(uint32_t size) {
+
+        return std::format(L"Length: {}", size);
+    }
+
+
     std::span<const uint8_t> ExtractPayload(const protocol::SetQuotaSupplement& supplement) {
 
         if (!(supplement.captured & protocol::SET_QUOTA_CAPTURED_PAYLOAD)) return {};
@@ -144,7 +156,7 @@ namespace mimo {
 
                 std::wstring RenderQuery(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Length: {}, SidListLength: {}", parameters.queryQuota.length, parameters.queryQuota.sidListLength);
+                    std::wstring details = RenderQueryParameters(parameters.queryQuota.length, parameters.queryQuota.sidListLength);
 
                     if (data.operationFlags) {
                         details += L", ";
@@ -171,7 +183,7 @@ namespace mimo {
 
 
                 std::wstring RenderSet(const protocol::RecordData& data) {
-                    std::wstring details = std::format(L"Length: {}", data.parameters.setQuota.length);
+                    std::wstring details = RenderSetParameters(data.parameters.setQuota.length);
 
                     const std::wstring payloadText = RenderQuotasPayload(ExtractPayload(data.supplement.setQuota));
 

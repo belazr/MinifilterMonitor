@@ -25,6 +25,12 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderControlParameters(uint32_t ioControlCode, uint32_t inputSize, uint32_t outputSize) {
+
+        return std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", trace::names::RenderIoControlCode(ioControlCode), inputSize, outputSize);
+    }
+
+
     std::span<const uint8_t> ExtractInput(const protocol::DeviceIoControlSupplement& supplement) {
 
         if (!(supplement.captured & protocol::DEVICE_IO_CONTROL_CAPTURED_INPUT)) return {};
@@ -350,7 +356,7 @@ namespace mimo {
 
                 std::wstring Render(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", names::RenderIoControlCode(parameters.deviceIoControl.ioControlCode), parameters.deviceIoControl.inputBufferLength, parameters.deviceIoControl.outputBufferLength);
+                    std::wstring details = RenderControlParameters(parameters.deviceIoControl.ioControlCode, parameters.deviceIoControl.inputBufferLength, parameters.deviceIoControl.outputBufferLength);
 
                     if (data.operationFlags) {
                         details += L", ";

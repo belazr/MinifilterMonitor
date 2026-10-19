@@ -24,6 +24,12 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderControlParameters(uint32_t fsControlCode, uint32_t inputSize, uint32_t outputSize) {
+
+        return std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", trace::names::RenderFsControlCode(fsControlCode), inputSize, outputSize);
+    }
+
+
     std::span<const uint8_t> ExtractInput(const protocol::FsControlSupplement& supplement) {
 
         if (!(supplement.captured & protocol::FS_CONTROL_CAPTURED_INPUT)) return {};
@@ -826,7 +832,7 @@ namespace mimo {
                     if (data.callbackMinorId != kernel::IRP_MN_USER_FS_REQUEST && data.callbackMinorId != kernel::IRP_MN_KERNEL_CALL) return {};
 
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", names::RenderFsControlCode(parameters.fileSystemControl.fsControlCode), parameters.fileSystemControl.inputBufferLength, parameters.fileSystemControl.outputBufferLength);
+                    std::wstring details = RenderControlParameters(parameters.fileSystemControl.fsControlCode, parameters.fileSystemControl.inputBufferLength, parameters.fileSystemControl.outputBufferLength);
 
                     if (data.operationFlags) {
                         details += L", ";

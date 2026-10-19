@@ -6,8 +6,20 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
+#include <cstdint>
 #include <format>
 #include <string>
+
+using namespace mimo;
+
+namespace {
+
+    std::wstring RenderMountParameters(uint32_t deviceType) {
+
+        return std::format(L"DeviceType: {}", trace::names::RenderDeviceType(deviceType));
+    }
+
+}
 
 namespace mimo {
 
@@ -19,7 +31,7 @@ namespace mimo {
 
                 // FltMgr builds this callback data without an IRP: IrpFlags and OperationFlags are always 0
                 std::wstring Render(const protocol::RecordData& data) {
-                    std::wstring details = std::format(L"DeviceType: {}", names::RenderDeviceType(data.parameters.mountVolume.deviceType));
+                    std::wstring details = RenderMountParameters(data.parameters.mountVolume.deviceType);
 
                     const protocol::MountSupplement& mountSupplement = data.supplement.mount;
 
