@@ -225,6 +225,18 @@ namespace {
     }
 
 
+    std::wstring RenderDynamicPayload(uint8_t dynamic) {
+
+        return std::format(L"IsDynamic: {}", trace::values::RenderBoolean(dynamic));
+    }
+
+
+    std::wstring RenderCsvPayload(uint8_t csv) {
+
+        return std::format(L"IsCsv: {}", trace::values::RenderBoolean(csv));
+    }
+
+
     std::wstring RenderOutput(uint32_t ioControlCode, const protocol::DeviceIoControlSupplement& supplement) {
         const std::span<const uint8_t> output = ExtractOutput(supplement);
         const bool truncated = supplement.captured & protocol::DEVICE_IO_CONTROL_TRUNCATED_OUTPUT;
@@ -311,7 +323,7 @@ namespace {
             case IOCTL_VOLUME_IS_DYNAMIC: {
                 uint8_t dynamic = 0u;
 
-                if (trace::details::payload::ReadValue(output, dynamic)) return std::format(L"IsDynamic: {}", trace::values::RenderBoolean(dynamic));
+                if (trace::details::payload::ReadValue(output, dynamic)) return RenderDynamicPayload(dynamic);
 
                 break;
             }
@@ -319,7 +331,7 @@ namespace {
             case IOCTL_VOLUME_IS_CSV: {
                 uint8_t csv = 0u;
 
-                if (trace::details::payload::ReadValue(output, csv)) return std::format(L"IsCsv: {}", trace::values::RenderBoolean(csv));
+                if (trace::details::payload::ReadValue(output, csv)) return RenderCsvPayload(csv);
 
                 break;
             }

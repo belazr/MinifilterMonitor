@@ -9,6 +9,24 @@
 #include <format>
 #include <string>
 
+using namespace mimo;
+
+namespace {
+
+    std::wstring RenderQueryDeviceRelations(const protocol::RecordData& data) {
+
+        return std::format(L"Type: {}", trace::names::RenderDeviceRelationType(data.parameters.pnp.queryDeviceRelations.type));
+    }
+
+
+    std::wstring RenderDeviceUsageNotification(const protocol::RecordData& data) {
+        const protocol::FltParameters& parameters = data.parameters;
+
+        return std::format(L"InPath: {}, Type: {}", trace::values::RenderBoolean(parameters.pnp.usageNotification.inPath), trace::names::RenderDeviceUsageNotificationType(parameters.pnp.usageNotification.type));
+    }
+
+}
+
 namespace mimo {
 
     namespace trace {
@@ -18,17 +36,16 @@ namespace mimo {
             namespace pnp {
 
                 std::wstring Render(const protocol::RecordData& data) {
-                    const protocol::FltParameters& parameters = data.parameters;
 
                     switch (data.callbackMinorId) {
 
                         case kernel::IRP_MN_QUERY_DEVICE_RELATIONS:
 
-                            return std::format(L"Type: {}", names::RenderDeviceRelationType(parameters.pnp.queryDeviceRelations.type));
+                            return RenderQueryDeviceRelations(data);
 
                         case kernel::IRP_MN_DEVICE_USAGE_NOTIFICATION:
 
-                            return std::format(L"InPath: {}, Type: {}", values::RenderBoolean(parameters.pnp.usageNotification.inPath), names::RenderDeviceUsageNotificationType(parameters.pnp.usageNotification.type));
+                            return RenderDeviceUsageNotification(data);
 
                     }
 

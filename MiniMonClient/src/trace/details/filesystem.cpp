@@ -24,6 +24,12 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderVerifyVolume(const protocol::RecordData& data) {
+
+        return trace::names::RenderVerifyVolumeFlags(data.operationFlags);
+    }
+
+
     std::wstring RenderControlParameters(uint32_t fsControlCode, uint32_t inputSize, uint32_t outputSize) {
 
         return std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", trace::names::RenderFsControlCode(fsControlCode), inputSize, outputSize);
@@ -827,7 +833,7 @@ namespace mimo {
 
                 std::wstring Render(const protocol::RecordData& data) {
 
-                    if (data.callbackMinorId == kernel::IRP_MN_VERIFY_VOLUME) return names::RenderVerifyVolumeFlags(data.operationFlags);
+                    if (data.callbackMinorId == kernel::IRP_MN_VERIFY_VOLUME) return RenderVerifyVolume(data);
 
                     if (data.callbackMinorId != kernel::IRP_MN_USER_FS_REQUEST && data.callbackMinorId != kernel::IRP_MN_KERNEL_CALL) return {};
 

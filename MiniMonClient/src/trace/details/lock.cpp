@@ -46,6 +46,12 @@ namespace {
         return std::format(L"Exclusive: {}, {}, Fail Immediately: {}", trace::values::RenderBoolean(exclusiveLock), RenderLockRange(data), trace::values::RenderBoolean(failImmediately));
     }
 
+
+    std::wstring RenderUnlockAllByKey(const protocol::RecordData& data) {
+
+        return std::format(L"Key: 0x{:X}", data.parameters.lockControl.key);
+    }
+
 }
 
 namespace mimo {
@@ -70,7 +76,7 @@ namespace mimo {
 
                         case kernel::IRP_MN_UNLOCK_ALL_BY_KEY:
 
-                            return std::format(L"Key: 0x{:X}", data.parameters.lockControl.key);
+                            return RenderUnlockAllByKey(data);
 
                     }
 
