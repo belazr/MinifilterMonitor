@@ -113,8 +113,7 @@ namespace {
             result += L", ";
         }
 
-        result += RenderStandardPayload(payload.StandardInformation);
-        result += std::format(L", {}, {}, Access: {}, {}", RenderInternalPayload(payload.InternalInformation), RenderEaPayload(payload.EaInformation), trace::names::RenderDesiredAccess(payload.AccessInformation.AccessFlags), RenderPositionPayload(payload.PositionInformation));
+        result += std::format(L"{}, {}, {}, Access: {}, {}", RenderStandardPayload(payload.StandardInformation), RenderInternalPayload(payload.InternalInformation), RenderEaPayload(payload.EaInformation), trace::names::RenderDesiredAccess(payload.AccessInformation.AccessFlags), RenderPositionPayload(payload.PositionInformation));
 
         if (payload.ModeInformation.Mode) {
             result += std::format(L", Mode: {}", trace::names::RenderCreateOptions(payload.ModeInformation.Mode));
@@ -303,9 +302,7 @@ namespace {
 
 
     std::wstring RenderRemoteProtocolPayload(const trace::kernel::FILE_REMOTE_PROTOCOL_INFORMATION& payload) {
-        std::wstring result = std::format(L"Protocol: {}", trace::names::RenderRemoteProtocol(payload.Protocol));
-
-        result += std::format(L", Version: {}.{}.{}", payload.ProtocolMajorVersion, payload.ProtocolMinorVersion, payload.ProtocolRevision);
+        std::wstring result = std::format(L"Protocol: {}, Version: {}.{}.{}", trace::names::RenderRemoteProtocol(payload.Protocol), payload.ProtocolMajorVersion, payload.ProtocolMinorVersion, payload.ProtocolRevision);
 
         if (payload.Flags) {
             result += std::format(L", Flags: {}", trace::names::RenderRemoteProtocolFlags(payload.Flags));
