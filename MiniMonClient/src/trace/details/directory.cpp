@@ -248,15 +248,15 @@ namespace {
     }
 
 
-    std::wstring RenderNotifyParameters(uint32_t size) {
-
-        return std::format(L"Length: {}", size);
-    }
-
-
     std::wstring RenderNotifyExParameters(uint32_t infoClass, uint32_t size) {
 
         return std::format(L"Class: {}, Length: {}", trace::names::RenderDirectoryNotifyInformationClass(infoClass), size);
+    }
+
+
+    std::wstring RenderNotifyParameters(uint32_t size) {
+
+        return std::format(L"Length: {}", size);
     }
 
 
@@ -307,14 +307,8 @@ namespace {
 
     std::wstring RenderNotify(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
-        std::wstring details;
-
-        if (data.callbackMinorId == trace::kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY) {
-            details = RenderNotifyParameters(parameters.notifyDirectory.length);
-        }
-        else {
-            details = RenderNotifyExParameters(parameters.notifyDirectory.directoryNotifyInformationClass, parameters.notifyDirectory.length);
-        }
+        const bool notifyEx = data.callbackMinorId == trace::kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX;
+        std::wstring details = notifyEx ? RenderNotifyExParameters(parameters.notifyDirectory.directoryNotifyInformationClass, parameters.notifyDirectory.length) : RenderNotifyParameters(parameters.notifyDirectory.length);
 
         if (data.operationFlags) {
             details += L", ";
@@ -326,7 +320,7 @@ namespace {
         }
 
         const std::span<const uint8_t> payload = ExtractPayload(data.supplement.notifyDirectory);
-        const uint32_t directoryNotifyInformationClass = data.callbackMinorId == trace::kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY ? trace::kernel::DirectoryNotifyInformation : parameters.notifyDirectory.directoryNotifyInformationClass;
+        const uint32_t directoryNotifyInformationClass = notifyEx ? parameters.notifyDirectory.directoryNotifyInformationClass : trace::kernel::DirectoryNotifyInformation;
         std::wstring payloadText;
 
         switch (directoryNotifyInformationClass) {
