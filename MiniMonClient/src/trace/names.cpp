@@ -1185,6 +1185,8 @@ namespace mimo {
 
             std::wstring RenderDispositionFlags(uint32_t flags) {
 
+                if (!flags) return L"Do Not Delete";
+
                 return RenderFlags(flags, DISPOSITION_FLAG_NAMES, L"|");
             }
 

@@ -14,7 +14,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
 #include <format>
 #include <span>
 #include <string>
@@ -330,7 +329,8 @@ namespace {
     }
 
 
-    std::wstring RenderStatPayload(const trace::kernel::FILE_STAT_INFORMATION& payload) {
+    template <typename Stat>
+    std::wstring RenderStatPayload(const Stat& payload) {
         std::wstring result = std::format(L"FileId: {}", trace::values::RenderFileId(static_cast<uint64_t>(payload.FileId)));
 
         if (payload.CreationTime) {
@@ -366,10 +366,7 @@ namespace {
 
 
     std::wstring RenderStatLxPayload(const trace::kernel::FILE_STAT_LX_INFORMATION& payload) {
-        trace::kernel::FILE_STAT_INFORMATION stat{};
-        std::memcpy(&stat, &payload, sizeof(stat));
-
-        std::wstring result = RenderStatPayload(stat);
+        std::wstring result = RenderStatPayload(payload);
 
         if (payload.LxFlags & LX_FILE_METADATA_HAS_UID) {
             result += std::format(L", LxUid: {}", payload.LxUid);
@@ -388,7 +385,7 @@ namespace {
         }
 
         if (payload.LxFlags & LX_FILE_CASE_SENSITIVE_DIR) {
-            result += L", CaseSensitiveDir: True";
+            result += std::format(L", CaseSensitiveDir: {}", trace::values::RenderBoolean(payload.LxFlags & LX_FILE_CASE_SENSITIVE_DIR));
         }
 
         return result;
@@ -769,7 +766,7 @@ namespace {
 
         if (!parameters.setFileInformation.flags.advanceOnly) return {};
 
-        return L"AdvanceOnly: True";
+        return std::format(L"AdvanceOnly: {}", trace::values::RenderBoolean(parameters.setFileInformation.flags.advanceOnly));
     }
 
 
@@ -811,8 +808,6 @@ namespace {
 
 
     std::wstring RenderDispositionExPayload(const trace::kernel::FILE_DISPOSITION_INFORMATION_EX& payload) {
-
-        if (payload.Flags == trace::kernel::FILE_DISPOSITION_DO_NOT_DELETE) return L"Flags: Do Not Delete";
 
         return std::format(L"Flags: {}", trace::names::RenderDispositionFlags(payload.Flags));
     }
