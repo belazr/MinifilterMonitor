@@ -72,25 +72,25 @@ namespace {
     }
 
 
-    std::wstring RenderSymlinkPayload(const trace::kernel::REPARSE_DATA_BUFFER& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderReparsePayloadSymlink(const trace::kernel::REPARSE_DATA_BUFFER& reparse, std::span<const uint8_t> nameData) {
         std::wstring result;
 
-        const std::wstring substituteText = RenderPathName(L"SubstituteName", nameData, payload.SymbolicLinkReparseBuffer.SubstituteNameOffset, payload.SymbolicLinkReparseBuffer.SubstituteNameLength);
+        const std::wstring substituteText = RenderPathName(L"SubstituteName", nameData, reparse.SymbolicLinkReparseBuffer.SubstituteNameOffset, reparse.SymbolicLinkReparseBuffer.SubstituteNameLength);
 
         if (!substituteText.empty()) {
             result += substituteText;
             result += L", ";
         }
 
-        const std::wstring printText = RenderPathName(L"PrintName", nameData, payload.SymbolicLinkReparseBuffer.PrintNameOffset, payload.SymbolicLinkReparseBuffer.PrintNameLength);
+        const std::wstring printText = RenderPathName(L"PrintName", nameData, reparse.SymbolicLinkReparseBuffer.PrintNameOffset, reparse.SymbolicLinkReparseBuffer.PrintNameLength);
 
         if (!printText.empty()) {
             result += printText;
             result += L", ";
         }
 
-        if (payload.SymbolicLinkReparseBuffer.Flags) {
-            result += std::format(L"Flags: {}, ", trace::names::RenderSymlinkFlags(payload.SymbolicLinkReparseBuffer.Flags));
+        if (reparse.SymbolicLinkReparseBuffer.Flags) {
+            result += std::format(L"Flags: {}, ", trace::names::RenderSymlinkFlags(reparse.SymbolicLinkReparseBuffer.Flags));
         }
 
         if (!result.empty()) {
@@ -101,17 +101,17 @@ namespace {
     }
 
 
-    std::wstring RenderMountPointPayload(const trace::kernel::REPARSE_DATA_BUFFER& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderReparsePayloadMountPoint(const trace::kernel::REPARSE_DATA_BUFFER& reparse, std::span<const uint8_t> nameData) {
         std::wstring result;
 
-        const std::wstring substituteText = RenderPathName(L"SubstituteName", nameData, payload.MountPointReparseBuffer.SubstituteNameOffset, payload.MountPointReparseBuffer.SubstituteNameLength);
+        const std::wstring substituteText = RenderPathName(L"SubstituteName", nameData, reparse.MountPointReparseBuffer.SubstituteNameOffset, reparse.MountPointReparseBuffer.SubstituteNameLength);
 
         if (!substituteText.empty()) {
             result += substituteText;
             result += L", ";
         }
 
-        const std::wstring printText = RenderPathName(L"PrintName", nameData, payload.MountPointReparseBuffer.PrintNameOffset, payload.MountPointReparseBuffer.PrintNameLength);
+        const std::wstring printText = RenderPathName(L"PrintName", nameData, reparse.MountPointReparseBuffer.PrintNameOffset, reparse.MountPointReparseBuffer.PrintNameLength);
 
         if (!printText.empty()) {
             result += printText;
@@ -143,7 +143,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer);
 
                 if (trace::details::payload::ReadHeader(payload, reparse, NAME_OFFSET)) {
-                    tagText = RenderSymlinkPayload(reparse, payload.subspan(NAME_OFFSET));
+                    tagText = RenderReparsePayloadSymlink(reparse, payload.subspan(NAME_OFFSET));
                 }
 
                 break;
@@ -153,7 +153,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer);
 
                 if (trace::details::payload::ReadHeader(payload, reparse, NAME_OFFSET)) {
-                    tagText = RenderMountPointPayload(reparse, payload.subspan(NAME_OFFSET));
+                    tagText = RenderReparsePayloadMountPoint(reparse, payload.subspan(NAME_OFFSET));
                 }
 
                 break;
@@ -506,7 +506,7 @@ namespace {
 
 
     template <typename UsnRecord>
-    std::wstring RenderUsnRecord(const UsnRecord& record, std::span<const uint8_t> nameData) {
+    std::wstring RenderUsnRecordPayloadBody(const UsnRecord& record, std::span<const uint8_t> nameData) {
         const size_t nameStart = record.FileNameOffset < nameData.size() ? record.FileNameOffset : nameData.size();
         std::wstring result = std::format(L"FileName: {}", trace::details::payload::RenderName(nameData.subspan(nameStart), record.FileNameLength));
 
@@ -541,7 +541,7 @@ namespace {
 
                 if (record.RecordLength < NAME_OFFSET) return {};
 
-                return RenderUsnRecord(record, payload);
+                return RenderUsnRecordPayloadBody(record, payload);
             }
 
             case 3u: {
@@ -552,7 +552,7 @@ namespace {
 
                 if (record.RecordLength < NAME_OFFSET) return {};
 
-                return RenderUsnRecord(record, payload);
+                return RenderUsnRecordPayloadBody(record, payload);
             }
 
         }
@@ -641,7 +641,7 @@ namespace {
     }
 
 
-    std::wstring RenderTxfsRmInformationPayload(const trace::kernel::TXFS_QUERY_RM_INFORMATION& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderTxfsRmPayload(const trace::kernel::TXFS_QUERY_RM_INFORMATION& payload, std::span<const uint8_t> nameData) {
         std::wstring result = std::format(L"BytesRequired: {}, TailLsn: {}, CurrentLsn: {}, ArchiveTailLsn: {}, LogContainerSize: {}, HighestVirtualClock: {}, LogContainerCount: {}, LogContainerCountMax: {}, LogContainerCountMin: {}, LogGrowthIncrement: {}, LogAutoShrinkPercentage: {}, Flags: {}, LoggingMode: {}, RmState: {}, LogCapacity: {}, LogFree: {}, TopsSize: {}, TopsUsed: {}, TransactionCount: {}, OnePCCount: {}, TwoPCCount: {}, NumberLogFileFull: {}, OldestTransactionAge: {}, RMName: {}", payload.BytesRequired, payload.TailLsn, payload.CurrentLsn, payload.ArchiveTailLsn, payload.LogContainerSize, payload.HighestVirtualClock, payload.LogContainerCount, payload.LogContainerCountMax, payload.LogContainerCountMin, payload.LogGrowthIncrement, payload.LogAutoShrinkPercentage, trace::names::RenderTxfsRmFlags(payload.Flags), trace::names::RenderTxfsLoggingMode(payload.LoggingMode), trace::names::RenderTxfsRmState(payload.RmState), payload.LogCapacity, payload.LogFree, payload.TopsSize, payload.TopsUsed, payload.TransactionCount, payload.OnePCCount, payload.TwoPCCount, payload.NumberLogFileFull, payload.OldestTransactionAge, trace::values::RenderGuid(payload.RMName));
 
         if (payload.TmLogPathOffset) {
@@ -777,7 +777,7 @@ namespace {
             case FSCTL_TXFS_QUERY_RM_INFORMATION: {
                 trace::kernel::TXFS_QUERY_RM_INFORMATION rmInformation{};
 
-                if (trace::details::payload::ReadValue(output, rmInformation)) return RenderTxfsRmInformationPayload(rmInformation, output);
+                if (trace::details::payload::ReadValue(output, rmInformation)) return RenderTxfsRmPayload(rmInformation, output);
 
                 break;
             }

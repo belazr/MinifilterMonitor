@@ -114,13 +114,13 @@ namespace {
     }
 
 
-    std::wstring RenderMbr(const trace::kernel::PARTITION_INFORMATION_MBR& mbr) {
+    std::wstring RenderPartitionExPayloadMbr(const trace::kernel::PARTITION_INFORMATION_MBR& mbr) {
 
         return std::format(L"PartitionType: 0x{:X}, BootIndicator: {}, RecognizedPartition: {}, HiddenSectors: {}, PartitionId: {}", mbr.PartitionType, trace::values::RenderBoolean(mbr.BootIndicator), trace::values::RenderBoolean(mbr.RecognizedPartition), mbr.HiddenSectors, trace::values::RenderGuid(mbr.PartitionId));
     }
 
 
-    std::wstring RenderGpt(const trace::kernel::PARTITION_INFORMATION_GPT& gpt) {
+    std::wstring RenderPartitionExPayloadGpt(const trace::kernel::PARTITION_INFORMATION_GPT& gpt) {
         std::wstring result = std::format(L"PartitionType: {}, PartitionId: {}, Attributes: 0x{:X}", trace::values::RenderGuid(gpt.PartitionType), trace::values::RenderGuid(gpt.PartitionId), gpt.Attributes);
         const std::wstring_view name = text::Extract(gpt.Name);
 
@@ -145,12 +145,12 @@ namespace {
         switch (payload.PartitionStyle) {
 
             case PARTITION_STYLE_MBR:
-                styleText = RenderMbr(payload.Mbr);
+                styleText = RenderPartitionExPayloadMbr(payload.Mbr);
 
                 break;
 
             case PARTITION_STYLE_GPT:
-                styleText = RenderGpt(payload.Gpt);
+                styleText = RenderPartitionExPayloadGpt(payload.Gpt);
 
                 break;
 
