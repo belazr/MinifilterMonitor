@@ -14,7 +14,7 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderWriteComplete(int64_t byteOffset, uint64_t mdlAddress) {
+    std::wstring RenderWriteCompleteParameters(int64_t byteOffset, uint64_t mdlAddress) {
         std::wstring details = std::format(L"Offset: {}", trace::values::RenderByteOffset(byteOffset));
 
         if (mdlAddress) {
@@ -25,7 +25,7 @@ namespace {
     }
 
 
-    std::wstring RenderReadComplete(uint64_t mdlAddress) {
+    std::wstring RenderReadCompleteParameters(uint64_t mdlAddress) {
 
         if (!mdlAddress) return {};
 
@@ -33,7 +33,7 @@ namespace {
     }
 
 
-    std::wstring RenderReadWriteParameters(int64_t offset, uint32_t size) {
+    std::wstring RenderParameters(int64_t offset, uint32_t size) {
 
         return std::format(L"Offset: {}, Length: {}", trace::values::RenderByteOffset(offset), size);
     }
@@ -75,10 +75,10 @@ namespace mimo {
                     if (data.callbackMinorId & kernel::IRP_MN_COMPLETE) {
                         const bool isWrite = (data.irpFlags & kernel::IRP_WRITE_OPERATION) || parameters.readWrite.byteOffset;
 
-                        return isWrite ? RenderWriteComplete(parameters.readWrite.byteOffset, parameters.readWrite.mdlAddress) : RenderReadComplete(parameters.readWrite.mdlAddress);
+                        return isWrite ? RenderWriteCompleteParameters(parameters.readWrite.byteOffset, parameters.readWrite.mdlAddress) : RenderReadCompleteParameters(parameters.readWrite.mdlAddress);
                     }
 
-                    std::wstring details = RenderReadWriteParameters(parameters.readWrite.byteOffset, parameters.readWrite.length);
+                    std::wstring details = RenderParameters(parameters.readWrite.byteOffset, parameters.readWrite.length);
 
                     if ((data.operationFlags & kernel::SL_KEY_SPECIFIED) || parameters.readWrite.key) {
                         details += std::format(L", Key: 0x{:X}", parameters.readWrite.key);
@@ -109,7 +109,7 @@ namespace mimo {
 
                 std::wstring RenderMdl(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = RenderReadWriteParameters(parameters.mdlReadWrite.fileOffset, parameters.mdlReadWrite.length);
+                    std::wstring details = RenderParameters(parameters.mdlReadWrite.fileOffset, parameters.mdlReadWrite.length);
 
                     if (parameters.mdlReadWrite.key) {
                         details += std::format(L", Key: 0x{:X}", parameters.mdlReadWrite.key);
@@ -121,14 +121,14 @@ namespace mimo {
 
                 std::wstring RenderMdlReadComplete(const protocol::RecordData& data) {
 
-                    return RenderReadComplete(data.parameters.mdlReadComplete.mdlChain);
+                    return RenderReadCompleteParameters(data.parameters.mdlReadComplete.mdlChain);
                 }
 
 
                 std::wstring RenderMdlWriteComplete(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
 
-                    return RenderWriteComplete(parameters.mdlWriteComplete.fileOffset, parameters.mdlWriteComplete.mdlChain);
+                    return RenderWriteCompleteParameters(parameters.mdlWriteComplete.fileOffset, parameters.mdlWriteComplete.mdlChain);
                 }
 
             }

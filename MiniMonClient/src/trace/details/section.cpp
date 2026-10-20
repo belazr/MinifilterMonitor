@@ -13,7 +13,7 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderSectionParameters(uint32_t syncType) {
+    std::wstring RenderParameters(uint32_t syncType) {
 
         return std::format(L"SyncType: {}", trace::names::RenderSectionSyncType(syncType));
     }
@@ -30,7 +30,7 @@ namespace mimo {
 
                 std::wstring Render(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = RenderSectionParameters(parameters.acquireForSectionSynchronization.syncType);
+                    std::wstring details = RenderParameters(parameters.acquireForSectionSynchronization.syncType);
 
                     if (parameters.acquireForSectionSynchronization.pageProtection) {
                         details += std::format(L", PageProtection: {}", names::RenderPageProtection(parameters.acquireForSectionSynchronization.pageProtection));

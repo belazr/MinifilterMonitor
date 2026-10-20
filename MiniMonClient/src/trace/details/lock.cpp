@@ -13,7 +13,7 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderLockRangeParameters(int64_t byteOffset) {
+    std::wstring RenderParameters(int64_t byteOffset) {
 
         return std::format(L"Offset: {}", static_cast<uint64_t>(byteOffset));
     }
@@ -21,7 +21,7 @@ namespace {
 
     std::wstring RenderLockRange(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
-        std::wstring details = RenderLockRangeParameters(parameters.lockControl.byteOffset);
+        std::wstring details = RenderParameters(parameters.lockControl.byteOffset);
 
         const protocol::LockControlSupplement& lockControlSupplement = data.supplement.lockControl;
 

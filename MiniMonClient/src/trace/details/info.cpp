@@ -23,7 +23,7 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderInformationParameters(uint32_t infoClass, uint32_t size) {
+    std::wstring RenderParameters(uint32_t infoClass, uint32_t size) {
 
         return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(infoClass), size);
     }
@@ -851,7 +851,7 @@ namespace mimo {
 
                 std::wstring RenderQuery(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = RenderInformationParameters(parameters.queryFileInformation.fileInformationClass, parameters.queryFileInformation.length);
+                    std::wstring details = RenderParameters(parameters.queryFileInformation.fileInformationClass, parameters.queryFileInformation.length);
 
                     if (data.operationFlags) {
                         details += L", ";
@@ -872,7 +872,7 @@ namespace mimo {
 
                 std::wstring RenderSet(const protocol::RecordData& data) {
                     const protocol::FltParameters& parameters = data.parameters;
-                    std::wstring details = RenderInformationParameters(parameters.setFileInformation.fileInformationClass, parameters.setFileInformation.length);
+                    std::wstring details = RenderParameters(parameters.setFileInformation.fileInformationClass, parameters.setFileInformation.length);
 
                     if (data.operationFlags) {
                         details += L", ";
