@@ -506,21 +506,21 @@ namespace {
 
 
     template <typename UsnRecord>
-    std::wstring RenderUsnRecord(const UsnRecord& payload, std::span<const uint8_t> nameData) {
-        const size_t nameStart = payload.FileNameOffset < nameData.size() ? payload.FileNameOffset : nameData.size();
-        std::wstring result = std::format(L"FileName: {}", trace::details::payload::RenderName(nameData.subspan(nameStart), payload.FileNameLength));
+    std::wstring RenderUsnRecord(const UsnRecord& record, std::span<const uint8_t> nameData) {
+        const size_t nameStart = record.FileNameOffset < nameData.size() ? record.FileNameOffset : nameData.size();
+        std::wstring result = std::format(L"FileName: {}", trace::details::payload::RenderName(nameData.subspan(nameStart), record.FileNameLength));
 
-        if (payload.Reason) {
-            result += std::format(L", Reason: {}", trace::names::RenderUsnReason(payload.Reason));
+        if (record.Reason) {
+            result += std::format(L", Reason: {}", trace::names::RenderUsnReason(record.Reason));
         }
 
-        result += std::format(L", Usn: {}", payload.Usn);
+        result += std::format(L", Usn: {}", record.Usn);
 
-        if (payload.TimeStamp) {
-            result += std::format(L", TimeStamp: {}", trace::values::RenderTime(payload.TimeStamp));
+        if (record.TimeStamp) {
+            result += std::format(L", TimeStamp: {}", trace::values::RenderTime(record.TimeStamp));
         }
 
-        result += std::format(L", FileReferenceNumber: {}, ParentFileReferenceNumber: {}", trace::values::RenderFileId(payload.FileReferenceNumber), trace::values::RenderFileId(payload.ParentFileReferenceNumber));
+        result += std::format(L", FileReferenceNumber: {}, ParentFileReferenceNumber: {}", trace::values::RenderFileId(record.FileReferenceNumber), trace::values::RenderFileId(record.ParentFileReferenceNumber));
 
         return result;
     }

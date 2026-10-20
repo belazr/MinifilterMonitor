@@ -454,7 +454,7 @@ namespace {
     }
 
 
-    std::wstring RenderQueryInfoPayload(uint32_t fileInformationClass, std::span<const uint8_t> payload) {
+    std::wstring RenderPayload(uint32_t fileInformationClass, std::span<const uint8_t> payload) {
         std::wstring payloadText;
 
         switch (fileInformationClass) {
@@ -859,7 +859,7 @@ namespace mimo {
                     }
 
                     const std::span<const uint8_t> payload = ExtractPayload(data.supplement.queryInfo);
-                    const std::wstring payloadText = RenderQueryInfoPayload(parameters.queryFileInformation.fileInformationClass, payload);
+                    const std::wstring payloadText = RenderPayload(parameters.queryFileInformation.fileInformationClass, payload);
 
                     if (!payloadText.empty()) {
                         details += L", ";
@@ -1109,7 +1109,7 @@ namespace mimo {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = RenderQueryOpenParameters(parameters.queryOpen.fileInformationClass);
 
-                    const std::wstring payloadText = RenderQueryInfoPayload(parameters.queryOpen.fileInformationClass, ExtractPayload(data.supplement.queryInfo));
+                    const std::wstring payloadText = RenderPayload(parameters.queryOpen.fileInformationClass, ExtractPayload(data.supplement.queryInfo));
 
                     if (!payloadText.empty()) {
                         details += L", ";

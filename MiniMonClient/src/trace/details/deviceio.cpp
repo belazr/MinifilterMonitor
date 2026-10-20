@@ -114,15 +114,15 @@ namespace {
     }
 
 
-    std::wstring RenderMbr(const trace::kernel::PARTITION_INFORMATION_MBR& payload) {
+    std::wstring RenderMbr(const trace::kernel::PARTITION_INFORMATION_MBR& mbr) {
 
-        return std::format(L"PartitionType: 0x{:X}, BootIndicator: {}, RecognizedPartition: {}, HiddenSectors: {}, PartitionId: {}", payload.PartitionType, trace::values::RenderBoolean(payload.BootIndicator), trace::values::RenderBoolean(payload.RecognizedPartition), payload.HiddenSectors, trace::values::RenderGuid(payload.PartitionId));
+        return std::format(L"PartitionType: 0x{:X}, BootIndicator: {}, RecognizedPartition: {}, HiddenSectors: {}, PartitionId: {}", mbr.PartitionType, trace::values::RenderBoolean(mbr.BootIndicator), trace::values::RenderBoolean(mbr.RecognizedPartition), mbr.HiddenSectors, trace::values::RenderGuid(mbr.PartitionId));
     }
 
 
-    std::wstring RenderGpt(const trace::kernel::PARTITION_INFORMATION_GPT& payload) {
-        std::wstring result = std::format(L"PartitionType: {}, PartitionId: {}, Attributes: 0x{:X}", trace::values::RenderGuid(payload.PartitionType), trace::values::RenderGuid(payload.PartitionId), payload.Attributes);
-        const std::wstring_view name = text::Extract(payload.Name);
+    std::wstring RenderGpt(const trace::kernel::PARTITION_INFORMATION_GPT& gpt) {
+        std::wstring result = std::format(L"PartitionType: {}, PartitionId: {}, Attributes: 0x{:X}", trace::values::RenderGuid(gpt.PartitionType), trace::values::RenderGuid(gpt.PartitionId), gpt.Attributes);
+        const std::wstring_view name = text::Extract(gpt.Name);
 
         if (!name.empty()) {
             result += std::format(L", Name: {}", name);
