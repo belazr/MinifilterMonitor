@@ -26,9 +26,9 @@ namespace {
     }
 
 
-    std::wstring RenderSids(std::span<const uint8_t> sidList) {
+    std::wstring RenderSidsPayload(std::span<const uint8_t> payload) {
 
-        if (sidList.empty()) return {};
+        if (payload.empty()) return {};
 
         std::wstring result;
         size_t offset = 0u;
@@ -38,13 +38,13 @@ namespace {
             constexpr size_t SID_OFFSET = offsetof(trace::kernel::FILE_GET_QUOTA_INFORMATION, Sid);
             trace::kernel::FILE_GET_QUOTA_INFORMATION entry{};
 
-            if (!trace::details::payload::ReadHeader(sidList, entry, SID_OFFSET, offset)) break;
+            if (!trace::details::payload::ReadHeader(payload, entry, SID_OFFSET, offset)) break;
 
             const size_t sidStart = offset + SID_OFFSET;
 
-            if (entry.SidLength > sidList.size() - sidStart) break;
+            if (entry.SidLength > payload.size() - sidStart) break;
 
-            result += trace::values::RenderSid(sidList.subspan(sidStart, entry.SidLength));
+            result += trace::values::RenderSid(payload.subspan(sidStart, entry.SidLength));
             result += L'|';
 
             if (!entry.NextEntryOffset) {
@@ -53,7 +53,7 @@ namespace {
                 break;
             }
 
-            if (!trace::details::payload::Advance(sidList, offset, entry.NextEntryOffset)) break;
+            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
         }
 
@@ -69,11 +69,11 @@ namespace {
 
         if (!(supplement.captured & protocol::QUERY_QUOTA_CAPTURED_SID_LIST)) return {};
 
-        const std::wstring sids = RenderSids({ supplement.sidList, supplement.capturedSidListSize });
+        const std::wstring sidListText = RenderSidsPayload({ supplement.sidList, supplement.capturedSidListSize });
 
-        if (sids.empty()) return {};
+        if (sidListText.empty()) return {};
 
-        return std::format(L"SidList: {}", sids);
+        return std::format(L"SidList: {}", sidListText);
     }
 
 

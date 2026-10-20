@@ -26,9 +26,9 @@ namespace {
     }
 
 
-    std::wstring RenderEaNames(std::span<const uint8_t> eaList) {
+    std::wstring RenderEaNamesPayload(std::span<const uint8_t> payload) {
 
-        if (eaList.empty()) return {};
+        if (payload.empty()) return {};
 
         std::wstring result;
         size_t offset = 0u;
@@ -38,9 +38,9 @@ namespace {
             constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_GET_EA_INFORMATION, EaName);
             trace::kernel::FILE_GET_EA_INFORMATION entry{};
 
-            if (!trace::details::payload::ReadHeader(eaList, entry, NAME_OFFSET, offset)) break;
+            if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += trace::details::payload::RenderAsciiName(eaList.subspan(offset + NAME_OFFSET), entry.EaNameLength);
+            result += trace::details::payload::RenderAsciiName(payload.subspan(offset + NAME_OFFSET), entry.EaNameLength);
             result += L'|';
 
             if (!entry.NextEntryOffset) {
@@ -49,7 +49,7 @@ namespace {
                 break;
             }
 
-            if (!trace::details::payload::Advance(eaList, offset, entry.NextEntryOffset)) break;
+            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
         }
 
@@ -65,11 +65,11 @@ namespace {
 
         if (!(supplement.captured & protocol::QUERY_EA_CAPTURED_LIST)) return {};
 
-        const std::wstring names = RenderEaNames({ supplement.eaList, supplement.capturedEaListSize });
+        const std::wstring eaListText = RenderEaNamesPayload({ supplement.eaList, supplement.capturedEaListSize });
 
-        if (names.empty()) return {};
+        if (eaListText.empty()) return {};
 
-        return std::format(L"EaList: {}", names);
+        return std::format(L"EaList: {}", eaListText);
     }
 
 

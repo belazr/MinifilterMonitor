@@ -36,9 +36,9 @@ namespace {
     }
 
 
-    std::wstring RenderExtendedAttributes(std::span<const uint8_t> eaBuffer) {
+    std::wstring RenderExtendedAttributesPayload(std::span<const uint8_t> payload) {
 
-        if (eaBuffer.empty()) return {};
+        if (payload.empty()) return {};
 
         std::wstring result;
         size_t offset = 0u;
@@ -49,16 +49,16 @@ namespace {
             constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_FULL_EA_INFORMATION, EaName);
             trace::kernel::FILE_FULL_EA_INFORMATION entry{};
 
-            if (!trace::details::payload::ReadHeader(eaBuffer, entry, NAME_OFFSET, offset)) break;
+            if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L"{}: EaName: {}, EaValueLength: {}", index, trace::details::payload::RenderAsciiName(eaBuffer.subspan(offset + NAME_OFFSET), entry.EaNameLength), entry.EaValueLength);
+            result += std::format(L"{}: EaName: {}, EaValueLength: {}", index, trace::details::payload::RenderAsciiName(payload.subspan(offset + NAME_OFFSET), entry.EaNameLength), entry.EaValueLength);
             index++;
 
             if (entry.EaValueLength) {
                 const size_t valueOffset = offset + NAME_OFFSET + entry.EaNameLength + 1u;
-                const size_t valueStart = valueOffset < eaBuffer.size() ? valueOffset : eaBuffer.size();
+                const size_t valueStart = valueOffset < payload.size() ? valueOffset : payload.size();
 
-                result += std::format(L", EaValue: {}", RenderEaValue(eaBuffer.subspan(valueStart), entry.EaValueLength));
+                result += std::format(L", EaValue: {}", RenderEaValue(payload.subspan(valueStart), entry.EaValueLength));
             }
 
             if (entry.Flags) {
@@ -73,7 +73,7 @@ namespace {
                 break;
             }
 
-            if (!trace::details::payload::Advance(eaBuffer, offset, entry.NextEntryOffset)) break;
+            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
         }
 
@@ -151,7 +151,7 @@ namespace mimo {
                         details += std::format(L", EaLength: {}", parameters.create.eaLength);
                     }
 
-                    const std::wstring eaBufferText = RenderExtendedAttributes(ExtractEaBuffer(createSupplement));
+                    const std::wstring eaBufferText = RenderExtendedAttributesPayload(ExtractEaBuffer(createSupplement));
 
                     if (!eaBufferText.empty()) {
                         details += L", ";
