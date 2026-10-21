@@ -91,6 +91,21 @@ namespace mimo {
             return nullptr;
         }
 
+
+        _Use_decl_annotations_
+        bool CopyReadableBuffer(void* pBuffer, const void* pReadableBuffer, ULONG size) {
+
+            __try {
+                RtlCopyMemory(pBuffer, pReadableBuffer, size);
+            }
+            __except (EXCEPTION_EXECUTE_HANDLER) {
+
+                return false;
+            }
+
+            return true;
+        }
+
     }
 
 }

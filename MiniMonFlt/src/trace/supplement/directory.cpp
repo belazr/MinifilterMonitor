@@ -56,13 +56,7 @@ namespace mimo {
 
                     const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
-                    __try {
-                        RtlCopyMemory(pSupplement->payload, pDirectoryBuffer, copySize);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    if (!memory::CopyReadableBuffer(pSupplement->payload, pDirectoryBuffer, copySize)) return;
 
                     if (copySize < dataSize) {
                         pSupplement->captured |= protocol::QUERY_DIRECTORY_TRUNCATED_PAYLOAD;
@@ -90,13 +84,7 @@ namespace mimo {
 
                     const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
-                    __try {
-                        RtlCopyMemory(pSupplement->payload, pDirectoryBuffer, copySize);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    if (!memory::CopyReadableBuffer(pSupplement->payload, pDirectoryBuffer, copySize)) return;
 
                     if (copySize < dataSize) {
                         pSupplement->captured |= protocol::NOTIFY_DIRECTORY_TRUNCATED_PAYLOAD;

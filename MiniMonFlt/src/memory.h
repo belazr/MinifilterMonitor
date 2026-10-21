@@ -27,6 +27,12 @@ namespace mimo {
             _In_ bool probed = true
         );
 
+        bool CopyReadableBuffer(
+            _Out_writes_bytes_(size) void* pBuffer,
+            _In_reads_bytes_(size) const void* pReadableBuffer,
+            _In_ ULONG size
+        );
+
     }
 
 }

@@ -104,13 +104,7 @@ namespace mimo {
 
                     const ULONG copySize = dataSize < sizeof(pSupplement->payload) ? dataSize : sizeof(pSupplement->payload);
 
-                    __try {
-                        RtlCopyMemory(pSupplement->payload, pInfoBuffer, copySize);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    if (!memory::CopyReadableBuffer(pSupplement->payload, pInfoBuffer, copySize)) return;
 
                     if (copySize < dataSize) {
                         pSupplement->captured |= protocol::QUERY_INFO_TRUNCATED_PAYLOAD;

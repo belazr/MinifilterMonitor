@@ -52,13 +52,7 @@ namespace mimo {
 
                     const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
-                    __try {
-                        RtlCopyMemory(pSupplement->payload, pQuotaBuffer, copySize);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    if (!memory::CopyReadableBuffer(pSupplement->payload, pQuotaBuffer, copySize)) return;
 
                     if (copySize < bufferSize) {
                         pSupplement->captured |= protocol::SET_QUOTA_TRUNCATED_PAYLOAD;
@@ -86,13 +80,7 @@ namespace mimo {
 
                     const ULONG copySize = readableSize < sizeof(pSupplement->payload) ? readableSize : sizeof(pSupplement->payload);
 
-                    __try {
-                        RtlCopyMemory(pSupplement->payload, pQuotaBuffer, copySize);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    if (!memory::CopyReadableBuffer(pSupplement->payload, pQuotaBuffer, copySize)) return;
 
                     if (copySize < dataSize) {
                         pSupplement->captured |= protocol::QUERY_QUOTA_TRUNCATED_PAYLOAD;

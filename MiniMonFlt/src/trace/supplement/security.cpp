@@ -68,13 +68,7 @@ namespace mimo {
 
                     if (!pSecurityBuffer || !copySize) return;
 
-                    __try {
-                        RtlCopyMemory(pSupplement->payload, pSecurityBuffer, copySize);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    if (!memory::CopyReadableBuffer(pSupplement->payload, pSecurityBuffer, copySize)) return;
 
                     if (!RtlValidRelativeSecurityDescriptor(pSupplement->payload, copySize, 0u)) return;
 

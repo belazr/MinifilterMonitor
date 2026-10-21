@@ -25,13 +25,7 @@ namespace {
 
         const ULONG copySize = readableSize < sizeof(pSupplement->outputPayload) ? readableSize : sizeof(pSupplement->outputPayload);
 
-        __try {
-            RtlCopyMemory(pSupplement->outputPayload, pSecondInput, copySize);
-        }
-        __except (EXCEPTION_EXECUTE_HANDLER) {
-
-            return;
-        }
+        if (!memory::CopyReadableBuffer(pSupplement->outputPayload, pSecondInput, copySize)) return;
 
         if (copySize < bufferSize) {
             pSupplement->captured |= protocol::DEVICE_IO_CONTROL_TRUNCATED_OUTPUT;
@@ -107,13 +101,7 @@ namespace mimo {
 
                     const ULONG copySize = inputSize < sizeof(pSupplement->inputPayload) ? inputSize : sizeof(pSupplement->inputPayload);
 
-                    __try {
-                        RtlCopyMemory(pSupplement->inputPayload, pInputBuffer, copySize);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    if (!memory::CopyReadableBuffer(pSupplement->inputPayload, pInputBuffer, copySize)) return;
 
                     if (copySize < inputSize) {
                         pSupplement->captured |= protocol::DEVICE_IO_CONTROL_TRUNCATED_INPUT;
@@ -169,13 +157,7 @@ namespace mimo {
 
                     const ULONG copySize = readableSize < sizeof(pSupplement->outputPayload) ? readableSize : sizeof(pSupplement->outputPayload);
 
-                    __try {
-                        RtlCopyMemory(pSupplement->outputPayload, pOutputBuffer, copySize);
-                    }
-                    __except (EXCEPTION_EXECUTE_HANDLER) {
-
-                        return;
-                    }
+                    if (!memory::CopyReadableBuffer(pSupplement->outputPayload, pOutputBuffer, copySize)) return;
 
                     if (copySize < dataSize) {
                         pSupplement->captured |= protocol::DEVICE_IO_CONTROL_TRUNCATED_OUTPUT;
