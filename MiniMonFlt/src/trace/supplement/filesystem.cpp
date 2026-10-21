@@ -121,9 +121,9 @@ namespace mimo {
 
                         case METHOD_BUFFERED:
 
-                            if (KeGetCurrentIrql() < DISPATCH_LEVEL) {
-                                pOutputBuffer = pData->Iopb->Parameters.FileSystemControl.Buffered.SystemBuffer;
-                            }
+                            if (KeGetCurrentIrql() >= DISPATCH_LEVEL) break;
+
+                            pOutputBuffer = pData->Iopb->Parameters.FileSystemControl.Buffered.SystemBuffer;
 
                             break;
 
