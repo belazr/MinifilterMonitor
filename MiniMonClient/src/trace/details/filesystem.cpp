@@ -18,7 +18,6 @@
 #include <format>
 #include <span>
 #include <string>
-#include <string_view>
 
 using namespace mimo;
 
@@ -62,31 +61,15 @@ namespace {
     }
 
 
-    std::wstring RenderPathName(std::wstring_view label, std::span<const uint8_t> nameData, uint16_t nameOffset, uint16_t nameSize) {
-
-        if (!nameSize) return {};
-
-        const size_t nameStart = nameOffset < nameData.size() ? nameOffset : nameData.size();
-
-        return std::format(L"{}: {}", label, trace::details::payload::RenderName(nameData.subspan(nameStart), nameSize));
-    }
-
-
     std::wstring RenderReparsePayloadSymlink(const trace::kernel::REPARSE_DATA_BUFFER& reparse, std::span<const uint8_t> nameData) {
         std::wstring result;
 
-        const std::wstring substituteText = RenderPathName(L"SubstituteName", nameData, reparse.SymbolicLinkReparseBuffer.SubstituteNameOffset, reparse.SymbolicLinkReparseBuffer.SubstituteNameLength);
-
-        if (!substituteText.empty()) {
-            result += substituteText;
-            result += L", ";
+        if (reparse.SymbolicLinkReparseBuffer.SubstituteNameLength) {
+            result += std::format(L"SubstituteName: {}, ", trace::details::payload::RenderName(nameData, reparse.SymbolicLinkReparseBuffer.SubstituteNameOffset, reparse.SymbolicLinkReparseBuffer.SubstituteNameLength));
         }
 
-        const std::wstring printText = RenderPathName(L"PrintName", nameData, reparse.SymbolicLinkReparseBuffer.PrintNameOffset, reparse.SymbolicLinkReparseBuffer.PrintNameLength);
-
-        if (!printText.empty()) {
-            result += printText;
-            result += L", ";
+        if (reparse.SymbolicLinkReparseBuffer.PrintNameLength) {
+            result += std::format(L"PrintName: {}, ", trace::details::payload::RenderName(nameData, reparse.SymbolicLinkReparseBuffer.PrintNameOffset, reparse.SymbolicLinkReparseBuffer.PrintNameLength));
         }
 
         if (reparse.SymbolicLinkReparseBuffer.Flags) {
@@ -104,18 +87,12 @@ namespace {
     std::wstring RenderReparsePayloadMountPoint(const trace::kernel::REPARSE_DATA_BUFFER& reparse, std::span<const uint8_t> nameData) {
         std::wstring result;
 
-        const std::wstring substituteText = RenderPathName(L"SubstituteName", nameData, reparse.MountPointReparseBuffer.SubstituteNameOffset, reparse.MountPointReparseBuffer.SubstituteNameLength);
-
-        if (!substituteText.empty()) {
-            result += substituteText;
-            result += L", ";
+        if (reparse.MountPointReparseBuffer.SubstituteNameLength) {
+            result += std::format(L"SubstituteName: {}, ", trace::details::payload::RenderName(nameData, reparse.MountPointReparseBuffer.SubstituteNameOffset, reparse.MountPointReparseBuffer.SubstituteNameLength));
         }
 
-        const std::wstring printText = RenderPathName(L"PrintName", nameData, reparse.MountPointReparseBuffer.PrintNameOffset, reparse.MountPointReparseBuffer.PrintNameLength);
-
-        if (!printText.empty()) {
-            result += printText;
-            result += L", ";
+        if (reparse.MountPointReparseBuffer.PrintNameLength) {
+            result += std::format(L"PrintName: {}, ", trace::details::payload::RenderName(nameData, reparse.MountPointReparseBuffer.PrintNameOffset, reparse.MountPointReparseBuffer.PrintNameLength));
         }
 
         if (!result.empty()) {
@@ -336,11 +313,11 @@ namespace {
     }
 
 
-    std::wstring RenderInput(const protocol::FltParameters& parameters, const protocol::FsControlSupplement& supplement) {
+    std::wstring RenderInput(uint32_t fsControlCode, uint32_t inputSize, const protocol::FsControlSupplement& supplement) {
         const std::span<const uint8_t> input = ExtractInput(supplement);
         const bool truncated = supplement.captured & protocol::FS_CONTROL_TRUNCATED_INPUT;
 
-        switch (parameters.fileSystemControl.fsControlCode) {
+        switch (fsControlCode) {
 
             case FSCTL_SET_COMPRESSION: {
                 uint16_t compressionFormat = 0u;
@@ -386,7 +363,7 @@ namespace {
                 // a missing/zero-length input buffer means SetSparse = TRUE (documented default)
                 trace::kernel::FILE_SET_SPARSE_BUFFER sparse{ 1u };
 
-                if (!parameters.fileSystemControl.inputBufferLength || trace::details::payload::ReadValue(input, sparse)) return RenderSparsePayload(sparse);
+                if (!inputSize || trace::details::payload::ReadValue(input, sparse)) return RenderSparsePayload(sparse);
 
                 break;
             }
@@ -507,8 +484,7 @@ namespace {
 
     template <typename UsnRecord>
     std::wstring RenderUsnRecordPayloadBody(const UsnRecord& record, std::span<const uint8_t> nameData) {
-        const size_t nameStart = record.FileNameOffset < nameData.size() ? record.FileNameOffset : nameData.size();
-        std::wstring result = std::format(L"FileName: {}", trace::details::payload::RenderName(nameData.subspan(nameStart), record.FileNameLength));
+        std::wstring result = std::format(L"FileName: {}", trace::details::payload::RenderName(nameData, record.FileNameOffset, record.FileNameLength));
 
         if (record.Reason) {
             result += std::format(L", Reason: {}", trace::names::RenderUsnReason(record.Reason));
@@ -645,8 +621,7 @@ namespace {
         std::wstring result = std::format(L"BytesRequired: {}, TailLsn: {}, CurrentLsn: {}, ArchiveTailLsn: {}, LogContainerSize: {}, HighestVirtualClock: {}, LogContainerCount: {}, LogContainerCountMax: {}, LogContainerCountMin: {}, LogGrowthIncrement: {}, LogAutoShrinkPercentage: {}, Flags: {}, LoggingMode: {}, RmState: {}, LogCapacity: {}, LogFree: {}, TopsSize: {}, TopsUsed: {}, TransactionCount: {}, OnePCCount: {}, TwoPCCount: {}, NumberLogFileFull: {}, OldestTransactionAge: {}, RMName: {}", payload.BytesRequired, payload.TailLsn, payload.CurrentLsn, payload.ArchiveTailLsn, payload.LogContainerSize, payload.HighestVirtualClock, payload.LogContainerCount, payload.LogContainerCountMax, payload.LogContainerCountMin, payload.LogGrowthIncrement, payload.LogAutoShrinkPercentage, trace::names::RenderTxfsRmFlags(payload.Flags), trace::names::RenderTxfsLoggingMode(payload.LoggingMode), trace::names::RenderTxfsRmState(payload.RmState), payload.LogCapacity, payload.LogFree, payload.TopsSize, payload.TopsUsed, payload.TransactionCount, payload.OnePCCount, payload.TwoPCCount, payload.NumberLogFileFull, payload.OldestTransactionAge, trace::values::RenderGuid(payload.RMName));
 
         if (payload.TmLogPathOffset) {
-            const size_t pathStart = payload.TmLogPathOffset < nameData.size() ? payload.TmLogPathOffset : nameData.size();
-            const std::wstring pathText = trace::details::payload::RenderTerminatedName(nameData.subspan(pathStart));
+            const std::wstring pathText = trace::details::payload::RenderTerminatedName(nameData, payload.TmLogPathOffset);
 
             if (!pathText.empty()) {
                 result += std::format(L", TmLogPath: {}", pathText);
@@ -846,7 +821,7 @@ namespace mimo {
                     }
 
                     const protocol::FsControlSupplement& fsControlSupplement = data.supplement.fsControl;
-                    const std::wstring inputText = RenderInput(parameters, fsControlSupplement);
+                    const std::wstring inputText = RenderInput(parameters.fileSystemControl.fsControlCode, parameters.fileSystemControl.inputBufferLength, fsControlSupplement);
 
                     if (!inputText.empty()) {
                         details += L", ";
