@@ -1,9 +1,8 @@
 #include "filesystem.h"
 
-#include "payload.h"
-
 #include "..\kernel.h"
 #include "..\names.h"
+#include "..\payload.h"
 #include "..\values.h"
 
 #include "..\..\text.h"
@@ -65,11 +64,11 @@ namespace {
         std::wstring result;
 
         if (reparse.SymbolicLinkReparseBuffer.SubstituteNameLength) {
-            result += std::format(L"SubstituteName: {}, ", trace::details::payload::RenderName(nameData, reparse.SymbolicLinkReparseBuffer.SubstituteNameOffset, reparse.SymbolicLinkReparseBuffer.SubstituteNameLength));
+            result += std::format(L"SubstituteName: {}, ", trace::payload::RenderName(nameData, reparse.SymbolicLinkReparseBuffer.SubstituteNameOffset, reparse.SymbolicLinkReparseBuffer.SubstituteNameLength));
         }
 
         if (reparse.SymbolicLinkReparseBuffer.PrintNameLength) {
-            result += std::format(L"PrintName: {}, ", trace::details::payload::RenderName(nameData, reparse.SymbolicLinkReparseBuffer.PrintNameOffset, reparse.SymbolicLinkReparseBuffer.PrintNameLength));
+            result += std::format(L"PrintName: {}, ", trace::payload::RenderName(nameData, reparse.SymbolicLinkReparseBuffer.PrintNameOffset, reparse.SymbolicLinkReparseBuffer.PrintNameLength));
         }
 
         if (reparse.SymbolicLinkReparseBuffer.Flags) {
@@ -88,11 +87,11 @@ namespace {
         std::wstring result;
 
         if (reparse.MountPointReparseBuffer.SubstituteNameLength) {
-            result += std::format(L"SubstituteName: {}, ", trace::details::payload::RenderName(nameData, reparse.MountPointReparseBuffer.SubstituteNameOffset, reparse.MountPointReparseBuffer.SubstituteNameLength));
+            result += std::format(L"SubstituteName: {}, ", trace::payload::RenderName(nameData, reparse.MountPointReparseBuffer.SubstituteNameOffset, reparse.MountPointReparseBuffer.SubstituteNameLength));
         }
 
         if (reparse.MountPointReparseBuffer.PrintNameLength) {
-            result += std::format(L"PrintName: {}, ", trace::details::payload::RenderName(nameData, reparse.MountPointReparseBuffer.PrintNameOffset, reparse.MountPointReparseBuffer.PrintNameLength));
+            result += std::format(L"PrintName: {}, ", trace::payload::RenderName(nameData, reparse.MountPointReparseBuffer.PrintNameOffset, reparse.MountPointReparseBuffer.PrintNameLength));
         }
 
         if (!result.empty()) {
@@ -107,7 +106,7 @@ namespace {
         constexpr size_t REPARSE_BUFFER_OFFSET = offsetof(trace::kernel::REPARSE_DATA_BUFFER, GenericReparseBuffer);
         trace::kernel::REPARSE_DATA_BUFFER reparse{};
 
-        if (!trace::details::payload::ReadHeader(payload, reparse, REPARSE_BUFFER_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, reparse, REPARSE_BUFFER_OFFSET)) return {};
 
         if (!reparse.ReparseTag) return {};
 
@@ -119,7 +118,7 @@ namespace {
             case IO_REPARSE_TAG_SYMLINK: {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer);
 
-                if (trace::details::payload::ReadHeader(payload, reparse, NAME_OFFSET)) {
+                if (trace::payload::ReadHeader(payload, reparse, NAME_OFFSET)) {
                     tagText = RenderReparsePayloadSymlink(reparse, payload.subspan(NAME_OFFSET));
                 }
 
@@ -129,7 +128,7 @@ namespace {
             case IO_REPARSE_TAG_MOUNT_POINT: {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer);
 
-                if (trace::details::payload::ReadHeader(payload, reparse, NAME_OFFSET)) {
+                if (trace::payload::ReadHeader(payload, reparse, NAME_OFFSET)) {
                     tagText = RenderReparsePayloadMountPoint(reparse, payload.subspan(NAME_OFFSET));
                 }
 
@@ -214,7 +213,7 @@ namespace {
         constexpr size_t PREFETCH_OFFSET = offsetof(trace::kernel::FILE_PREFETCH, Prefetch);
         trace::kernel::FILE_PREFETCH_EX prefetch{};
 
-        if (!trace::details::payload::ReadHeader(payload, prefetch, PREFETCH_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, prefetch, PREFETCH_OFFSET)) return {};
 
         std::wstring result = std::format(L"Type: {}, Count: {}", trace::names::RenderFilePrefetchType(prefetch.Type), prefetch.Count);
         size_t offset = PREFETCH_OFFSET;
@@ -223,7 +222,7 @@ namespace {
             constexpr size_t CONTEXT_OFFSET = offsetof(trace::kernel::FILE_PREFETCH_EX, Context);
             constexpr size_t PREFETCH_EX_OFFSET = offsetof(trace::kernel::FILE_PREFETCH_EX, Prefetch);
 
-            if (trace::details::payload::ReadValue(payload, prefetch.Context, CONTEXT_OFFSET) && prefetch.Context) {
+            if (trace::payload::ReadValue(payload, prefetch.Context, CONTEXT_OFFSET) && prefetch.Context) {
                 result += std::format(L", Context: {}", trace::values::RenderObjectId(prefetch.Context));
             }
 
@@ -236,7 +235,7 @@ namespace {
         while (index <= prefetch.Count) {
             uint64_t entry = 0u;
 
-            if (!trace::details::payload::ReadValue(payload, entry, offset)) break;
+            if (!trace::payload::ReadValue(payload, entry, offset)) break;
 
             listText += trace::values::RenderFileId(entry);
             listText += L'|';
@@ -263,7 +262,7 @@ namespace {
         constexpr size_t RANGES_OFFSET = offsetof(trace::kernel::FILE_LEVEL_TRIM, Ranges);
         trace::kernel::FILE_LEVEL_TRIM trim{};
 
-        if (!trace::details::payload::ReadHeader(payload, trim, RANGES_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, trim, RANGES_OFFSET)) return {};
 
         std::wstring result = std::format(L"Key: {}, NumRanges: {}, ", trim.Key, trim.NumRanges);
         size_t offset = RANGES_OFFSET;
@@ -272,7 +271,7 @@ namespace {
         while (index <= trim.NumRanges) {
             trace::kernel::FILE_LEVEL_TRIM_RANGE range{};
 
-            if (!trace::details::payload::ReadValue(payload, range, offset)) break;
+            if (!trace::payload::ReadValue(payload, range, offset)) break;
 
             result += std::format(L"{}: Offset: {}, Length: {}, ", index, range.Offset, range.Length);
             offset += sizeof(range);
@@ -322,7 +321,7 @@ namespace {
             case FSCTL_SET_COMPRESSION: {
                 uint16_t compressionFormat = 0u;
 
-                if (trace::details::payload::ReadValue(input, compressionFormat)) return RenderCompressionPayload(compressionFormat);
+                if (trace::payload::ReadValue(input, compressionFormat)) return RenderCompressionPayload(compressionFormat);
 
                 break;
             }
@@ -330,7 +329,7 @@ namespace {
             case FSCTL_MOVE_FILE: {
                 trace::kernel::MOVE_FILE_DATA moveFile{};
 
-                if (trace::details::payload::ReadValue(input, moveFile)) return RenderMoveFilePayload(moveFile);
+                if (trace::payload::ReadValue(input, moveFile)) return RenderMoveFilePayload(moveFile);
 
                 break;
             }
@@ -338,7 +337,7 @@ namespace {
             case FSCTL_SET_OBJECT_ID: {
                 trace::kernel::FILE_OBJECTID_BUFFER objectId{};
 
-                if (trace::details::payload::ReadValue(input, objectId)) return RenderObjectIdPayload(objectId);
+                if (trace::payload::ReadValue(input, objectId)) return RenderObjectIdPayload(objectId);
 
                 break;
             }
@@ -352,9 +351,9 @@ namespace {
                 trace::kernel::READ_USN_JOURNAL_DATA_V1 readUsnV1{};
                 trace::kernel::READ_USN_JOURNAL_DATA_V0 readUsnV0{};
 
-                if (trace::details::payload::ReadValue(input, readUsnV1)) return RenderReadUsnJournalV1Payload(readUsnV1);
+                if (trace::payload::ReadValue(input, readUsnV1)) return RenderReadUsnJournalV1Payload(readUsnV1);
 
-                if (trace::details::payload::ReadValue(input, readUsnV0)) return RenderReadUsnJournalPayload(readUsnV0);
+                if (trace::payload::ReadValue(input, readUsnV0)) return RenderReadUsnJournalPayload(readUsnV0);
 
                 break;
             }
@@ -363,7 +362,7 @@ namespace {
                 // a missing/zero-length input buffer means SetSparse = TRUE (documented default)
                 trace::kernel::FILE_SET_SPARSE_BUFFER sparse{ 1u };
 
-                if (!inputSize || trace::details::payload::ReadValue(input, sparse)) return RenderSparsePayload(sparse);
+                if (!inputSize || trace::payload::ReadValue(input, sparse)) return RenderSparsePayload(sparse);
 
                 break;
             }
@@ -371,7 +370,7 @@ namespace {
             case FSCTL_SET_ZERO_DATA: {
                 trace::kernel::FILE_ZERO_DATA_INFORMATION zeroData{};
 
-                if (trace::details::payload::ReadValue(input, zeroData)) return RenderZeroDataPayload(zeroData);
+                if (trace::payload::ReadValue(input, zeroData)) return RenderZeroDataPayload(zeroData);
 
                 break;
             }
@@ -379,7 +378,7 @@ namespace {
             case FSCTL_QUERY_ALLOCATED_RANGES: {
                 trace::kernel::FILE_ALLOCATED_RANGE_BUFFER range{};
 
-                if (trace::details::payload::ReadValue(input, range)) return RenderAllocatedRangePayload(range);
+                if (trace::payload::ReadValue(input, range)) return RenderAllocatedRangePayload(range);
 
                 break;
             }
@@ -387,7 +386,7 @@ namespace {
             case FSCTL_CREATE_USN_JOURNAL: {
                 trace::kernel::CREATE_USN_JOURNAL_DATA createUsn{};
 
-                if (trace::details::payload::ReadValue(input, createUsn)) return RenderCreateUsnJournalPayload(createUsn);
+                if (trace::payload::ReadValue(input, createUsn)) return RenderCreateUsnJournalPayload(createUsn);
 
                 break;
             }
@@ -395,7 +394,7 @@ namespace {
             case FSCTL_READ_FILE_USN_DATA: {
                 trace::kernel::READ_FILE_USN_DATA readFileUsn{};
 
-                if (trace::details::payload::ReadValue(input, readFileUsn)) return RenderReadFileUsnDataPayload(readFileUsn);
+                if (trace::payload::ReadValue(input, readFileUsn)) return RenderReadFileUsnDataPayload(readFileUsn);
 
                 break;
             }
@@ -403,7 +402,7 @@ namespace {
             case FSCTL_MARK_HANDLE: {
                 trace::kernel::MARK_HANDLE_INFO markHandle{};
 
-                if (trace::details::payload::ReadValue(input, markHandle)) return RenderMarkHandlePayload(markHandle);
+                if (trace::payload::ReadValue(input, markHandle)) return RenderMarkHandlePayload(markHandle);
 
                 break;
             }
@@ -420,7 +419,7 @@ namespace {
             case FSCTL_QUERY_PERSISTENT_VOLUME_STATE: {
                 trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION persistentState{};
 
-                if (trace::details::payload::ReadValue(input, persistentState)) return RenderPersistentVolumeStateInputPayload(persistentState);
+                if (trace::payload::ReadValue(input, persistentState)) return RenderPersistentVolumeStateInputPayload(persistentState);
 
                 break;
             }
@@ -428,7 +427,7 @@ namespace {
             case FSCTL_REQUEST_OPLOCK: {
                 trace::kernel::REQUEST_OPLOCK_INPUT_BUFFER oplock{};
 
-                if (trace::details::payload::ReadValue(input, oplock)) return RenderOplockInputPayload(oplock);
+                if (trace::payload::ReadValue(input, oplock)) return RenderOplockInputPayload(oplock);
 
                 break;
             }
@@ -436,7 +435,7 @@ namespace {
             case FSCTL_QUERY_FILE_REGIONS: {
                 trace::kernel::FILE_REGION_INPUT region{};
 
-                if (trace::details::payload::ReadValue(input, region)) return RenderFileRegionInputPayload(region);
+                if (trace::payload::ReadValue(input, region)) return RenderFileRegionInputPayload(region);
 
                 break;
             }
@@ -444,7 +443,7 @@ namespace {
             case FSCTL_DUPLICATE_EXTENTS_TO_FILE: {
                 trace::kernel::DUPLICATE_EXTENTS_DATA duplicateExtents{};
 
-                if (trace::details::payload::ReadValue(input, duplicateExtents)) return RenderDuplicateExtentsPayload(duplicateExtents);
+                if (trace::payload::ReadValue(input, duplicateExtents)) return RenderDuplicateExtentsPayload(duplicateExtents);
 
                 break;
             }
@@ -484,7 +483,7 @@ namespace {
 
     template <typename UsnRecord>
     std::wstring RenderUsnRecordPayloadBody(const UsnRecord& record, std::span<const uint8_t> nameData) {
-        std::wstring result = std::format(L"FileName: {}", trace::details::payload::RenderName(nameData, record.FileNameOffset, record.FileNameLength));
+        std::wstring result = std::format(L"FileName: {}", trace::payload::RenderName(nameData, record.FileNameOffset, record.FileNameLength));
 
         if (record.Reason) {
             result += std::format(L", Reason: {}", trace::names::RenderUsnReason(record.Reason));
@@ -505,7 +504,7 @@ namespace {
     std::wstring RenderUsnRecordPayload(std::span<const uint8_t> payload) {
         trace::kernel::USN_RECORD_COMMON_HEADER header{};
 
-        if (!trace::details::payload::ReadValue(payload, header)) return {};
+        if (!trace::payload::ReadValue(payload, header)) return {};
 
         switch (header.MajorVersion) {
 
@@ -513,7 +512,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::USN_RECORD_V2, FileName);
                 trace::kernel::USN_RECORD_V2 record{};
 
-                if (!trace::details::payload::ReadHeader(payload, record, NAME_OFFSET)) return {};
+                if (!trace::payload::ReadHeader(payload, record, NAME_OFFSET)) return {};
 
                 if (record.RecordLength < NAME_OFFSET) return {};
 
@@ -524,7 +523,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::USN_RECORD_V3, FileName);
                 trace::kernel::USN_RECORD_V3 record{};
 
-                if (!trace::details::payload::ReadHeader(payload, record, NAME_OFFSET)) return {};
+                if (!trace::payload::ReadHeader(payload, record, NAME_OFFSET)) return {};
 
                 if (record.RecordLength < NAME_OFFSET) return {};
 
@@ -540,7 +539,7 @@ namespace {
     std::wstring RenderUsnRecordsPayload(std::span<const uint8_t> payload, bool truncated) {
         int64_t nextUsn = 0;
 
-        if (!trace::details::payload::ReadValue(payload, nextUsn)) return {};
+        if (!trace::payload::ReadValue(payload, nextUsn)) return {};
 
         std::wstring result = std::format(L"NextUsn: {}, ", nextUsn);
         size_t offset = sizeof(nextUsn);
@@ -549,7 +548,7 @@ namespace {
         while (true) {
             trace::kernel::USN_RECORD_COMMON_HEADER header{};
 
-            if (!trace::details::payload::ReadValue(payload, header, offset)) break;
+            if (!trace::payload::ReadValue(payload, header, offset)) break;
 
             if (header.RecordLength < sizeof(header)) break;
 
@@ -559,7 +558,7 @@ namespace {
 
             result += std::format(L"{}: {}, ", index, recordText);
 
-            if (!trace::details::payload::Advance(payload, offset, header.RecordLength)) break;
+            if (!trace::payload::Advance(payload, offset, header.RecordLength)) break;
 
             index++;
         }
@@ -581,7 +580,7 @@ namespace {
         uint32_t index = 1u;
         trace::kernel::FILE_ALLOCATED_RANGE_BUFFER range{};
 
-        while (trace::details::payload::ReadValue(payload, range, offset)) {
+        while (trace::payload::ReadValue(payload, range, offset)) {
             result += std::format(L"{}: {}, ", index, RenderAllocatedRangePayload(range));
             offset += sizeof(range);
             index++;
@@ -621,7 +620,7 @@ namespace {
         std::wstring result = std::format(L"BytesRequired: {}, TailLsn: {}, CurrentLsn: {}, ArchiveTailLsn: {}, LogContainerSize: {}, HighestVirtualClock: {}, LogContainerCount: {}, LogContainerCountMax: {}, LogContainerCountMin: {}, LogGrowthIncrement: {}, LogAutoShrinkPercentage: {}, Flags: {}, LoggingMode: {}, RmState: {}, LogCapacity: {}, LogFree: {}, TopsSize: {}, TopsUsed: {}, TransactionCount: {}, OnePCCount: {}, TwoPCCount: {}, NumberLogFileFull: {}, OldestTransactionAge: {}, RMName: {}", payload.BytesRequired, payload.TailLsn, payload.CurrentLsn, payload.ArchiveTailLsn, payload.LogContainerSize, payload.HighestVirtualClock, payload.LogContainerCount, payload.LogContainerCountMax, payload.LogContainerCountMin, payload.LogGrowthIncrement, payload.LogAutoShrinkPercentage, trace::names::RenderTxfsRmFlags(payload.Flags), trace::names::RenderTxfsLoggingMode(payload.LoggingMode), trace::names::RenderTxfsRmState(payload.RmState), payload.LogCapacity, payload.LogFree, payload.TopsSize, payload.TopsUsed, payload.TransactionCount, payload.OnePCCount, payload.TwoPCCount, payload.NumberLogFileFull, payload.OldestTransactionAge, trace::values::RenderGuid(payload.RMName));
 
         if (payload.TmLogPathOffset) {
-            const std::wstring pathText = trace::details::payload::RenderTerminatedName(nameData, payload.TmLogPathOffset);
+            const std::wstring pathText = trace::payload::RenderTerminatedName(nameData, payload.TmLogPathOffset);
 
             if (!pathText.empty()) {
                 result += std::format(L", TmLogPath: {}", pathText);
@@ -654,7 +653,7 @@ namespace {
         constexpr size_t REGION_OFFSET = offsetof(trace::kernel::FILE_REGION_OUTPUT, Region);
         trace::kernel::FILE_REGION_OUTPUT regions{};
 
-        if (!trace::details::payload::ReadHeader(payload, regions, REGION_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, regions, REGION_OFFSET)) return {};
 
         std::wstring result = std::format(L"TotalRegionEntryCount: {}, RegionEntryCount: {}, ", regions.TotalRegionEntryCount, regions.RegionEntryCount);
         size_t offset = REGION_OFFSET;
@@ -663,7 +662,7 @@ namespace {
         while (index <= regions.RegionEntryCount) {
             trace::kernel::FILE_REGION_INFO region{};
 
-            if (!trace::details::payload::ReadValue(payload, region, offset)) break;
+            if (!trace::payload::ReadValue(payload, region, offset)) break;
 
             result += std::format(L"{}: FileOffset: {}, Length: {}, Usage: {}, ", index, region.FileOffset, region.Length, trace::names::RenderFileRegionUsage(region.Usage));
             offset += sizeof(region);
@@ -689,7 +688,7 @@ namespace {
             case FSCTL_GET_COMPRESSION: {
                 uint16_t compressionFormat = 0u;
 
-                if (trace::details::payload::ReadValue(output, compressionFormat)) return RenderCompressionPayload(compressionFormat);
+                if (trace::payload::ReadValue(output, compressionFormat)) return RenderCompressionPayload(compressionFormat);
 
                 break;
             }
@@ -697,7 +696,7 @@ namespace {
             case FSCTL_FILESYSTEM_GET_STATISTICS: {
                 trace::kernel::FILESYSTEM_STATISTICS statistics{};
 
-                if (trace::details::payload::ReadValue(output, statistics)) return RenderStatisticsPayload(statistics);
+                if (trace::payload::ReadValue(output, statistics)) return RenderStatisticsPayload(statistics);
 
                 break;
             }
@@ -705,7 +704,7 @@ namespace {
             case FSCTL_GET_NTFS_VOLUME_DATA: {
                 trace::kernel::NTFS_VOLUME_DATA_BUFFER volumeData{};
 
-                if (trace::details::payload::ReadValue(output, volumeData)) return RenderNtfsVolumeDataPayload(volumeData);
+                if (trace::payload::ReadValue(output, volumeData)) return RenderNtfsVolumeDataPayload(volumeData);
 
                 break;
             }
@@ -714,7 +713,7 @@ namespace {
             case FSCTL_CREATE_OR_GET_OBJECT_ID: {
                 trace::kernel::FILE_OBJECTID_BUFFER objectId{};
 
-                if (trace::details::payload::ReadValue(output, objectId)) return RenderObjectIdPayload(objectId);
+                if (trace::payload::ReadValue(output, objectId)) return RenderObjectIdPayload(objectId);
 
                 break;
             }
@@ -740,11 +739,11 @@ namespace {
                 trace::kernel::USN_JOURNAL_DATA_V1 journalDataV1{};
                 trace::kernel::USN_JOURNAL_DATA_V0 journalDataV0{};
 
-                if (trace::details::payload::ReadValue(output, journalDataV2)) return RenderUsnJournalDataV2Payload(journalDataV2);
+                if (trace::payload::ReadValue(output, journalDataV2)) return RenderUsnJournalDataV2Payload(journalDataV2);
 
-                if (trace::details::payload::ReadValue(output, journalDataV1)) return RenderUsnJournalDataV1Payload(journalDataV1);
+                if (trace::payload::ReadValue(output, journalDataV1)) return RenderUsnJournalDataV1Payload(journalDataV1);
 
-                if (trace::details::payload::ReadValue(output, journalDataV0)) return RenderUsnJournalDataPayload(journalDataV0);
+                if (trace::payload::ReadValue(output, journalDataV0)) return RenderUsnJournalDataPayload(journalDataV0);
 
                 break;
             }
@@ -752,7 +751,7 @@ namespace {
             case FSCTL_TXFS_QUERY_RM_INFORMATION: {
                 trace::kernel::TXFS_QUERY_RM_INFORMATION rmInformation{};
 
-                if (trace::details::payload::ReadValue(output, rmInformation)) return RenderTxfsRmPayload(rmInformation, output);
+                if (trace::payload::ReadValue(output, rmInformation)) return RenderTxfsRmPayload(rmInformation, output);
 
                 break;
             }
@@ -760,7 +759,7 @@ namespace {
             case FSCTL_QUERY_PERSISTENT_VOLUME_STATE: {
                 trace::kernel::FILE_FS_PERSISTENT_VOLUME_INFORMATION persistentState{};
 
-                if (trace::details::payload::ReadValue(output, persistentState)) return RenderPersistentVolumeStateOutputPayload(persistentState);
+                if (trace::payload::ReadValue(output, persistentState)) return RenderPersistentVolumeStateOutputPayload(persistentState);
 
                 break;
             }
@@ -768,7 +767,7 @@ namespace {
             case FSCTL_REQUEST_OPLOCK: {
                 trace::kernel::REQUEST_OPLOCK_OUTPUT_BUFFER oplock{};
 
-                if (trace::details::payload::ReadValue(output, oplock)) return RenderOplockOutputPayload(oplock);
+                if (trace::payload::ReadValue(output, oplock)) return RenderOplockOutputPayload(oplock);
 
                 break;
             }
@@ -780,7 +779,7 @@ namespace {
             case FSCTL_FILESYSTEM_GET_STATISTICS_EX: {
                 trace::kernel::FILESYSTEM_STATISTICS_EX statistics{};
 
-                if (trace::details::payload::ReadValue(output, statistics)) return RenderStatisticsPayload(statistics);
+                if (trace::payload::ReadValue(output, statistics)) return RenderStatisticsPayload(statistics);
 
                 break;
             }

@@ -1,9 +1,8 @@
 #include "directory.h"
 
-#include "payload.h"
-
 #include "..\kernel.h"
 #include "..\names.h"
+#include "..\payload.h"
 #include "..\values.h"
 
 #include "..\..\text.h"
@@ -62,9 +61,9 @@ namespace {
             constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
             Entry entry{};
 
-            if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L"{}: {}, ", index, trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
+            result += std::format(L"{}: {}, ", index, trace::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
             index++;
 
             if (!entry.NextEntryOffset) {
@@ -73,7 +72,7 @@ namespace {
                 break;
             }
 
-            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
+            if (!trace::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
         }
 
@@ -94,7 +93,7 @@ namespace {
         uint32_t index = 1u;
         trace::kernel::FILE_OBJECTID_INFORMATION objectId{};
 
-        while (trace::details::payload::ReadValue(payload, objectId, offset)) {
+        while (trace::payload::ReadValue(payload, objectId, offset)) {
             result += std::format(L"{}: FileReference: {}, ObjectId: {}, ", index, trace::values::RenderFileId(static_cast<uint64_t>(objectId.FileReference)), trace::values::RenderGuid(objectId.ObjectId));
             offset += sizeof(objectId);
             index++;
@@ -119,7 +118,7 @@ namespace {
         uint32_t index = 1u;
         trace::kernel::FILE_REPARSE_POINT_INFORMATION reparsePoint{};
 
-        while (trace::details::payload::ReadValue(payload, reparsePoint, offset)) {
+        while (trace::payload::ReadValue(payload, reparsePoint, offset)) {
             result += std::format(L"{}: FileReference: {}, Tag: {}, ", index, trace::values::RenderFileId(static_cast<uint64_t>(reparsePoint.FileReference)), trace::names::RenderReparseTag(reparsePoint.Tag));
             offset += sizeof(reparsePoint);
             index++;
@@ -282,9 +281,9 @@ namespace {
             constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
             Entry entry{};
 
-            if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 
-            result += std::format(L"{}: Action: {}, FileName: {}, ", index, trace::names::RenderFileAction(entry.Action), trace::details::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
+            result += std::format(L"{}: Action: {}, FileName: {}, ", index, trace::names::RenderFileAction(entry.Action), trace::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
             index++;
 
             if (!entry.NextEntryOffset) {
@@ -293,7 +292,7 @@ namespace {
                 break;
             }
 
-            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
+            if (!trace::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
         }
 

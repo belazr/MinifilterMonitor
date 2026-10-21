@@ -1,9 +1,8 @@
 #include "volume.h"
 
-#include "payload.h"
-
 #include "..\kernel.h"
 #include "..\names.h"
+#include "..\payload.h"
 #include "..\values.h"
 
 #include "..\..\..\..\inc\protocol.h"
@@ -42,7 +41,7 @@ namespace {
         result += std::format(L"VolumeSerialNumber: {:04X}-{:04X}, SupportsObjects: {}", payload.VolumeSerialNumber >> 16, payload.VolumeSerialNumber & 0xFFFFu, trace::values::RenderBoolean(payload.SupportsObjects));
 
         if (payload.VolumeLabelLength) {
-            result += std::format(L", VolumeLabel: {}", trace::details::payload::RenderName(labelData, payload.VolumeLabelLength));
+            result += std::format(L", VolumeLabel: {}", trace::payload::RenderName(labelData, payload.VolumeLabelLength));
         }
 
         return result;
@@ -53,7 +52,7 @@ namespace {
 
         if (!payload.VolumeLabelLength) return {};
 
-        return std::format(L"VolumeLabel: {}", trace::details::payload::RenderName(labelData, payload.VolumeLabelLength));
+        return std::format(L"VolumeLabel: {}", trace::payload::RenderName(labelData, payload.VolumeLabelLength));
     }
 
 
@@ -73,7 +72,7 @@ namespace {
         std::wstring result = std::format(L"FileSystemAttributes: {}, MaximumComponentNameLength: {}", trace::names::RenderFileSystemAttributes(payload.FileSystemAttributes), payload.MaximumComponentNameLength);
 
         if (payload.FileSystemNameLength) {
-            result += std::format(L", FileSystemName: {}", trace::details::payload::RenderName(nameData, payload.FileSystemNameLength));
+            result += std::format(L", FileSystemName: {}", trace::payload::RenderName(nameData, payload.FileSystemNameLength));
         }
 
         return result;

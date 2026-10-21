@@ -42,6 +42,7 @@
     <ClCompile Include="src\trace\details\security.cpp" />
     <ClCompile Include="src\trace\details\volume.cpp" />
     <ClCompile Include="src\trace\details\wmi.cpp" />
+    <ClCompile Include="src\trace\eas.cpp" />
     <ClCompile Include="src\trace\format.cpp" />
     <ClCompile Include="src\trace\names.cpp" />
     <ClCompile Include="src\trace\values.cpp" />
@@ -66,7 +67,6 @@
     <ClInclude Include="src\trace\details\lock.h" />
     <ClInclude Include="src\trace\details\modwrite.h" />
     <ClInclude Include="src\trace\details\mount.h" />
-    <ClInclude Include="src\trace\details\payload.h" />
     <ClInclude Include="src\trace\details\pnp.h" />
     <ClInclude Include="src\trace\details\quota.h" />
     <ClInclude Include="src\trace\details\readwrite.h" />
@@ -74,9 +74,11 @@
     <ClInclude Include="src\trace\details\security.h" />
     <ClInclude Include="src\trace\details\volume.h" />
     <ClInclude Include="src\trace\details\wmi.h" />
+    <ClInclude Include="src\trace\eas.h" />
     <ClInclude Include="src\trace\format.h" />
     <ClInclude Include="src\trace\kernel.h" />
     <ClInclude Include="src\trace\names.h" />
+    <ClInclude Include="src\trace\payload.h" />
     <ClInclude Include="src\trace\values.h" />
   </ItemGroup>
   <ItemGroup>

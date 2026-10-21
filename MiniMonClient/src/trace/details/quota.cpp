@@ -1,9 +1,8 @@
 #include "quota.h"
 
-#include "payload.h"
-
 #include "..\kernel.h"
 #include "..\names.h"
+#include "..\payload.h"
 #include "..\values.h"
 
 #include "..\..\text.h"
@@ -38,7 +37,7 @@ namespace {
             constexpr size_t SID_OFFSET = offsetof(trace::kernel::FILE_GET_QUOTA_INFORMATION, Sid);
             trace::kernel::FILE_GET_QUOTA_INFORMATION entry{};
 
-            if (!trace::details::payload::ReadHeader(payload, entry, SID_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, entry, SID_OFFSET, offset)) break;
 
             const size_t sidStart = offset + SID_OFFSET;
 
@@ -53,7 +52,7 @@ namespace {
                 break;
             }
 
-            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
+            if (!trace::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
         }
 
@@ -98,7 +97,7 @@ namespace {
             constexpr size_t SID_OFFSET = offsetof(trace::kernel::FILE_QUOTA_INFORMATION, Sid);
             trace::kernel::FILE_QUOTA_INFORMATION entry{};
 
-            if (!trace::details::payload::ReadHeader(payload, entry, SID_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, entry, SID_OFFSET, offset)) break;
 
             const size_t sidStart = offset + SID_OFFSET;
 
@@ -119,7 +118,7 @@ namespace {
                 break;
             }
 
-            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
+            if (!trace::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
 
         }
 

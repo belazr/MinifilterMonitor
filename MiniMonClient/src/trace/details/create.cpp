@@ -1,7 +1,6 @@
 #include "create.h"
 
-#include "payload.h"
-
+#include "..\eas.h"
 #include "..\kernel.h"
 #include "..\names.h"
 #include "..\values.h"
@@ -10,7 +9,6 @@
 
 #include "..\..\..\..\inc\protocol.h"
 
-#include <cstddef>
 #include <cstdint>
 #include <format>
 #include <span>
@@ -26,62 +24,6 @@ namespace {
         if (!(supplement.captured & protocol::CREATE_CAPTURED_EA_BUFFER)) return {};
 
         return { supplement.eaBuffer, supplement.capturedEaBufferSize };
-    }
-
-
-    std::wstring RenderEaValue(std::span<const uint8_t> valueData, uint16_t valueSize) {
-        const size_t dataSize = valueSize < valueData.size() ? valueSize : valueData.size();
-
-        return trace::values::RenderBytes(valueData.first(dataSize), dataSize < valueSize);
-    }
-
-
-    std::wstring RenderExtendedAttributesPayload(std::span<const uint8_t> payload) {
-
-        if (payload.empty()) return {};
-
-        std::wstring result;
-        size_t offset = 0u;
-        uint32_t index = 1u;
-        bool terminated = false;
-
-        while (true) {
-            constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_FULL_EA_INFORMATION, EaName);
-            trace::kernel::FILE_FULL_EA_INFORMATION entry{};
-
-            if (!trace::details::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
-
-            result += std::format(L"{}: EaName: {}, EaValueLength: {}", index, trace::details::payload::RenderAsciiName(payload.subspan(offset + NAME_OFFSET), entry.EaNameLength), entry.EaValueLength);
-            index++;
-
-            if (entry.EaValueLength) {
-                const size_t valueOffset = offset + NAME_OFFSET + entry.EaNameLength + 1u;
-                const size_t valueStart = valueOffset < payload.size() ? valueOffset : payload.size();
-
-                result += std::format(L", EaValue: {}", RenderEaValue(payload.subspan(valueStart), entry.EaValueLength));
-            }
-
-            if (entry.Flags) {
-                result += std::format(L", Flags: {}", trace::names::RenderEaFlags(entry.Flags));
-            }
-
-            result += L", ";
-
-            if (!entry.NextEntryOffset) {
-                terminated = true;
-
-                break;
-            }
-
-            if (!trace::details::payload::Advance(payload, offset, entry.NextEntryOffset)) break;
-
-        }
-
-        if (terminated) {
-            result.resize(result.size() - 2u);
-        }
-
-        return text::MarkTruncated(result, !terminated);
     }
 
 }
@@ -151,7 +93,7 @@ namespace mimo {
                         details += std::format(L", EaLength: {}", parameters.create.eaLength);
                     }
 
-                    const std::wstring eaBufferText = RenderExtendedAttributesPayload(ExtractEaBuffer(createSupplement));
+                    const std::wstring eaBufferText = trace::eas::RenderEasPayload(ExtractEaBuffer(createSupplement));
 
                     if (!eaBufferText.empty()) {
                         details += L", ";
