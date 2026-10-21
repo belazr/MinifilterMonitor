@@ -44,7 +44,7 @@ namespace {
     }
 
 
-    std::wstring RenderDeviceNamePayload(const trace::kernel::MOUNTDEV_NAME& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderNamePayload(const trace::kernel::MOUNTDEV_NAME& payload, std::span<const uint8_t> nameData) {
 
         return std::format(L"Name: {}", trace::payload::RenderName(nameData, payload.NameLength));
     }
@@ -68,9 +68,9 @@ namespace {
             case trace::kernel::IOCTL_MOUNTDEV_LINK_CREATED:
             case trace::kernel::IOCTL_MOUNTDEV_LINK_DELETED: {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::MOUNTDEV_NAME, Name);
-                trace::kernel::MOUNTDEV_NAME deviceName{};
+                trace::kernel::MOUNTDEV_NAME name{};
 
-                if (trace::payload::ReadHeader(input, deviceName, NAME_OFFSET)) return RenderDeviceNamePayload(deviceName, input.subspan(NAME_OFFSET));
+                if (trace::payload::ReadHeader(input, name, NAME_OFFSET)) return RenderNamePayload(name, input.subspan(NAME_OFFSET));
 
                 break;
             }
@@ -268,9 +268,9 @@ namespace {
             }
 
             case IOCTL_DISK_GET_PARTITION_INFO_EX: {
-                trace::kernel::PARTITION_INFORMATION_EX partition{};
+                trace::kernel::PARTITION_INFORMATION_EX partitionEx{};
 
-                if (trace::payload::ReadValue(output, partition)) return RenderPartitionExPayload(partition);
+                if (trace::payload::ReadValue(output, partitionEx)) return RenderPartitionExPayload(partitionEx);
 
                 break;
             }
@@ -337,9 +337,9 @@ namespace {
 
             case trace::kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME: {
                 constexpr size_t NAME_OFFSET = offsetof(trace::kernel::MOUNTDEV_NAME, Name);
-                trace::kernel::MOUNTDEV_NAME deviceName{};
+                trace::kernel::MOUNTDEV_NAME name{};
 
-                if (trace::payload::ReadHeader(output, deviceName, NAME_OFFSET)) return RenderDeviceNamePayload(deviceName, output.subspan(NAME_OFFSET));
+                if (trace::payload::ReadHeader(output, name, NAME_OFFSET)) return RenderNamePayload(name, output.subspan(NAME_OFFSET));
 
                 break;
             }
