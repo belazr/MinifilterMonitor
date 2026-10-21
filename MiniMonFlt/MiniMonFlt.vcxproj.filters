@@ -45,16 +45,10 @@
     <ClCompile Include="src\trace\capture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\trace\ecp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\trace\modules.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\trace\name.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\trace\stack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\trace\supplement.cpp">
@@ -131,16 +125,10 @@
     <ClInclude Include="src\trace\capture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\trace\ecp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\trace\modules.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\name.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\trace\stack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\supplement.h">

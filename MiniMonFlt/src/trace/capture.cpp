@@ -1,7 +1,7 @@
 #include "capture.h"
 
+#include "modules.h"
 #include "name.h"
-#include "stack.h"
 #include "supplement.h"
 
 #include "..\driver.h"
@@ -256,6 +256,31 @@ static_assert(sizeof(driver::InstanceContext::altitude) == sizeof(protocol::Reco
 
 namespace {
 
+    constexpr ULONG STACK_TRACE_SKIP_FRAME_COUNT = 3u;
+
+    // the frame skip counts physical frames, so this stays a frame of its own
+    __declspec(noinline)
+    void CaptureStackTrace(
+        _Out_writes_to_(capacity, *pCount) protocol::StackFrame* pFrames,
+        _In_ ULONG capacity,
+        _Out_ ULONG* pCount
+    ) {
+        *pCount = 0u;
+        void* addresses[protocol::STACK_TRACE_FRAME_COUNT]{};
+        const ULONG limit = capacity < ARRAYSIZE(addresses) ? capacity : ARRAYSIZE(addresses);
+
+        if (!limit) return;
+
+        const USHORT captured = RtlCaptureStackBackTrace(STACK_TRACE_SKIP_FRAME_COUNT, limit, addresses, nullptr);
+
+        trace::modules::Resolve(addresses, captured, pFrames);
+
+        *pCount = captured;
+
+        return;
+    }
+
+
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {
         DEVICE_OBJECT* pDeviceObject = nullptr;
         const NTSTATUS status = FltGetDeviceObject(pFltObjects->Volume, &pDeviceObject);
@@ -286,7 +311,7 @@ namespace {
         }
 
         ULONG stackFrameCount = 0u;
-        trace::stack::CaptureStackTrace(pRecordData->stackTrace, static_cast<ULONG>(ARRAYSIZE(pRecordData->stackTrace)), &stackFrameCount);
+        CaptureStackTrace(pRecordData->stackTrace, static_cast<ULONG>(ARRAYSIZE(pRecordData->stackTrace)), &stackFrameCount);
         pRecordData->stackFrameCount = static_cast<uint32_t>(stackFrameCount);
 
         LARGE_INTEGER originatingTime{};

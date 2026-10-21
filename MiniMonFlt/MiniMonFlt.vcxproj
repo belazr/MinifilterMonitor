@@ -102,10 +102,8 @@
     <ClCompile Include="src\port.cpp" />
     <ClCompile Include="src\records.cpp" />
     <ClCompile Include="src\trace\capture.cpp" />
-    <ClCompile Include="src\trace\ecp.cpp" />
     <ClCompile Include="src\trace\modules.cpp" />
     <ClCompile Include="src\trace\name.cpp" />
-    <ClCompile Include="src\trace\stack.cpp" />
     <ClCompile Include="src\trace\supplement.cpp" />
     <ClCompile Include="src\trace\supplement\create.cpp" />
     <ClCompile Include="src\trace\supplement\deviceio.cpp" />
@@ -132,10 +130,8 @@
     <ClInclude Include="src\port.h" />
     <ClInclude Include="src\records.h" />
     <ClInclude Include="src\trace\capture.h" />
-    <ClInclude Include="src\trace\ecp.h" />
     <ClInclude Include="src\trace\modules.h" />
     <ClInclude Include="src\trace\name.h" />
-    <ClInclude Include="src\trace\stack.h" />
     <ClInclude Include="src\trace\supplement.h" />
     <ClInclude Include="src\trace\supplement\create.h" />
     <ClInclude Include="src\trace\supplement\deviceio.h" />
