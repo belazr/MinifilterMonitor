@@ -2,34 +2,36 @@
 
 #include <fltKernel.h>
 
+namespace {
+
+    const void* MapMdl(
+        _In_opt_ MDL* pMdl,
+        _In_opt_ const void* pExpectedAddress,
+        _Inout_ ULONG* pBufferSize
+    ) {
+
+        if (!pMdl) return nullptr;
+
+        if (pExpectedAddress && MmGetMdlVirtualAddress(pMdl) != pExpectedAddress) return nullptr;
+
+        const void* const pBuffer = MmGetSystemAddressForMdlSafe(pMdl, NormalPagePriority | MdlMappingNoExecute);
+
+        if (!pBuffer) return nullptr;
+
+        const ULONG mdlSize = MmGetMdlByteCount(pMdl);
+
+        if (mdlSize < *pBufferSize) {
+            *pBufferSize = mdlSize;
+        }
+
+        return pBuffer;
+    }
+
+}
+
 namespace mimo {
 
     namespace memory {
-
-        _Use_decl_annotations_
-        const void* MapMdl(
-            MDL* pMdl,
-            const void* pExpectedAddress,
-            ULONG* pBufferSize
-        ) {
-
-            if (!pMdl) return nullptr;
-
-            if (pExpectedAddress && MmGetMdlVirtualAddress(pMdl) != pExpectedAddress) return nullptr;
-
-            const void* const pBuffer = MmGetSystemAddressForMdlSafe(pMdl, NormalPagePriority | MdlMappingNoExecute);
-
-            if (!pBuffer) return nullptr;
-
-            const ULONG mdlSize = MmGetMdlByteCount(pMdl);
-
-            if (mdlSize < *pBufferSize) {
-                *pBufferSize = mdlSize;
-            }
-
-            return pBuffer;
-        }
-
 
         _Use_decl_annotations_
         bool IsRawBufferReadable(
