@@ -102,7 +102,7 @@ namespace mimo {
             ULONG inputSize,
             void* pOutputBuffer,
             ULONG outputSize,
-            ULONG* pBytesWritten
+            ULONG* pWrittenSize
         ) {
             PAGED_CODE();
 
@@ -132,7 +132,7 @@ namespace mimo {
 
                     if (!IS_ALIGNED(pOutputBuffer, alignof(protocol::Record))) return STATUS_DATATYPE_MISALIGNMENT;
 
-                    status = records::Drain(reinterpret_cast<UCHAR*>(pOutputBuffer), outputSize, pBytesWritten);
+                    status = records::Drain(reinterpret_cast<UCHAR*>(pOutputBuffer), outputSize, pWrittenSize);
 
                     break;
 
@@ -153,7 +153,7 @@ namespace mimo {
                         return GetExceptionCode();
                     }
 
-                    *pBytesWritten = static_cast<ULONG>(sizeof(protocol::Version));
+                    *pWrittenSize = static_cast<ULONG>(sizeof(protocol::Version));
                     status = STATUS_SUCCESS;
 
                     break;

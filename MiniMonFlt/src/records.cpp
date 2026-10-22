@@ -138,16 +138,16 @@ namespace mimo {
         _Use_decl_annotations_
         NTSTATUS Drain(
             UCHAR* pBuffer,
-            ULONG size,
-            ULONG* pBytesWritten
+            ULONG bufferSize,
+            ULONG* pWrittenSize
         ) {
             constexpr ULONG RECORD_SIZE = static_cast<ULONG>(sizeof(protocol::Record));
-            ULONG bytesWritten = 0u;
+            ULONG writtenSize = 0u;
             bool tooSmall = false;
 
             for (Entry* pEntry = RemoveHead(); pEntry; pEntry = RemoveHead()) {
 
-                if (size - bytesWritten < RECORD_SIZE) {
+                if (bufferSize - writtenSize < RECORD_SIZE) {
                     InsertHead(pEntry);
                     tooSmall = true;
 
@@ -155,23 +155,23 @@ namespace mimo {
                 }
 
                 __try {
-                    RtlCopyMemory(pBuffer + bytesWritten, &pEntry->record, RECORD_SIZE);
+                    RtlCopyMemory(pBuffer + writtenSize, &pEntry->record, RECORD_SIZE);
                 }
                 __except (EXCEPTION_EXECUTE_HANDLER) {
                     InsertHead(pEntry);
-                    *pBytesWritten = bytesWritten;
+                    *pWrittenSize = writtenSize;
 
                     return GetExceptionCode();
                 }
 
                 DeleteEntry(pEntry);
 
-                bytesWritten += RECORD_SIZE;
+                writtenSize += RECORD_SIZE;
             }
 
-            *pBytesWritten = bytesWritten;
+            *pWrittenSize = writtenSize;
 
-            if (bytesWritten) return STATUS_SUCCESS;
+            if (writtenSize) return STATUS_SUCCESS;
 
             return tooSmall ? STATUS_BUFFER_TOO_SMALL : STATUS_NO_MORE_ENTRIES;
         }

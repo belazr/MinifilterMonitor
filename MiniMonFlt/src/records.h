@@ -23,9 +23,9 @@ namespace mimo {
         void Append(_Inout_ Entry* pEntry);
 
         NTSTATUS Drain(
-            _Out_writes_bytes_to_(size, *pBytesWritten) UCHAR* pBuffer,
-            _In_ ULONG size,
-            _Out_ ULONG* pBytesWritten
+            _Out_writes_bytes_to_(bufferSize, *pWrittenSize) UCHAR* pBuffer,
+            _In_ ULONG bufferSize,
+            _Out_ ULONG* pWrittenSize
         );
 
         void Delete();
