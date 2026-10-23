@@ -19,6 +19,28 @@ using namespace mimo;
 
 namespace {
 
+    std::wstring RenderParameters(uint32_t options, uint16_t fileAttributes, uint16_t shareAccess, int64_t allocationSize) {
+        const uint32_t disposition = options >> 24;
+        const uint32_t createOptions = options & 0x00FFFFFFu;
+        std::wstring result = std::format(L"Disposition: {}", trace::names::RenderCreateDisposition(disposition));
+
+        if (createOptions) {
+            result += std::format(L", Options: {}", trace::names::RenderCreateOptions(createOptions));
+        }
+
+        result += std::format(L", Attributes: {}, ShareMode: {}", trace::names::RenderFileAttributes(fileAttributes), trace::names::RenderShareAccess(shareAccess));
+
+        if (disposition == trace::kernel::FILE_OPEN) {
+            result += L", AllocationSize: n/a";
+        }
+        else {
+            result += std::format(L", AllocationSize: {}", allocationSize);
+        }
+
+        return result;
+    }
+
+
     std::span<const uint8_t> ExtractEaBuffer(const protocol::CreateSupplement& supplement) {
 
         if (!(supplement.captured & protocol::CREATE_CAPTURED_EA_BUFFER)) return {};
@@ -45,23 +67,7 @@ namespace mimo {
                         details += std::format(L"Desired Access: {}, ", names::RenderDesiredAccess(createSupplement.desiredAccess));
                     }
 
-                    const uint32_t disposition = parameters.create.options >> 24;
-                    const uint32_t createOptions = parameters.create.options & 0x00FFFFFFu;
-
-                    details += std::format(L"Disposition: {}", names::RenderCreateDisposition(disposition));
-
-                    if (createOptions) {
-                        details += std::format(L", Options: {}", names::RenderCreateOptions(createOptions));
-                    }
-
-                    details += std::format(L", Attributes: {}, ShareMode: {}", names::RenderFileAttributes(parameters.create.fileAttributes), names::RenderShareAccess(parameters.create.shareAccess));
-
-                    if (disposition == kernel::FILE_OPEN) {
-                        details += L", AllocationSize: n/a";
-                    }
-                    else {
-                        details += std::format(L", AllocationSize: {}", parameters.create.allocationSize);
-                    }
+                    details += RenderParameters(parameters.create.options, parameters.create.fileAttributes, parameters.create.shareAccess, parameters.create.allocationSize);
 
                     if (data.operationFlags) {
                         details += L", ";
