@@ -134,6 +134,78 @@ namespace {
     }
 
 
+    std::wstring RenderPayload(uint32_t infoClass, const protocol::QueryDirectorySupplement& supplement) {
+        const std::span<const uint8_t> payload = ExtractPayload(supplement);
+        const bool truncated = supplement.captured & protocol::QUERY_DIRECTORY_TRUNCATED_PAYLOAD;
+
+        switch (infoClass) {
+
+            case trace::kernel::FileDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_DIRECTORY_INFORMATION>(payload);
+
+            case trace::kernel::FileFullDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_FULL_DIR_INFORMATION>(payload);
+
+            case trace::kernel::FileBothDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_BOTH_DIR_INFORMATION>(payload);
+
+            case trace::kernel::FileNamesInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_NAMES_INFORMATION>(payload);
+
+            case trace::kernel::FileObjectIdInformation:
+
+                return RenderObjectIdsPayload(payload, truncated);
+
+            case trace::kernel::FileReparsePointInformation:
+
+                return RenderReparsePointsPayload(payload, truncated);
+
+            case trace::kernel::FileIdBothDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_ID_BOTH_DIR_INFORMATION>(payload);
+
+            case trace::kernel::FileIdFullDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_ID_FULL_DIR_INFORMATION>(payload);
+
+            case trace::kernel::FileIdGlobalTxDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_ID_GLOBAL_TX_DIR_INFORMATION>(payload);
+
+            case trace::kernel::FileIdExtdDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_ID_EXTD_DIR_INFORMATION>(payload);
+
+            case trace::kernel::FileIdExtdBothDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_ID_EXTD_BOTH_DIR_INFORMATION>(payload);
+
+            case trace::kernel::FileId64ExtdDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_ID_64_EXTD_DIR_INFORMATION>(payload);
+
+            case trace::kernel::FileId64ExtdBothDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_ID_64_EXTD_BOTH_DIR_INFORMATION>(payload);
+
+            case trace::kernel::FileIdAllExtdDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_ID_ALL_EXTD_DIR_INFORMATION>(payload);
+
+            case trace::kernel::FileIdAllExtdBothDirectoryInformation:
+
+                return RenderEntriesPayload<trace::kernel::FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION>(payload);
+
+        }
+
+        return {};
+    }
+
+
     std::wstring RenderQuery(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
         std::wstring details = RenderQueryParameters(parameters.queryDirectory.fileInformationClass, parameters.queryDirectory.length);
@@ -155,88 +227,7 @@ namespace {
             details += fileNameText;
         }
 
-        const std::span<const uint8_t> payload = ExtractPayload(queryDirectorySupplement);
-        const bool truncated = queryDirectorySupplement.captured & protocol::QUERY_DIRECTORY_TRUNCATED_PAYLOAD;
-        std::wstring payloadText;
-
-        switch (parameters.queryDirectory.fileInformationClass) {
-
-            case trace::kernel::FileDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_DIRECTORY_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileFullDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_FULL_DIR_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_BOTH_DIR_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileNamesInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_NAMES_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileObjectIdInformation:
-                payloadText = RenderObjectIdsPayload(payload, truncated);
-
-                break;
-
-            case trace::kernel::FileReparsePointInformation:
-                payloadText = RenderReparsePointsPayload(payload, truncated);
-
-                break;
-
-            case trace::kernel::FileIdBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_BOTH_DIR_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileIdFullDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_FULL_DIR_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileIdGlobalTxDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_GLOBAL_TX_DIR_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileIdExtdDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_EXTD_DIR_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileIdExtdBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_EXTD_BOTH_DIR_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileId64ExtdDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_64_EXTD_DIR_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileId64ExtdBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_64_EXTD_BOTH_DIR_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileIdAllExtdDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_ALL_EXTD_DIR_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::FileIdAllExtdBothDirectoryInformation:
-                payloadText = RenderEntriesPayload<trace::kernel::FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION>(payload);
-
-                break;
-
-        }
+        const std::wstring payloadText = RenderPayload(parameters.queryDirectory.fileInformationClass, queryDirectorySupplement);
 
         if (!payloadText.empty()) {
             details += L", ";
@@ -304,6 +295,29 @@ namespace {
     }
 
 
+    std::wstring RenderPayload(uint32_t infoClass, const protocol::NotifyDirectorySupplement& supplement) {
+        const std::span<const uint8_t> payload = ExtractPayload(supplement);
+
+        switch (infoClass) {
+
+            case trace::kernel::DirectoryNotifyInformation:
+
+                return RenderChangesPayload<trace::kernel::FILE_NOTIFY_INFORMATION>(payload);
+
+            case trace::kernel::DirectoryNotifyExtendedInformation:
+
+                return RenderChangesPayload<trace::kernel::FILE_NOTIFY_EXTENDED_INFORMATION>(payload);
+
+            case trace::kernel::DirectoryNotifyFullInformation:
+
+                return RenderChangesPayload<trace::kernel::FILE_NOTIFY_FULL_INFORMATION>(payload);
+
+        }
+
+        return {};
+    }
+
+
     std::wstring RenderNotify(const protocol::RecordData& data) {
         const protocol::FltParameters& parameters = data.parameters;
         const bool notifyEx = data.callbackMinorId == trace::kernel::IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX;
@@ -318,28 +332,8 @@ namespace {
             details += std::format(L", Filter: {}", trace::names::RenderCompletionFilter(parameters.notifyDirectory.completionFilter));
         }
 
-        const std::span<const uint8_t> payload = ExtractPayload(data.supplement.notifyDirectory);
         const uint32_t directoryNotifyInformationClass = notifyEx ? parameters.notifyDirectory.directoryNotifyInformationClass : trace::kernel::DirectoryNotifyInformation;
-        std::wstring payloadText;
-
-        switch (directoryNotifyInformationClass) {
-
-            case trace::kernel::DirectoryNotifyInformation:
-                payloadText = RenderChangesPayload<trace::kernel::FILE_NOTIFY_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::DirectoryNotifyExtendedInformation:
-                payloadText = RenderChangesPayload<trace::kernel::FILE_NOTIFY_EXTENDED_INFORMATION>(payload);
-
-                break;
-
-            case trace::kernel::DirectoryNotifyFullInformation:
-                payloadText = RenderChangesPayload<trace::kernel::FILE_NOTIFY_FULL_INFORMATION>(payload);
-
-                break;
-
-        }
+        const std::wstring payloadText = RenderPayload(directoryNotifyInformationClass, data.supplement.notifyDirectory);
 
         if (!payloadText.empty()) {
             details += L", ";

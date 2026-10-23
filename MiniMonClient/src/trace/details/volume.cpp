@@ -132,6 +132,132 @@ namespace {
         return std::format(L"FsGuid: {}", trace::values::RenderGuid(payload.FsGuid));
     }
 
+
+    std::wstring RenderPayload(uint32_t infoClass, const protocol::VolumeInfoSupplement& supplement) {
+        const std::span<const uint8_t> payload = ExtractPayload(supplement);
+
+        switch (infoClass) {
+
+            case trace::kernel::FileFsVolumeInformation: {
+                constexpr size_t LABEL_OFFSET = offsetof(trace::kernel::FILE_FS_VOLUME_INFORMATION, VolumeLabel);
+                trace::kernel::FILE_FS_VOLUME_INFORMATION volume{};
+
+                if (trace::payload::ReadHeader(payload, volume, LABEL_OFFSET)) return RenderVolumePayload(volume, payload.subspan(LABEL_OFFSET));
+
+                break;
+            }
+
+            case trace::kernel::FileFsLabelInformation: {
+                constexpr size_t LABEL_OFFSET = offsetof(trace::kernel::FILE_FS_LABEL_INFORMATION, VolumeLabel);
+                trace::kernel::FILE_FS_LABEL_INFORMATION label{};
+
+                if (trace::payload::ReadHeader(payload, label, LABEL_OFFSET)) return RenderLabelPayload(label, payload.subspan(LABEL_OFFSET));
+
+                break;
+            }
+
+            case trace::kernel::FileFsSizeInformation: {
+                trace::kernel::FILE_FS_SIZE_INFORMATION size{};
+
+                if (trace::payload::ReadValue(payload, size)) return RenderSizePayload(size);
+
+                break;
+            }
+
+            case trace::kernel::FileFsDeviceInformation: {
+                trace::kernel::FILE_FS_DEVICE_INFORMATION device{};
+
+                if (trace::payload::ReadValue(payload, device)) return RenderDevicePayload(device);
+
+                break;
+            }
+
+            case trace::kernel::FileFsAttributeInformation: {
+                constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_FS_ATTRIBUTE_INFORMATION, FileSystemName);
+                trace::kernel::FILE_FS_ATTRIBUTE_INFORMATION attribute{};
+
+                if (trace::payload::ReadHeader(payload, attribute, NAME_OFFSET)) return RenderAttributePayload(attribute, payload.subspan(NAME_OFFSET));
+
+                break;
+            }
+
+            case trace::kernel::FileFsControlInformation: {
+                trace::kernel::FILE_FS_CONTROL_INFORMATION control{};
+
+                if (trace::payload::ReadValue(payload, control)) return RenderControlPayload(control);
+
+                break;
+            }
+
+            case trace::kernel::FileFsFullSizeInformation: {
+                trace::kernel::FILE_FS_FULL_SIZE_INFORMATION fullSize{};
+
+                if (trace::payload::ReadValue(payload, fullSize)) return RenderFullSizePayload(fullSize);
+
+                break;
+            }
+
+            case trace::kernel::FileFsObjectIdInformation: {
+                trace::kernel::FILE_FS_OBJECTID_INFORMATION objectId{};
+
+                if (trace::payload::ReadValue(payload, objectId)) return RenderObjectIdPayload(objectId);
+
+                break;
+            }
+
+            case trace::kernel::FileFsVolumeFlagsInformation: {
+                trace::kernel::FILE_FS_VOLUME_FLAGS_INFORMATION volumeFlags{};
+
+                if (trace::payload::ReadValue(payload, volumeFlags)) return RenderVolumeFlagsPayload(volumeFlags);
+
+                break;
+            }
+
+            case trace::kernel::FileFsSectorSizeInformation: {
+                trace::kernel::FILE_FS_SECTOR_SIZE_INFORMATION sectorSize{};
+
+                if (trace::payload::ReadValue(payload, sectorSize)) return RenderSectorSizePayload(sectorSize);
+
+                break;
+            }
+
+            case trace::kernel::FileFsDataCopyInformation: {
+                trace::kernel::FILE_FS_DATA_COPY_INFORMATION dataCopy{};
+
+                if (trace::payload::ReadValue(payload, dataCopy)) return RenderDataCopyPayload(dataCopy);
+
+                break;
+            }
+
+            case trace::kernel::FileFsMetadataSizeInformation: {
+                trace::kernel::FILE_FS_METADATA_SIZE_INFORMATION metadataSize{};
+
+                if (trace::payload::ReadValue(payload, metadataSize)) return RenderMetadataSizePayload(metadataSize);
+
+                break;
+            }
+
+            case trace::kernel::FileFsFullSizeInformationEx: {
+                trace::kernel::FILE_FS_FULL_SIZE_INFORMATION_EX fullSizeEx{};
+
+                if (trace::payload::ReadValue(payload, fullSizeEx)) return RenderFullSizeExPayload(fullSizeEx);
+
+                break;
+            }
+
+            case trace::kernel::FileFsGuidInformation: {
+                trace::kernel::FILE_FS_GUID_INFORMATION guid{};
+
+                if (trace::payload::ReadValue(payload, guid)) return RenderGuidPayload(guid);
+
+                break;
+            }
+
+        }
+
+        return {};
+    }
+
 }
 
 namespace mimo {
@@ -146,155 +272,7 @@ namespace mimo {
                     const protocol::FltParameters& parameters = data.parameters;
                     std::wstring details = RenderParameters(parameters.volumeInformation.fsInformationClass, parameters.volumeInformation.length);
 
-                    const std::span<const uint8_t> payload = ExtractPayload(data.supplement.volumeInfo);
-                    std::wstring payloadText;
-
-                    switch (parameters.volumeInformation.fsInformationClass) {
-
-                        case kernel::FileFsVolumeInformation: {
-                            constexpr size_t LABEL_OFFSET = offsetof(kernel::FILE_FS_VOLUME_INFORMATION, VolumeLabel);
-                            kernel::FILE_FS_VOLUME_INFORMATION volume{};
-
-                            if (payload::ReadHeader(payload, volume, LABEL_OFFSET)) {
-                                payloadText = RenderVolumePayload(volume, payload.subspan(LABEL_OFFSET));
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsLabelInformation: {
-                            constexpr size_t LABEL_OFFSET = offsetof(kernel::FILE_FS_LABEL_INFORMATION, VolumeLabel);
-                            kernel::FILE_FS_LABEL_INFORMATION label{};
-
-                            if (payload::ReadHeader(payload, label, LABEL_OFFSET)) {
-                                payloadText = RenderLabelPayload(label, payload.subspan(LABEL_OFFSET));
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsSizeInformation: {
-                            kernel::FILE_FS_SIZE_INFORMATION size{};
-
-                            if (payload::ReadValue(payload, size)) {
-                                payloadText = RenderSizePayload(size);
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsDeviceInformation: {
-                            kernel::FILE_FS_DEVICE_INFORMATION device{};
-
-                            if (payload::ReadValue(payload, device)) {
-                                payloadText = RenderDevicePayload(device);
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsAttributeInformation: {
-                            constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_FS_ATTRIBUTE_INFORMATION, FileSystemName);
-                            kernel::FILE_FS_ATTRIBUTE_INFORMATION attribute{};
-
-                            if (payload::ReadHeader(payload, attribute, NAME_OFFSET)) {
-                                payloadText = RenderAttributePayload(attribute, payload.subspan(NAME_OFFSET));
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsControlInformation: {
-                            kernel::FILE_FS_CONTROL_INFORMATION control{};
-
-                            if (payload::ReadValue(payload, control)) {
-                                payloadText = RenderControlPayload(control);
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsFullSizeInformation: {
-                            kernel::FILE_FS_FULL_SIZE_INFORMATION fullSize{};
-
-                            if (payload::ReadValue(payload, fullSize)) {
-                                payloadText = RenderFullSizePayload(fullSize);
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsObjectIdInformation: {
-                            kernel::FILE_FS_OBJECTID_INFORMATION objectId{};
-
-                            if (payload::ReadValue(payload, objectId)) {
-                                payloadText = RenderObjectIdPayload(objectId);
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsVolumeFlagsInformation: {
-                            kernel::FILE_FS_VOLUME_FLAGS_INFORMATION volumeFlags{};
-
-                            if (payload::ReadValue(payload, volumeFlags)) {
-                                payloadText = RenderVolumeFlagsPayload(volumeFlags);
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsSectorSizeInformation: {
-                            kernel::FILE_FS_SECTOR_SIZE_INFORMATION sectorSize{};
-
-                            if (payload::ReadValue(payload, sectorSize)) {
-                                payloadText = RenderSectorSizePayload(sectorSize);
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsDataCopyInformation: {
-                            kernel::FILE_FS_DATA_COPY_INFORMATION dataCopy{};
-
-                            if (payload::ReadValue(payload, dataCopy)) {
-                                payloadText = RenderDataCopyPayload(dataCopy);
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsMetadataSizeInformation: {
-                            kernel::FILE_FS_METADATA_SIZE_INFORMATION metadataSize{};
-
-                            if (payload::ReadValue(payload, metadataSize)) {
-                                payloadText = RenderMetadataSizePayload(metadataSize);
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsFullSizeInformationEx: {
-                            kernel::FILE_FS_FULL_SIZE_INFORMATION_EX fullSizeEx{};
-
-                            if (payload::ReadValue(payload, fullSizeEx)) {
-                                payloadText = RenderFullSizeExPayload(fullSizeEx);
-                            }
-
-                            break;
-                        }
-
-                        case kernel::FileFsGuidInformation: {
-                            kernel::FILE_FS_GUID_INFORMATION guid{};
-
-                            if (payload::ReadValue(payload, guid)) {
-                                payloadText = RenderGuidPayload(guid);
-                            }
-
-                            break;
-                        }
-
-                    }
+                    const std::wstring payloadText = RenderPayload(parameters.volumeInformation.fsInformationClass, data.supplement.volumeInfo);
 
                     if (!payloadText.empty()) {
                         details += L", ";
