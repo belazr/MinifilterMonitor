@@ -59,6 +59,16 @@ namespace {
         return result;
     }
 
+
+    std::wstring RenderPayload(const protocol::ReadWriteSupplement& supplement) {
+
+        if (!(supplement.captured & protocol::READ_WRITE_CAPTURED_PAYLOAD)) return {};
+
+        const bool truncated = supplement.captured & protocol::READ_WRITE_TRUNCATED_PAYLOAD;
+
+        return std::format(L"Data: {}", trace::values::RenderBytes({ supplement.payload, supplement.capturedSize }, truncated));
+    }
+
 }
 
 namespace mimo {
@@ -95,12 +105,11 @@ namespace mimo {
                         details += std::format(L", Transferred: {}", data.information);
                     }
 
-                    const protocol::ReadWriteSupplement& readWriteSupplement = data.supplement.readWrite;
+                    const std::wstring payloadText = RenderPayload(data.supplement.readWrite);
 
-                    if (readWriteSupplement.captured & protocol::READ_WRITE_CAPTURED_PAYLOAD) {
-                        const bool truncated = readWriteSupplement.captured & protocol::READ_WRITE_TRUNCATED_PAYLOAD;
-
-                        details += std::format(L", Data: {}", values::RenderBytes({ readWriteSupplement.payload, readWriteSupplement.capturedSize }, truncated));
+                    if (!payloadText.empty()) {
+                        details += L", ";
+                        details += payloadText;
                     }
 
                     return details;
