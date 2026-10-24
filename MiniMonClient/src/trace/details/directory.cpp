@@ -332,8 +332,8 @@ namespace {
             details += std::format(L", Filter: {}", trace::names::RenderCompletionFilter(parameters.notifyDirectory.completionFilter));
         }
 
-        const uint32_t directoryNotifyInformationClass = notifyEx ? parameters.notifyDirectory.directoryNotifyInformationClass : trace::kernel::DirectoryNotifyInformation;
-        const std::wstring payloadText = RenderPayload(directoryNotifyInformationClass, data.supplement.notifyDirectory);
+        const uint32_t infoClass = notifyEx ? parameters.notifyDirectory.directoryNotifyInformationClass : trace::kernel::DirectoryNotifyInformation;
+        const std::wstring payloadText = RenderPayload(infoClass, data.supplement.notifyDirectory);
 
         if (!payloadText.empty()) {
             details += L", ";
