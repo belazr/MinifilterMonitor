@@ -3,6 +3,8 @@
 #include "buffer.h"
 #include "handle.h"
 
+#include "..\..\inc\protocol.h"
+
 #include <Windows.h>
 
 #include <string>
@@ -18,6 +20,8 @@ namespace mimo {
         HRESULT Unload();
 
         HRESULT Connect(InvalidHandle& port);
+
+        HRESULT GetVersion(const InvalidHandle& port, protocol::Version& version);
 
         HRESULT GetRecords(const InvalidHandle& port, AlignedBuffer& records);
 

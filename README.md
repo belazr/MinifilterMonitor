@@ -73,7 +73,7 @@ MiniMonClient [/a <volume> | /m <volume> | /u | /f <output_file> [/s]]
 - `/f <output_file>`: writes captured records to `<output_file>` (without `/f`, records go to stdout)
 - `/s`: with `/f`, writes each altitude to its own file (`<base>.<altitude>.<ext>`). Records without an altitude, such as volume mounts, go to `<output_file>` itself
 
-A volume is given by its drive letter, e.g. `C:`. Without an action the client connects to the driver and captures the live trace to stdout. Press Ctrl+C to stop. To inspect which volumes the filter is attached to, use `fltmc instances`.
+A volume is given by its drive letter, e.g. `C:`. Without an action the client connects to the driver and captures the live trace to stdout. Before capturing it compares the driver's version with its own, prints both and refuses a mismatch. Press Ctrl+C to stop. To inspect which volumes the filter is attached to, use `fltmc instances`.
 
 A typical session:
 
@@ -87,7 +87,6 @@ MiniMonClient /u              detach and unload the driver
 Records are written as a semicolon-separated CSV with a header row. The single merged file interleaves all altitudes and is the better view for following one I/O through the stack. `/s` is an additional per-altitude export.
 
 ## Roadmap
-- Version handshake between client and driver
 - Improve performance of the client draining the driver queue
 
 ## License

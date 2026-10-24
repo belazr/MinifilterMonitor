@@ -160,6 +160,15 @@ namespace mimo {
         }
 
 
+        HRESULT GetVersion(const InvalidHandle& port, protocol::Version& version) {
+            protocol::CommandMessage commandMessage{};
+            commandMessage.command = protocol::Command::GetVersion;
+            DWORD bytesReturned = 0u;
+
+            return FilterSendMessage(port.Get(), &commandMessage, static_cast<DWORD>(sizeof(commandMessage)), &version, static_cast<DWORD>(sizeof(version)), &bytesReturned);
+        }
+
+
         HRESULT GetRecords(const InvalidHandle& port, AlignedBuffer& records) {
             protocol::CommandMessage commandMessage{};
             commandMessage.command = protocol::Command::GetRecords;

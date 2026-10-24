@@ -239,6 +239,45 @@ namespace {
     }
 
 
+    std::wstring RenderVersion(const protocol::Version& version) {
+
+        return std::format(L"{}.{}.{}", version.major, version.minor, version.patch);
+    }
+
+
+    constexpr bool IsSameVersion(const protocol::Version& left, const protocol::Version& right) {
+
+        return left.major == right.major && left.minor == right.minor && left.patch == right.patch;
+    }
+
+
+    bool VerifyVersion(const InvalidHandle& port) {
+        constexpr protocol::Version CLIENT_VERSION{ protocol::MINIMON_MAJOR_VERSION, protocol::MINIMON_MINOR_VERSION, protocol::MINIMON_PATCH_VERSION };
+        protocol::Version driverVersion{};
+        const HRESULT hRes = filter::GetVersion(port, driverVersion);
+
+        if (FAILED(hRes)) {
+            std::cerr << "Failed to query the driver version\n";
+            DisplayError(hRes);
+
+            return false;
+        }
+
+        const std::string clientText = text::ConvertToUtf8(RenderVersion(CLIENT_VERSION));
+        const std::string driverText = text::ConvertToUtf8(RenderVersion(driverVersion));
+
+        if (!IsSameVersion(driverVersion, CLIENT_VERSION)) {
+            std::cerr << std::format("Version mismatch: MiniMonClient {}, MiniMonFlt {}\n", clientText, driverText);
+
+            return false;
+        }
+
+        std::cerr << std::format("MiniMonClient {}, MiniMonFlt {}\n", clientText, driverText);
+
+        return true;
+    }
+
+
     std::atomic<bool> stopRequested;
 
     BOOL WINAPI CtrlHandler(DWORD ctrlType) {
@@ -351,6 +390,8 @@ int wmain(int argc, wchar_t* argv[]) {
 
         return result;
     }
+
+    if (!VerifyVersion(port)) return EXIT_FAILURE;
 
     if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
 
