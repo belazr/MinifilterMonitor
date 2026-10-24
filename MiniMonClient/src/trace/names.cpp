@@ -1033,7 +1033,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderFileInformationClass(uint32_t infoClass) {
+            std::wstring RenderFileInfoClass(uint32_t infoClass) {
 
                 switch (infoClass) {
                     case kernel::FileDirectoryInformation:                     return L"FileDirectoryInformation";
@@ -1125,7 +1125,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderInformationFlags(uint32_t infoClass, uint8_t flags) {
+            std::wstring RenderInfoFlags(uint32_t infoClass, uint8_t flags) {
 
                 switch (infoClass) {
 
@@ -1271,7 +1271,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderFsInformationClass(uint32_t infoClass) {
+            std::wstring RenderFsInfoClass(uint32_t infoClass) {
 
                 switch (infoClass) {
                     case kernel::FileFsVolumeInformation:       return L"FileFsVolumeInformation";
@@ -1323,7 +1323,7 @@ namespace mimo {
             }
 
 
-            std::wstring RenderDirectoryNotifyInformationClass(uint32_t infoClass) {
+            std::wstring RenderDirectoryNotifyInfoClass(uint32_t infoClass) {
 
                 switch (infoClass) {
                     case kernel::DirectoryNotifyInformation:         return L"DirectoryNotifyInformation";

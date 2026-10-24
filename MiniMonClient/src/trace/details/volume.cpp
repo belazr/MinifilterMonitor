@@ -19,7 +19,7 @@ namespace {
 
     std::wstring RenderParameters(uint32_t infoClass, uint32_t size) {
 
-        return std::format(L"Class: {}, Length: {}", trace::names::RenderFsInformationClass(infoClass), size);
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderFsInfoClass(infoClass), size);
     }
 
 

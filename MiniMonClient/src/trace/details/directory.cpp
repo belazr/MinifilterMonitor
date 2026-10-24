@@ -22,7 +22,7 @@ namespace {
 
     std::wstring RenderQueryParameters(uint32_t infoClass, uint32_t size) {
 
-        return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(infoClass), size);
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInfoClass(infoClass), size);
     }
 
 
@@ -240,7 +240,7 @@ namespace {
 
     std::wstring RenderNotifyExParameters(uint32_t infoClass, uint32_t size) {
 
-        return std::format(L"Class: {}, Length: {}", trace::names::RenderDirectoryNotifyInformationClass(infoClass), size);
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderDirectoryNotifyInfoClass(infoClass), size);
     }
 
 

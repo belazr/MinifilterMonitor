@@ -23,7 +23,7 @@ namespace {
 
     std::wstring RenderParameters(uint32_t infoClass, uint32_t size) {
 
-        return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInformationClass(infoClass), size);
+        return std::format(L"Class: {}, Length: {}", trace::names::RenderFileInfoClass(infoClass), size);
     }
 
 
@@ -776,7 +776,7 @@ namespace {
 
     std::wstring RenderQueryOpenParameters(uint32_t infoClass) {
 
-        return std::format(L"Class: {}", trace::names::RenderFileInformationClass(infoClass));
+        return std::format(L"Class: {}", trace::names::RenderFileInfoClass(infoClass));
     }
 
 }
@@ -795,7 +795,7 @@ namespace mimo {
 
                     if (data.operationFlags) {
                         details += L", ";
-                        details += names::RenderInformationFlags(parameters.queryFileInformation.fileInformationClass, data.operationFlags);
+                        details += names::RenderInfoFlags(parameters.queryFileInformation.fileInformationClass, data.operationFlags);
                     }
 
                     const std::wstring payloadText = RenderPayload(parameters.queryFileInformation.fileInformationClass, data.supplement.queryInfo);
@@ -815,7 +815,7 @@ namespace mimo {
 
                     if (data.operationFlags) {
                         details += L", ";
-                        details += names::RenderInformationFlags(parameters.setFileInformation.fileInformationClass, data.operationFlags);
+                        details += names::RenderInfoFlags(parameters.setFileInformation.fileInformationClass, data.operationFlags);
                     }
 
                     const protocol::SetInfoSupplement& setInfoSupplement = data.supplement.setInfo;
