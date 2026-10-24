@@ -14,22 +14,22 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderWriteCompleteParameters(int64_t byteOffset, uint64_t mdlAddress) {
-        std::wstring details = std::format(L"Offset: {}", trace::values::RenderByteOffset(byteOffset));
+    std::wstring RenderWriteCompleteParameters(int64_t offset, uint64_t mdl) {
+        std::wstring details = std::format(L"Offset: {}", trace::values::RenderByteOffset(offset));
 
-        if (mdlAddress) {
-            details += std::format(L", Mdl: 0x{:X}", mdlAddress);
+        if (mdl) {
+            details += std::format(L", Mdl: 0x{:X}", mdl);
         }
 
         return details;
     }
 
 
-    std::wstring RenderReadCompleteParameters(uint64_t mdlAddress) {
+    std::wstring RenderReadCompleteParameters(uint64_t mdl) {
 
-        if (!mdlAddress) return {};
+        if (!mdl) return {};
 
-        return std::format(L"Mdl: 0x{:X}", mdlAddress);
+        return std::format(L"Mdl: 0x{:X}", mdl);
     }
 
 
