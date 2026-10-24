@@ -19,6 +19,14 @@ namespace {
         return std::format(L"DeviceType: {}", trace::names::RenderDeviceType(deviceType));
     }
 
+
+    std::wstring RenderVolumeName(const protocol::MountSupplement& supplement) {
+
+        if (!(supplement.captured & protocol::MOUNT_CAPTURED_VOLUME_NAME)) return {};
+
+        return std::format(L"VolumeName: {}", text::Extract(supplement.volumeName));
+    }
+
 }
 
 namespace mimo {
@@ -35,8 +43,11 @@ namespace mimo {
 
                     const protocol::MountSupplement& mountSupplement = data.supplement.mount;
 
-                    if (mountSupplement.captured & protocol::MOUNT_CAPTURED_VOLUME_NAME) {
-                        details += std::format(L", VolumeName: {}", text::Extract(mountSupplement.volumeName));
+                    const std::wstring volumeNameText = RenderVolumeName(mountSupplement);
+
+                    if (!volumeNameText.empty()) {
+                        details += L", ";
+                        details += volumeNameText;
                     }
 
                     if (mountSupplement.captured & protocol::MOUNT_CAPTURED_FILE_SYSTEM_TYPE) {

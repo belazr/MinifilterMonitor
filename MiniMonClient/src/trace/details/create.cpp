@@ -41,6 +41,16 @@ namespace {
     }
 
 
+    std::wstring RenderEcpText(const protocol::CreateSupplement& supplement) {
+        const std::wstring_view ecpText = text::Extract(supplement.ecpText);
+        const bool truncated = supplement.captured & protocol::CREATE_TRUNCATED_ECP_TEXT;
+
+        if (ecpText.empty() && !truncated) return {};
+
+        return text::MarkTruncated(ecpText, truncated);
+    }
+
+
     std::span<const uint8_t> ExtractEaBuffer(const protocol::CreateSupplement& supplement) {
 
         if (!(supplement.captured & protocol::CREATE_CAPTURED_EA_BUFFER)) return {};
@@ -87,12 +97,11 @@ namespace mimo {
 
                     }
 
-                    const std::wstring_view ecpText = text::Extract(createSupplement.ecpText);
-                    const bool truncated = createSupplement.captured & protocol::CREATE_TRUNCATED_ECP_TEXT;
+                    const std::wstring ecpText = RenderEcpText(createSupplement);
 
-                    if (!ecpText.empty() || truncated) {
+                    if (!ecpText.empty()) {
                         details += L", ";
-                        details += text::MarkTruncated(ecpText, truncated);
+                        details += ecpText;
                     }
 
                     if (parameters.create.eaLength) {
