@@ -1361,9 +1361,9 @@ namespace mimo {
             }
 
 
-            std::wstring RenderFsControlCode(uint32_t fsControlCode) {
+            std::wstring RenderFsControlCode(uint32_t code) {
 
-                switch (fsControlCode) {
+                switch (code) {
                     case FSCTL_REQUEST_OPLOCK_LEVEL_1:                           return L"FSCTL_REQUEST_OPLOCK_LEVEL_1";
                     case FSCTL_REQUEST_OPLOCK_LEVEL_2:                           return L"FSCTL_REQUEST_OPLOCK_LEVEL_2";
                     case FSCTL_REQUEST_BATCH_OPLOCK:                             return L"FSCTL_REQUEST_BATCH_OPLOCK";
@@ -1593,13 +1593,13 @@ namespace mimo {
                     case FSCTL_REFS_VOLUME_ATTESTATION_QUERY_STATUS:             return L"FSCTL_REFS_VOLUME_ATTESTATION_QUERY_STATUS";
                 }
 
-                return RenderControlCode(fsControlCode);
+                return RenderControlCode(code);
             }
 
 
-            std::wstring RenderIoControlCode(uint32_t ioControlCode) {
+            std::wstring RenderIoControlCode(uint32_t code) {
 
-                switch (ioControlCode) {
+                switch (code) {
                     case IOCTL_STORAGE_CHECK_VERIFY:                       return L"IOCTL_STORAGE_CHECK_VERIFY";
                     case IOCTL_STORAGE_CHECK_VERIFY2:                      return L"IOCTL_STORAGE_CHECK_VERIFY2";
                     case IOCTL_STORAGE_MEDIA_REMOVAL:                      return L"IOCTL_STORAGE_MEDIA_REMOVAL";
@@ -1777,13 +1777,13 @@ namespace mimo {
                     case kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME:         return L"IOCTL_MOUNTDEV_QUERY_DEVICE_NAME";
                 }
 
-                return RenderControlCode(ioControlCode);
+                return RenderControlCode(code);
             }
 
 
-            std::wstring RenderDeviceType(uint32_t deviceType) {
+            std::wstring RenderDeviceType(uint32_t type) {
 
-                switch (deviceType) {
+                switch (type) {
                     case FILE_DEVICE_BEEP:                 return L"FILE_DEVICE_BEEP";
                     case FILE_DEVICE_CD_ROM:               return L"FILE_DEVICE_CD_ROM";
                     case FILE_DEVICE_CD_ROM_FILE_SYSTEM:   return L"FILE_DEVICE_CD_ROM_FILE_SYSTEM";
@@ -1881,7 +1881,7 @@ namespace mimo {
                     case FILE_DEVICE_CXL_TYPE3:            return L"FILE_DEVICE_CXL_TYPE3";
                 }
 
-                return std::format(L"0x{:X}", deviceType);
+                return std::format(L"0x{:X}", type);
             }
 
 
@@ -2023,9 +2023,9 @@ namespace mimo {
             }
 
 
-            std::wstring RenderStoragePropertyId(uint32_t propertyId) {
+            std::wstring RenderStoragePropertyId(uint32_t id) {
 
-                switch (propertyId) {
+                switch (id) {
                     case StorageDeviceProperty:                    return L"StorageDeviceProperty";
                     case StorageAdapterProperty:                   return L"StorageAdapterProperty";
                     case StorageDeviceIdProperty:                  return L"StorageDeviceIdProperty";
@@ -2068,7 +2068,7 @@ namespace mimo {
                     case StorageHwCryptoProperty:                  return L"StorageHwCryptoProperty";
                 }
 
-                return std::to_wstring(propertyId);
+                return std::to_wstring(id);
             }
 
 
@@ -2084,9 +2084,9 @@ namespace mimo {
             }
 
 
-            std::wstring RenderMediaType(uint32_t mediaType) {
+            std::wstring RenderMediaType(uint32_t type) {
 
-                switch (mediaType) {
+                switch (type) {
                     case Unknown:        return L"Unknown";
                     case F5_1Pt2_512:    return L"F5_1Pt2_512";
                     case F3_1Pt44_512:   return L"F3_1Pt44_512";
@@ -2115,7 +2115,7 @@ namespace mimo {
                     case F3_32M_512:     return L"F3_32M_512";
                 }
 
-                return std::to_wstring(mediaType);
+                return std::to_wstring(type);
             }
 
 
@@ -2217,9 +2217,9 @@ namespace mimo {
             }
 
 
-            std::wstring RenderFileSystemType(uint32_t fileSystemType) {
+            std::wstring RenderFileSystemType(uint32_t type) {
 
-                switch (fileSystemType) {
+                switch (type) {
                     case FLT_FSTYPE_UNKNOWN:    return L"UNKNOWN";
                     case FLT_FSTYPE_RAW:        return L"RAW";
                     case FLT_FSTYPE_NTFS:       return L"NTFS";
@@ -2253,7 +2253,7 @@ namespace mimo {
                     case FLT_FSTYPE_CIMFS:      return L"CIMFS";
                 }
 
-                return std::to_wstring(fileSystemType);
+                return std::to_wstring(type);
             }
 
         }

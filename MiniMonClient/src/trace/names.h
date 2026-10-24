@@ -89,11 +89,11 @@ namespace mimo {
 
             std::wstring RenderVerifyVolumeFlags(uint8_t flags);
 
-            std::wstring RenderFsControlCode(uint32_t fsControlCode);
+            std::wstring RenderFsControlCode(uint32_t code);
 
-            std::wstring RenderIoControlCode(uint32_t ioControlCode);
+            std::wstring RenderIoControlCode(uint32_t code);
 
-            std::wstring RenderDeviceType(uint32_t deviceType);
+            std::wstring RenderDeviceType(uint32_t type);
 
             std::wstring RenderSymlinkFlags(uint32_t flags);
 
@@ -127,11 +127,11 @@ namespace mimo {
 
             std::wstring RenderDeviceIoFlags(uint8_t flags);
 
-            std::wstring RenderStoragePropertyId(uint32_t propertyId);
+            std::wstring RenderStoragePropertyId(uint32_t id);
 
             std::wstring RenderStorageQueryType(uint32_t type);
 
-            std::wstring RenderMediaType(uint32_t mediaType);
+            std::wstring RenderMediaType(uint32_t type);
 
             std::wstring RenderPartitionStyle(uint32_t style);
 
@@ -153,7 +153,7 @@ namespace mimo {
 
             std::wstring RenderAllocationAttributes(uint32_t attributes);
 
-            std::wstring RenderFileSystemType(uint32_t fileSystemType);
+            std::wstring RenderFileSystemType(uint32_t type);
 
         }
 
