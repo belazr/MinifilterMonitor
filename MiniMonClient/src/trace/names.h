@@ -59,7 +59,7 @@ namespace mimo {
 
             std::wstring RenderLinkFlags(uint32_t flags);
 
-            std::wstring RenderStorageTierClass(uint32_t tier);
+            std::wstring RenderStorageTierClass(uint32_t tierClass);
 
             std::wstring RenderDesiredStorageClassFlags(uint32_t flags);
 

@@ -1203,15 +1203,15 @@ namespace mimo {
             }
 
 
-            std::wstring RenderStorageTierClass(uint32_t tier) {
+            std::wstring RenderStorageTierClass(uint32_t tierClass) {
 
-                switch (tier) {
+                switch (tierClass) {
                     case FileStorageTierClassUnspecified: return L"FileStorageTierClassUnspecified";
                     case FileStorageTierClassCapacity:    return L"FileStorageTierClassCapacity";
                     case FileStorageTierClassPerformance: return L"FileStorageTierClassPerformance";
                 }
 
-                return std::format(L"0x{:X}", tier);
+                return std::format(L"0x{:X}", tierClass);
             }
 
 
