@@ -16,9 +16,9 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderQueryParameters(uint32_t information, uint32_t size) {
+    std::wstring RenderQueryParameters(uint32_t securityInformation, uint32_t size) {
 
-        return std::format(L"Information: {}, Length: {}", trace::names::RenderSecurityInformation(information), size);
+        return std::format(L"Information: {}, Length: {}", trace::names::RenderSecurityInformation(securityInformation), size);
     }
 
 
@@ -30,14 +30,14 @@ namespace {
     }
 
 
-    std::wstring RenderDescriptorPayload(std::span<const uint8_t> payload, uint32_t information) {
+    std::wstring RenderDescriptorPayload(std::span<const uint8_t> payload, uint32_t securityInformation) {
 
         if (payload.empty()) return {};
 
         const PSECURITY_DESCRIPTOR pSecurityDescriptor = const_cast<uint8_t*>(payload.data());
         wchar_t* pText = nullptr;
 
-        if (!ConvertSecurityDescriptorToStringSecurityDescriptorW(pSecurityDescriptor, SDDL_REVISION_1, static_cast<DWORD>(information), &pText, nullptr)) return L"Descriptor: [invalid descriptor]";
+        if (!ConvertSecurityDescriptorToStringSecurityDescriptorW(pSecurityDescriptor, SDDL_REVISION_1, static_cast<DWORD>(securityInformation), &pText, nullptr)) return L"Descriptor: [invalid descriptor]";
 
         const std::wstring descriptor = *pText != L'\0' ? std::format(L"Descriptor: {}", pText) : L"Descriptor: [no matching components]";
         LocalFree(pText);
@@ -46,9 +46,9 @@ namespace {
     }
 
 
-    std::wstring RenderSetParameters(uint32_t information) {
+    std::wstring RenderSetParameters(uint32_t securityInformation) {
 
-        return std::format(L"Information: {}", trace::names::RenderSecurityInformation(information));
+        return std::format(L"Information: {}", trace::names::RenderSecurityInformation(securityInformation));
     }
 
 }
