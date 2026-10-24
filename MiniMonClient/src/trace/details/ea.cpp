@@ -113,7 +113,7 @@ namespace mimo {
 
                     if (data.operationFlags) {
                         details += L", ";
-                        details += names::RenderScanFlags(data.operationFlags);
+                        details += names::RenderQueryFlags(data.operationFlags);
                     }
 
                     const protocol::QueryEaSupplement& queryEaSupplement = data.supplement.queryEa;

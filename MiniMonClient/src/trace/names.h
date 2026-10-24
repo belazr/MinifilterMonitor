@@ -69,7 +69,7 @@ namespace mimo {
 
             std::wstring RenderEaFlags(uint8_t flags);
 
-            std::wstring RenderScanFlags(uint8_t flags);
+            std::wstring RenderQueryFlags(uint8_t flags);
 
             std::wstring RenderFlushFlags(uint8_t flags);
 

@@ -306,7 +306,7 @@ namespace {
 
     static_assert(CompositesPrecedeComponents(EA_FLAG_NAMES), "composite entry after its components in EA_FLAG_NAMES");
 
-    constexpr FlagName SCAN_FLAG_NAMES[]{
+    constexpr FlagName QUERY_FLAG_NAMES[]{
         { trace::kernel::SL_RESTART_SCAN,                L"Restart Scan" },
         { trace::kernel::SL_RETURN_SINGLE_ENTRY,         L"Return Single Entry" },
         { trace::kernel::SL_INDEX_SPECIFIED,             L"Index Specified" },
@@ -314,7 +314,7 @@ namespace {
         { trace::kernel::SL_NO_CURSOR_UPDATE,            L"No Cursor Update" },
     };
 
-    static_assert(CompositesPrecedeComponents(SCAN_FLAG_NAMES), "composite entry after its components in SCAN_FLAG_NAMES");
+    static_assert(CompositesPrecedeComponents(QUERY_FLAG_NAMES), "composite entry after its components in QUERY_FLAG_NAMES");
 
     constexpr FlagName FLUSH_FLAG_NAMES[]{
         { trace::kernel::SL_FORCE_ASYNCHRONOUS, L"Force Asynchronous" },
@@ -1259,9 +1259,9 @@ namespace mimo {
             }
 
 
-            std::wstring RenderScanFlags(uint8_t flags) {
+            std::wstring RenderQueryFlags(uint8_t flags) {
 
-                return RenderFlags(flags, SCAN_FLAG_NAMES, L"|");
+                return RenderFlags(flags, QUERY_FLAG_NAMES, L"|");
             }
 
 

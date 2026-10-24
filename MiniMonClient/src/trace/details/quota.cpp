@@ -159,7 +159,7 @@ namespace mimo {
 
                     if (data.operationFlags) {
                         details += L", ";
-                        details += names::RenderScanFlags(data.operationFlags);
+                        details += names::RenderQueryFlags(data.operationFlags);
                     }
 
                     const protocol::QueryQuotaSupplement& queryQuotaSupplement = data.supplement.queryQuota;

@@ -216,7 +216,7 @@ namespace {
 
         if (data.operationFlags) {
             details += L", ";
-            details += trace::names::RenderScanFlags(data.operationFlags);
+            details += trace::names::RenderQueryFlags(data.operationFlags);
         }
 
         const protocol::QueryDirectorySupplement& queryDirectorySupplement = data.supplement.queryDirectory;
