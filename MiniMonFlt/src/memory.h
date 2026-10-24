@@ -9,7 +9,7 @@ namespace mimo {
         bool IsRawBufferReadable(
             _In_ const FLT_CALLBACK_DATA* pData,
             _In_opt_ const void* pRawBuffer,
-            _In_ ULONG bufferSize,
+            _In_ ULONG size,
             _In_ bool probed = true
         );
 

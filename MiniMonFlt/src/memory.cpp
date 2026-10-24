@@ -37,7 +37,7 @@ namespace mimo {
         bool IsRawBufferReadable(
             const FLT_CALLBACK_DATA* pData,
             const void* pRawBuffer,
-            ULONG bufferSize,
+            ULONG size,
             bool probed
         ) {
 
@@ -50,7 +50,7 @@ namespace mimo {
             if (!pData->Thread || IoThreadToProcess(pData->Thread) != PsGetCurrentProcess()) return false;
 
             __try {
-                ProbeForRead(pRawBuffer, bufferSize, 1u);
+                ProbeForRead(pRawBuffer, size, 1u);
             }
             __except (EXCEPTION_EXECUTE_HANDLER) {
 

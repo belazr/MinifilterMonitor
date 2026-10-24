@@ -12,9 +12,9 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderParameters(uint64_t providerId, uint32_t bufferSize) {
+    std::wstring RenderParameters(uint64_t providerId, uint32_t size) {
 
-        return std::format(L"ProviderId: 0x{:X}, BufferSize: {}", providerId, bufferSize);
+        return std::format(L"ProviderId: 0x{:X}, BufferSize: {}", providerId, size);
     }
 
 }

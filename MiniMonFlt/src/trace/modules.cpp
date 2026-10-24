@@ -200,7 +200,7 @@ namespace mimo {
             __declspec(code_seg("INIT"))
             NTSTATUS Start() {
                 NTSTATUS status = STATUS_SUCCESS;
-                ULONG bufferSize = 0u;
+                ULONG size = 0u;
                 AUX_MODULE_EXTENDED_INFO* pModules = nullptr;
                 size_t moduleCount = 0u;
                 ANSI_STRING ansiName{};
@@ -228,11 +228,11 @@ namespace mimo {
 
                 if (!NT_SUCCESS(status)) goto done;
 
-                status = AuxKlibQueryModuleInformation(&bufferSize, static_cast<ULONG>(sizeof(AUX_MODULE_EXTENDED_INFO)), nullptr);
+                status = AuxKlibQueryModuleInformation(&size, static_cast<ULONG>(sizeof(AUX_MODULE_EXTENDED_INFO)), nullptr);
 
-                if (!NT_SUCCESS(status) || !bufferSize) goto done;
+                if (!NT_SUCCESS(status) || !size) goto done;
 
-                pModules = reinterpret_cast<AUX_MODULE_EXTENDED_INFO*>(ExAllocatePool2(POOL_FLAG_PAGED, bufferSize, driver::POOL_TAG));
+                pModules = reinterpret_cast<AUX_MODULE_EXTENDED_INFO*>(ExAllocatePool2(POOL_FLAG_PAGED, size, driver::POOL_TAG));
 
                 if (!pModules) {
                     status = STATUS_INSUFFICIENT_RESOURCES;
@@ -240,11 +240,11 @@ namespace mimo {
                     goto done;
                 }
 
-                status = AuxKlibQueryModuleInformation(&bufferSize, static_cast<ULONG>(sizeof(AUX_MODULE_EXTENDED_INFO)), pModules);
+                status = AuxKlibQueryModuleInformation(&size, static_cast<ULONG>(sizeof(AUX_MODULE_EXTENDED_INFO)), pModules);
 
                 if (!NT_SUCCESS(status)) goto done;
 
-                moduleCount = bufferSize / sizeof(AUX_MODULE_EXTENDED_INFO);
+                moduleCount = size / sizeof(AUX_MODULE_EXTENDED_INFO);
 
                 for (size_t i = 0u; i < moduleCount; i++) {
                     pBaseName = pModules[i].FullPathName + pModules[i].FileNameOffset;
