@@ -43,7 +43,7 @@ namespace mimo {
 
             std::wstring RenderReadWriteFlags(uint8_t flags);
 
-            std::wstring RenderFileInformationClass(uint32_t fileInformationClass);
+            std::wstring RenderFileInformationClass(uint32_t infoClass);
 
             std::wstring RenderInformationFlags(uint32_t infoClass, uint8_t flags);
 
@@ -73,7 +73,7 @@ namespace mimo {
 
             std::wstring RenderFlushFlags(uint8_t flags);
 
-            std::wstring RenderFsInformationClass(uint32_t fsInformationClass);
+            std::wstring RenderFsInformationClass(uint32_t infoClass);
 
             std::wstring RenderFileSystemAttributes(uint32_t attributes);
 

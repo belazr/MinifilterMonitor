@@ -450,10 +450,10 @@ namespace {
     }
 
 
-    std::wstring RenderPayload(uint32_t fileInformationClass, const protocol::QueryInfoSupplement& supplement) {
+    std::wstring RenderPayload(uint32_t infoClass, const protocol::QueryInfoSupplement& supplement) {
         const std::span<const uint8_t> payload = ExtractPayload(supplement);
 
-        switch (fileInformationClass) {
+        switch (infoClass) {
 
             case trace::kernel::FileBasicInformation: {
                 trace::kernel::FILE_BASIC_INFORMATION basic{};
