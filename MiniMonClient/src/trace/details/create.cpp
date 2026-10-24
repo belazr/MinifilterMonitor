@@ -79,10 +79,10 @@ namespace mimo {
                     }
 
                     if (data.status == 0 || data.information == kernel::FILE_EXISTS || data.information == kernel::FILE_DOES_NOT_EXIST) {
-                        const std::wstring openResult = names::RenderOpenResult(data.information);
+                        const std::wstring openResultText = names::RenderOpenResult(data.information);
 
-                        if (!openResult.empty()) {
-                            details += std::format(L", OpenResult: {}", openResult);
+                        if (!openResultText.empty()) {
+                            details += std::format(L", OpenResult: {}", openResultText);
                         }
 
                     }

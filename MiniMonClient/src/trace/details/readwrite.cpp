@@ -94,11 +94,11 @@ namespace mimo {
                         details += std::format(L", Key: 0x{:X}", parameters.readWrite.key);
                     }
 
-                    const std::wstring ioFlags = RenderIoFlags(data);
+                    const std::wstring ioFlagsText = RenderIoFlags(data);
 
-                    if (!ioFlags.empty()) {
+                    if (!ioFlagsText.empty()) {
                         details += L", ";
-                        details += ioFlags;
+                        details += ioFlagsText;
                     }
 
                     if (data.status >= 0 && data.information != parameters.readWrite.length) {
