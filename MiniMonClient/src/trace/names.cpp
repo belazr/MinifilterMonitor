@@ -981,7 +981,7 @@ namespace mimo {
                     case kernel::FILE_DOES_NOT_EXIST: return L"Does Not Exist";
                 }
 
-                return {};
+                return std::to_wstring(information);
             }
 
 
