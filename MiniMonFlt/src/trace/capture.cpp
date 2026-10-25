@@ -298,16 +298,18 @@ namespace {
         pRecordData->processId    = reinterpret_cast<protocol::ObjectId>(PsGetCurrentProcessId());
         pRecordData->threadId     = reinterpret_cast<protocol::ObjectId>(PsGetCurrentThreadId());
 
-        driver::InstanceContext* pInstanceContext = nullptr;
+        PFLT_CONTEXT pFltContext = nullptr;
 
-        if (pFltObjects->Instance && NT_SUCCESS(FltGetInstanceContext(pFltObjects->Instance, reinterpret_cast<PFLT_CONTEXT*>(&pInstanceContext)))) {
+        if (pFltObjects->Instance && NT_SUCCESS(FltGetInstanceContext(pFltObjects->Instance, &pFltContext))) {
+            const driver::InstanceContext* const pInstanceContext = static_cast<const driver::InstanceContext*>(pFltContext);
+
             RtlCopyMemory(pRecordData->altitude, pInstanceContext->altitude, sizeof(pRecordData->altitude));
 
             if (pInstanceContext->altitudeTruncated) {
                 pRecordData->truncated |= protocol::TRUNCATED_ALTITUDE;
             }
 
-            FltReleaseContext(pInstanceContext);
+            FltReleaseContext(pFltContext);
         }
 
         ULONG stackFrameCount = 0u;

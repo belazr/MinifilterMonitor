@@ -103,12 +103,14 @@ namespace {
         NTSTATUS status = STATUS_INVALID_PARAMETER;
 
         if (pAddress->ss_family == AF_INET) {
-            const SOCKADDR_IN* const pIpv4Address = reinterpret_cast<const SOCKADDR_IN*>(pAddress);
-            status = RtlIpv4AddressToStringEx(&pIpv4Address->sin_addr, pIpv4Address->sin_port, pText, &charCount);
+            SOCKADDR_IN ipv4Address{};
+            RtlCopyMemory(&ipv4Address, pAddress, sizeof(ipv4Address));
+            status = RtlIpv4AddressToStringEx(&ipv4Address.sin_addr, ipv4Address.sin_port, pText, &charCount);
         }
         else if (pAddress->ss_family == AF_INET6) {
-            const SOCKADDR_IN6* const pIpv6Address = reinterpret_cast<const SOCKADDR_IN6*>(pAddress);
-            status = RtlIpv6AddressToStringEx(&pIpv6Address->sin6_addr, 0u, pIpv6Address->sin6_port, pText, &charCount);
+            SOCKADDR_IN6 ipv6Address{};
+            RtlCopyMemory(&ipv6Address, pAddress, sizeof(ipv6Address));
+            status = RtlIpv6AddressToStringEx(&ipv6Address.sin6_addr, 0u, ipv6Address.sin6_port, pText, &charCount);
         }
 
         return NT_SUCCESS(status);
@@ -267,10 +269,13 @@ namespace {
 
 
     void PopulateImpersonatedSid(_Inout_ protocol::CreateSupplement* pSupplement, _In_ PACCESS_TOKEN pClientToken) {
+        void* pTokenInfo = nullptr;
         TOKEN_USER* pTokenUser = nullptr;
         ULONG sidSize = 0u;
 
-        if (!NT_SUCCESS(SeQueryInformationToken(pClientToken, TokenUser, reinterpret_cast<void**>(&pTokenUser)))) goto done;
+        if (!NT_SUCCESS(SeQueryInformationToken(pClientToken, TokenUser, &pTokenInfo))) goto done;
+
+        pTokenUser = static_cast<TOKEN_USER*>(pTokenInfo);
 
         if (!RtlValidSid(pTokenUser->User.Sid)) goto done;
 

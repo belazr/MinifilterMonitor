@@ -201,14 +201,16 @@ namespace {
         UNREFERENCED_PARAMETER(volumeDeviceType);
         UNREFERENCED_PARAMETER(volumeFilesystemType);
 
+        PFLT_CONTEXT pFltContext = nullptr;
         driver::InstanceContext* pContext = nullptr;
         NTSTATUS status = STATUS_SUCCESS;
         UNICODE_STRING altitude{};
 
-        status = FltAllocateContext(pFltObjects->Filter, FLT_INSTANCE_CONTEXT, sizeof(driver::InstanceContext), NonPagedPool, reinterpret_cast<PFLT_CONTEXT*>(&pContext));
+        status = FltAllocateContext(pFltObjects->Filter, FLT_INSTANCE_CONTEXT, sizeof(driver::InstanceContext), NonPagedPool, &pFltContext);
 
         if (!NT_SUCCESS(status)) goto done;
 
+        pContext = static_cast<driver::InstanceContext*>(pFltContext);
         RtlZeroMemory(pContext, sizeof(driver::InstanceContext));
         RtlInitEmptyUnicodeString(&altitude, pContext->altitude, static_cast<USHORT>(sizeof(pContext->altitude)));
         pContext->altitudeTruncated = FormatInstanceAltitude(pFltObjects, &altitude) == STATUS_BUFFER_OVERFLOW;

@@ -23,27 +23,32 @@ namespace mimo {
         ULONG Enlist(const FLT_RELATED_OBJECTS* pFltObjects) {
             PAGED_CODE();
 
+            PFLT_CONTEXT pFltContext = nullptr;
             Context* pContext = nullptr;
             NTSTATUS status = STATUS_SUCCESS;
-            Context* pOldContext = nullptr;
+            PFLT_CONTEXT pOldContext = nullptr;
             ULONG sequence = 0u;
 
             if (!pFltObjects->Transaction || KeGetCurrentIrql() != PASSIVE_LEVEL) return 0u;
 
-            status = FltGetTransactionContext(pFltObjects->Instance, pFltObjects->Transaction, reinterpret_cast<PFLT_CONTEXT*>(&pContext));
+            status = FltGetTransactionContext(pFltObjects->Instance, pFltObjects->Transaction, &pFltContext);
 
-            if (!NT_SUCCESS(status)) {
+            if (NT_SUCCESS(status)) {
+                pContext = static_cast<Context*>(pFltContext);
+            }
+            else {
 
                 if (status != STATUS_NOT_FOUND) goto done;
 
-                status = FltAllocateContext(pFltObjects->Filter, FLT_TRANSACTION_CONTEXT, sizeof(Context), PagedPool, reinterpret_cast<PFLT_CONTEXT*>(&pContext));
+                status = FltAllocateContext(pFltObjects->Filter, FLT_TRANSACTION_CONTEXT, sizeof(Context), PagedPool, &pFltContext);
 
                 if (!NT_SUCCESS(status)) goto done;
 
+                pContext = static_cast<Context*>(pFltContext);
                 RtlZeroMemory(pContext, sizeof(Context));
                 pContext->sequence = static_cast<ULONG>(InterlockedIncrement(&TransactionSequence));
 
-                status = FltSetTransactionContext(pFltObjects->Instance, pFltObjects->Transaction, FLT_SET_CONTEXT_KEEP_IF_EXISTS, pContext, reinterpret_cast<PFLT_CONTEXT*>(&pOldContext));
+                status = FltSetTransactionContext(pFltObjects->Instance, pFltObjects->Transaction, FLT_SET_CONTEXT_KEEP_IF_EXISTS, pContext, &pOldContext);
 
                 if (!NT_SUCCESS(status)) {
                     FltReleaseContext(pContext);
@@ -53,7 +58,7 @@ namespace mimo {
 
                     FLT_ASSERT(pOldContext);
 
-                    pContext = pOldContext;
+                    pContext = static_cast<Context*>(pOldContext);
                     pOldContext = nullptr;
                 }
 

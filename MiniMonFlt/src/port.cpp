@@ -10,7 +10,7 @@
 namespace {
 
     PFLT_PORT pServerPort;
-    PFLT_PORT pClientPort;
+    void* pClientPort;
 
 }
 
@@ -21,14 +21,14 @@ namespace mimo {
         __declspec(code_seg("INIT"))
         _Use_decl_annotations_
         NTSTATUS Open(PFLT_FILTER pFilter) {
-            SECURITY_DESCRIPTOR* pSecurityDescriptor = nullptr;
+            PSECURITY_DESCRIPTOR pSecurityDescriptor = nullptr;
             OBJECT_ATTRIBUTES objectAttributes{};
             UNICODE_STRING portName = RTL_CONSTANT_STRING(PORT_NAME);
             NTSTATUS status = STATUS_SUCCESS;
 
             if (pServerPort) goto done;
 
-            status = FltBuildDefaultSecurityDescriptor(reinterpret_cast<void**>(&pSecurityDescriptor), FLT_PORT_ALL_ACCESS);
+            status = FltBuildDefaultSecurityDescriptor(&pSecurityDescriptor, FLT_PORT_ALL_ACCESS);
 
             if (!NT_SUCCESS(status)) goto done;
 
@@ -73,7 +73,7 @@ namespace mimo {
             UNREFERENCED_PARAMETER(sizeOfContext);
             UNREFERENCED_PARAMETER(ppConnectionCookie);
 
-            void* const pOldClientPort = InterlockedCompareExchangePointer(reinterpret_cast<void**>(&pClientPort), pNewClientPort, nullptr);
+            void* const pOldClientPort = InterlockedCompareExchangePointer(&pClientPort, pNewClientPort, nullptr);
 
             if (pOldClientPort) return STATUS_DEVICE_BUSY;
 
@@ -88,7 +88,8 @@ namespace mimo {
 
             UNREFERENCED_PARAMETER(pConnectionCookie);
 
-            FltCloseClientPort(driver::pFilter, &pClientPort);
+            PFLT_PORT pPort = static_cast<PFLT_PORT>(InterlockedExchangePointer(&pClientPort, nullptr));
+            FltCloseClientPort(driver::pFilter, &pPort);
 
             return;
         }
