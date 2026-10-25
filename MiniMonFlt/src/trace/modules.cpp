@@ -34,7 +34,7 @@ namespace {
     ) {
         FLT_ASSERT(pName);
 
-        ModuleEntry* const pNewEntry = reinterpret_cast<ModuleEntry*>(ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(ModuleEntry), driver::POOL_TAG));
+        ModuleEntry* const pNewEntry = static_cast<ModuleEntry*>(ExAllocatePool2(POOL_FLAG_NON_PAGED, sizeof(ModuleEntry), driver::POOL_TAG));
 
         if (!pNewEntry) return;
 
@@ -232,7 +232,7 @@ namespace mimo {
 
                 if (!NT_SUCCESS(status) || !size) goto done;
 
-                pModules = reinterpret_cast<AUX_MODULE_EXTENDED_INFO*>(ExAllocatePool2(POOL_FLAG_PAGED, size, driver::POOL_TAG));
+                pModules = static_cast<AUX_MODULE_EXTENDED_INFO*>(ExAllocatePool2(POOL_FLAG_PAGED, size, driver::POOL_TAG));
 
                 if (!pModules) {
                     status = STATUS_INSUFFICIENT_RESOURCES;

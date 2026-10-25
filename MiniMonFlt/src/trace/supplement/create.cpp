@@ -202,16 +202,16 @@ namespace {
         PAGED_CODE();
 
         if (IsEqualGUID(GUID_ECP_OPLOCK_KEY, guid)) {
-            AppendOplockKey(pWriter, reinterpret_cast<const OPLOCK_KEY_ECP_CONTEXT*>(pContext));
+            AppendOplockKey(pWriter, static_cast<const OPLOCK_KEY_ECP_CONTEXT*>(pContext));
         }
         else if (IsEqualGUID(GUID_ECP_DUAL_OPLOCK_KEY, guid)) {
-            AppendDualOplockKey(pWriter, reinterpret_cast<const DUAL_OPLOCK_KEY_ECP_CONTEXT*>(pContext));
+            AppendDualOplockKey(pWriter, static_cast<const DUAL_OPLOCK_KEY_ECP_CONTEXT*>(pContext));
         }
         else if (IsEqualGUID(GUID_ECP_NFS_OPEN, guid)) {
-            AppendNfsOpen(pWriter, reinterpret_cast<const NFS_OPEN_ECP_CONTEXT*>(pContext));
+            AppendNfsOpen(pWriter, static_cast<const NFS_OPEN_ECP_CONTEXT*>(pContext));
         }
         else if (IsEqualGUID(GUID_ECP_SRV_OPEN, guid)) {
-            AppendSrvOpen(pWriter, reinterpret_cast<const SRV_OPEN_ECP_CONTEXT*>(pContext));
+            AppendSrvOpen(pWriter, static_cast<const SRV_OPEN_ECP_CONTEXT*>(pContext));
         }
         else if (IsEqualGUID(GUID_ECP_PREFETCH_OPEN, guid)) {
             AppendText(pWriter, L"PREFETCH ");

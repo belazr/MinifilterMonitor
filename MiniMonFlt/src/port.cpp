@@ -115,7 +115,7 @@ namespace mimo {
             protocol::Command command{};
 
             __try {
-                command = reinterpret_cast<protocol::CommandMessage*>(pInputBuffer)->command;
+                command = static_cast<protocol::CommandMessage*>(pInputBuffer)->command;
             }
             __except (EXCEPTION_EXECUTE_HANDLER) {
 
@@ -132,7 +132,7 @@ namespace mimo {
 
                     if (!IS_ALIGNED(pOutputBuffer, alignof(protocol::Record))) return STATUS_DATATYPE_MISALIGNMENT;
 
-                    status = records::Drain(reinterpret_cast<UCHAR*>(pOutputBuffer), outputSize, pWrittenSize);
+                    status = records::Drain(static_cast<UCHAR*>(pOutputBuffer), outputSize, pWrittenSize);
 
                     break;
 
@@ -143,7 +143,7 @@ namespace mimo {
                     if (!IS_ALIGNED(pOutputBuffer, alignof(protocol::Version))) return STATUS_DATATYPE_MISALIGNMENT;
 
                     __try {
-                        *reinterpret_cast<protocol::Version*>(pOutputBuffer) = protocol::MINIMON_VERSION;
+                        *static_cast<protocol::Version*>(pOutputBuffer) = protocol::MINIMON_VERSION;
                     }
                     __except (EXCEPTION_EXECUTE_HANDLER) {
 

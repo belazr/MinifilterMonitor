@@ -42,7 +42,7 @@ namespace mimo {
             void* pCompletionContext,
             FLT_POST_OPERATION_FLAGS flags
         ) {
-            records::Entry* const pEntry = reinterpret_cast<records::Entry*>(pCompletionContext);
+            records::Entry* const pEntry = static_cast<records::Entry*>(pCompletionContext);
 
             if (FlagOn(flags, FLTFL_POST_OPERATION_DRAINING)) {
                 records::DeleteEntry(pEntry);

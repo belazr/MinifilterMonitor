@@ -29,7 +29,7 @@ namespace {
             return nullptr;
         }
 
-        records::Entry* const pEntry = reinterpret_cast<records::Entry*>(ExAllocateFromNPagedLookasideList(&EntryLookaside));
+        records::Entry* const pEntry = static_cast<records::Entry*>(ExAllocateFromNPagedLookasideList(&EntryLookaside));
 
         if (!pEntry) {
             InterlockedDecrement(&RecordsAllocated);
