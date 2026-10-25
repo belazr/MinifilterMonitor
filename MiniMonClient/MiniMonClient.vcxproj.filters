@@ -101,16 +101,10 @@
     <ClInclude Include="..\inc\protocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\buffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\filter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\handle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\records.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\sink.h">

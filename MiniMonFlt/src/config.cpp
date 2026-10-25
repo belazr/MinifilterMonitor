@@ -19,21 +19,26 @@ namespace mimo {
         __declspec(code_seg("INIT"))
         _Use_decl_annotations_
         void Create(DRIVER_OBJECT* pDriverObject) {
+            constexpr size_t TYPE_OFFSET = __builtin_offsetof(KEY_VALUE_PARTIAL_INFORMATION, Type);
+            constexpr size_t DATA_OFFSET = __builtin_offsetof(KEY_VALUE_PARTIAL_INFORMATION, Data);
             HANDLE hKey = nullptr;
             NTSTATUS status = STATUS_SUCCESS;
             ULONG resultLength = 0u;
-            const KEY_VALUE_PARTIAL_INFORMATION* pValuePartialInfo = nullptr;
+            ULONG type = 0u;
             UCHAR buffer[sizeof(KEY_VALUE_PARTIAL_INFORMATION) + sizeof(ULONG)]{};
 
             status = IoOpenDriverRegistryKey(pDriverObject, DriverRegKeyParameters, KEY_READ, 0u, &hKey);
 
             if (!NT_SUCCESS(status)) goto done;
 
-            pValuePartialInfo = reinterpret_cast<const KEY_VALUE_PARTIAL_INFORMATION*>(buffer);
             status = ZwQueryValueKey(hKey, &MaxMemoryName, KeyValuePartialInformation, buffer, static_cast<ULONG>(sizeof(buffer)), &resultLength);
 
-            if (NT_SUCCESS(status) && pValuePartialInfo->Type == REG_DWORD) {
-                MaxMemoryKb = *reinterpret_cast<const ULONG*>(&pValuePartialInfo->Data);
+            if (!NT_SUCCESS(status)) goto done;
+
+            RtlCopyMemory(&type, buffer + TYPE_OFFSET, sizeof(type));
+
+            if (type == REG_DWORD) {
+                RtlCopyMemory(&MaxMemoryKb, buffer + DATA_OFFSET, sizeof(MaxMemoryKb));
             }
 
         done:

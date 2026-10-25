@@ -169,25 +169,27 @@ namespace mimo {
         }
 
 
-        HRESULT GetRecords(const InvalidHandle& port, AlignedBuffer& records) {
+        HRESULT GetRecords(const InvalidHandle& port, std::vector<protocol::Record>& records) {
             protocol::CommandMessage commandMessage{};
             commandMessage.command = protocol::Command::GetRecords;
             DWORD bytesReturned = 0u;
-            const HRESULT hRes = FilterSendMessage(port.Get(), &commandMessage, static_cast<DWORD>(sizeof(commandMessage)), records.Data(), static_cast<DWORD>(records.Size()), &bytesReturned);
+            const HRESULT hRes = FilterSendMessage(port.Get(), &commandMessage, static_cast<DWORD>(sizeof(commandMessage)), records.data(), static_cast<DWORD>(records.size() * sizeof(protocol::Record)), &bytesReturned);
 
             // empty list on an idle volume: STATUS_NO_MORE_ENTRIES surfaces as ERROR_NO_MORE_ITEMS
             // report zero records and keep polling
             if (hRes == HRESULT_FROM_WIN32(ERROR_NO_MORE_ITEMS)) {
-                records.Resize(0u);
+                records.clear();
 
                 return S_OK;
             }
 
-            if (SUCCEEDED(hRes)) {
-                records.Resize(bytesReturned);
-            }
+            if (FAILED(hRes)) return hRes;
 
-            return hRes;
+            if (bytesReturned % sizeof(protocol::Record) != 0u) return HRESULT_FROM_WIN32(ERROR_INVALID_DATA);
+
+            records.resize(bytesReturned / sizeof(protocol::Record));
+
+            return S_OK;
         }
 
     }

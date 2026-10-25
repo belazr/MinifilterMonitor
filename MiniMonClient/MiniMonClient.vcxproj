@@ -49,10 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\protocol.h" />
-    <ClInclude Include="src\buffer.h" />
     <ClInclude Include="src\filter.h" />
     <ClInclude Include="src\handle.h" />
-    <ClInclude Include="src\records.h" />
     <ClInclude Include="src\sink.h" />
     <ClInclude Include="src\text.h" />
     <ClInclude Include="src\trace\details.h" />

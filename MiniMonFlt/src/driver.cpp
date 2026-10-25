@@ -141,30 +141,33 @@ namespace {
 
         if (!NT_SUCCESS(status)) return status;
 
-        UCHAR infoBuffer[sizeof(INSTANCE_FULL_INFORMATION) + ENTRY_STRINGS_WCHAR_COUNT * sizeof(WCHAR)]{};
+        struct InstanceEntry {
+            INSTANCE_FULL_INFORMATION info;
+            WCHAR strings[ENTRY_STRINGS_WCHAR_COUNT];
+        };
+
+        InstanceEntry entry{};
 
         for (ULONG i = 0u; ; i++) {
             ULONG bytesReturned = 0u;
-            status = FltEnumerateInstanceInformationByFilter(pFltObjects->Filter, i, InstanceFullInformation, infoBuffer, static_cast<ULONG>(sizeof(infoBuffer)), &bytesReturned);
+            status = FltEnumerateInstanceInformationByFilter(pFltObjects->Filter, i, InstanceFullInformation, &entry, static_cast<ULONG>(sizeof(entry)), &bytesReturned);
 
             // this volume's entries always fit: its name fit above and instance names cap at INSTANCE_NAME_MAX_CHARS
             if (status == STATUS_BUFFER_TOO_SMALL) continue;
 
             if (!NT_SUCCESS(status)) break;
 
-            const INSTANCE_FULL_INFORMATION* const pInfo = reinterpret_cast<const INSTANCE_FULL_INFORMATION*>(infoBuffer);
-
             UNICODE_STRING infoVolumeName{};
-            infoVolumeName.Buffer = reinterpret_cast<WCHAR*>(infoBuffer + pInfo->VolumeNameBufferOffset);
-            infoVolumeName.Length = pInfo->VolumeNameLength;
-            infoVolumeName.MaximumLength = pInfo->VolumeNameLength;
+            infoVolumeName.Buffer = entry.strings + (entry.info.VolumeNameBufferOffset - sizeof(entry.info)) / sizeof(WCHAR);
+            infoVolumeName.Length = entry.info.VolumeNameLength;
+            infoVolumeName.MaximumLength = entry.info.VolumeNameLength;
 
             if (!RtlEqualUnicodeString(&infoVolumeName, &volumeName, TRUE)) continue;
 
             UNICODE_STRING infoInstanceName{};
-            infoInstanceName.Buffer = reinterpret_cast<WCHAR*>(infoBuffer + pInfo->InstanceNameBufferOffset);
-            infoInstanceName.Length = pInfo->InstanceNameLength;
-            infoInstanceName.MaximumLength = pInfo->InstanceNameLength;
+            infoInstanceName.Buffer = entry.strings + (entry.info.InstanceNameBufferOffset - sizeof(entry.info)) / sizeof(WCHAR);
+            infoInstanceName.Length = entry.info.InstanceNameLength;
+            infoInstanceName.MaximumLength = entry.info.InstanceNameLength;
 
             PFLT_INSTANCE pCandidate = nullptr;
 
@@ -176,9 +179,9 @@ namespace {
             if (!found) continue;
 
             UNICODE_STRING infoAltitude{};
-            infoAltitude.Buffer = reinterpret_cast<WCHAR*>(infoBuffer + pInfo->AltitudeBufferOffset);
-            infoAltitude.Length = pInfo->AltitudeLength;
-            infoAltitude.MaximumLength = pInfo->AltitudeLength;
+            infoAltitude.Buffer = entry.strings + (entry.info.AltitudeBufferOffset - sizeof(entry.info)) / sizeof(WCHAR);
+            infoAltitude.Length = entry.info.AltitudeLength;
+            infoAltitude.MaximumLength = entry.info.AltitudeLength;
 
             return RtlUnicodeStringCopy(pAltitude, &infoAltitude);
         }

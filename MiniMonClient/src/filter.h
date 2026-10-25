@@ -1,6 +1,5 @@
 #pragma once
 
-#include "buffer.h"
 #include "handle.h"
 
 #include "..\..\inc\protocol.h"
@@ -8,6 +7,7 @@
 #include <Windows.h>
 
 #include <string>
+#include <vector>
 
 namespace mimo {
 
@@ -23,7 +23,7 @@ namespace mimo {
 
         HRESULT GetVersion(const InvalidHandle& port, protocol::Version& version);
 
-        HRESULT GetRecords(const InvalidHandle& port, AlignedBuffer& records);
+        HRESULT GetRecords(const InvalidHandle& port, std::vector<protocol::Record>& records);
 
     }
 

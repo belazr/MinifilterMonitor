@@ -3,7 +3,6 @@
 #include "trace\format.h"
 
 #include "handle.h"
-#include "records.h"
 #include "sink.h"
 #include "text.h"
 
@@ -14,6 +13,7 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <cwctype>
@@ -22,10 +22,10 @@
 #include <iostream>
 #include <memory>
 #include <optional>
-#include <span>
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <vector>
 
 using namespace mimo;
 
@@ -298,14 +298,14 @@ namespace {
 
 
     bool CaptureLoop(const InvalidHandle& port, Sink& sink) {
-        constexpr uint32_t BUFFER_SIZE = 1000u * sizeof(protocol::Record);
+        constexpr size_t RECORD_COUNT = 1000u;
         constexpr DWORD POLL_INTERVAL_MS = 200u;
-        AlignedBuffer buffer{ BUFFER_SIZE };
+        std::vector<protocol::Record> records(RECORD_COUNT);
         uint32_t droppedReported = 0u;
 
         while (!stopRequested.load(std::memory_order_relaxed)) {
-            buffer.Resize(BUFFER_SIZE);
-            const HRESULT hRes = filter::GetRecords(port, buffer);
+            records.resize(RECORD_COUNT);
+            const HRESULT hRes = filter::GetRecords(port, records);
 
             if (FAILED(hRes)) {
                 std::cerr << "Failed to get log records from filter\n";
@@ -314,16 +314,9 @@ namespace {
                 return false;
             }
 
-            if (buffer.Size()) {
-                const std::optional<std::span<const protocol::Record>> records = records::Parse(buffer);
+            if (!records.empty()) {
 
-                if (!records.has_value()) {
-                    std::cerr << "Received a malformed record buffer from the filter\n";
-
-                    return false;
-                }
-
-                for (const protocol::Record& record : *records) {
+                for (const protocol::Record& record : records) {
 
                     if (!sink.Write(text::Extract(record.data.altitude), trace::format::Render(record))) {
                         std::cerr << "Failed to write log records\n";
@@ -335,7 +328,7 @@ namespace {
 
                 sink.Flush();
 
-                const uint32_t droppedTotal = records->back().droppedRecords;
+                const uint32_t droppedTotal = records.back().droppedRecords;
 
                 if (droppedTotal > droppedReported) {
                     std::cerr << std::format("Warning: the driver dropped {} record(s) (out of memory or memory cap reached)\n", droppedTotal - droppedReported);
@@ -344,7 +337,7 @@ namespace {
 
             }
 
-            if (buffer.Size() < BUFFER_SIZE) {
+            if (records.size() < RECORD_COUNT) {
                 Sleep(POLL_INTERVAL_MS);
             }
 
