@@ -252,7 +252,6 @@ namespace {
 
 
     bool VerifyVersion(const InvalidHandle& port) {
-        constexpr protocol::Version CLIENT_VERSION{ protocol::MINIMON_MAJOR_VERSION, protocol::MINIMON_MINOR_VERSION, protocol::MINIMON_PATCH_VERSION };
         protocol::Version driverVersion{};
         const HRESULT hRes = filter::GetVersion(port, driverVersion);
 
@@ -263,10 +262,10 @@ namespace {
             return false;
         }
 
-        const std::string clientText = text::ConvertToUtf8(RenderVersion(CLIENT_VERSION));
+        const std::string clientText = text::ConvertToUtf8(RenderVersion(protocol::MINIMON_VERSION));
         const std::string driverText = text::ConvertToUtf8(RenderVersion(driverVersion));
 
-        if (!IsSameVersion(driverVersion, CLIENT_VERSION)) {
+        if (!IsSameVersion(driverVersion, protocol::MINIMON_VERSION)) {
             std::cerr << std::format("Version mismatch: MiniMonClient {}, MiniMonFlt {}\n", clientText, driverText);
 
             return false;

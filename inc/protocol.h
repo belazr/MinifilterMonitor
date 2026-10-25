@@ -24,10 +24,6 @@ namespace mimo {
 
     namespace protocol {
 
-        inline constexpr uint16_t MINIMON_MAJOR_VERSION = 0u;
-        inline constexpr uint16_t MINIMON_MINOR_VERSION = 1u;
-        inline constexpr uint16_t MINIMON_PATCH_VERSION = 0u;
-
         struct Version {
             uint16_t major;
             uint16_t minor;
@@ -35,6 +31,8 @@ namespace mimo {
         };
 
         static_assert(sizeof(Version) == 6u, "protocol::Version layout drift");
+
+        inline constexpr Version MINIMON_VERSION{ 0u, 1u, 0u };
 
         using ObjectId = uint64_t;
 
