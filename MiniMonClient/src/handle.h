@@ -6,12 +6,12 @@
 
 namespace mimo {
 
-    template <auto CloseFn, HANDLE hSentinel = nullptr>
+    template <auto CloseFn, typename T = HANDLE, T hSentinel = nullptr>
     class Handle final {
     public:
         Handle() = default;
 
-        explicit Handle(HANDLE h) : hNative(h) {}
+        explicit Handle(T h) : hNative(h) {}
 
 
         ~Handle() {
@@ -37,19 +37,19 @@ namespace mimo {
         }
 
 
-        HANDLE Get() const {
+        T Get() const {
 
             return this->hNative;
         }
 
 
-        HANDLE Release() {
+        T Release() {
 
             return std::exchange(this->hNative, hSentinel);
         }
 
 
-        HANDLE* Put() {
+        T* Put() {
             this->Close();
             this->hNative = hSentinel;
 
@@ -63,7 +63,7 @@ namespace mimo {
         }
 
     private:
-        HANDLE hNative = hSentinel;
+        T hNative = hSentinel;
 
         void Close() {
 
@@ -76,14 +76,8 @@ namespace mimo {
 
     };
 
-    inline LSTATUS CloseRegistryKey(HANDLE h) {
-
-        return RegCloseKey(static_cast<HKEY>(h));
-    }
-
-
     using NullHandle = Handle<CloseHandle>;
-    using InvalidHandle = Handle<CloseHandle, INVALID_HANDLE_VALUE>;
-    using RegistryKeyHandle = Handle<CloseRegistryKey>;
+    using InvalidHandle = Handle<CloseHandle, HANDLE, INVALID_HANDLE_VALUE>;
+    using RegistryKeyHandle = Handle<RegCloseKey, HKEY>;
 
 }

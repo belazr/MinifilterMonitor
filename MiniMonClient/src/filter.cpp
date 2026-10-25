@@ -64,17 +64,15 @@ namespace {
 
     std::vector<std::wstring> EnumerateSubKeys(const std::wstring& path) {
         std::vector<std::wstring> names;
-        HKEY hKey = nullptr;
+        RegistryKeyHandle key;
 
-        if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, path.c_str(), 0u, KEY_READ, &hKey) != ERROR_SUCCESS) return names;
-
-        const RegistryKeyHandle key{ hKey };
+        if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, path.c_str(), 0u, KEY_READ, key.Put()) != ERROR_SUCCESS) return names;
 
         for (DWORD i = 0u; ; i++) {
             constexpr uint32_t KEY_NAME_WCHAR_COUNT = 256u;
             std::array<wchar_t, KEY_NAME_WCHAR_COUNT> buffer{};
             DWORD wcharCount = static_cast<DWORD>(buffer.size());
-            const LSTATUS status = RegEnumKeyExW(static_cast<HKEY>(key.Get()), i, buffer.data(), &wcharCount, nullptr, nullptr, nullptr, nullptr);
+            const LSTATUS status = RegEnumKeyExW(key.Get(), i, buffer.data(), &wcharCount, nullptr, nullptr, nullptr, nullptr);
 
             if (status == ERROR_MORE_DATA) continue;
 
