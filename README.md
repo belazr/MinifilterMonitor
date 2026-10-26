@@ -88,6 +88,7 @@ Records are written as a semicolon-separated CSV with a header row. The single m
 
 ## Roadmap
 - Improve performance of the client draining the driver queue
+- Improve CLI
 
 ## License
 Copyright (C) 2026 belazr
