@@ -25,8 +25,11 @@ namespace mimo {
 
                     ULONG size = 0u;
 
-                    // absolute and self-relative layouts agree on Control
-                    if (static_cast<const SECURITY_DESCRIPTOR_RELATIVE*>(pSecurityDescriptor)->Control & SE_SELF_RELATIVE) {
+                    // the absolute and self-relative layouts share Revision, Sbz1 and Control
+                    SECURITY_DESCRIPTOR_RELATIVE header{};
+                    RtlCopyMemory(&header, pSecurityDescriptor, sizeof(header));
+
+                    if (header.Control & SE_SELF_RELATIVE) {
                         size = RtlLengthSecurityDescriptor(pSecurityDescriptor);
 
                         if (!size) return;
