@@ -1,13 +1,13 @@
 #include "config.h"
 
 #include <fltKernel.h>
+#include <ntstrsafe.h>
 
 using namespace mimo;
 
 namespace {
 
     constexpr ULONG DEFAULT_MAX_MEMORY_KB = 50u * 1024u;
-    UNICODE_STRING MaxMemoryName = RTL_CONSTANT_STRING(L"MaxMemoryKB");
     ULONG MaxMemoryKb = DEFAULT_MAX_MEMORY_KB;
 
 }
@@ -18,34 +18,20 @@ namespace mimo {
 
         __declspec(code_seg("INIT"))
         _Use_decl_annotations_
-        void Create(DRIVER_OBJECT* pDriverObject) {
-            constexpr size_t TYPE_OFFSET = __builtin_offsetof(KEY_VALUE_PARTIAL_INFORMATION, Type);
-            constexpr size_t DATA_OFFSET = __builtin_offsetof(KEY_VALUE_PARTIAL_INFORMATION, Data);
-            HANDLE hKey = nullptr;
-            NTSTATUS status = STATUS_SUCCESS;
-            ULONG resultLength = 0u;
-            ULONG type = 0u;
-            UCHAR buffer[sizeof(KEY_VALUE_PARTIAL_INFORMATION) + sizeof(ULONG)]{};
+        void Create(const UNICODE_STRING* pRegistryPath) {
+            constexpr ULONG PATH_WCHAR_COUNT = 256u;
+            constexpr ULONG TABLE_ENTRY_COUNT = 2u;
+            WCHAR path[PATH_WCHAR_COUNT]{};
+            RTL_QUERY_REGISTRY_TABLE table[TABLE_ENTRY_COUNT]{};
 
-            status = IoOpenDriverRegistryKey(pDriverObject, DriverRegKeyParameters, KEY_READ, 0u, &hKey);
+            if (!NT_SUCCESS(RtlStringCchPrintfW(path, PATH_WCHAR_COUNT, L"%wZ\\Parameters", pRegistryPath))) return;
 
-            if (!NT_SUCCESS(status)) goto done;
+            table[0u].Flags        = RTL_QUERY_REGISTRY_DIRECT | RTL_QUERY_REGISTRY_TYPECHECK;
+            table[0u].Name         = const_cast<WCHAR*>(L"MaxMemoryKB");
+            table[0u].EntryContext = &MaxMemoryKb;
+            table[0u].DefaultType  = (REG_DWORD << RTL_QUERY_REGISTRY_TYPECHECK_SHIFT) | REG_NONE;
 
-            status = ZwQueryValueKey(hKey, &MaxMemoryName, KeyValuePartialInformation, buffer, static_cast<ULONG>(sizeof(buffer)), &resultLength);
-
-            if (!NT_SUCCESS(status)) goto done;
-
-            RtlCopyMemory(&type, buffer + TYPE_OFFSET, sizeof(type));
-
-            if (type == REG_DWORD) {
-                RtlCopyMemory(&MaxMemoryKb, buffer + DATA_OFFSET, sizeof(MaxMemoryKb));
-            }
-
-        done:
-
-            if (hKey) {
-                ZwClose(hKey);
-            }
+            RtlQueryRegistryValues(RTL_REGISTRY_ABSOLUTE, path, table, nullptr, nullptr);
 
             return;
         }
