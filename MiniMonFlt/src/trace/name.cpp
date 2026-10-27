@@ -83,14 +83,45 @@ namespace mimo {
 
                 if (KeGetCurrentIrql() != PASSIVE_LEVEL) return STATUS_UNSUCCESSFUL;
 
-                // rename and link layouts agree on RootDirectory, FileNameLength and FileName
-                const FILE_RENAME_INFORMATION* const pInfoBuffer = static_cast<const FILE_RENAME_INFORMATION*>(pData->Iopb->Parameters.SetFileInformation.InfoBuffer);
+                const void* const pInfoBuffer = pData->Iopb->Parameters.SetFileInformation.InfoBuffer;
 
                 if (!pInfoBuffer) return STATUS_INVALID_PARAMETER;
 
-                const HANDLE hRootDirectory = pInfoBuffer->RootDirectory;
-                WCHAR* const pFileName = const_cast<WCHAR*>(pInfoBuffer->FileName);
-                const ULONG fileNameSize = pInfoBuffer->FileNameLength;
+                HANDLE hRootDirectory = nullptr;
+                WCHAR* pFileName = nullptr;
+                ULONG fileNameSize = 0u;
+
+                switch (pData->Iopb->Parameters.SetFileInformation.FileInformationClass) {
+
+                    case FileRenameInformation:
+                    case FileRenameInformationBypassAccessCheck:
+                    case FileRenameInformationEx:
+                    case FileRenameInformationExBypassAccessCheck: {
+                        const FILE_RENAME_INFORMATION* const pRenameInfo = static_cast<const FILE_RENAME_INFORMATION*>(pInfoBuffer);
+                        hRootDirectory = pRenameInfo->RootDirectory;
+                        pFileName = const_cast<WCHAR*>(pRenameInfo->FileName);
+                        fileNameSize = pRenameInfo->FileNameLength;
+
+                        break;
+                    }
+
+                    case FileLinkInformation:
+                    case FileLinkInformationBypassAccessCheck:
+                    case FileLinkInformationEx:
+                    case FileLinkInformationExBypassAccessCheck: {
+                        const FILE_LINK_INFORMATION* const pLinkInfo = static_cast<const FILE_LINK_INFORMATION*>(pInfoBuffer);
+                        hRootDirectory = pLinkInfo->RootDirectory;
+                        pFileName = const_cast<WCHAR*>(pLinkInfo->FileName);
+                        fileNameSize = pLinkInfo->FileNameLength;
+
+                        break;
+                    }
+
+                    default:
+
+                        return STATUS_INVALID_PARAMETER;
+
+                }
 
                 // copy source, defaulted to the raw, possibly relative name from the info buffer
                 UNICODE_STRING sourceName{};
