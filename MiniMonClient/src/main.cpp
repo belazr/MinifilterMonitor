@@ -22,6 +22,7 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -297,6 +298,24 @@ namespace {
     }
 
 
+    bool WriteRecords(Sink& sink, std::span<const protocol::Record> records) {
+
+        for (const protocol::Record& record : records) {
+
+            if (!sink.Write(text::Extract(record.data.altitude), trace::format::Render(record))) {
+                std::cerr << "Failed to write log records\n";
+
+                return false;
+            }
+
+        }
+
+        sink.Flush();
+
+        return true;
+    }
+
+
     bool CaptureLoop(const InvalidHandle& port, Sink& sink) {
         constexpr size_t RECORD_COUNT = 1000u;
         constexpr DWORD POLL_INTERVAL_MS = 200u;
@@ -314,21 +333,12 @@ namespace {
                 return false;
             }
 
+            const bool full = records.size() == RECORD_COUNT;
+
             if (!records.empty()) {
-
-                for (const protocol::Record& record : records) {
-
-                    if (!sink.Write(text::Extract(record.data.altitude), trace::format::Render(record))) {
-                        std::cerr << "Failed to write log records\n";
-
-                        return false;
-                    }
-
-                }
-
-                sink.Flush();
-
                 const uint32_t droppedTotal = records.back().droppedRecords;
+
+                if (!WriteRecords(sink, records)) return false;
 
                 if (droppedTotal > droppedReported) {
                     std::cerr << std::format("Warning: the driver dropped {} record(s) (out of memory or memory cap reached)\n", droppedTotal - droppedReported);
@@ -337,7 +347,7 @@ namespace {
 
             }
 
-            if (records.size() < RECORD_COUNT) {
+            if (!full) {
                 Sleep(POLL_INTERVAL_MS);
             }
 
