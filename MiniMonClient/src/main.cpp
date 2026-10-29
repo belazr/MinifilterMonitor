@@ -3,6 +3,7 @@
 #include "trace\format.h"
 
 #include "handle.h"
+#include "queue.h"
 #include "sink.h"
 #include "text.h"
 
@@ -26,14 +27,19 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+#include <thread>
+#include <utility>
 #include <vector>
 
 using namespace mimo;
 
 namespace {
 
-    void ConfigureOutputEncoding() {
+    void ConfigureOutput() {
         SetConsoleOutputCP(CP_UTF8);
+
+        // cout belongs to the writer thread and cerr to the drain thread, untied so a cerr write never flushes cout
+        std::cerr.tie(nullptr);
 
         return;
     }
@@ -302,11 +308,7 @@ namespace {
 
         for (const protocol::Record& record : records) {
 
-            if (!sink.Write(text::Extract(record.data.altitude), trace::format::Render(record))) {
-                std::cerr << "Failed to write log records\n";
-
-                return false;
-            }
+            if (!sink.Write(text::Extract(record.data.altitude), trace::format::Render(record))) return false;
 
         }
 
@@ -316,7 +318,28 @@ namespace {
     }
 
 
-    bool CaptureLoop(const InvalidHandle& port, Sink& sink) {
+    using RecordBatchQueue = BlockingQueue<std::vector<protocol::Record>>;
+
+    bool WriteLoop(RecordBatchQueue& queue, Sink& sink) {
+
+        while (true) {
+            const std::optional<std::vector<protocol::Record>> records = queue.Pop();
+
+            if (!records.has_value()) return true;
+
+            if (!WriteRecords(sink, *records)) {
+                stopRequested.store(true, std::memory_order_relaxed);
+                queue.Close();
+
+                return false;
+            }
+
+        }
+
+    }
+
+
+    bool DrainLoop(const InvalidHandle& port, RecordBatchQueue& queue) {
         constexpr size_t RECORD_COUNT = 1000u;
         constexpr DWORD POLL_INTERVAL_MS = 200u;
         std::vector<protocol::Record> records(RECORD_COUNT);
@@ -338,7 +361,7 @@ namespace {
             if (!records.empty()) {
                 const uint32_t droppedTotal = records.back().droppedRecords;
 
-                if (!WriteRecords(sink, records)) return false;
+                if (!queue.Push(std::move(records))) break;
 
                 if (droppedTotal > droppedReported) {
                     std::cerr << std::format("Warning: the driver dropped {} record(s) (out of memory or memory cap reached)\n", droppedTotal - droppedReported);
@@ -356,10 +379,27 @@ namespace {
         return true;
     }
 
+
+    bool CaptureRecords(const InvalidHandle& port, Sink& sink) {
+        constexpr size_t BATCH_COUNT = 256u;
+        RecordBatchQueue queue{ BATCH_COUNT };
+        bool written = false;
+        std::jthread writer{ [&queue, &sink, &written]() { written = WriteLoop(queue, sink); return; } };
+        const bool drained = DrainLoop(port, queue);
+        queue.Close();
+        writer.join();
+
+        if (!written) {
+            std::cerr << "Failed to write log records\n";
+        }
+
+        return drained && written;
+    }
+
 }
 
 int wmain(int argc, wchar_t* argv[]) {
-    ConfigureOutputEncoding();
+    ConfigureOutput();
 
     const std::optional<Parameters> parameters = ParseParameters(argc - 1, &argv[1u]);
 
@@ -397,5 +437,5 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
 
-    return CaptureLoop(port, *sink) ? EXIT_SUCCESS : EXIT_FAILURE;
+    return CaptureRecords(port, *sink) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
