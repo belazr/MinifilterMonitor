@@ -12,27 +12,27 @@
 
 namespace mimo {
 
-    Sink::Sink(std::wstring_view headerText) : header(headerText) {}
+    Sink::Sink(std::wstring_view header) : headerText(header) {}
 
 
-    ConsoleSink::ConsoleSink(std::ostream& stream, std::wstring_view headerText) : Sink(headerText), out(stream) {}
+    ConsoleSink::ConsoleSink(std::ostream& stream, std::wstring_view header) : Sink(header), outputStream(stream) {}
 
 
     bool ConsoleSink::Write(std::wstring_view, std::wstring_view line) {
 
         if (!this->headerWritten) {
-            this->out << text::ConvertToUtf8(this->header);
+            this->outputStream << text::ConvertToUtf8(this->headerText);
             this->headerWritten = true;
         }
 
-        this->out << text::ConvertToUtf8(line);
+        this->outputStream << text::ConvertToUtf8(line);
 
-        return static_cast<bool>(this->out);
+        return static_cast<bool>(this->outputStream);
     }
 
 
     void ConsoleSink::Flush() {
-        this->out.flush();
+        this->outputStream.flush();
 
         return;
     }
@@ -40,13 +40,13 @@ namespace mimo {
 
     FileSink::FileSink(
         std::wstring path,
-        bool splitByAltitude,
-        std::wstring_view headerText
-    ) : Sink(headerText), basePath(std::move(path)), split(splitByAltitude) {}
+        bool split,
+        std::wstring_view header
+    ) : Sink(header), basePath(std::move(path)), splitByAltitude(split) {}
 
 
     bool FileSink::Write(std::wstring_view altitude, std::wstring_view line) {
-        const std::wstring filePath = this->split && !altitude.empty() ? this->MakeSplitPath(altitude) : this->basePath;
+        const std::wstring filePath = this->splitByAltitude && !altitude.empty() ? this->MakeSplitPath(altitude) : this->basePath;
         const auto [it, inserted] = this->files.try_emplace(filePath);
 
         if (inserted) {
@@ -58,7 +58,7 @@ namespace mimo {
                 return false;
             }
 
-            it->second << text::ConvertToUtf8(this->header);
+            it->second << text::ConvertToUtf8(this->headerText);
         }
 
         it->second << text::ConvertToUtf8(line);
