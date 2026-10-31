@@ -284,6 +284,23 @@ namespace {
     }
 
 
+    std::atomic<bool> writerFinished;
+
+    void WaitForWriter() {
+        constexpr DWORD SLEEP_MS = 100u;
+        constexpr uint32_t SLEEP_COUNT = 40u;
+
+        for (uint32_t i = 0u; i < SLEEP_COUNT; i++) {
+
+            if (writerFinished.load(std::memory_order_relaxed)) return;
+
+            Sleep(SLEEP_MS);
+        }
+
+        return;
+    }
+
+
     std::atomic<bool> stopRequested;
 
     BOOL WINAPI CtrlHandler(DWORD ctrlType) {
@@ -292,10 +309,16 @@ namespace {
 
             case CTRL_C_EVENT:
             case CTRL_BREAK_EVENT:
+                stopRequested.store(true, std::memory_order_relaxed);
+
+                return TRUE;
+
             case CTRL_CLOSE_EVENT:
             case CTRL_LOGOFF_EVENT:
             case CTRL_SHUTDOWN_EVENT:
                 stopRequested.store(true, std::memory_order_relaxed);
+                // the system terminates the process on return or when the handler's budget elapses (5 s for close), so the wait has to happen here
+                WaitForWriter();
 
                 return TRUE;
         }
@@ -388,6 +411,7 @@ namespace {
         const bool drained = DrainLoop(port, queue);
         queue.Close();
         writer.join();
+        writerFinished.store(true, std::memory_order_relaxed);
 
         if (!written) {
             std::cerr << "Failed to write log records\n";
