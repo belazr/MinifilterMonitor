@@ -18,6 +18,8 @@ namespace mimo {
 
             void Delete();
 
+            bool IsOwnAddress(_In_opt_ const void* pAddress);
+
             void Resolve(
                 _In_reads_(count) const void* const* ppAddresses,
                 _In_ ULONG count,

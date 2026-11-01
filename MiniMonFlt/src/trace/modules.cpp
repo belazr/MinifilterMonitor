@@ -26,6 +26,8 @@ namespace {
     LIST_ENTRY ModuleList;
     bool Created;
     bool Started;
+    const void* pOwnImageBase;
+    SIZE_T OwnImageSize;
 
     void AddModule(
         _In_ const void* pBase,
@@ -111,6 +113,30 @@ namespace {
     }
 
 
+    void FindOwnModule() {
+        const ULONG_PTR ownAddress = reinterpret_cast<ULONG_PTR>(&ModuleList);
+        KIRQL oldIrql{};
+        KeAcquireSpinLock(&ModuleListLock, &oldIrql);
+
+        for (LIST_ENTRY* pListEntry = ModuleList.Flink; pListEntry != &ModuleList; pListEntry = pListEntry->Flink) {
+            const ModuleEntry* const pEntry = CONTAINING_RECORD(pListEntry, ModuleEntry, list);
+            const ULONG_PTR base = reinterpret_cast<ULONG_PTR>(pEntry->pBase);
+
+            if (ownAddress >= base && ownAddress - base < pEntry->size) {
+                pOwnImageBase = pEntry->pBase;
+                OwnImageSize = pEntry->size;
+
+                break;
+            }
+
+        }
+
+        KeReleaseSpinLock(&ModuleListLock, oldIrql);
+
+        return;
+    }
+
+
     void Stop() {
 
         if (!Started) return;
@@ -129,6 +155,8 @@ namespace {
         }
 
         KeReleaseSpinLock(&ModuleListLock, oldIrql);
+        pOwnImageBase = nullptr;
+        OwnImageSize = 0u;
         Started = false;
 
         return;
@@ -270,6 +298,7 @@ namespace mimo {
                     AddModule(pModules[i].BasicInfo.ImageBase, pModules[i].ImageSize, &unicodeName);
                 }
 
+                FindOwnModule();
                 status = STATUS_SUCCESS;
 
             done:
@@ -291,6 +320,15 @@ namespace mimo {
                 Created = false;
 
                 return;
+            }
+
+
+            _Use_decl_annotations_
+            bool IsOwnAddress(const void* pAddress) {
+                const ULONG_PTR address = reinterpret_cast<ULONG_PTR>(pAddress);
+                const ULONG_PTR base = reinterpret_cast<ULONG_PTR>(pOwnImageBase);
+
+                return address >= base && address - base < OwnImageSize;
             }
 
 

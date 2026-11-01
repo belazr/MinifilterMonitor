@@ -256,26 +256,31 @@ static_assert(sizeof(driver::InstanceContext::altitude) == sizeof(protocol::Reco
 
 namespace {
 
-    constexpr ULONG STACK_TRACE_SKIP_FRAME_COUNT = 3u;
-
-    // the frame skip counts physical frames, so this stays a frame of its own
-    __declspec(noinline)
     void CaptureStackTrace(
         _Out_writes_to_(capacity, *pCount) protocol::StackFrame* pFrames,
         _In_ ULONG capacity,
         _Out_ ULONG* pCount
     ) {
-        *pCount = 0u;
-        void* addresses[protocol::STACK_TRACE_FRAME_COUNT]{};
-        const ULONG limit = capacity < ARRAYSIZE(addresses) ? capacity : ARRAYSIZE(addresses);
+        constexpr ULONG STACK_TRACE_CAPTURE_COUNT = 16u;
+        void* addresses[STACK_TRACE_CAPTURE_COUNT]{};
+        const USHORT captured = RtlCaptureStackBackTrace(0u, static_cast<ULONG>(ARRAYSIZE(addresses)), addresses, nullptr);
+        ULONG first = 0u;
 
-        if (!limit) return;
+        while (first < captured && trace::modules::IsOwnAddress(addresses[first])) {
+            first++;
+        }
 
-        const USHORT captured = RtlCaptureStackBackTrace(STACK_TRACE_SKIP_FRAME_COUNT, limit, addresses, nullptr);
+        const ULONG remaining = captured - first;
 
-        trace::modules::Resolve(addresses, captured, pFrames);
+        if (!remaining) {
+            *pCount = 0u;
 
-        *pCount = captured;
+            return;
+        }
+
+        const ULONG count = remaining < capacity ? remaining : capacity;
+        trace::modules::Resolve(&addresses[first], count, pFrames);
+        *pCount = count;
 
         return;
     }
