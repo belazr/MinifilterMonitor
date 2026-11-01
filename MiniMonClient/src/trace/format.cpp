@@ -8,12 +8,15 @@
 
 #include "..\..\..\inc\protocol.h"
 
+#include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <format>
 #include <iterator>
 #include <string>
 #include <string_view>
+#include <utility>
 
 using namespace mimo;
 
@@ -110,21 +113,33 @@ namespace {
     }
 
 
-    std::wstring EscapeCsvField(std::wstring_view value) {
+    constexpr bool IsControlCharacter(wchar_t character) {
+        return character < L' ' || (character >= L'\x7F' && character <= L'\x9F');
+    }
+
+
+    constexpr bool NeedsEscaping(wchar_t character) {
+        return character == L'"' || character == L';' || IsControlCharacter(character);
+    }
+
+
+    void EscapeCsvField(std::wstring& value) {
+
+        if (std::ranges::none_of(value, NeedsEscaping)) return;
+
+        const bool quoted = value.find_first_of(LR"(";)") != std::wstring::npos;
         std::wstring escaped;
-        bool quoted = false;
+
+        if (quoted) {
+            escaped.push_back(L'"');
+        }
 
         for (const wchar_t character : value) {
 
             if (character == L'"') {
                 escaped.append(LR"("")");
-                quoted = true;
             }
-            else if (character == L';') {
-                escaped.push_back(character);
-                quoted = true;
-            }
-            else if (character < L' ' || (character >= L'\x7F' && character <= L'\x9F')) {
+            else if (IsControlCharacter(character)) {
                 escaped.append(std::format(LR"(\x{:02X})", static_cast<uint16_t>(character)));
             }
             else {
@@ -133,9 +148,13 @@ namespace {
 
         }
 
-        if (quoted) return std::format(LR"("{}")", escaped);
+        if (quoted) {
+            escaped.push_back(L'"');
+        }
 
-        return escaped;
+        value = std::move(escaped);
+
+        return;
     }
 
 }
@@ -161,18 +180,19 @@ namespace mimo {
 
 
             std::wstring Render(const protocol::Record& record) {
+                constexpr size_t LINE_WCHAR_COUNT = 1024u;
                 const protocol::RecordData& data = record.data;
                 std::array<std::wstring, COLUMN_COUNT> columns;
 
                 columns[SEQ_NUM]         = std::format(L"{:08X}", record.sequenceNumber);
-                columns[ALTITUDE]        = EscapeCsvField(text::MarkTruncated(text::Extract(data.altitude), data.truncated & protocol::TRUNCATED_ALTITUDE));
+                columns[ALTITUDE]        = text::MarkTruncated(text::Extract(data.altitude), data.truncated & protocol::TRUNCATED_ALTITUDE);
                 columns[PRE_OP_TIME]     = values::RenderOperationTime(data.originatingTime);
                 columns[PROCESS_ID]      = std::format(L"{:X}", data.processId);
                 columns[THREAD_ID]       = std::format(L"{:X}", data.threadId);
                 columns[DEV_OBJ]         = values::RenderObjectId(data.deviceObject);
                 columns[TRANSACTION]     = values::RenderObjectId(data.transaction);
                 columns[TRANSACTION_SEQ] = data.transactionSequence ? std::format(L"{:08X}", data.transactionSequence) : std::wstring{};
-                columns[STACK_TRACE]     = EscapeCsvField(RenderStackTrace(data));
+                columns[STACK_TRACE]     = RenderStackTrace(data);
 
                 if (data.transactionNotify) {
                     columns[OPR]                = L"TX";
@@ -189,10 +209,10 @@ namespace mimo {
                     columns[POST_OP_TIME]     = values::RenderOperationTime(data.completionTime);
                     columns[MAJOR]            = names::RenderMajorFunction(data.callbackMajorId);
                     columns[MINOR]            = names::RenderMinorFunction(data.callbackMajorId, data.callbackMinorId);
-                    columns[NAME]             = EscapeCsvField(text::MarkTruncated(text::Extract(data.name), data.truncated & protocol::TRUNCATED_NAME));
+                    columns[NAME]             = text::MarkTruncated(text::Extract(data.name), data.truncated & protocol::TRUNCATED_NAME);
                     columns[STATUS]           = std::format(L"{:08X}", static_cast<uint32_t>(data.status));
                     columns[INFORMATION]      = std::format(L"{:016X}", data.information);
-                    columns[DETAILS]          = EscapeCsvField(details::Render(data));
+                    columns[DETAILS]          = details::Render(data);
                     columns[IRP_FLAGS]        = std::format(L"{:08X}", data.irpFlags);
                     columns[OPERATION_FLAGS]  = std::format(L"{:02X}", data.operationFlags);
                     columns[FILE_OBJ]         = values::RenderObjectId(data.fileObject);
@@ -206,8 +226,10 @@ namespace mimo {
                 }
 
                 std::wstring line;
+                line.reserve(LINE_WCHAR_COUNT);
 
-                for (const std::wstring& column : columns) {
+                for (std::wstring& column : columns) {
+                    EscapeCsvField(column);
                     line.append(column);
                     line.push_back(L';');
                 }
