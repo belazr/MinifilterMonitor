@@ -47,6 +47,7 @@ namespace mimo {
 
 
     bool FileSink::Write(std::wstring_view altitude, std::wstring_view line) {
+        constexpr std::streamsize FILE_BUFFER_SIZE = 1024 * 1024;
         const std::wstring filePath = this->splitByAltitude && !altitude.empty() ? this->MakeSplitPath(altitude) : this->basePath;
         const auto [it, inserted] = this->files.try_emplace(filePath);
 
@@ -59,6 +60,7 @@ namespace mimo {
                 return false;
             }
 
+            it->second.rdbuf()->pubsetbuf(nullptr, FILE_BUFFER_SIZE);
             WriteCrlfLine(it->second, this->headerText);
         }
 
