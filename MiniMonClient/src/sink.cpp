@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <ios>
 #include <ostream>
 #include <string>
 #include <string_view>
@@ -50,7 +51,7 @@ namespace mimo {
         const auto [it, inserted] = this->files.try_emplace(filePath);
 
         if (inserted) {
-            it->second.open(filePath);
+            it->second.open(filePath, std::ios::binary);
 
             if (!it->second) {
                 this->files.erase(it);
@@ -58,10 +59,10 @@ namespace mimo {
                 return false;
             }
 
-            it->second << text::ConvertToUtf8(this->headerText);
+            WriteCrlfLine(it->second, this->headerText);
         }
 
-        it->second << text::ConvertToUtf8(line);
+        WriteCrlfLine(it->second, line);
 
         return static_cast<bool>(it->second);
     }
@@ -72,6 +73,16 @@ namespace mimo {
         for (std::pair<const std::wstring, std::ofstream>& entry : this->files) {
             entry.second.flush();
         }
+
+        return;
+    }
+
+
+    void FileSink::WriteCrlfLine(std::ofstream& stream, std::wstring_view line) {
+        std::string lineBytes = text::ConvertToUtf8(line);
+        lineBytes.back() = '\r';
+        lineBytes.push_back('\n');
+        stream << lineBytes;
 
         return;
     }

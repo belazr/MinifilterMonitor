@@ -21,9 +21,9 @@ namespace mimo {
         virtual void Flush() = 0;
 
     protected:
-        explicit Sink(std::wstring_view header);
-
         std::wstring headerText;
+
+        explicit Sink(std::wstring_view header);
     };
 
     class ConsoleSink final : public Sink {
@@ -55,6 +55,8 @@ namespace mimo {
         std::wstring basePath;
         bool splitByAltitude;
         std::map<std::wstring, std::ofstream> files;
+
+        static void WriteCrlfLine(std::ofstream& stream, std::wstring_view line);
 
         std::wstring MakeSplitPath(std::wstring_view altitude) const;
     };
