@@ -177,14 +177,23 @@ namespace mimo {
         }
 
 
-        void Delete() {
-
-            if (!Created) return;
+        void Clear() {
 
             for (Entry* pEntry = RemoveHead(); pEntry; pEntry = RemoveHead()) {
                 DeleteEntry(pEntry);
             }
 
+            InterlockedExchange(&DroppedRecords, 0);
+
+            return;
+        }
+
+
+        void Delete() {
+
+            if (!Created) return;
+
+            Clear();
             ExDeleteNPagedLookasideList(&EntryLookaside);
             Created = false;
 

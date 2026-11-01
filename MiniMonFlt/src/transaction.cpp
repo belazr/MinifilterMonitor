@@ -2,6 +2,7 @@
 
 #include "trace\capture.h"
 
+#include "port.h"
 #include "records.h"
 
 #include <fltKernel.h>
@@ -90,6 +91,8 @@ namespace mimo {
             ULONG notificationMask
         ) {
             PAGED_CODE();
+
+            if (!port::IsConnected()) return STATUS_SUCCESS;
 
             const Context* const pContext = static_cast<const Context*>(pTransactionContext);
             records::Entry* const pEntry = records::CreateEntry();

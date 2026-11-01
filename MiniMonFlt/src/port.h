@@ -11,6 +11,8 @@ namespace mimo {
 
         void Close();
 
+        bool IsConnected();
+
         __declspec(code_seg("PAGE"))
         NTSTATUS ConnectNotify(
             _In_ PFLT_PORT pNewClientPort,

@@ -57,6 +57,13 @@ namespace mimo {
         }
 
 
+        bool IsConnected() {
+            void* const pPort = InterlockedCompareExchangePointer(&pClientPort, nullptr, nullptr);
+
+            return static_cast<bool>(pPort);
+        }
+
+
         __declspec(code_seg("PAGE"))
         _Use_decl_annotations_
         NTSTATUS ConnectNotify(
@@ -77,6 +84,8 @@ namespace mimo {
 
             if (pOldClientPort) return STATUS_DEVICE_BUSY;
 
+            records::Clear();
+
             return STATUS_SUCCESS;
         }
 
@@ -90,6 +99,7 @@ namespace mimo {
 
             PFLT_PORT pPort = static_cast<PFLT_PORT>(InterlockedExchangePointer(&pClientPort, nullptr));
             FltCloseClientPort(driver::pFilter, &pPort);
+            records::Clear();
 
             return;
         }

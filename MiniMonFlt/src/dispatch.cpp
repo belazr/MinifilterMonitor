@@ -2,6 +2,7 @@
 
 #include "trace\capture.h"
 
+#include "port.h"
 #include "records.h"
 #include "transaction.h"
 
@@ -17,6 +18,9 @@ namespace mimo {
             const FLT_RELATED_OBJECTS* pFltObjects,
             void** ppCompletionContext
         ) {
+
+            if (!port::IsConnected()) return FLT_PREOP_SUCCESS_NO_CALLBACK;
+
             records::Entry* const pEntry = records::CreateEntry();
 
             if (!pEntry) return FLT_PREOP_SUCCESS_NO_CALLBACK;

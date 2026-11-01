@@ -28,6 +28,8 @@ namespace mimo {
             _Out_ ULONG* pWrittenSize
         );
 
+        void Clear();
+
         void Delete();
 
     }
