@@ -88,7 +88,7 @@ namespace mimo {
                         details += std::format(L", Impersonating: {}", values::RenderSid(createSupplement.impersonatedSid));
                     }
 
-                    if (data.status == 0 || data.information == kernel::FILE_EXISTS || data.information == kernel::FILE_DOES_NOT_EXIST) {
+                    if (!data.status || data.information == kernel::FILE_EXISTS || data.information == kernel::FILE_DOES_NOT_EXIST) {
                         details += std::format(L", OpenResult: {}", names::RenderOpenResult(data.information));
                     }
 
