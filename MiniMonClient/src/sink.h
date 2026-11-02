@@ -7,39 +7,26 @@
 
 namespace mimo {
 
-    class Sink {
+    class Sink final {
     public:
-        virtual ~Sink() = default;
-
-        Sink(const Sink&) = delete;
-
-        Sink& operator=(const Sink&) = delete;
-
-        virtual bool Write(std::wstring_view altitude, std::wstring_view line) = 0;
-
-        virtual void Flush() = 0;
-
-    protected:
-        std::wstring headerText;
-
-        explicit Sink(std::wstring_view header);
-    };
-
-    class FileSink final : public Sink {
-    public:
-        FileSink(
+        explicit Sink(
             std::wstring path,
             bool split,
             std::wstring_view header
         );
 
-        bool Write(std::wstring_view altitude, std::wstring_view line) override;
+        Sink(const Sink&) = delete;
 
-        void Flush() override;
+        Sink& operator=(const Sink&) = delete;
+
+        bool Write(std::wstring_view altitude, std::wstring_view line);
+
+        void Flush();
 
     private:
         std::wstring basePath;
         bool splitByAltitude;
+        std::wstring headerText;
         std::map<std::wstring, std::ofstream> files;
 
         static void WriteCrlfLine(std::ofstream& stream, std::wstring_view line);

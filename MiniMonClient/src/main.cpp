@@ -21,7 +21,6 @@
 #include <filesystem>
 #include <format>
 #include <iostream>
-#include <memory>
 #include <optional>
 #include <span>
 #include <string>
@@ -226,14 +225,6 @@ namespace {
     }
 
 
-    std::unique_ptr<Sink> MakeSink(const Parameters& parameters) {
-
-        if (!DoesParentDirectoryExist(*parameters.file)) return nullptr;
-
-        return std::make_unique<FileSink>(*parameters.file, parameters.split, trace::format::GetHeader());
-    }
-
-
     void DisplayFilterUnloadedError() {
         std::cerr << "The driver does not appear to be loaded. Load and attach it first (e.g. MiniMonClient /a <volume>).\n";
 
@@ -434,9 +425,9 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (parameters->unload) return ReportActionResult(filter::Unload(), "Failed to unload driver");
 
-    const std::unique_ptr<Sink> sink = MakeSink(*parameters);
+    if (!DoesParentDirectoryExist(*parameters->file)) return ReportResult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), "Failed to open output file");
 
-    if (!sink) return ReportResult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), "Failed to open output file");
+    Sink sink{ *parameters->file, parameters->split, trace::format::GetHeader() };
 
     InvalidHandle port;
     const HRESULT hRes = filter::Connect(port);
@@ -456,5 +447,5 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
 
-    return CaptureRecords(port, *sink) ? EXIT_SUCCESS : EXIT_FAILURE;
+    return CaptureRecords(port, sink) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

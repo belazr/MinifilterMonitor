@@ -12,17 +12,14 @@
 
 namespace mimo {
 
-    Sink::Sink(std::wstring_view header) : headerText(header) {}
-
-
-    FileSink::FileSink(
+    Sink::Sink(
         std::wstring path,
         bool split,
         std::wstring_view header
-    ) : Sink(header), basePath(std::move(path)), splitByAltitude(split) {}
+    ) : basePath(std::move(path)), splitByAltitude(split), headerText(header) {}
 
 
-    bool FileSink::Write(std::wstring_view altitude, std::wstring_view line) {
+    bool Sink::Write(std::wstring_view altitude, std::wstring_view line) {
         constexpr std::streamsize FILE_BUFFER_SIZE = 1024 * 1024;
         const std::wstring filePath = this->splitByAltitude && !altitude.empty() ? this->MakeSplitPath(altitude) : this->basePath;
         const auto [it, inserted] = this->files.try_emplace(filePath);
@@ -46,7 +43,7 @@ namespace mimo {
     }
 
 
-    void FileSink::Flush() {
+    void Sink::Flush() {
 
         for (std::pair<const std::wstring, std::ofstream>& entry : this->files) {
             entry.second.flush();
@@ -56,7 +53,7 @@ namespace mimo {
     }
 
 
-    void FileSink::WriteCrlfLine(std::ofstream& stream, std::wstring_view line) {
+    void Sink::WriteCrlfLine(std::ofstream& stream, std::wstring_view line) {
         std::string lineBytes = text::ConvertToUtf8(line);
         lineBytes.back() = '\r';
         lineBytes.push_back('\n');
@@ -66,7 +63,7 @@ namespace mimo {
     }
 
 
-    std::wstring FileSink::MakeSplitPath(std::wstring_view altitude) const {
+    std::wstring Sink::MakeSplitPath(std::wstring_view altitude) const {
         std::filesystem::path path{ this->basePath };
         const std::wstring extension = path.extension().wstring();
         path.replace_extension();
