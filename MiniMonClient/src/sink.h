@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <map>
-#include <ostream>
 #include <string>
 #include <string_view>
 
@@ -24,19 +23,6 @@ namespace mimo {
         std::wstring headerText;
 
         explicit Sink(std::wstring_view header);
-    };
-
-    class ConsoleSink final : public Sink {
-    public:
-        ConsoleSink(std::ostream& stream, std::wstring_view header);
-
-        bool Write(std::wstring_view altitude, std::wstring_view line) override;
-
-        void Flush() override;
-
-    private:
-        std::ostream& outputStream;
-        bool headerWritten = false;
     };
 
     class FileSink final : public Sink {

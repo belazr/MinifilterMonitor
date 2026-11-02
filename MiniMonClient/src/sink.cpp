@@ -6,7 +6,6 @@
 #include <format>
 #include <fstream>
 #include <ios>
-#include <ostream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -14,29 +13,6 @@
 namespace mimo {
 
     Sink::Sink(std::wstring_view header) : headerText(header) {}
-
-
-    ConsoleSink::ConsoleSink(std::ostream& stream, std::wstring_view header) : Sink(header), outputStream(stream) {}
-
-
-    bool ConsoleSink::Write(std::wstring_view, std::wstring_view line) {
-
-        if (!this->headerWritten) {
-            this->outputStream << text::ConvertToUtf8(this->headerText);
-            this->headerWritten = true;
-        }
-
-        this->outputStream << text::ConvertToUtf8(line);
-
-        return static_cast<bool>(this->outputStream);
-    }
-
-
-    void ConsoleSink::Flush() {
-        this->outputStream.flush();
-
-        return;
-    }
 
 
     FileSink::FileSink(

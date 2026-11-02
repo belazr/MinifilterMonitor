@@ -38,9 +38,6 @@ namespace {
     void ConfigureOutput() {
         SetConsoleOutputCP(CP_UTF8);
 
-        // cout belongs to the writer thread and cerr to the drain thread, untied so a cerr write never flushes cout
-        std::cerr.tie(nullptr);
-
         return;
     }
 
@@ -130,25 +127,25 @@ namespace {
 
 
     bool ValidateParameters(const Parameters& parameters) {
-        int actions = 0;
+        uint32_t modes = 0u;
 
         if (parameters.unload) {
-            actions++;
+            modes++;
         }
 
         if (parameters.attach.has_value()) {
-            actions++;
+            modes++;
         }
 
         if (parameters.attachAll.has_value()) {
-            actions++;
+            modes++;
         }
 
-        const bool capture = parameters.file.has_value() || parameters.split;
+        if (parameters.file.has_value()) {
+            modes++;
+        }
 
-        if (actions > 1) return false;
-
-        if (actions > 0 && capture) return false;
+        if (modes != 1u) return false;
 
         if (parameters.split && !parameters.file.has_value()) return false;
 
@@ -157,11 +154,11 @@ namespace {
 
 
     void PrintUsage() {
-        std::cerr << "Usage: MiniMonClient [/a <volume> | /m <volume> | /u | /f <output_file> [/s]]\n";
+        std::cerr << "Usage: MiniMonClient /a <volume> | /m <volume> | /u | /f <output_file> [/s]\n";
         std::cerr << "    /a <volume>      loads the driver and attaches the default filter instance to <volume>\n";
         std::cerr << "    /m <volume>      loads the driver and attaches every installed filter instance to <volume>\n";
         std::cerr << "    /u               unloads the driver\n";
-        std::cerr << "    /f <output_file> writes captured log records to <output_file> (default: stdout)\n";
+        std::cerr << "    /f <output_file> writes captured records to <output_file>\n";
         std::cerr << "    /s               with /f, writes each altitude to its own file (<base>.<altitude>.<ext>)\n";
 
         return;
@@ -230,8 +227,6 @@ namespace {
 
 
     std::unique_ptr<Sink> MakeSink(const Parameters& parameters) {
-
-        if (!parameters.file.has_value()) return std::make_unique<ConsoleSink>(std::cout, trace::format::GetHeader());
 
         if (!DoesParentDirectoryExist(*parameters.file)) return nullptr;
 

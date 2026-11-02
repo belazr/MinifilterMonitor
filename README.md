@@ -64,16 +64,16 @@ The client picks it up the next time `/m` attaches.
 Run the client from an elevated command prompt:
 
 ```
-MiniMonClient [/a <volume> | /m <volume> | /u | /f <output_file> [/s]]
+MiniMonClient /a <volume> | /m <volume> | /u | /f <output_file> [/s]
 ```
 
 - `/a <volume>`: loads the driver and attaches the default instance to `<volume>`
 - `/m <volume>`: loads the driver and attaches every installed instance (all altitudes) to `<volume>`
 - `/u`: unloads the driver
-- `/f <output_file>`: writes captured records to `<output_file>` (without `/f`, records go to stdout)
+- `/f <output_file>`: writes captured records to `<output_file>`
 - `/s`: with `/f`, writes each altitude to its own file (`<base>.<altitude>.<ext>`). Records without an altitude, such as volume mounts, go to `<output_file>` itself
 
-A volume is given by its drive letter, e.g. `C:`. Without an action the client connects to the driver and captures the live trace to stdout. Before capturing it compares the driver's version with its own, prints both and refuses a mismatch. Press Ctrl+C to stop. To inspect which volumes the filter is attached to, use `fltmc instances`.
+A volume is given by its drive letter, e.g. `C:`. With `/f` the client connects to the driver and captures the live trace to `<output_file>`. Before capturing it compares the driver's version with its own, prints both and refuses a mismatch. Press Ctrl+C to stop. To inspect which volumes the filter is attached to, use `fltmc instances`.
 
 A typical session:
 
