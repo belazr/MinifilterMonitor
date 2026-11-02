@@ -20,6 +20,7 @@
 #include <cwctype>
 #include <filesystem>
 #include <format>
+#include <ios>
 #include <iostream>
 #include <optional>
 #include <span>
@@ -36,6 +37,7 @@ namespace {
 
     void ConfigureOutput() {
         SetConsoleOutputCP(CP_UTF8);
+        std::cout.setf(std::ios::unitbuf);
 
         return;
     }
@@ -264,7 +266,7 @@ namespace {
             return false;
         }
 
-        std::cerr << std::format("MiniMonClient {}, MiniMonFlt {}\n", clientText, driverText);
+        std::cout << std::format("MiniMonClient {}, MiniMonFlt {}\n", clientText, driverText);
 
         return true;
     }
