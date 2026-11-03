@@ -46,22 +46,6 @@ namespace {
     }
 
 
-    HRESULT LoadFilter() {
-        const HRESULT hPrivilegeRes = EnableLoadDriverPrivilege();
-
-        if (FAILED(hPrivilegeRes)) return hPrivilegeRes;
-
-        const HRESULT hLoadRes = FilterLoad(MINIMON_NAME);
-
-        // treat an already-loaded driver as success
-        if (hLoadRes == HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS)) return S_OK;
-
-        if (hLoadRes == HRESULT_FROM_WIN32(ERROR_SERVICE_ALREADY_RUNNING)) return S_OK;
-
-        return hLoadRes;
-    }
-
-
     std::vector<std::wstring> EnumerateSubKeys(const std::wstring& path) {
         std::vector<std::wstring> names;
         RegistryKeyHandle key;
@@ -104,11 +88,23 @@ namespace mimo {
 
     namespace filter {
 
+        HRESULT Load() {
+            const HRESULT hPrivilegeRes = EnableLoadDriverPrivilege();
+
+            if (FAILED(hPrivilegeRes)) return hPrivilegeRes;
+
+            const HRESULT hLoadRes = FilterLoad(MINIMON_NAME);
+
+            // treat an already-loaded driver as success
+            if (hLoadRes == HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS)) return S_OK;
+
+            if (hLoadRes == HRESULT_FROM_WIN32(ERROR_SERVICE_ALREADY_RUNNING)) return S_OK;
+
+            return hLoadRes;
+        }
+
+
         HRESULT Attach(const std::wstring& volumeName) {
-            const HRESULT hLoadRes = LoadFilter();
-
-            if (FAILED(hLoadRes)) return hLoadRes;
-
             const std::vector<std::wstring> names = GetInstalledInstanceNames();
 
             if (names.empty()) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);

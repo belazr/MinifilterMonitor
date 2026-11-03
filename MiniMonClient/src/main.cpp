@@ -51,8 +51,8 @@ namespace {
 
 
     struct Parameters {
-        std::optional<std::wstring> attach;
         std::optional<std::wstring> file;
+        std::optional<std::wstring> volume;
         bool unload = false;
         bool split = false;
     };
@@ -73,8 +73,8 @@ namespace {
     };
 
     constexpr Option OPTION_TABLE[]{
-        { L"/a", &Parameters::attach },
         { L"/f", &Parameters::file },
+        { L"/v", &Parameters::volume },
     };
 
     std::optional<Parameters> ParseParameters(int argc, wchar_t* argv[]) {
@@ -133,28 +133,28 @@ namespace {
             modes++;
         }
 
-        if (parameters.attach.has_value()) {
-            modes++;
-        }
-
         if (parameters.file.has_value()) {
             modes++;
         }
 
         if (modes != 1u) return false;
 
+        if (parameters.volume.has_value() && !parameters.file.has_value()) return false;
+
         if (parameters.split && !parameters.file.has_value()) return false;
+
+        if (parameters.file.has_value() && !parameters.volume.has_value()) return false;
 
         return true;
     }
 
 
     void PrintUsage() {
-        std::cerr << "Usage: MiniMonClient /a <volume> | /u | /f <output_file> [/s]\n";
-        std::cerr << "    /a <volume>      loads the driver and attaches every installed filter instance to <volume>\n";
-        std::cerr << "    /u               unloads the driver\n";
-        std::cerr << "    /f <output_file> writes captured records to <output_file>\n";
+        std::cerr << "Usage: MiniMonClient /f <output_file> /v <volume> [/s] | /u\n";
+        std::cerr << "    /f <output_file> loads the driver, attaches to <volume> and writes the captured records to <output_file> until Ctrl+C\n";
+        std::cerr << "    /v <volume>      with /f, the volume to attach every installed filter instance to\n";
         std::cerr << "    /s               with /f, writes each altitude to its own file (<base>.<altitude>.<ext>)\n";
+        std::cerr << "    /u               unloads the driver\n";
 
         return;
     }
@@ -218,13 +218,6 @@ namespace {
         std::error_code errorCode;
 
         return std::filesystem::is_directory(parent, errorCode);
-    }
-
-
-    void DisplayFilterUnloadedError() {
-        std::cerr << "The driver does not appear to be loaded. Load and attach it first (e.g. MiniMonClient /a <volume>).\n";
-
-        return;
     }
 
 
@@ -408,29 +401,26 @@ int wmain(int argc, wchar_t* argv[]) {
         return EXIT_FAILURE;
     }
 
-    if (parameters->attach.has_value()) return ReportActionResult(filter::Attach(*parameters->attach), "Failed to attach to volume");
-
     if (parameters->unload) return ReportActionResult(filter::Unload(), "Failed to unload driver");
 
     if (!DoesParentDirectoryExist(*parameters->file)) return ReportResult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), "Failed to open output file");
 
     Sink sink{ *parameters->file, parameters->split, trace::format::GetHeader() };
 
+    const HRESULT hLoadRes = filter::Load();
+
+    if (FAILED(hLoadRes)) return ReportActionResult(hLoadRes, "Failed to load driver");
+
     InvalidHandle port;
-    const HRESULT hRes = filter::Connect(port);
+    const HRESULT hConnectRes = filter::Connect(port);
 
-    if (FAILED(hRes)) {
-        const int result = ReportResult(hRes, "Failed to connect to filter port");
-
-        // the comms port only exists while the driver is loaded, so a missing port means it is not running
-        if (hRes == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND)) {
-            DisplayFilterUnloadedError();
-        }
-
-        return result;
-    }
+    if (FAILED(hConnectRes)) return ReportResult(hConnectRes, "Failed to connect to filter port");
 
     if (!VerifyVersion(port)) return EXIT_FAILURE;
+
+    const HRESULT hAttachRes = filter::Attach(*parameters->volume);
+
+    if (FAILED(hAttachRes)) return ReportResult(hAttachRes, "Failed to attach to volume");
 
     if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
 

@@ -58,28 +58,27 @@ To trace at an additional altitude, create a new key under `HKLM\SYSTEM\CurrentC
 - `Altitude` (`REG_SZ`): an altitude not used by another filter, e.g. `375000`
 - `Flags` (`REG_DWORD`): `1` (suppress automatic attachment)
 
-The client picks it up the next time `/a` attaches. An altitude another filter already occupies on the volume makes the attach fail, naming the instance.
+The next session picks it up. An altitude another filter already occupies on the volume makes the attach fail, naming the instance.
 
 ## Usage
 Run the client from an elevated command prompt:
 
 ```
-MiniMonClient /a <volume> | /u | /f <output_file> [/s]
+MiniMonClient /f <output_file> /v <volume> [/s] | /u
 ```
 
-- `/a <volume>`: loads the driver and attaches every installed instance (all altitudes) to `<volume>`
-- `/u`: unloads the driver
-- `/f <output_file>`: writes captured records to `<output_file>`
+- `/f <output_file>`: loads the driver, attaches every installed instance (all altitudes) to the volume and writes the captured records to `<output_file>` until Ctrl+C
+- `/v <volume>`: with `/f`, the volume to trace, given by its drive letter, e.g. `C:`
 - `/s`: with `/f`, writes each altitude to its own file (`<base>.<altitude>.<ext>`). Records without an altitude, such as volume mounts, go to `<output_file>` itself
+- `/u`: unloads the driver
 
-A volume is given by its drive letter, e.g. `C:`. With `/f` the client connects to the driver and captures the live trace to `<output_file>`. Before capturing it compares the driver's version with its own, prints both and refuses a mismatch. Press Ctrl+C to stop. To inspect which volumes the filter is attached to, use `fltmc instances`.
+Before attaching, the client compares the driver's version with its own, prints both and refuses a mismatch. Press Ctrl+C to stop. The instances stay attached until `/u`. To inspect which volumes the filter is attached to, use `fltmc instances`.
 
 A typical session:
 
 ```
-MiniMonClient /a C:           attach all altitudes to C:
-MiniMonClient /f trace.csv    capture the trace until Ctrl+C
-MiniMonClient /u              detach and unload the driver
+MiniMonClient /f trace.csv /v C:    trace C: at all altitudes until Ctrl+C
+MiniMonClient /u                    detach and unload the driver
 ```
 
 ## Output

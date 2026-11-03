@@ -13,6 +13,8 @@ namespace mimo {
 
     namespace filter {
 
+        HRESULT Load();
+
         HRESULT Attach(const std::wstring& volumeName);
 
         HRESULT Unload();
