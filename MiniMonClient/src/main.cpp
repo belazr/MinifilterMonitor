@@ -53,7 +53,6 @@ namespace {
     struct Parameters {
         std::optional<std::wstring> file;
         std::optional<std::wstring> volume;
-        bool unload = false;
         bool split = false;
     };
 
@@ -68,7 +67,6 @@ namespace {
     };
 
     constexpr Flag FLAG_TABLE[]{
-        { L"/u", &Parameters::unload },
         { L"/s", &Parameters::split },
     };
 
@@ -127,34 +125,20 @@ namespace {
 
 
     bool ValidateParameters(const Parameters& parameters) {
-        uint32_t modes = 0u;
 
-        if (parameters.unload) {
-            modes++;
-        }
+        if (!parameters.file.has_value()) return false;
 
-        if (parameters.file.has_value()) {
-            modes++;
-        }
-
-        if (modes != 1u) return false;
-
-        if (parameters.volume.has_value() && !parameters.file.has_value()) return false;
-
-        if (parameters.split && !parameters.file.has_value()) return false;
-
-        if (parameters.file.has_value() && !parameters.volume.has_value()) return false;
+        if (!parameters.volume.has_value()) return false;
 
         return true;
     }
 
 
     void PrintUsage() {
-        std::cerr << "Usage: MiniMonClient /f <output_file> /v <volume> [/s] | /u\n";
-        std::cerr << "    /f <output_file> loads the driver, attaches to <volume> and writes the captured records to <output_file> until Ctrl+C\n";
-        std::cerr << "    /v <volume>      with /f, the volume to attach every installed filter instance to\n";
-        std::cerr << "    /s               with /f, writes each altitude to its own file (<base>.<altitude>.<ext>)\n";
-        std::cerr << "    /u               unloads the driver\n";
+        std::cerr << "Usage: MiniMonClient /f <output_file> /v <volume> [/s]\n";
+        std::cerr << "    /f <output_file> loads the driver, attaches to <volume>, writes the captured records to <output_file> until Ctrl+C and unloads the driver\n";
+        std::cerr << "    /v <volume>      the volume to attach every installed filter instance to\n";
+        std::cerr << "    /s               writes each altitude to its own file (<base>.<altitude>.<ext>)\n";
 
         return;
     }
@@ -279,6 +263,7 @@ namespace {
                 // the system terminates the process on return or when the handler's budget elapses (5 s for close), so the wait has to happen here
                 // the main thread exits the process once the backlog is written, which cuts the sleep short
                 Sleep(CLOSE_WAIT_MS);
+                filter::Unload();
 
                 return TRUE;
         }
@@ -388,6 +373,24 @@ namespace {
         return drained && written;
     }
 
+
+    int RunSession(const std::wstring& volumeName, Sink& sink) {
+        InvalidHandle port;
+        const HRESULT hConnectRes = filter::Connect(port);
+
+        if (FAILED(hConnectRes)) return ReportResult(hConnectRes, "Failed to connect to filter port");
+
+        if (!VerifyVersion(port)) return EXIT_FAILURE;
+
+        const HRESULT hAttachRes = filter::Attach(volumeName);
+
+        if (FAILED(hAttachRes)) return ReportResult(hAttachRes, "Failed to attach to volume");
+
+        if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
+
+        return CaptureRecords(port, sink) ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+
 }
 
 int wmain(int argc, wchar_t* argv[]) {
@@ -401,8 +404,6 @@ int wmain(int argc, wchar_t* argv[]) {
         return EXIT_FAILURE;
     }
 
-    if (parameters->unload) return ReportActionResult(filter::Unload(), "Failed to unload driver");
-
     if (!DoesParentDirectoryExist(*parameters->file)) return ReportResult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), "Failed to open output file");
 
     Sink sink{ *parameters->file, parameters->split, trace::format::GetHeader() };
@@ -411,18 +412,8 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (FAILED(hLoadRes)) return ReportActionResult(hLoadRes, "Failed to load driver");
 
-    InvalidHandle port;
-    const HRESULT hConnectRes = filter::Connect(port);
+    const int sessionResult = RunSession(*parameters->volume, sink);
+    const int unloadResult = ReportResult(filter::Unload(), "Failed to unload driver");
 
-    if (FAILED(hConnectRes)) return ReportResult(hConnectRes, "Failed to connect to filter port");
-
-    if (!VerifyVersion(port)) return EXIT_FAILURE;
-
-    const HRESULT hAttachRes = filter::Attach(*parameters->volume);
-
-    if (FAILED(hAttachRes)) return ReportResult(hAttachRes, "Failed to attach to volume");
-
-    if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
-
-    return CaptureRecords(port, sink) ? EXIT_SUCCESS : EXIT_FAILURE;
+    return sessionResult ? sessionResult : unloadResult;
 }
