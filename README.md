@@ -10,7 +10,7 @@ It consists of two parts:
 Both projects share a single protocol header (`inc/protocol.h`).
 
 ## Multi-altitude tracing and correlation
-The driver installs two instances at different altitudes and the client can attach all of them to the same volume. More can be added via the registry.
+The driver installs two instances at different altitudes and the client attaches all of them to the same volume. More can be added via the registry.
 
 Every trace record is tagged with the altitude that produced it and carries data to correlate it across altitudes:
 
@@ -58,17 +58,16 @@ To trace at an additional altitude, create a new key under `HKLM\SYSTEM\CurrentC
 - `Altitude` (`REG_SZ`): an altitude not used by another filter, e.g. `375000`
 - `Flags` (`REG_DWORD`): `1` (suppress automatic attachment)
 
-The client picks it up the next time `/m` attaches.
+The client picks it up the next time `/a` attaches. An altitude another filter already occupies on the volume makes the attach fail, naming the instance.
 
 ## Usage
 Run the client from an elevated command prompt:
 
 ```
-MiniMonClient /a <volume> | /m <volume> | /u | /f <output_file> [/s]
+MiniMonClient /a <volume> | /u | /f <output_file> [/s]
 ```
 
-- `/a <volume>`: loads the driver and attaches the default instance to `<volume>`
-- `/m <volume>`: loads the driver and attaches every installed instance (all altitudes) to `<volume>`
+- `/a <volume>`: loads the driver and attaches every installed instance (all altitudes) to `<volume>`
 - `/u`: unloads the driver
 - `/f <output_file>`: writes captured records to `<output_file>`
 - `/s`: with `/f`, writes each altitude to its own file (`<base>.<altitude>.<ext>`). Records without an altitude, such as volume mounts, go to `<output_file>` itself
@@ -78,7 +77,7 @@ A volume is given by its drive letter, e.g. `C:`. With `/f` the client connects 
 A typical session:
 
 ```
-MiniMonClient /m C:           attach all altitudes to C:
+MiniMonClient /a C:           attach all altitudes to C:
 MiniMonClient /f trace.csv    capture the trace until Ctrl+C
 MiniMonClient /u              detach and unload the driver
 ```

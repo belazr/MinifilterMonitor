@@ -52,7 +52,6 @@ namespace {
 
     struct Parameters {
         std::optional<std::wstring> attach;
-        std::optional<std::wstring> attachAll;
         std::optional<std::wstring> file;
         bool unload = false;
         bool split = false;
@@ -75,7 +74,6 @@ namespace {
 
     constexpr Option OPTION_TABLE[]{
         { L"/a", &Parameters::attach },
-        { L"/m", &Parameters::attachAll },
         { L"/f", &Parameters::file },
     };
 
@@ -139,10 +137,6 @@ namespace {
             modes++;
         }
 
-        if (parameters.attachAll.has_value()) {
-            modes++;
-        }
-
         if (parameters.file.has_value()) {
             modes++;
         }
@@ -156,9 +150,8 @@ namespace {
 
 
     void PrintUsage() {
-        std::cerr << "Usage: MiniMonClient /a <volume> | /m <volume> | /u | /f <output_file> [/s]\n";
-        std::cerr << "    /a <volume>      loads the driver and attaches the default filter instance to <volume>\n";
-        std::cerr << "    /m <volume>      loads the driver and attaches every installed filter instance to <volume>\n";
+        std::cerr << "Usage: MiniMonClient /a <volume> | /u | /f <output_file> [/s]\n";
+        std::cerr << "    /a <volume>      loads the driver and attaches every installed filter instance to <volume>\n";
         std::cerr << "    /u               unloads the driver\n";
         std::cerr << "    /f <output_file> writes captured records to <output_file>\n";
         std::cerr << "    /s               with /f, writes each altitude to its own file (<base>.<altitude>.<ext>)\n";
@@ -416,8 +409,6 @@ int wmain(int argc, wchar_t* argv[]) {
     }
 
     if (parameters->attach.has_value()) return ReportActionResult(filter::Attach(*parameters->attach), "Failed to attach to volume");
-
-    if (parameters->attachAll.has_value()) return ReportActionResult(filter::AttachAll(*parameters->attachAll), "Failed to attach all installed instances to volume");
 
     if (parameters->unload) return ReportActionResult(filter::Unload(), "Failed to unload driver");
 

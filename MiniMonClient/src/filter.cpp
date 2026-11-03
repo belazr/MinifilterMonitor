@@ -109,15 +109,6 @@ namespace mimo {
 
             if (FAILED(hLoadRes)) return hLoadRes;
 
-            return FilterAttach(MINIMON_NAME, volumeName.c_str(), nullptr, 0u, nullptr);
-        }
-
-
-        HRESULT AttachAll(const std::wstring& volumeName) {
-            const HRESULT hLoadRes = LoadFilter();
-
-            if (FAILED(hLoadRes)) return hLoadRes;
-
             const std::vector<std::wstring> names = GetInstalledInstanceNames();
 
             if (names.empty()) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
@@ -131,9 +122,7 @@ namespace mimo {
 
                 if (hRes == ERROR_FLT_INSTANCE_NAME_COLLISION) continue;
 
-                if (hRes == ERROR_FLT_INSTANCE_ALTITUDE_COLLISION) continue;
-
-                std::cerr << std::format("  Failed to attach instance: {} 0x{:08X}\n", text::ConvertToUtf8(name), static_cast<uint32_t>(hRes));
+                std::cerr << std::format("Failed to attach instance: {} 0x{:08X}\n", text::ConvertToUtf8(name), static_cast<uint32_t>(hRes));
                 hLastRes = hRes;
             }
 

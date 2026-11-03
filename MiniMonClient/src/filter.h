@@ -15,8 +15,6 @@ namespace mimo {
 
         HRESULT Attach(const std::wstring& volumeName);
 
-        HRESULT AttachAll(const std::wstring& volumeName);
-
         HRESULT Unload();
 
         HRESULT Connect(InvalidHandle& port);
