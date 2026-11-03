@@ -126,18 +126,14 @@ namespace {
 
     bool ValidateParameters(const Parameters& parameters) {
 
-        if (!parameters.file.has_value()) return false;
-
-        if (!parameters.volume.has_value()) return false;
-
-        return true;
+        return parameters.file.has_value();
     }
 
 
     void PrintUsage() {
-        std::cerr << "Usage: MiniMonClient /f <output_file> /v <volume> [/s]\n";
-        std::cerr << "    /f <output_file> loads the driver, attaches to <volume>, writes the captured records to <output_file> until Ctrl+C and unloads the driver\n";
-        std::cerr << "    /v <volume>      the volume to attach every installed filter instance to\n";
+        std::cerr << "Usage: MiniMonClient /f <output_file> [/v <volume>] [/s]\n";
+        std::cerr << "    /f <output_file> loads the driver, attaches to the volume, writes the captured records to <output_file> until Ctrl+C and unloads the driver\n";
+        std::cerr << "    /v <volume>      the volume to attach every installed filter instance to, every volume with a file system without it\n";
         std::cerr << "    /s               writes each altitude to its own file (<base>.<altitude>.<ext>)\n";
 
         return;
@@ -374,7 +370,7 @@ namespace {
     }
 
 
-    int RunSession(const std::wstring& volumeName, Sink& sink) {
+    int RunSession(const std::optional<std::wstring>& volumeName, Sink& sink) {
         InvalidHandle port;
         const HRESULT hConnectRes = filter::Connect(port);
 
@@ -382,7 +378,7 @@ namespace {
 
         if (!VerifyVersion(port)) return EXIT_FAILURE;
 
-        const HRESULT hAttachRes = filter::Attach(volumeName);
+        const HRESULT hAttachRes = volumeName.has_value() ? filter::Attach(*volumeName) : filter::AttachAll();
 
         if (FAILED(hAttachRes)) return ReportResult(hAttachRes, "Failed to attach to volume");
 
@@ -412,7 +408,7 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (FAILED(hLoadRes)) return ReportActionResult(hLoadRes, "Failed to load driver");
 
-    const int sessionResult = RunSession(*parameters->volume, sink);
+    const int sessionResult = RunSession(parameters->volume, sink);
     const int unloadResult = ReportResult(filter::Unload(), "Failed to unload driver");
 
     return sessionResult ? sessionResult : unloadResult;
