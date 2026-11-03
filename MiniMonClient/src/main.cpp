@@ -14,12 +14,14 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <cwctype>
 #include <filesystem>
 #include <format>
+#include <future>
 #include <ios>
 #include <iostream>
 #include <optional>
@@ -27,7 +29,6 @@
 #include <string>
 #include <string_view>
 #include <system_error>
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -272,26 +273,10 @@ namespace {
     }
 
 
-    std::atomic<bool> writerFinished;
-
-    void WaitForWriter() {
-        constexpr DWORD SLEEP_MS = 100u;
-        constexpr uint32_t SLEEP_COUNT = 40u;
-
-        for (uint32_t i = 0u; i < SLEEP_COUNT; i++) {
-
-            if (writerFinished.load(std::memory_order_relaxed)) return;
-
-            Sleep(SLEEP_MS);
-        }
-
-        return;
-    }
-
-
     std::atomic<bool> stopRequested;
 
     BOOL WINAPI CtrlHandler(DWORD ctrlType) {
+        constexpr DWORD CLOSE_WAIT_MS = 4000u;
 
         switch (ctrlType) {
 
@@ -306,7 +291,8 @@ namespace {
             case CTRL_SHUTDOWN_EVENT:
                 stopRequested.store(true, std::memory_order_relaxed);
                 // the system terminates the process on return or when the handler's budget elapses (5 s for close), so the wait has to happen here
-                WaitForWriter();
+                // the main thread exits the process once the backlog is written, which cuts the sleep short
+                Sleep(CLOSE_WAIT_MS);
 
                 return TRUE;
         }
@@ -331,6 +317,8 @@ namespace {
 
     using RecordBatchQueue = BlockingQueue<std::vector<protocol::Record>>;
 
+    std::atomic<size_t> pendingRecordCount;
+
     bool WriteLoop(RecordBatchQueue& queue, Sink& sink) {
 
         while (true) {
@@ -345,6 +333,7 @@ namespace {
                 return false;
             }
 
+            pendingRecordCount.fetch_sub(records->size(), std::memory_order_relaxed);
         }
 
     }
@@ -371,6 +360,7 @@ namespace {
 
             if (!records.empty()) {
                 const uint32_t droppedTotal = records.back().droppedRecords;
+                pendingRecordCount.fetch_add(records.size(), std::memory_order_relaxed);
 
                 if (!queue.Push(std::move(records))) break;
 
@@ -393,13 +383,17 @@ namespace {
 
     bool CaptureRecords(const InvalidHandle& port, Sink& sink) {
         constexpr size_t BATCH_COUNT = 256u;
+        constexpr std::chrono::milliseconds REPORT_INTERVAL{ 250 };
         RecordBatchQueue queue{ BATCH_COUNT };
-        bool written = false;
-        std::jthread writer{ [&queue, &sink, &written]() { written = WriteLoop(queue, sink); return; } };
+        std::future<bool> writer = std::async(std::launch::async, [&queue, &sink]() noexcept { return WriteLoop(queue, sink); });
         const bool drained = DrainLoop(port, queue);
         queue.Close();
-        writer.join();
-        writerFinished.store(true, std::memory_order_relaxed);
+
+        while (writer.wait_for(REPORT_INTERVAL) == std::future_status::timeout) {
+            std::cout << std::format("Records left to write: {}\n", pendingRecordCount.load(std::memory_order_relaxed));
+        }
+
+        const bool written = writer.get();
 
         if (!written) {
             std::cerr << "Failed to write log records\n";
