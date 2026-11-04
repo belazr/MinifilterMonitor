@@ -19,7 +19,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cwctype>
-#include <filesystem>
 #include <format>
 #include <future>
 #include <ios>
@@ -29,7 +28,6 @@
 #include <span>
 #include <string>
 #include <string_view>
-#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -167,7 +165,7 @@ namespace {
 
         if (parameters.help) return !parameters.file.has_value() && parameters.volumes.empty() && !parameters.split;
 
-        return parameters.file.has_value();
+        return parameters.file.has_value() && !parameters.file->empty();
     }
 
 
@@ -230,17 +228,6 @@ namespace {
         }
 
         return result;
-    }
-
-
-    bool DoesParentDirectoryExist(std::wstring_view filePath) {
-        const std::filesystem::path parent = std::filesystem::path{ filePath }.parent_path();
-
-        if (parent.empty()) return true;
-
-        std::error_code errorCode;
-
-        return std::filesystem::is_directory(parent, errorCode);
     }
 
 
@@ -449,9 +436,9 @@ int wmain(int argc, wchar_t* argv[]) {
         return EXIT_SUCCESS;
     }
 
-    if (!DoesParentDirectoryExist(*parameters->file)) return ReportResult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), "Failed to open output file");
-
     Sink sink{ *parameters->file, parameters->split, trace::format::GetHeader() };
+
+    if (!sink.Open()) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to open output file");
 
     const HRESULT hLoadRes = filter::Load();
 

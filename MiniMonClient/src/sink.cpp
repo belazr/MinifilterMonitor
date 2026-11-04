@@ -19,27 +19,20 @@ namespace mimo {
     ) : basePath(std::move(path)), splitByAltitude(split), headerText(header) {}
 
 
+    bool Sink::Open() {
+
+        return static_cast<bool>(this->OpenFile(this->basePath));
+    }
+
+
     bool Sink::Write(std::wstring_view altitude, std::wstring_view line) {
-        constexpr std::streamsize FILE_BUFFER_SIZE = 1024 * 1024;
-        const std::wstring filePath = this->splitByAltitude && !altitude.empty() ? this->MakeSplitPath(altitude) : this->basePath;
-        const auto [it, inserted] = this->files.try_emplace(filePath);
+        std::ofstream* const pStream = this->OpenFile(this->splitByAltitude && !altitude.empty() ? this->MakeSplitPath(altitude) : this->basePath);
 
-        if (inserted) {
-            it->second.open(filePath, std::ios::binary);
+        if (!pStream) return false;
 
-            if (!it->second) {
-                this->files.erase(it);
+        WriteCrlfLine(*pStream, line);
 
-                return false;
-            }
-
-            it->second.rdbuf()->pubsetbuf(nullptr, FILE_BUFFER_SIZE);
-            WriteCrlfLine(it->second, this->headerText);
-        }
-
-        WriteCrlfLine(it->second, line);
-
-        return static_cast<bool>(it->second);
+        return static_cast<bool>(*pStream);
     }
 
 
@@ -60,6 +53,27 @@ namespace mimo {
         stream << lineBytes;
 
         return;
+    }
+
+
+    std::ofstream* Sink::OpenFile(std::wstring filePath) {
+        constexpr std::streamsize FILE_BUFFER_SIZE = 1024 * 1024;
+        const auto [it, inserted] = this->files.try_emplace(std::move(filePath));
+
+        if (!inserted) return &it->second;
+
+        it->second.open(it->first, std::ios::binary);
+
+        if (!it->second) {
+            this->files.erase(it);
+
+            return nullptr;
+        }
+
+        it->second.rdbuf()->pubsetbuf(nullptr, FILE_BUFFER_SIZE);
+        WriteCrlfLine(it->second, this->headerText);
+
+        return &it->second;
     }
 
 

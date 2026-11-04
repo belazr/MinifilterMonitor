@@ -19,6 +19,8 @@ namespace mimo {
 
         Sink& operator=(const Sink&) = delete;
 
+        bool Open();
+
         bool Write(std::wstring_view altitude, std::wstring_view line);
 
         void Flush();
@@ -30,6 +32,8 @@ namespace mimo {
         std::map<std::wstring, std::ofstream> files;
 
         static void WriteCrlfLine(std::ofstream& stream, std::wstring_view line);
+
+        std::ofstream* OpenFile(std::wstring filePath);
 
         std::wstring MakeSplitPath(std::wstring_view altitude) const;
     };
