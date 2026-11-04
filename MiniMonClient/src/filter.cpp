@@ -16,6 +16,7 @@
 #include <iostream>
 #include <span>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace mimo;
@@ -85,17 +86,17 @@ namespace {
     }
 
 
-    HRESULT AttachInstances(const std::wstring& volumeName, const std::vector<std::wstring>& names) {
+    HRESULT AttachInstances(const std::wstring& volumeName, const std::vector<std::wstring>& instanceNames) {
         HRESULT hLastRes = S_OK;
 
-        for (const std::wstring& name : names) {
-            const HRESULT hRes = FilterAttach(MINIMON_NAME, volumeName.c_str(), name.c_str(), 0u, nullptr);
+        for (const std::wstring& instanceName : instanceNames) {
+            const HRESULT hRes = FilterAttach(MINIMON_NAME, volumeName.c_str(), instanceName.c_str(), 0u, nullptr);
 
             if (SUCCEEDED(hRes)) continue;
 
             if (hRes == ERROR_FLT_INSTANCE_NAME_COLLISION) continue;
 
-            std::cerr << std::format("Failed to attach instance {} to {}: 0x{:08X}\n", text::ConvertToUtf8(name), text::ConvertToUtf8(volumeName), static_cast<uint32_t>(hRes));
+            std::cerr << std::format("Failed to attach instance {} to {}: 0x{:08X}\n", text::ConvertToUtf8(instanceName), text::ConvertToUtf8(volumeName), static_cast<uint32_t>(hRes));
             hLastRes = hRes;
         }
 
@@ -110,6 +111,32 @@ namespace {
 
 
     using VolumeFindHandle = Handle<FilterVolumeFindClose, HANDLE, INVALID_HANDLE_VALUE>;
+
+    HRESULT FindVolumesToTrace(std::vector<std::wstring>& volumeNames) {
+        constexpr DWORD ENTRY_SIZE = 1024u;
+        constexpr size_t NAME_OFFSET = offsetof(FILTER_VOLUME_STANDARD_INFORMATION, FilterVolumeName);
+        std::array<uint8_t, ENTRY_SIZE> entry{};
+        DWORD entrySize = 0u;
+        VolumeFindHandle volumeFind;
+        HRESULT hFindRes = FilterVolumeFindFirst(FilterVolumeStandardInformation, entry.data(), ENTRY_SIZE, &entrySize, volumeFind.Put());
+
+        while (SUCCEEDED(hFindRes)) {
+            FILTER_VOLUME_STANDARD_INFORMATION header{};
+            std::memcpy(&header, entry.data(), sizeof(header));
+
+            if (IsTracedFileSystem(header.FileSystemType) && !(header.Flags & FLTFL_VSI_DETACHED_VOLUME)) {
+                std::wstring volumeName(header.FilterVolumeNameLength / sizeof(wchar_t), L'\0');
+                std::memcpy(volumeName.data(), entry.data() + NAME_OFFSET, volumeName.size() * sizeof(wchar_t));
+                volumeNames.push_back(std::move(volumeName));
+            }
+
+            hFindRes = FilterVolumeFindNext(volumeFind.Get(), FilterVolumeStandardInformation, entry.data(), ENTRY_SIZE, &entrySize);
+        }
+
+        if (hFindRes != HRESULT_FROM_WIN32(ERROR_NO_MORE_ITEMS)) return hFindRes;
+
+        return S_OK;
+    }
 
 }
 
@@ -134,12 +161,12 @@ namespace mimo {
 
 
         HRESULT Attach(std::span<const std::wstring> volumeNames) {
-            const std::vector<std::wstring> names = GetInstalledInstanceNames();
+            const std::vector<std::wstring> instanceNames = GetInstalledInstanceNames();
 
-            if (names.empty()) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
+            if (instanceNames.empty()) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
 
             for (const std::wstring& volumeName : volumeNames) {
-                const HRESULT hRes = AttachInstances(volumeName, names);
+                const HRESULT hRes = AttachInstances(volumeName, instanceNames);
 
                 if (FAILED(hRes)) return hRes;
 
@@ -151,37 +178,24 @@ namespace mimo {
 
 
         HRESULT AttachAll() {
-            constexpr DWORD ENTRY_SIZE = 1024u;
-            constexpr size_t NAME_OFFSET = offsetof(FILTER_VOLUME_STANDARD_INFORMATION, FilterVolumeName);
-            const std::vector<std::wstring> names = GetInstalledInstanceNames();
+            const std::vector<std::wstring> instanceNames = GetInstalledInstanceNames();
 
-            if (names.empty()) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
+            if (instanceNames.empty()) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
 
-            std::array<uint8_t, ENTRY_SIZE> entry{};
-            DWORD entrySize = 0u;
-            VolumeFindHandle volumeFind;
-            HRESULT hFindRes = FilterVolumeFindFirst(FilterVolumeStandardInformation, entry.data(), ENTRY_SIZE, &entrySize, volumeFind.Put());
+            std::vector<std::wstring> volumeNames;
+            const HRESULT hFindRes = FindVolumesToTrace(volumeNames);
+
+            if (FAILED(hFindRes)) return hFindRes;
+
             uint32_t attachedVolumeCount = 0u;
 
-            while (SUCCEEDED(hFindRes)) {
-                FILTER_VOLUME_STANDARD_INFORMATION header{};
-                std::memcpy(&header, entry.data(), sizeof(header));
+            for (const std::wstring& volumeName : volumeNames) {
 
-                if (IsTracedFileSystem(header.FileSystemType) && !(header.Flags & FLTFL_VSI_DETACHED_VOLUME)) {
-                    std::wstring volumeName(header.FilterVolumeNameLength / sizeof(wchar_t), L'\0');
-                    std::memcpy(volumeName.data(), entry.data() + NAME_OFFSET, volumeName.size() * sizeof(wchar_t));
+                if (FAILED(AttachInstances(volumeName, instanceNames))) continue;
 
-                    if (SUCCEEDED(AttachInstances(volumeName, names))) {
-                        std::cout << std::format("Attached to {}\n", text::ConvertToUtf8(volumeName));
-                        attachedVolumeCount++;
-                    }
-
-                }
-
-                hFindRes = FilterVolumeFindNext(volumeFind.Get(), FilterVolumeStandardInformation, entry.data(), ENTRY_SIZE, &entrySize);
+                std::cout << std::format("Attached to {}\n", text::ConvertToUtf8(volumeName));
+                attachedVolumeCount++;
             }
-
-            if (hFindRes != HRESULT_FROM_WIN32(ERROR_NO_MORE_ITEMS)) return hFindRes;
 
             if (!attachedVolumeCount) return ERROR_FLT_VOLUME_NOT_FOUND;
 
