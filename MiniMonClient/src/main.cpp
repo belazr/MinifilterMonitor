@@ -25,6 +25,7 @@
 #include <ios>
 #include <iostream>
 #include <optional>
+#include <ostream>
 #include <span>
 #include <string>
 #include <string_view>
@@ -54,6 +55,7 @@ namespace {
         std::optional<std::wstring> file;
         std::optional<std::wstring> volume;
         bool split = false;
+        bool help = false;
     };
 
     struct Flag {
@@ -68,6 +70,7 @@ namespace {
 
     constexpr Flag FLAG_TABLE[]{
         { L"/s", &Parameters::split },
+        { L"/?", &Parameters::help },
     };
 
     constexpr Option OPTION_TABLE[]{
@@ -126,15 +129,19 @@ namespace {
 
     bool ValidateParameters(const Parameters& parameters) {
 
+        if (parameters.help) return !parameters.file.has_value() && !parameters.volume.has_value() && !parameters.split;
+
         return parameters.file.has_value();
     }
 
 
-    void PrintUsage() {
-        std::cerr << "Usage: MiniMonClient /f <output_file> [/v <volume>] [/s]\n";
-        std::cerr << "    /f <output_file> loads the driver, attaches to the volume, writes the captured records to <output_file> until Ctrl+C and unloads the driver\n";
-        std::cerr << "    /v <volume>      the volume to attach every installed filter instance to, every volume with a file system without it\n";
-        std::cerr << "    /s               writes each altitude to its own file (<base>.<altitude>.<ext>)\n";
+    void PrintUsage(std::ostream& stream) {
+        stream << "Usage: MiniMonClient /f <output_file> [/v <volume>] [/s]\n";
+        stream << "       MiniMonClient /?\n";
+        stream << "    /f <output_file> loads the driver, attaches to the volume, writes the captured records to <output_file> until Ctrl+C and unloads the driver\n";
+        stream << "    /v <volume>      the volume to attach every installed filter instance to, every volume with a file system without it\n";
+        stream << "    /s               writes each altitude to its own file (<base>.<altitude>.<ext>)\n";
+        stream << "    /?               prints this usage\n";
 
         return;
     }
@@ -395,9 +402,15 @@ int wmain(int argc, wchar_t* argv[]) {
     const std::optional<Parameters> parameters = ParseParameters(argc - 1, &argv[1u]);
 
     if (!parameters.has_value() || !ValidateParameters(*parameters)) {
-        PrintUsage();
+        PrintUsage(std::cerr);
 
         return EXIT_FAILURE;
+    }
+
+    if (parameters->help) {
+        PrintUsage(std::cout);
+
+        return EXIT_SUCCESS;
     }
 
     if (!DoesParentDirectoryExist(*parameters->file)) return ReportResult(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), "Failed to open output file");
