@@ -425,8 +425,6 @@ namespace {
 
         if (FAILED(hAttachRes)) return ReportResult(hAttachRes, "Failed to attach to volume");
 
-        if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
-
         return CaptureRecords(port, sink) ? EXIT_SUCCESS : EXIT_FAILURE;
     }
 
@@ -434,6 +432,8 @@ namespace {
 
 int wmain(int argc, wchar_t* argv[]) {
     ConfigureOutput();
+
+    if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
 
     const std::optional<Parameters> parameters = ParseParameters(argc - 1, &argv[1u]);
 
