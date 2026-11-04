@@ -233,7 +233,7 @@ namespace {
     }
 
 
-    bool DoesParentDirectoryExist(const std::wstring& filePath) {
+    bool DoesParentDirectoryExist(std::wstring_view filePath) {
         const std::filesystem::path parent = std::filesystem::path{ filePath }.parent_path();
 
         if (parent.empty()) return true;
