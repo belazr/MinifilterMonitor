@@ -112,7 +112,7 @@ namespace {
                 continue;
             }
 
-            std::cerr << std::format("Failed to attach instance {} to {}: 0x{:08X}\n", text::ConvertToUtf8(instanceName), text::ConvertToUtf8(volumeName), static_cast<uint32_t>(hRes));
+            std::cerr << std::format("Warning: failed to attach instance {} to {}: 0x{:08X}\n", text::ConvertToUtf8(instanceName), text::ConvertToUtf8(volumeName), static_cast<uint32_t>(hRes));
             DetachInstances(volumeName, instanceNames.first(attachedInstanceCount));
 
             return hRes;
@@ -179,45 +179,42 @@ namespace mimo {
 
 
         HRESULT Attach(std::span<const std::wstring> volumeNames) {
+
+            if (volumeNames.empty()) return ERROR_FLT_VOLUME_NOT_FOUND;
+
             const std::vector<std::wstring> instanceNames = GetInstalledInstanceNames();
 
             if (instanceNames.empty()) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
 
+            HRESULT hLastRes = S_OK;
+            uint32_t attachedVolumeCount = 0u;
+
             for (const std::wstring& volumeName : volumeNames) {
                 const HRESULT hRes = AttachInstances(volumeName, instanceNames);
 
-                if (FAILED(hRes)) return hRes;
+                if (FAILED(hRes)) {
+                    hLastRes = hRes;
+
+                    continue;
+                }
 
                 std::cout << std::format("Attached to {}\n", text::ConvertToUtf8(volumeName));
+                attachedVolumeCount++;
             }
+
+            if (!attachedVolumeCount) return hLastRes;
 
             return S_OK;
         }
 
 
         HRESULT AttachAll() {
-            const std::vector<std::wstring> instanceNames = GetInstalledInstanceNames();
-
-            if (instanceNames.empty()) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
-
             std::vector<std::wstring> volumeNames;
             const HRESULT hFindRes = FindVolumesToTrace(volumeNames);
 
             if (FAILED(hFindRes)) return hFindRes;
 
-            uint32_t attachedVolumeCount = 0u;
-
-            for (const std::wstring& volumeName : volumeNames) {
-
-                if (FAILED(AttachInstances(volumeName, instanceNames))) continue;
-
-                std::cout << std::format("Attached to {}\n", text::ConvertToUtf8(volumeName));
-                attachedVolumeCount++;
-            }
-
-            if (!attachedVolumeCount) return ERROR_FLT_VOLUME_NOT_FOUND;
-
-            return S_OK;
+            return Attach(volumeNames);
         }
 
 
