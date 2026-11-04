@@ -86,21 +86,39 @@ namespace {
     }
 
 
-    HRESULT AttachInstances(const std::wstring& volumeName, const std::vector<std::wstring>& instanceNames) {
-        HRESULT hLastRes = S_OK;
+    void DetachInstances(const std::wstring& volumeName, std::span<const std::wstring> instanceNames) {
+
+        for (const std::wstring& instanceName : instanceNames) {
+            const HRESULT hRes = FilterDetach(MINIMON_NAME, volumeName.c_str(), instanceName.c_str());
+
+            if (SUCCEEDED(hRes)) continue;
+
+            std::cerr << std::format("Failed to detach instance {} from {}: 0x{:08X}\n", text::ConvertToUtf8(instanceName), text::ConvertToUtf8(volumeName), static_cast<uint32_t>(hRes));
+        }
+
+        return;
+    }
+
+
+    HRESULT AttachInstances(const std::wstring& volumeName, std::span<const std::wstring> instanceNames) {
+        size_t attachedInstanceCount = 0u;
 
         for (const std::wstring& instanceName : instanceNames) {
             const HRESULT hRes = FilterAttach(MINIMON_NAME, volumeName.c_str(), instanceName.c_str(), 0u, nullptr);
 
-            if (SUCCEEDED(hRes)) continue;
+            if (SUCCEEDED(hRes) || hRes == ERROR_FLT_INSTANCE_NAME_COLLISION) {
+                attachedInstanceCount++;
 
-            if (hRes == ERROR_FLT_INSTANCE_NAME_COLLISION) continue;
+                continue;
+            }
 
             std::cerr << std::format("Failed to attach instance {} to {}: 0x{:08X}\n", text::ConvertToUtf8(instanceName), text::ConvertToUtf8(volumeName), static_cast<uint32_t>(hRes));
-            hLastRes = hRes;
+            DetachInstances(volumeName, instanceNames.first(attachedInstanceCount));
+
+            return hRes;
         }
 
-        return hLastRes;
+        return S_OK;
     }
 
 

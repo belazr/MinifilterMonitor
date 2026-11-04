@@ -58,7 +58,7 @@ To trace at an additional altitude, create a new key under `HKLM\SYSTEM\CurrentC
 - `Altitude` (`REG_SZ`): an altitude not used by another filter, e.g. `375000`
 - `Flags` (`REG_DWORD`): `1` (suppress automatic attachment)
 
-The next session picks it up. An altitude another filter already occupies on the volume makes the attach fail, naming the instance.
+The next session picks it up. An altitude another filter already occupies on the volume makes the attach fail, naming the instance, and leaves the volume unattached at every altitude.
 
 ## Usage
 Run the client from an elevated command prompt:
