@@ -21,6 +21,8 @@ namespace mimo {
 
             std::wstring RenderMinorFunction(uint8_t major, uint8_t minor);
 
+            std::wstring RenderStatus(int32_t status);
+
             std::wstring RenderReparseTag(uint32_t tag);
 
             std::wstring RenderTransactionNotify(uint32_t notification);

@@ -2,8 +2,11 @@
 
 #include "kernel.h"
 
+#define WIN32_NO_STATUS
 #include <Windows.h>
+#undef WIN32_NO_STATUS
 #include <fltUser.h>
+#include <ntstatus.h>
 #include <winioctl.h>
 #include <ntddvol.h>    // after winioctl.h, whose volume section it repeats under an IOCTL_VOLUME_BASE guard
 #include <wnnc.h>
@@ -886,6 +889,200 @@ namespace mimo {
                 if (!minor) return {};
 
                 return std::format(L"{:02X}", static_cast<uint32_t>(minor));
+            }
+
+
+            std::wstring RenderStatus(int32_t status) {
+
+                switch (status) {
+                    case STATUS_SUCCESS:                          return L"STATUS_SUCCESS";
+                    case STATUS_ALERTED:                          return L"STATUS_ALERTED";
+                    case STATUS_TIMEOUT:                          return L"STATUS_TIMEOUT";
+                    case STATUS_PENDING:                          return L"STATUS_PENDING";
+                    case STATUS_REPARSE:                          return L"STATUS_REPARSE";
+                    case STATUS_MORE_ENTRIES:                     return L"STATUS_MORE_ENTRIES";
+                    case STATUS_NOT_ALL_ASSIGNED:                 return L"STATUS_NOT_ALL_ASSIGNED";
+                    case STATUS_OPLOCK_BREAK_IN_PROGRESS:         return L"STATUS_OPLOCK_BREAK_IN_PROGRESS";
+                    case STATUS_VOLUME_MOUNTED:                   return L"STATUS_VOLUME_MOUNTED";
+                    case STATUS_NOTIFY_CLEANUP:                   return L"STATUS_NOTIFY_CLEANUP";
+                    case STATUS_NOTIFY_ENUM_DIR:                  return L"STATUS_NOTIFY_ENUM_DIR";
+                    case STATUS_FILE_LOCKED_WITH_ONLY_READERS:    return L"STATUS_FILE_LOCKED_WITH_ONLY_READERS";
+                    case STATUS_FILE_LOCKED_WITH_WRITERS:         return L"STATUS_FILE_LOCKED_WITH_WRITERS";
+                    case STATUS_OBJECT_NAME_EXISTS:               return L"STATUS_OBJECT_NAME_EXISTS";
+                    case STATUS_BUFFER_OVERFLOW:                  return L"STATUS_BUFFER_OVERFLOW";
+                    case STATUS_NO_MORE_FILES:                    return L"STATUS_NO_MORE_FILES";
+                    case STATUS_DEVICE_BUSY:                      return L"STATUS_DEVICE_BUSY";
+                    case STATUS_NO_MORE_EAS:                      return L"STATUS_NO_MORE_EAS";
+                    case STATUS_INVALID_EA_NAME:                  return L"STATUS_INVALID_EA_NAME";
+                    case STATUS_EA_LIST_INCONSISTENT:             return L"STATUS_EA_LIST_INCONSISTENT";
+                    case STATUS_INVALID_EA_FLAG:                  return L"STATUS_INVALID_EA_FLAG";
+                    case STATUS_VERIFY_REQUIRED:                  return L"STATUS_VERIFY_REQUIRED";
+                    case STATUS_NO_MORE_ENTRIES:                  return L"STATUS_NO_MORE_ENTRIES";
+                    case STATUS_MEDIA_CHANGED:                    return L"STATUS_MEDIA_CHANGED";
+                    case STATUS_NO_DATA_DETECTED:                 return L"STATUS_NO_DATA_DETECTED";
+                    case STATUS_STOPPED_ON_SYMLINK:               return L"STATUS_STOPPED_ON_SYMLINK";
+                    case STATUS_UNSUCCESSFUL:                     return L"STATUS_UNSUCCESSFUL";
+                    case STATUS_NOT_IMPLEMENTED:                  return L"STATUS_NOT_IMPLEMENTED";
+                    case STATUS_INVALID_INFO_CLASS:               return L"STATUS_INVALID_INFO_CLASS";
+                    case STATUS_INFO_LENGTH_MISMATCH:             return L"STATUS_INFO_LENGTH_MISMATCH";
+                    case STATUS_ACCESS_VIOLATION:                 return L"STATUS_ACCESS_VIOLATION";
+                    case STATUS_INVALID_HANDLE:                   return L"STATUS_INVALID_HANDLE";
+                    case STATUS_INVALID_PARAMETER:                return L"STATUS_INVALID_PARAMETER";
+                    case STATUS_NO_SUCH_DEVICE:                   return L"STATUS_NO_SUCH_DEVICE";
+                    case STATUS_NO_SUCH_FILE:                     return L"STATUS_NO_SUCH_FILE";
+                    case STATUS_INVALID_DEVICE_REQUEST:           return L"STATUS_INVALID_DEVICE_REQUEST";
+                    case STATUS_END_OF_FILE:                      return L"STATUS_END_OF_FILE";
+                    case STATUS_WRONG_VOLUME:                     return L"STATUS_WRONG_VOLUME";
+                    case STATUS_NO_MEDIA_IN_DEVICE:               return L"STATUS_NO_MEDIA_IN_DEVICE";
+                    case STATUS_UNRECOGNIZED_MEDIA:               return L"STATUS_UNRECOGNIZED_MEDIA";
+                    case STATUS_NONEXISTENT_SECTOR:               return L"STATUS_NONEXISTENT_SECTOR";
+                    case STATUS_MORE_PROCESSING_REQUIRED:         return L"STATUS_MORE_PROCESSING_REQUIRED";
+                    case STATUS_NO_MEMORY:                        return L"STATUS_NO_MEMORY";
+                    case STATUS_ACCESS_DENIED:                    return L"STATUS_ACCESS_DENIED";
+                    case STATUS_BUFFER_TOO_SMALL:                 return L"STATUS_BUFFER_TOO_SMALL";
+                    case STATUS_OBJECT_TYPE_MISMATCH:             return L"STATUS_OBJECT_TYPE_MISMATCH";
+                    case STATUS_NOT_LOCKED:                       return L"STATUS_NOT_LOCKED";
+                    case STATUS_DISK_CORRUPT_ERROR:               return L"STATUS_DISK_CORRUPT_ERROR";
+                    case STATUS_OBJECT_NAME_INVALID:              return L"STATUS_OBJECT_NAME_INVALID";
+                    case STATUS_OBJECT_NAME_NOT_FOUND:            return L"STATUS_OBJECT_NAME_NOT_FOUND";
+                    case STATUS_OBJECT_NAME_COLLISION:            return L"STATUS_OBJECT_NAME_COLLISION";
+                    case STATUS_OBJECT_PATH_INVALID:              return L"STATUS_OBJECT_PATH_INVALID";
+                    case STATUS_OBJECT_PATH_NOT_FOUND:            return L"STATUS_OBJECT_PATH_NOT_FOUND";
+                    case STATUS_OBJECT_PATH_SYNTAX_BAD:           return L"STATUS_OBJECT_PATH_SYNTAX_BAD";
+                    case STATUS_DATA_OVERRUN:                     return L"STATUS_DATA_OVERRUN";
+                    case STATUS_DATA_ERROR:                       return L"STATUS_DATA_ERROR";
+                    case STATUS_CRC_ERROR:                        return L"STATUS_CRC_ERROR";
+                    case STATUS_SHARING_VIOLATION:                return L"STATUS_SHARING_VIOLATION";
+                    case STATUS_QUOTA_EXCEEDED:                   return L"STATUS_QUOTA_EXCEEDED";
+                    case STATUS_EAS_NOT_SUPPORTED:                return L"STATUS_EAS_NOT_SUPPORTED";
+                    case STATUS_EA_TOO_LARGE:                     return L"STATUS_EA_TOO_LARGE";
+                    case STATUS_NONEXISTENT_EA_ENTRY:             return L"STATUS_NONEXISTENT_EA_ENTRY";
+                    case STATUS_NO_EAS_ON_FILE:                   return L"STATUS_NO_EAS_ON_FILE";
+                    case STATUS_EA_CORRUPT_ERROR:                 return L"STATUS_EA_CORRUPT_ERROR";
+                    case STATUS_FILE_LOCK_CONFLICT:               return L"STATUS_FILE_LOCK_CONFLICT";
+                    case STATUS_LOCK_NOT_GRANTED:                 return L"STATUS_LOCK_NOT_GRANTED";
+                    case STATUS_DELETE_PENDING:                   return L"STATUS_DELETE_PENDING";
+                    case STATUS_PRIVILEGE_NOT_HELD:               return L"STATUS_PRIVILEGE_NOT_HELD";
+                    case STATUS_LOGON_FAILURE:                    return L"STATUS_LOGON_FAILURE";
+                    case STATUS_INVALID_SECURITY_DESCR:           return L"STATUS_INVALID_SECURITY_DESCR";
+                    case STATUS_RANGE_NOT_LOCKED:                 return L"STATUS_RANGE_NOT_LOCKED";
+                    case STATUS_DISK_FULL:                        return L"STATUS_DISK_FULL";
+                    case STATUS_FILE_INVALID:                     return L"STATUS_FILE_INVALID";
+                    case STATUS_INSUFFICIENT_RESOURCES:           return L"STATUS_INSUFFICIENT_RESOURCES";
+                    case STATUS_DEVICE_DATA_ERROR:                return L"STATUS_DEVICE_DATA_ERROR";
+                    case STATUS_DEVICE_NOT_CONNECTED:             return L"STATUS_DEVICE_NOT_CONNECTED";
+                    case STATUS_MEDIA_WRITE_PROTECTED:            return L"STATUS_MEDIA_WRITE_PROTECTED";
+                    case STATUS_DEVICE_NOT_READY:                 return L"STATUS_DEVICE_NOT_READY";
+                    case STATUS_PIPE_NOT_AVAILABLE:               return L"STATUS_PIPE_NOT_AVAILABLE";
+                    case STATUS_INVALID_PIPE_STATE:               return L"STATUS_INVALID_PIPE_STATE";
+                    case STATUS_PIPE_BUSY:                        return L"STATUS_PIPE_BUSY";
+                    case STATUS_PIPE_DISCONNECTED:                return L"STATUS_PIPE_DISCONNECTED";
+                    case STATUS_PIPE_CLOSING:                     return L"STATUS_PIPE_CLOSING";
+                    case STATUS_PIPE_CONNECTED:                   return L"STATUS_PIPE_CONNECTED";
+                    case STATUS_PIPE_LISTENING:                   return L"STATUS_PIPE_LISTENING";
+                    case STATUS_IO_TIMEOUT:                       return L"STATUS_IO_TIMEOUT";
+                    case STATUS_FILE_FORCED_CLOSED:               return L"STATUS_FILE_FORCED_CLOSED";
+                    case STATUS_FILE_IS_A_DIRECTORY:              return L"STATUS_FILE_IS_A_DIRECTORY";
+                    case STATUS_NOT_SUPPORTED:                    return L"STATUS_NOT_SUPPORTED";
+                    case STATUS_BAD_NETWORK_PATH:                 return L"STATUS_BAD_NETWORK_PATH";
+                    case STATUS_UNEXPECTED_NETWORK_ERROR:         return L"STATUS_UNEXPECTED_NETWORK_ERROR";
+                    case STATUS_NETWORK_NAME_DELETED:             return L"STATUS_NETWORK_NAME_DELETED";
+                    case STATUS_NETWORK_ACCESS_DENIED:            return L"STATUS_NETWORK_ACCESS_DENIED";
+                    case STATUS_BAD_NETWORK_NAME:                 return L"STATUS_BAD_NETWORK_NAME";
+                    case STATUS_REQUEST_NOT_ACCEPTED:             return L"STATUS_REQUEST_NOT_ACCEPTED";
+                    case STATUS_NOT_SAME_DEVICE:                  return L"STATUS_NOT_SAME_DEVICE";
+                    case STATUS_FILE_RENAMED:                     return L"STATUS_FILE_RENAMED";
+                    case STATUS_PIPE_EMPTY:                       return L"STATUS_PIPE_EMPTY";
+                    case STATUS_OPLOCK_NOT_GRANTED:               return L"STATUS_OPLOCK_NOT_GRANTED";
+                    case STATUS_INVALID_OPLOCK_PROTOCOL:          return L"STATUS_INVALID_OPLOCK_PROTOCOL";
+                    case STATUS_INTERNAL_ERROR:                   return L"STATUS_INTERNAL_ERROR";
+                    case STATUS_INVALID_USER_BUFFER:              return L"STATUS_INVALID_USER_BUFFER";
+                    case STATUS_DIRECTORY_NOT_EMPTY:              return L"STATUS_DIRECTORY_NOT_EMPTY";
+                    case STATUS_FILE_CORRUPT_ERROR:               return L"STATUS_FILE_CORRUPT_ERROR";
+                    case STATUS_NOT_A_DIRECTORY:                  return L"STATUS_NOT_A_DIRECTORY";
+                    case STATUS_NAME_TOO_LONG:                    return L"STATUS_NAME_TOO_LONG";
+                    case STATUS_FILES_OPEN:                       return L"STATUS_FILES_OPEN";
+                    case STATUS_PROCESS_IS_TERMINATING:           return L"STATUS_PROCESS_IS_TERMINATING";
+                    case STATUS_MAPPED_FILE_SIZE_ZERO:            return L"STATUS_MAPPED_FILE_SIZE_ZERO";
+                    case STATUS_TOO_MANY_OPENED_FILES:            return L"STATUS_TOO_MANY_OPENED_FILES";
+                    case STATUS_CANCELLED:                        return L"STATUS_CANCELLED";
+                    case STATUS_CANNOT_DELETE:                    return L"STATUS_CANNOT_DELETE";
+                    case STATUS_FILE_DELETED:                     return L"STATUS_FILE_DELETED";
+                    case STATUS_FILE_CLOSED:                      return L"STATUS_FILE_CLOSED";
+                    case STATUS_INVALID_LEVEL:                    return L"STATUS_INVALID_LEVEL";
+                    case STATUS_PIPE_BROKEN:                      return L"STATUS_PIPE_BROKEN";
+                    case STATUS_UNRECOGNIZED_VOLUME:              return L"STATUS_UNRECOGNIZED_VOLUME";
+                    case STATUS_NO_LOG_SPACE:                     return L"STATUS_NO_LOG_SPACE";
+                    case STATUS_IO_DEVICE_ERROR:                  return L"STATUS_IO_DEVICE_ERROR";
+                    case STATUS_LOG_FILE_FULL:                    return L"STATUS_LOG_FILE_FULL";
+                    case STATUS_FS_DRIVER_REQUIRED:               return L"STATUS_FS_DRIVER_REQUIRED";
+                    case STATUS_CONNECTION_DISCONNECTED:          return L"STATUS_CONNECTION_DISCONNECTED";
+                    case STATUS_CONNECTION_RESET:                 return L"STATUS_CONNECTION_RESET";
+                    case STATUS_NOT_FOUND:                        return L"STATUS_NOT_FOUND";
+                    case STATUS_RETRY:                            return L"STATUS_RETRY";
+                    case STATUS_USER_MAPPED_FILE:                 return L"STATUS_USER_MAPPED_FILE";
+                    case STATUS_PATH_NOT_COVERED:                 return L"STATUS_PATH_NOT_COVERED";
+                    case STATUS_TOO_MANY_LINKS:                   return L"STATUS_TOO_MANY_LINKS";
+                    case STATUS_VOLUME_DISMOUNTED:                return L"STATUS_VOLUME_DISMOUNTED";
+                    case STATUS_NOT_A_REPARSE_POINT:              return L"STATUS_NOT_A_REPARSE_POINT";
+                    case STATUS_IO_REPARSE_TAG_INVALID:           return L"STATUS_IO_REPARSE_TAG_INVALID";
+                    case STATUS_IO_REPARSE_TAG_MISMATCH:          return L"STATUS_IO_REPARSE_TAG_MISMATCH";
+                    case STATUS_IO_REPARSE_DATA_INVALID:          return L"STATUS_IO_REPARSE_DATA_INVALID";
+                    case STATUS_IO_REPARSE_TAG_NOT_HANDLED:       return L"STATUS_IO_REPARSE_TAG_NOT_HANDLED";
+                    case STATUS_REPARSE_POINT_NOT_RESOLVED:       return L"STATUS_REPARSE_POINT_NOT_RESOLVED";
+                    case STATUS_DIRECTORY_IS_A_REPARSE_POINT:     return L"STATUS_DIRECTORY_IS_A_REPARSE_POINT";
+                    case STATUS_ENCRYPTION_FAILED:                return L"STATUS_ENCRYPTION_FAILED";
+                    case STATUS_DECRYPTION_FAILED:                return L"STATUS_DECRYPTION_FAILED";
+                    case STATUS_FILE_NOT_ENCRYPTED:               return L"STATUS_FILE_NOT_ENCRYPTED";
+                    case STATUS_FILE_ENCRYPTED:                   return L"STATUS_FILE_ENCRYPTED";
+                    case STATUS_REPARSE_ATTRIBUTE_CONFLICT:       return L"STATUS_REPARSE_ATTRIBUTE_CONFLICT";
+                    case STATUS_DEVICE_REMOVED:                   return L"STATUS_DEVICE_REMOVED";
+                    case STATUS_FILE_SYSTEM_LIMITATION:           return L"STATUS_FILE_SYSTEM_LIMITATION";
+                    case STATUS_FILE_NOT_AVAILABLE:               return L"STATUS_FILE_NOT_AVAILABLE";
+                    case STATUS_VOLUME_DIRTY:                     return L"STATUS_VOLUME_DIRTY";
+                    case STATUS_BAD_FILE_TYPE:                    return L"STATUS_BAD_FILE_TYPE";
+                    case STATUS_FILE_TOO_LARGE:                   return L"STATUS_FILE_TOO_LARGE";
+                    case STATUS_NOT_A_CLOUD_FILE:                 return L"STATUS_NOT_A_CLOUD_FILE";
+                    case STATUS_CLOUD_FILE_NOT_IN_SYNC:           return L"STATUS_CLOUD_FILE_NOT_IN_SYNC";
+                    case STATUS_CLOUD_FILE_NOT_SUPPORTED:         return L"STATUS_CLOUD_FILE_NOT_SUPPORTED";
+                    case STATUS_CLOUD_FILE_IN_USE:                return L"STATUS_CLOUD_FILE_IN_USE";
+                    case STATUS_CLOUD_FILE_PINNED:                return L"STATUS_CLOUD_FILE_PINNED";
+                    case STATUS_CLOUD_FILE_ACCESS_DENIED:         return L"STATUS_CLOUD_FILE_ACCESS_DENIED";
+                    case STATUS_TRANSACTIONAL_CONFLICT:           return L"STATUS_TRANSACTIONAL_CONFLICT";
+                    case STATUS_TRANSACTION_NOT_ACTIVE:           return L"STATUS_TRANSACTION_NOT_ACTIVE";
+                    case STATUS_FLT_NO_HANDLER_DEFINED:           return L"STATUS_FLT_NO_HANDLER_DEFINED";
+                    case STATUS_FLT_CONTEXT_ALREADY_DEFINED:      return L"STATUS_FLT_CONTEXT_ALREADY_DEFINED";
+                    case STATUS_FLT_INVALID_ASYNCHRONOUS_REQUEST: return L"STATUS_FLT_INVALID_ASYNCHRONOUS_REQUEST";
+                    case STATUS_FLT_DISALLOW_FAST_IO:             return L"STATUS_FLT_DISALLOW_FAST_IO";
+                    case STATUS_FLT_INVALID_NAME_REQUEST:         return L"STATUS_FLT_INVALID_NAME_REQUEST";
+                    case STATUS_FLT_NOT_SAFE_TO_POST_OPERATION:   return L"STATUS_FLT_NOT_SAFE_TO_POST_OPERATION";
+                    case STATUS_FLT_NOT_INITIALIZED:              return L"STATUS_FLT_NOT_INITIALIZED";
+                    case STATUS_FLT_FILTER_NOT_READY:             return L"STATUS_FLT_FILTER_NOT_READY";
+                    case STATUS_FLT_POST_OPERATION_CLEANUP:       return L"STATUS_FLT_POST_OPERATION_CLEANUP";
+                    case STATUS_FLT_INTERNAL_ERROR:               return L"STATUS_FLT_INTERNAL_ERROR";
+                    case STATUS_FLT_DELETING_OBJECT:              return L"STATUS_FLT_DELETING_OBJECT";
+                    case STATUS_FLT_MUST_BE_NONPAGED_POOL:        return L"STATUS_FLT_MUST_BE_NONPAGED_POOL";
+                    case STATUS_FLT_DUPLICATE_ENTRY:              return L"STATUS_FLT_DUPLICATE_ENTRY";
+                    case STATUS_FLT_CBDQ_DISABLED:                return L"STATUS_FLT_CBDQ_DISABLED";
+                    case STATUS_FLT_DO_NOT_ATTACH:                return L"STATUS_FLT_DO_NOT_ATTACH";
+                    case STATUS_FLT_DO_NOT_DETACH:                return L"STATUS_FLT_DO_NOT_DETACH";
+                    case STATUS_FLT_INSTANCE_ALTITUDE_COLLISION:  return L"STATUS_FLT_INSTANCE_ALTITUDE_COLLISION";
+                    case STATUS_FLT_INSTANCE_NAME_COLLISION:      return L"STATUS_FLT_INSTANCE_NAME_COLLISION";
+                    case STATUS_FLT_FILTER_NOT_FOUND:             return L"STATUS_FLT_FILTER_NOT_FOUND";
+                    case STATUS_FLT_VOLUME_NOT_FOUND:             return L"STATUS_FLT_VOLUME_NOT_FOUND";
+                    case STATUS_FLT_INSTANCE_NOT_FOUND:           return L"STATUS_FLT_INSTANCE_NOT_FOUND";
+                    case STATUS_FLT_CONTEXT_ALLOCATION_NOT_FOUND: return L"STATUS_FLT_CONTEXT_ALLOCATION_NOT_FOUND";
+                    case STATUS_FLT_INVALID_CONTEXT_REGISTRATION: return L"STATUS_FLT_INVALID_CONTEXT_REGISTRATION";
+                    case STATUS_FLT_NAME_CACHE_MISS:              return L"STATUS_FLT_NAME_CACHE_MISS";
+                    case STATUS_FLT_NO_DEVICE_OBJECT:             return L"STATUS_FLT_NO_DEVICE_OBJECT";
+                    case STATUS_FLT_VOLUME_ALREADY_MOUNTED:       return L"STATUS_FLT_VOLUME_ALREADY_MOUNTED";
+                    case STATUS_FLT_ALREADY_ENLISTED:             return L"STATUS_FLT_ALREADY_ENLISTED";
+                    case STATUS_FLT_CONTEXT_ALREADY_LINKED:       return L"STATUS_FLT_CONTEXT_ALREADY_LINKED";
+                    case STATUS_FLT_NO_WAITER_FOR_REPLY:          return L"STATUS_FLT_NO_WAITER_FOR_REPLY";
+                    case STATUS_FLT_REGISTRATION_BUSY:            return L"STATUS_FLT_REGISTRATION_BUSY";
+                }
+
+                return std::format(L"{:08X}", static_cast<uint32_t>(status));
             }
 
 

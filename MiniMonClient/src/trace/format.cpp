@@ -210,7 +210,7 @@ namespace mimo {
                     columns[MAJOR]            = names::RenderMajorFunction(data.callbackMajorId);
                     columns[MINOR]            = names::RenderMinorFunction(data.callbackMajorId, data.callbackMinorId);
                     columns[NAME]             = text::MarkTruncated(text::Extract(data.name), data.truncated & protocol::TRUNCATED_NAME);
-                    columns[STATUS]           = std::format(L"{:08X}", static_cast<uint32_t>(data.status));
+                    columns[STATUS]           = names::RenderStatus(data.status);
                     columns[INFORMATION]      = std::format(L"{:016X}", data.information);
                     columns[DETAILS]          = details::Render(data);
                     columns[IRP_FLAGS]        = std::format(L"{:08X}", data.irpFlags);
