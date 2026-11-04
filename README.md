@@ -58,7 +58,7 @@ To trace at an additional altitude, create a new key under `HKLM\SYSTEM\CurrentC
 - `Altitude` (`REG_SZ`): an altitude not used by another filter, e.g. `375000`
 - `Flags` (`REG_DWORD`): `1` (suppress automatic attachment)
 
-The next session picks it up. An altitude another filter already occupies on the volume makes the attach fail, naming the instance, and leaves the volume unattached at every altitude.
+The next session picks it up. An altitude another filter already occupies on the volume makes the volume's attach fail, naming the instance, and leaves the volume unattached at every altitude.
 
 ## Usage
 Run the client from an elevated command prompt:
@@ -73,7 +73,7 @@ MiniMonClient /?
 - `/s`: Writes each altitude to its own file (`<base>.<altitude>.<ext>`). Records without an altitude, such as volume mounts, go to `<output_file>` itself.
 - `/?`: Prints the usage.
 
-Before attaching, the client compares the driver's version with its own, prints both and refuses a mismatch. A volume the filter cannot attach to is reported as a warning and skipped and the session fails only when no volume attached. When the output file lies on a traced volume, the client's own writes to it appear in the trace. Press Ctrl+C to stop. The client then writes what is still queued, detaches and unloads the driver. Closing the console window stops the capture the same way, with a few seconds for the queued records. Only a client ended without the chance to clean up, through Task Manager for example, leaves the driver loaded. The next session attaches over it and unloads at its end, or `fltmc unload MiniMonFlt` unloads it by hand. To inspect which volumes the filter is attached to while a session runs, use `fltmc instances`.
+Before attaching, the client compares the driver's version with its own, prints both and refuses a mismatch. A volume the filter cannot attach to is reported as a warning and skipped. The session fails only when no volume could be attached. When the output file lies on a traced volume, the client's own writes to it appear in the trace. Press Ctrl+C to stop. The client then writes what is still queued, detaches and unloads the driver. Closing the console window stops the capture the same way, with a few seconds for the queued records. Only a client ended without the chance to clean up, through Task Manager for example, leaves the driver loaded. The next session attaches over it and unloads at its end, or `fltmc unload MiniMonFlt` unloads it by hand. To inspect which volumes the filter is attached to while a session runs, use `fltmc instances`.
 
 A typical session:
 
