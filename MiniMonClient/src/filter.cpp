@@ -14,6 +14,7 @@
 #include <cstring>
 #include <format>
 #include <iostream>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -132,12 +133,20 @@ namespace mimo {
         }
 
 
-        HRESULT Attach(const std::wstring& volumeName) {
+        HRESULT Attach(std::span<const std::wstring> volumeNames) {
             const std::vector<std::wstring> names = GetInstalledInstanceNames();
 
             if (names.empty()) return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
 
-            return AttachInstances(volumeName, names);
+            for (const std::wstring& volumeName : volumeNames) {
+                const HRESULT hRes = AttachInstances(volumeName, names);
+
+                if (FAILED(hRes)) return hRes;
+
+                std::cout << std::format("Attached to {}\n", text::ConvertToUtf8(volumeName));
+            }
+
+            return S_OK;
         }
 
 

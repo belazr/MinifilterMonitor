@@ -6,6 +6,7 @@
 
 #include <Windows.h>
 
+#include <span>
 #include <string>
 #include <vector>
 
@@ -15,7 +16,7 @@ namespace mimo {
 
         HRESULT Load();
 
-        HRESULT Attach(const std::wstring& volumeName);
+        HRESULT Attach(std::span<const std::wstring> volumeNames);
 
         HRESULT AttachAll();
 

@@ -51,9 +51,15 @@ namespace {
     }
 
 
+    bool IsSwitch(std::wstring_view arg) {
+
+        return arg.starts_with(L'/');
+    }
+
+
     struct Parameters {
         std::optional<std::wstring> file;
-        std::optional<std::wstring> volume;
+        std::vector<std::wstring> volumes;
         bool split = false;
         bool help = false;
     };
@@ -68,6 +74,11 @@ namespace {
         std::optional<std::wstring> Parameters::* member;
     };
 
+    struct List {
+        std::wstring_view name;
+        std::vector<std::wstring> Parameters::* member;
+    };
+
     constexpr Flag FLAG_TABLE[]{
         { L"/s", &Parameters::split },
         { L"/?", &Parameters::help },
@@ -75,7 +86,10 @@ namespace {
 
     constexpr Option OPTION_TABLE[]{
         { L"/f", &Parameters::file },
-        { L"/v", &Parameters::volume },
+    };
+
+    constexpr List LIST_TABLE[]{
+        { L"/v", &Parameters::volumes },
     };
 
     std::optional<Parameters> ParseParameters(int argc, wchar_t* argv[]) {
@@ -120,6 +134,28 @@ namespace {
 
             if (matched) continue;
 
+            for (const List& list : LIST_TABLE) {
+
+                if (IsSameName(arg, list.name)) {
+
+                    if (!(parameters.*(list.member)).empty()) return std::nullopt;
+
+                    while (i + 1 < argc && !IsSwitch(argv[i + 1])) {
+                        i++;
+                        (parameters.*(list.member)).emplace_back(argv[i]);
+                    }
+
+                    if ((parameters.*(list.member)).empty()) return std::nullopt;
+
+                    matched = true;
+
+                    break;
+                }
+
+            }
+
+            if (matched) continue;
+
             return std::nullopt;
         }
 
@@ -129,17 +165,17 @@ namespace {
 
     bool ValidateParameters(const Parameters& parameters) {
 
-        if (parameters.help) return !parameters.file.has_value() && !parameters.volume.has_value() && !parameters.split;
+        if (parameters.help) return !parameters.file.has_value() && parameters.volumes.empty() && !parameters.split;
 
         return parameters.file.has_value();
     }
 
 
     void PrintUsage(std::ostream& stream) {
-        stream << "Usage: MiniMonClient /f <output_file> [/v <volume>] [/s]\n";
+        stream << "Usage: MiniMonClient /f <output_file> [/v <volume>...] [/s]\n";
         stream << "       MiniMonClient /?\n";
         stream << "    /f <output_file> loads the driver, attaches every installed instance to every volume with a file system, writes the captured records to <output_file> until Ctrl+C and unloads the driver\n";
-        stream << "    /v <volume>      attaches to <volume> only\n";
+        stream << "    /v <volume>...   attaches to the named volumes only\n";
         stream << "    /s               writes each altitude to its own file (<base>.<altitude>.<ext>)\n";
         stream << "    /?               prints this usage\n";
 
@@ -377,7 +413,7 @@ namespace {
     }
 
 
-    int RunSession(const std::optional<std::wstring>& volumeName, Sink& sink) {
+    int RunSession(std::span<const std::wstring> volumeNames, Sink& sink) {
         InvalidHandle port;
         const HRESULT hConnectRes = filter::Connect(port);
 
@@ -385,7 +421,7 @@ namespace {
 
         if (!VerifyVersion(port)) return EXIT_FAILURE;
 
-        const HRESULT hAttachRes = volumeName.has_value() ? filter::Attach(*volumeName) : filter::AttachAll();
+        const HRESULT hAttachRes = volumeNames.empty() ? filter::AttachAll() : filter::Attach(volumeNames);
 
         if (FAILED(hAttachRes)) return ReportResult(hAttachRes, "Failed to attach to volume");
 
@@ -421,7 +457,7 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (FAILED(hLoadRes)) return ReportActionResult(hLoadRes, "Failed to load driver");
 
-    const int sessionResult = RunSession(parameters->volume, sink);
+    const int sessionResult = RunSession(parameters->volumes, sink);
     const int unloadResult = ReportResult(filter::Unload(), "Failed to unload driver");
 
     return sessionResult ? sessionResult : unloadResult;
