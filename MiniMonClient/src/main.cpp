@@ -271,7 +271,7 @@ namespace {
 
     std::atomic<bool> stopRequested;
 
-    BOOL WINAPI CtrlHandler(DWORD ctrlType) {
+    BOOL WINAPI HandlerRoutine(DWORD ctrlType) {
         constexpr DWORD CLOSE_WAIT_MS = 4000u;
 
         switch (ctrlType) {
@@ -420,7 +420,7 @@ namespace {
 int wmain(int argc, wchar_t* argv[]) {
     ConfigureOutput();
 
-    if (!SetConsoleCtrlHandler(CtrlHandler, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
+    if (!SetConsoleCtrlHandler(HandlerRoutine, TRUE)) return ReportResult(HRESULT_FROM_WIN32(GetLastError()), "Failed to install console control handler");
 
     const std::optional<Parameters> parameters = ParseParameters(argc - 1, &argv[1u]);
 
