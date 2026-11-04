@@ -68,8 +68,8 @@ MiniMonClient /f <output_file> [/v <volume>] [/s]
 MiniMonClient /?
 ```
 
-- `/f <output_file>`: loads the driver, attaches every installed instance (all altitudes) to the volume or to every volume, writes the captured records to `<output_file>` until Ctrl+C and unloads the driver again
-- `/v <volume>`: the volume to trace, given by its drive letter, e.g. `C:`. Without it the session attaches to every volume that has a file system and lists them as it goes. Named pipes and mailslots are left out of that form and stay reachable by name, e.g. `/v \Device\NamedPipe`. A volume mounted during the session is not traced
+- `/f <output_file>`: loads the driver, attaches every installed instance (all altitudes) to every volume that has a file system, writes the captured records to `<output_file>` until Ctrl+C and unloads the driver again. The volumes are listed as they are attached, named pipes and mailslots are left out, and a volume mounted during the session is not traced
+- `/v <volume>`: attaches to that volume only, given by its drive letter, e.g. `C:`, or by its device name, e.g. `\Device\Mup` for network files or `\Device\NamedPipe` for named pipes
 - `/s`: writes each altitude to its own file (`<base>.<altitude>.<ext>`). Records without an altitude, such as volume mounts, go to `<output_file>` itself
 - `/?`: prints the usage
 

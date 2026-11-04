@@ -138,8 +138,8 @@ namespace {
     void PrintUsage(std::ostream& stream) {
         stream << "Usage: MiniMonClient /f <output_file> [/v <volume>] [/s]\n";
         stream << "       MiniMonClient /?\n";
-        stream << "    /f <output_file> loads the driver, attaches to the volume, writes the captured records to <output_file> until Ctrl+C and unloads the driver\n";
-        stream << "    /v <volume>      the volume to attach every installed filter instance to, every volume with a file system without it\n";
+        stream << "    /f <output_file> loads the driver, attaches every installed instance to every volume with a file system, writes the captured records to <output_file> until Ctrl+C and unloads the driver\n";
+        stream << "    /v <volume>      attaches to <volume> only\n";
         stream << "    /s               writes each altitude to its own file (<base>.<altitude>.<ext>)\n";
         stream << "    /?               prints this usage\n";
 
