@@ -381,6 +381,8 @@ namespace {
     bool CaptureRecords(const InvalidHandle& port, Sink& sink) {
         constexpr size_t BATCH_COUNT = 256u;
         constexpr std::chrono::milliseconds REPORT_INTERVAL{ 250 };
+
+        std::cout << "Capturing, press Ctrl+C to stop\n";
         RecordBatchQueue queue{ BATCH_COUNT };
         std::future<bool> writer = std::async(std::launch::async, [&queue, &sink]() noexcept { return WriteLoop(queue, sink); });
         const bool drained = DrainLoop(port, queue);
