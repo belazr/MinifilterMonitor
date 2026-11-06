@@ -68,12 +68,12 @@ MiniMonClient /f <output_file> [/v <volume>...] [/s]
 MiniMonClient /?
 ```
 
-- `/f <output_file>`: Loads the driver, attaches every installed instance (all altitudes) to every volume that has a file system, writes the captured records to `<output_file>` until Ctrl+C and unloads the driver again. The volumes are listed as they are attached, named pipes and mailslots are left out, and a volume mounted during the session is not traced.
-- `/v <volume>...`: Attaches to the named volumes only. The list runs up to the next argument starting with `/`. Each volume is given by its drive letter, e.g. `C:`, or by its device name, e.g. `\Device\Mup` for network files or `\Device\NamedPipe` for named pipes.
+- `/f <output_file>`: Attaches to every volume that has a file system and writes the captured records to `<output_file>`. Named pipes and mailslots are left out.
+- `/v <volume>...`: Attaches to the named volumes only. Each volume is given by its drive letter, e.g. `C:`, or by its device name, e.g. `\Device\Mup` for network files or `\Device\NamedPipe` for named pipes.
 - `/s`: Writes each altitude to its own file (`<base>.<altitude>.<ext>`). Records without an altitude, such as volume mounts, go to `<output_file>` itself.
 - `/?`: Prints the usage.
 
-Before attaching, the client compares the driver's version with its own, prints both and refuses a mismatch. A volume the filter cannot attach to is reported as a warning and skipped. The session fails only when no volume could be attached. When the output file lies on a traced volume, the client's own writes to it appear in the trace. While the capture runs, the client prints the captured, written and dropped record counts once a second. Press Ctrl+C to stop. The client then writes what is still queued, detaches and unloads the driver. Closing the console window stops the capture the same way, with a few seconds for the queued records. Only a client ended without the chance to clean up, through Task Manager for example, leaves the driver loaded. The next session attaches over it and unloads at its end, or `fltmc unload MiniMonFlt` unloads it by hand. To inspect which volumes the filter is attached to while a session runs, use `fltmc instances`.
+On Ctrl+C the client writes what is still queued, detaches and unloads the driver. A client ended without the chance to clean up, through Task Manager for example, leaves the driver loaded until `fltmc unload MiniMonFlt` or the next session unloads it.
 
 A typical session:
 
