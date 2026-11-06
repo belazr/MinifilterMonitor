@@ -87,8 +87,8 @@ MiniMonClient /f trace.csv             trace every volume until Ctrl+C
 Records are written as a semicolon-separated CSV with a header row. The single merged file interleaves all altitudes and is the better view for following one I/O through the stack. `/s` is an additional per-altitude export.
 
 ## Roadmap
-- Improve performance of the client draining the driver queue
-- Improve CLI
+- Add a test executable that generates known file system activity
+- Refine named pipe and mailslot tracing
 
 ## License
 Copyright (C) 2026 belazr
