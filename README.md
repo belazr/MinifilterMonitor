@@ -25,27 +25,21 @@ Which combination of these reliably ties records together is still an open quest
 The driver registers callbacks for nearly every operation Filter Manager can route to a minifilter (including named pipe and mailslot creates) and also reports transaction notifications. Each record holds, among other fields, the operation category (IRP / fast I/O / FS filter), major and minor function, process and thread id, status and information, the objects involved, a short stack trace and the file name.
 
 ## Requirements
-- Windows 10/11 64bit
-- Visual Studio
-- C++ 20 compliant compiler
+- Windows 10 or 11 x64, tested on Windows 11
+- Test signing enabled (`bcdedit /set testsigning on` and a reboot), since the driver is test-signed
+
+## Build
+The solution `MinifilterMonitor.slnx` needs:
+- Visual Studio 18
 - Windows SDK
 - Windows Driver Kit (WDK)
 
-Build tested with:
-- Windows 11 64bit
-- Visual Studio 18
+Tested with:
+- Windows 11 x64
 - MSVC v145 (client), WindowsKernelModeDriver10.0 (driver)
 - Windows 11 SDK / WDK (10.0.28000)
 
-Usage tested with:
-- Windows 11 64bit
-
-Running an unsigned kernel driver requires test signing to be enabled (`bcdedit /set testsigning on`, then reboot) and the driver to be test-signed.
-
-## Build
-Open the solution file (`MinifilterMonitor.slnx`) with Visual Studio and build from there.
-
-The client (`MiniMonClient`) builds for x64 and x86 and links the runtime statically (`/MT` and `/MTd`), so it runs with no runtime dependencies. The driver (`MiniMonFlt`) builds for x64 and requires the WDK.
+The client (`MiniMonClient`) builds for x64 and x86 with a static runtime, so it runs with no runtime dependencies. The driver (`MiniMonFlt`) builds for x64 only.
 
 ## Installation
 The driver installs from its INF file (`MiniMonFlt.inf`) through *Install* in the file's context menu. Nothing runs until a session loads it.
