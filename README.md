@@ -48,17 +48,18 @@ Open the solution file (`MinifilterMonitor.slnx`) with Visual Studio and build f
 The client (`MiniMonClient`) builds for x64 and x86 and links the runtime statically (`/MT` and `/MTd`), so it runs with no runtime dependencies. The driver (`MiniMonFlt`) builds for x64 and requires the WDK.
 
 ## Installation
-Install the driver from its INF file (`MiniMonFlt.inf`): right click it and choose *Install*. This registers the `MiniMonFlt` service and its instances but does not start anything. The client loads and attaches the driver for each session and unloads it at the end. The instance altitudes are stored in the registry under `HKLM\SYSTEM\CurrentControlSet\Services\MiniMonFlt\Parameters\Instances\<instance>\Altitude` (older Windows versions use `Instances` instead of `Parameters\Instances`). They can be adjusted after installation and take effect the next time the client attaches.
+The driver installs from its INF file (`MiniMonFlt.inf`) through *Install* in the file's context menu. Nothing runs until a session loads it.
 
-The driver buffers captured records in memory until the client picks them up, capped at 50 MB by default. The cap can be changed by editing the `MaxMemoryKB` value (`REG_DWORD`) under `HKLM\SYSTEM\CurrentControlSet\Services\MiniMonFlt\Parameters`, read the next time the driver loads. Once the cap is reached the driver drops further records and the client reports how many were lost.
+## Configuration
+All settings are under `HKLM\SYSTEM\CurrentControlSet\Services\MiniMonFlt`:
 
-### Adding instances
-To trace at an additional altitude, create a new key under `HKLM\SYSTEM\CurrentControlSet\Services\MiniMonFlt\Parameters\Instances` (the key name is the instance name) with two values:
+| Key | Value | Type | Meaning |
+|---|---|---|---|
+| `Parameters` | `MaxMemoryKB` | `REG_DWORD` | The cap in KB on the records the driver buffers in memory until the client picks them up, read when the driver loads. Default `51200`. Once the cap is reached the driver drops further records. |
+| `Parameters\Instances\<instance>` | `Altitude` | `REG_SZ` | The instance's altitude, one not used by another filter. |
+| `Parameters\Instances\<instance>` | `Flags` | `REG_DWORD` | `1`, suppresses automatic attachment. |
 
-- `Altitude` (`REG_SZ`): an altitude not used by another filter, e.g. `375000`
-- `Flags` (`REG_DWORD`): `1` (suppress automatic attachment)
-
-The next session picks it up. An altitude another filter already occupies on the volume makes the volume's attach fail, naming the instance, and leaves the volume unattached at every altitude.
+For each key under `Parameters\Instances` the client attaches an instance at the given altitude, whatever its name. The next session picks up a new key with the listed values.
 
 ## Usage
 Run the client from an elevated command prompt:
