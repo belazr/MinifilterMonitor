@@ -2,6 +2,7 @@
 
 #include "trace\format.h"
 
+#include "counter.h"
 #include "handle.h"
 #include "queue.h"
 #include "sink.h"
@@ -28,6 +29,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -272,23 +274,23 @@ namespace {
     std::atomic<bool> stopRequested;
 
     BOOL WINAPI HandlerRoutine(DWORD ctrlType) {
-        constexpr DWORD CLOSE_WAIT_MS = 4000u;
+        constexpr std::chrono::seconds CLOSE_WAIT{ 4 };
 
         switch (ctrlType) {
 
             case CTRL_C_EVENT:
             case CTRL_BREAK_EVENT:
-                stopRequested.store(true, std::memory_order_relaxed);
+                stopRequested.store(true);
 
                 return TRUE;
 
             case CTRL_CLOSE_EVENT:
             case CTRL_LOGOFF_EVENT:
             case CTRL_SHUTDOWN_EVENT:
-                stopRequested.store(true, std::memory_order_relaxed);
+                stopRequested.store(true);
                 // the system terminates the process on return or when the handler's budget elapses (5 s for close), so the wait has to happen here
                 // the main thread exits the process once the backlog is written, which cuts the sleep short
-                Sleep(CLOSE_WAIT_MS);
+                std::this_thread::sleep_for(CLOSE_WAIT);
                 filter::Unload();
 
                 return TRUE;
@@ -314,9 +316,7 @@ namespace {
 
     using RecordBatchQueue = BlockingQueue<std::vector<protocol::Record>>;
 
-    std::atomic<size_t> pendingRecordCount;
-
-    bool WriteLoop(RecordBatchQueue& queue, Sink& sink) {
+    bool WriteLoop(RecordBatchQueue& queue, Sink& sink, Counter& counter) {
 
         while (true) {
             const std::optional<std::vector<protocol::Record>> records = queue.Pop();
@@ -324,81 +324,88 @@ namespace {
             if (!records.has_value()) return true;
 
             if (!WriteRecords(sink, *records)) {
-                stopRequested.store(true, std::memory_order_relaxed);
+                stopRequested.store(true);
                 queue.Close();
 
                 return false;
             }
 
-            pendingRecordCount.fetch_sub(records->size(), std::memory_order_relaxed);
+            counter.AddWritten(records->size());
         }
 
     }
 
 
-    bool DrainLoop(const InvalidHandle& port, RecordBatchQueue& queue) {
+    HRESULT DrainLoop(const InvalidHandle& port, RecordBatchQueue& queue, Counter& counter) {
         constexpr size_t RECORD_COUNT = 1000u;
-        constexpr DWORD POLL_INTERVAL_MS = 200u;
+        constexpr std::chrono::milliseconds POLL_INTERVAL{ 200 };
         std::vector<protocol::Record> records(RECORD_COUNT);
-        uint32_t droppedReported = 0u;
+        HRESULT hRes = S_OK;
 
-        while (!stopRequested.load(std::memory_order_relaxed)) {
+        while (!stopRequested.load()) {
             records.resize(RECORD_COUNT);
-            const HRESULT hRes = filter::GetRecords(port, records);
+            hRes = filter::GetRecords(port, records);
 
-            if (FAILED(hRes)) {
-                std::cerr << "Failed to get log records from filter\n";
-                DisplayError(hRes);
-
-                return false;
-            }
+            if (FAILED(hRes)) break;
 
             const bool full = records.size() == RECORD_COUNT;
 
             if (!records.empty()) {
-                const uint32_t droppedTotal = records.back().droppedRecords;
-                pendingRecordCount.fetch_add(records.size(), std::memory_order_relaxed);
+                counter.AddCaptured(records.size(), records.back().droppedRecords);
 
                 if (!queue.Push(std::move(records))) break;
-
-                if (droppedTotal > droppedReported) {
-                    std::cerr << std::format("Warning: the driver dropped {} record(s) (out of memory or memory cap reached)\n", droppedTotal - droppedReported);
-                    droppedReported = droppedTotal;
-                }
 
             }
 
             if (!full) {
-                Sleep(POLL_INTERVAL_MS);
+                std::this_thread::sleep_for(POLL_INTERVAL);
             }
 
         }
 
-        return true;
+        queue.Close();
+
+        return hRes;
     }
 
 
-    bool CaptureRecords(const InvalidHandle& port, Sink& sink) {
+    int CaptureRecords(const InvalidHandle& port, Sink& sink) {
         constexpr size_t BATCH_COUNT = 256u;
-        constexpr std::chrono::milliseconds REPORT_INTERVAL{ 250 };
-
-        std::cout << "Capturing, press Ctrl+C to stop\n";
+        constexpr std::chrono::seconds STATUS_INTERVAL{ 1 };
         RecordBatchQueue queue{ BATCH_COUNT };
-        std::future<bool> writer = std::async(std::launch::async, [&queue, &sink]() noexcept { return WriteLoop(queue, sink); });
-        const bool drained = DrainLoop(port, queue);
-        queue.Close();
+        Counter counter;
+        std::future<bool> writer = std::async(std::launch::async, [&queue, &sink, &counter]() noexcept { return WriteLoop(queue, sink, counter); });
+        std::future<HRESULT> drainer = std::async(std::launch::async, [&port, &queue, &counter]() noexcept { return DrainLoop(port, queue, counter); });
+        bool stopReported = false;
+        std::cout << "Capturing, press Ctrl+C to stop\n";
 
-        while (writer.wait_for(REPORT_INTERVAL) == std::future_status::timeout) {
-            std::cout << std::format("Records left to write: {}\n", pendingRecordCount.load(std::memory_order_relaxed));
+        while (true) {
+            const std::future_status writerStatus = writer.wait_for(STATUS_INTERVAL);
+
+            if (writerStatus == std::future_status::ready) {
+                drainer.wait();
+            }
+
+            if (!stopReported && stopRequested.load()) {
+                std::cout << "Stopping\n";
+                stopReported = true;
+            }
+
+            const Counts counts = counter.Get();
+            std::cout << std::format("Records captured: {}, written: {}, dropped: {}\n", counts.captured, counts.written, counts.dropped);
+
+            if (writerStatus == std::future_status::ready) break;
+
         }
 
+        const int drainResult = ReportResult(drainer.get(), "Failed to get log records from filter");
         const bool written = writer.get();
 
         if (!written) {
             std::cerr << "Failed to write log records\n";
         }
 
-        return drained && written;
+        return written ? drainResult : EXIT_FAILURE;
     }
 
 
@@ -414,7 +421,7 @@ namespace {
 
         if (FAILED(hAttachRes)) return ReportResult(hAttachRes, "Failed to attach to volume");
 
-        return CaptureRecords(port, sink) ? EXIT_SUCCESS : EXIT_FAILURE;
+        return CaptureRecords(port, sink);
     }
 
 }

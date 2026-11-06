@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\counter.cpp" />
     <ClCompile Include="src\filter.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\sink.cpp" />
@@ -49,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\protocol.h" />
+    <ClInclude Include="src\counter.h" />
     <ClInclude Include="src\filter.h" />
     <ClInclude Include="src\handle.h" />
     <ClInclude Include="src\queue.h" />

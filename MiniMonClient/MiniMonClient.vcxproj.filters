@@ -15,6 +15,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\counter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\filter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -99,6 +102,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\inc\protocol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\counter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\filter.h">
