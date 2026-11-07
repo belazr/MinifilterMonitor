@@ -342,20 +342,20 @@ namespace {
         uint32_t totalDroppedCount = 0u;
 
         while (!stopRequested.load()) {
-            records.resize(RECORD_COUNT);
-            hRes = filter::GetRecords(port, records);
+            std::span<protocol::Record> received{ records };
+            hRes = filter::GetRecords(port, received);
 
             if (FAILED(hRes)) break;
 
-            const bool full = records.size() == RECORD_COUNT;
+            const bool full = received.size() == RECORD_COUNT;
 
-            if (!records.empty()) {
-                totalDroppedCount = records.back().droppedRecords;
+            if (!received.empty()) {
+                totalDroppedCount = received.back().droppedRecords;
             }
 
-            counter.AddDrained(records.size(), totalDroppedCount);
+            counter.AddDrained(received.size(), totalDroppedCount);
 
-            if (!records.empty() && !queue.Push(std::move(records))) break;
+            if (!received.empty() && !queue.Push(std::vector<protocol::Record>(received.begin(), received.end()))) break;
 
             if (!full) {
                 std::this_thread::sleep_for(POLL_INTERVAL);

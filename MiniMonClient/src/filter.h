@@ -8,7 +8,6 @@
 
 #include <span>
 #include <string>
-#include <vector>
 
 namespace mimo {
 
@@ -26,7 +25,7 @@ namespace mimo {
 
         HRESULT GetVersion(const InvalidHandle& port, protocol::Version& version);
 
-        HRESULT GetRecords(const InvalidHandle& port, std::vector<protocol::Record>& records);
+        HRESULT GetRecords(const InvalidHandle& port, std::span<protocol::Record>& records);
 
     }
 
