@@ -14,6 +14,15 @@ It consists of two parts:
 ## Installation
 The driver installs from its INF file (`MiniMonFlt.inf`) through *Install* in the file's context menu. Nothing runs until a session loads it.
 
+Once no session runs, the driver and its settings are removed with:
+
+```
+sc delete MiniMonFlt
+pnputil /delete-driver <oemNN.inf>
+```
+
+`<oemNN.inf>` is the Published Name that `pnputil /enum-drivers` shows in the package block whose Original Name is `minimonflt.inf`.
+
 ## Configuration
 All settings are under `HKLM\SYSTEM\CurrentControlSet\Services\MiniMonFlt`:
 
