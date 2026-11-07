@@ -53,6 +53,20 @@ On Ctrl+C the client writes what is still queued, detaches and unloads the drive
 ## Output
 Records are written as a semicolon-separated CSV with a header row. The single merged file interleaves all altitudes and is the better view for following one I/O through the stack. `/s` is an additional per-altitude export.
 
+| Columns | Content |
+|---|---|
+| `SeqNum` | Position in the total order shared by all instances |
+| `Altitude` | The instance that produced the record |
+| `OperationId`, `TopLevelIrp` | The correlation tags, see How it works. `OperationId` is the address of the Filter Manager's callback data. |
+| `PreOpTime`, `PostOpTime` | Timestamps before and after the operation |
+| `ProcessId`, `ThreadId`, `RequestorMode`, `IoPriorityHint` | The caller |
+| `PreOpIrql`, `PostOpIrql` | The IRQL at the pre- and post-operation callback |
+| `Opr`, `Major`, `Minor`, `Name`, `Status`, `Information`, `Details` | The operation: its category, major and minor function, file name, result and parameters |
+| `IrpFlags`, `OperationFlags`, `DevObj`, `FileObj`, `Arg1` to `Arg6` | The raw callback data |
+| `ReparseTag` | The reparse point a create hit, if any |
+| `Transaction`, `TransactionSeq`, `TransactionNotify` | The transaction, if any |
+| `StackTrace` | The kernel stack at the pre-operation callback |
+
 ## How it works
 The driver installs two instances at different altitudes and the client attaches all of them to the same volume. More can be added via the registry.
 
@@ -65,7 +79,7 @@ Every trace record is tagged with the altitude that produced it and carries data
 
 Which combination of these reliably ties records together is still an open question. The correlation itself is meant to happen offline on the captured data, not in the driver.
 
-The driver registers callbacks for nearly every operation Filter Manager can route to a minifilter (including named pipe and mailslot creates) and also reports transaction notifications. Each record holds, among other fields, the operation category (IRP / fast I/O / FS filter), major and minor function, process and thread id, status and information, the objects involved, a short stack trace and the file name.
+The driver registers callbacks for nearly every operation Filter Manager can route to a minifilter (including named pipe and mailslot creates) and also reports transaction notifications.
 
 ## Build
 The solution `MinifilterMonitor.slnx` needs:
