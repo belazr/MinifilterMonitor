@@ -21,12 +21,12 @@ All settings are under `HKLM\SYSTEM\CurrentControlSet\Services\MiniMonFlt`:
 |---|---|---|---|
 | `Parameters` | `MaxMemoryKB` | `REG_DWORD` | The cap in KB on the records the driver buffers in memory until the client picks them up, read when the driver loads. Default `51200`. Once the cap is reached the driver drops further records. |
 | `Parameters\Instances\<instance>` | `Altitude` | `REG_SZ` | The instance's altitude, one not used by another filter. |
-| `Parameters\Instances\<instance>` | `Flags` | `REG_DWORD` | `1`, suppresses automatic attachment. |
+| `Parameters\Instances\<instance>` | `Flags` | `REG_DWORD` | `1`, so Filter Manager does not attach the instance by itself. |
 
 For each key under `Parameters\Instances` the client attaches an instance at the given altitude, whatever its name. The next session picks up a new key with the listed values.
 
 ## Usage
-Run the client from an elevated command prompt:
+The client runs from an elevated command prompt:
 
 ```
 MiniMonClient /f <output_file> [/v <volume>...] [/s]
@@ -49,7 +49,7 @@ MiniMonClient /f trace.csv             trace every volume until Ctrl+C
 On Ctrl+C the client writes what is still queued, detaches and unloads the driver. A client ended without the chance to clean up, through Task Manager for example, leaves the driver loaded until `fltmc unload MiniMonFlt` or the next session unloads it.
 
 ## Output
-Records are written as a semicolon-separated CSV with a header row. The single merged file interleaves all altitudes and is the better view for following one I/O through the stack. `/s` is an additional per-altitude export.
+Records are written as a semicolon-separated CSV with a header row. The single merged file interleaves all altitudes and is the better view for following one I/O through the stack.
 
 | Columns | Content |
 |---|---|
