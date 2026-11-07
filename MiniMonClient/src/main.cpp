@@ -409,11 +409,11 @@ namespace {
     }
 
 
-    int RunSession(std::span<const std::wstring> volumeNames, Sink& sink) {
-        InvalidHandle port;
-        const HRESULT hConnectRes = filter::Connect(port);
-
-        if (FAILED(hConnectRes)) return ReportResult(hConnectRes, "Failed to connect to filter port");
+    int RunSession(
+        InvalidHandle port,
+        std::span<const std::wstring> volumeNames,
+        Sink& sink
+    ) {
 
         if (!VerifyVersion(port)) return EXIT_FAILURE;
 
@@ -453,7 +453,12 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (FAILED(hLoadRes)) return ReportActionResult(hLoadRes, "Failed to load driver");
 
-    const int sessionResult = RunSession(parameters->volumes, sink);
+    InvalidHandle port;
+    const HRESULT hConnectRes = filter::Connect(port);
+
+    if (FAILED(hConnectRes)) return ReportResult(hConnectRes, "Failed to connect to filter port");
+
+    const int sessionResult = RunSession(std::move(port), parameters->volumes, sink);
     const int unloadResult = ReportResult(filter::Unload(), "Failed to unload driver");
 
     return sessionResult ? sessionResult : unloadResult;
