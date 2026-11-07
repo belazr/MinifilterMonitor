@@ -7,8 +7,6 @@ It consists of two parts:
 - **MiniMonFlt**: a kernel-mode minifilter driver (`.sys`) that runs one instance per altitude, observes file system operations and streams tagged trace records to user mode.
 - **MiniMonClient**: a user-mode command line client (`.exe`) that loads and attaches the driver, receives the trace stream and writes it as CSV.
 
-Both projects share a single protocol header (`inc/protocol.h`).
-
 ## Requirements
 - Windows 10 or 11 x64, tested on Windows 11
 - Test signing enabled (`bcdedit /set testsigning on` and a reboot), since the driver is test-signed
@@ -68,7 +66,7 @@ Records are written as a semicolon-separated CSV with a header row. The single m
 | `StackTrace` | The kernel stack at the pre-operation callback |
 
 ## How it works
-The driver installs two instances at different altitudes and the client attaches all of them to the same volume. More can be added via the registry.
+The client attaches one instance per configured altitude to each volume it traces.
 
 Every trace record is tagged with the altitude that produced it and carries data to correlate it across altitudes:
 
@@ -80,6 +78,8 @@ Every trace record is tagged with the altitude that produced it and carries data
 Which combination of these reliably ties records together is still an open question. The correlation itself is meant to happen offline on the captured data, not in the driver.
 
 The driver registers callbacks for nearly every operation Filter Manager can route to a minifilter (including named pipe and mailslot creates) and also reports transaction notifications.
+
+The client polls the driver for batches of records over a filter communication port. The driver's sources are in `MiniMonFlt`, the client's in `MiniMonClient`, and both share one header, `inc/protocol.h`, which defines the records with fixed-width types. Static asserts pin the layout, so the x86 client reads what the x64 driver writes.
 
 ## Build
 The solution `MinifilterMonitor.slnx` needs:
@@ -93,6 +93,12 @@ Tested with:
 - Windows 11 SDK / WDK (10.0.28000)
 
 The client (`MiniMonClient`) builds for x64 and x86 with a static runtime, so it runs with no runtime dependencies. The driver (`MiniMonFlt`) builds for x64 only.
+
+The driver is test-signed with a certificate named `MinifilterMonitor TestCert` from the current user's personal store, and the build fails without one. A self-signed one is created in PowerShell with:
+
+```powershell
+New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=MinifilterMonitor TestCert" -CertStoreLocation Cert:\CurrentUser\My
+```
 
 ## Roadmap
 - Add a test executable that generates known file system activity
