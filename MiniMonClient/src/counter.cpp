@@ -6,10 +6,11 @@
 
 namespace mimo {
 
-    void Counter::AddCaptured(size_t capturedCount, uint32_t droppedTotal) {
+    void Counter::AddDrained(size_t drainedCount, uint32_t totalDroppedCount) {
         const std::lock_guard<std::mutex> lock{ this->mutex };
-        this->counts.captured += capturedCount;
-        this->counts.dropped = droppedTotal;
+        this->counts.polls++;
+        this->counts.captured += drainedCount;
+        this->counts.dropped = totalDroppedCount;
 
         return;
     }

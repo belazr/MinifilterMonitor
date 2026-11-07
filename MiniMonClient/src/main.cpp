@@ -341,6 +341,7 @@ namespace {
         constexpr std::chrono::milliseconds POLL_INTERVAL{ 200 };
         std::vector<protocol::Record> records(RECORD_COUNT);
         HRESULT hRes = S_OK;
+        uint32_t totalDroppedCount = 0u;
 
         while (!stopRequested.load()) {
             records.resize(RECORD_COUNT);
@@ -351,11 +352,12 @@ namespace {
             const bool full = records.size() == RECORD_COUNT;
 
             if (!records.empty()) {
-                counter.AddCaptured(records.size(), records.back().droppedRecords);
-
-                if (!queue.Push(std::move(records))) break;
-
+                totalDroppedCount = records.back().droppedRecords;
             }
+
+            counter.AddDrained(records.size(), totalDroppedCount);
+
+            if (!records.empty() && !queue.Push(std::move(records))) break;
 
             if (!full) {
                 std::this_thread::sleep_for(POLL_INTERVAL);
@@ -392,7 +394,7 @@ namespace {
             }
 
             const Counts counts = counter.Get();
-            std::cout << std::format("Records captured: {}, written: {}, dropped: {}\n", counts.captured, counts.written, counts.dropped);
+            std::cout << std::format("Driver polls: {}, records captured: {}, written: {}, dropped: {}\n", counts.polls, counts.captured, counts.written, counts.dropped);
 
             if (writerStatus == std::future_status::ready) break;
 
