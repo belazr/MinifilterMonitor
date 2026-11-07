@@ -308,9 +308,7 @@ namespace {
 
         }
 
-        sink.Flush();
-
-        return true;
+        return sink.Flush();
     }
 
 

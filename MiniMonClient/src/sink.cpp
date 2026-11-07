@@ -36,13 +36,18 @@ namespace mimo {
     }
 
 
-    void Sink::Flush() {
+    bool Sink::Flush() {
+        bool flushed = true;
 
         for (std::pair<const std::wstring, std::ofstream>& entry : this->files) {
-            entry.second.flush();
+
+            if (!entry.second.flush()) {
+                flushed = false;
+            }
+
         }
 
-        return;
+        return flushed;
     }
 
 

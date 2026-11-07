@@ -23,7 +23,7 @@ namespace mimo {
 
         bool Write(std::wstring_view altitude, std::wstring_view line);
 
-        void Flush();
+        bool Flush();
 
     private:
         std::wstring basePath;
