@@ -21,12 +21,12 @@ namespace mimo {
 
     bool Sink::Open() {
 
-        return static_cast<bool>(this->OpenFile(this->basePath));
+        return static_cast<bool>(this->OpenFile(std::wstring_view{}));
     }
 
 
     bool Sink::Write(std::wstring_view altitude, std::wstring_view line) {
-        std::ofstream* const pStream = this->OpenFile(this->splitByAltitude && !altitude.empty() ? this->MakeSplitPath(altitude) : this->basePath);
+        std::ofstream* const pStream = this->OpenFile(this->splitByAltitude ? altitude : std::wstring_view{});
 
         if (!pStream) return false;
 
@@ -61,13 +61,14 @@ namespace mimo {
     }
 
 
-    std::ofstream* Sink::OpenFile(std::wstring filePath) {
+    std::ofstream* Sink::OpenFile(std::wstring_view altitude) {
         constexpr std::streamsize FILE_BUFFER_SIZE = 1024 * 1024;
-        const auto [it, inserted] = this->files.try_emplace(std::move(filePath));
+        auto it = this->files.find(altitude);
 
-        if (!inserted) return &it->second;
+        if (it != this->files.end()) return &it->second;
 
-        it->second.open(it->first, std::ios::binary);
+        it = this->files.try_emplace(std::wstring{ altitude }).first;
+        it->second.open(altitude.empty() ? this->basePath : this->MakeSplitPath(altitude), std::ios::binary);
 
         if (!it->second) {
             this->files.erase(it);

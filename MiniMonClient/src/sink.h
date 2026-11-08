@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <functional>
 #include <map>
 #include <string>
 #include <string_view>
@@ -29,11 +30,11 @@ namespace mimo {
         std::wstring basePath;
         bool splitByAltitude;
         std::wstring headerText;
-        std::map<std::wstring, std::ofstream> files;
+        std::map<std::wstring, std::ofstream, std::less<>> files;
 
         static void WriteCrlfLine(std::ofstream& stream, std::wstring_view line);
 
-        std::ofstream* OpenFile(std::wstring filePath);
+        std::ofstream* OpenFile(std::wstring_view altitude);
 
         std::wstring MakeSplitPath(std::wstring_view altitude) const;
     };
