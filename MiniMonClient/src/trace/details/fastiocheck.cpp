@@ -12,7 +12,11 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderParameters(bool checkForReadOperation, int64_t fileOffset, uint32_t size) {
+    std::wstring RenderParameters(
+        bool checkForReadOperation,
+        int64_t fileOffset,
+        uint32_t size
+    ) {
 
         return std::format(L"Operation: {}, Offset: {}, Length: {}", checkForReadOperation ? L"Read" : L"Write", trace::values::RenderByteOffset(fileOffset), size);
     }

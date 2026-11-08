@@ -24,7 +24,11 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderParameters(uint32_t ioControlCode, uint32_t inputSize, uint32_t outputSize) {
+    std::wstring RenderParameters(
+        uint32_t ioControlCode,
+        uint32_t inputSize,
+        uint32_t outputSize
+    ) {
 
         return std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", trace::names::RenderIoControlCode(ioControlCode), inputSize, outputSize);
     }

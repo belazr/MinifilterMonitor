@@ -83,7 +83,11 @@ namespace mimo {
             }
 
 
-            inline std::wstring RenderName(std::span<const uint8_t> nameData, uint32_t nameOffset, uint32_t nameSize) {
+            inline std::wstring RenderName(
+                std::span<const uint8_t> nameData,
+                uint32_t nameOffset,
+                uint32_t nameSize
+            ) {
                 const size_t nameStart = nameOffset < nameData.size() ? nameOffset : nameData.size();
 
                 return RenderName(nameData.subspan(nameStart), nameSize);
@@ -123,7 +127,11 @@ namespace mimo {
             }
 
 
-            inline std::wstring RenderBytes(std::span<const uint8_t> valueData, size_t valueOffset, uint32_t valueSize) {
+            inline std::wstring RenderBytes(
+                std::span<const uint8_t> valueData,
+                size_t valueOffset,
+                uint32_t valueSize
+            ) {
                 const size_t valueStart = valueOffset < valueData.size() ? valueOffset : valueData.size();
 
                 return RenderBytes(valueData.subspan(valueStart), valueSize);

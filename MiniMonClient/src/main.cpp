@@ -304,7 +304,11 @@ namespace {
 
     using RecordBatchQueue = BlockingQueue<std::vector<protocol::Record>>;
 
-    bool WriteLoop(RecordBatchQueue& queue, Sink& sink, Counter& counter) {
+    bool WriteLoop(
+        RecordBatchQueue& queue,
+        Sink& sink,
+        Counter& counter
+    ) {
 
         while (true) {
             const std::optional<std::vector<protocol::Record>> records = queue.Pop();
@@ -324,7 +328,11 @@ namespace {
     }
 
 
-    HRESULT DrainLoop(const InvalidHandle& port, RecordBatchQueue& queue, Counter& counter) {
+    HRESULT DrainLoop(
+        const InvalidHandle& port,
+        RecordBatchQueue& queue,
+        Counter& counter
+    ) {
         constexpr size_t RECORD_COUNT = 1000u;
         constexpr std::chrono::milliseconds POLL_INTERVAL{ 200 };
         std::vector<protocol::Record> records(RECORD_COUNT);

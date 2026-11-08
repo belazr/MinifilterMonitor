@@ -28,7 +28,11 @@ namespace {
     }
 
 
-    std::wstring RenderParameters(uint32_t fsControlCode, uint32_t inputSize, uint32_t outputSize) {
+    std::wstring RenderParameters(
+        uint32_t fsControlCode,
+        uint32_t inputSize,
+        uint32_t outputSize
+    ) {
 
         return std::format(L"Control: {}, InputBufferLength: {}, OutputBufferLength: {}", trace::names::RenderFsControlCode(fsControlCode), inputSize, outputSize);
     }
@@ -312,7 +316,11 @@ namespace {
     }
 
 
-    std::wstring RenderInput(uint32_t fsControlCode, uint32_t inputSize, const protocol::FsControlSupplement& supplement) {
+    std::wstring RenderInput(
+        uint32_t fsControlCode,
+        uint32_t inputSize,
+        const protocol::FsControlSupplement& supplement
+    ) {
         const std::span<const uint8_t> input = ExtractInput(supplement);
         const bool truncated = supplement.captured & protocol::FS_CONTROL_TRUNCATED_INPUT;
 

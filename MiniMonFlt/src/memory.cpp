@@ -95,7 +95,11 @@ namespace mimo {
 
 
         _Use_decl_annotations_
-        bool CopyReadableBuffer(void* pBuffer, const void* pReadableBuffer, ULONG size) {
+        bool CopyReadableBuffer(
+            void* pBuffer,
+            const void* pReadableBuffer,
+            ULONG size
+        ) {
 
             __try {
                 RtlCopyMemory(pBuffer, pReadableBuffer, size);

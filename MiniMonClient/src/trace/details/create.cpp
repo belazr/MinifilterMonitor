@@ -19,7 +19,12 @@ using namespace mimo;
 
 namespace {
 
-    std::wstring RenderParameters(uint32_t options, uint16_t fileAttributes, uint16_t shareAccess, int64_t allocationSize) {
+    std::wstring RenderParameters(
+        uint32_t options,
+        uint16_t fileAttributes,
+        uint16_t shareAccess,
+        int64_t allocationSize
+    ) {
         const uint32_t disposition = options >> 24;
         const uint32_t createOptions = options & 0x00FFFFFFu;
         std::wstring result = std::format(L"Disposition: {}", trace::names::RenderCreateDisposition(disposition));

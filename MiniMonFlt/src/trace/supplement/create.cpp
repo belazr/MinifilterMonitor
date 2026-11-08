@@ -25,7 +25,11 @@ namespace {
     };
 
     __declspec(code_seg("PAGE"))
-    void AppendText(_Inout_ EcpWriter* pWriter, _In_z_ _Printf_format_string_ const WCHAR* pFormat, ...) {
+    void AppendText(
+        _Inout_ EcpWriter* pWriter,
+        _In_z_ _Printf_format_string_ const WCHAR* pFormat,
+        ...
+    ) {
         PAGED_CODE();
 
         va_list args{};
