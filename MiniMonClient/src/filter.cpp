@@ -23,8 +23,6 @@ using namespace mimo;
 
 namespace {
 
-    constexpr wchar_t MINIMON_NAME[] = L"MiniMonFlt";
-
     HRESULT EnableLoadDriverPrivilege() {
         NullHandle token;
 
@@ -72,6 +70,8 @@ namespace {
     }
 
 
+    constexpr wchar_t MINIMON_NAME[] = L"MiniMonFlt";
+
     std::vector<std::wstring> GetInstalledInstanceNames() {
         const std::wstring servicePath = std::format(L"SYSTEM\\CurrentControlSet\\Services\\{}", MINIMON_NAME);
 
@@ -112,7 +112,7 @@ namespace {
                 continue;
             }
 
-            std::cerr << std::format("Warning: failed to attach instance {} to {}: 0x{:08X}\n", text::ConvertToUtf8(instanceName), text::ConvertToUtf8(volumeName), static_cast<uint32_t>(hRes));
+            std::cerr << std::format("Failed to attach instance {} to {}: 0x{:08X}\n", text::ConvertToUtf8(instanceName), text::ConvertToUtf8(volumeName), static_cast<uint32_t>(hRes));
             DetachInstances(volumeName, instanceNames.first(attachedInstanceCount));
 
             return hRes;
@@ -131,12 +131,12 @@ namespace {
     using VolumeFindHandle = Handle<FilterVolumeFindClose, HANDLE, INVALID_HANDLE_VALUE>;
 
     HRESULT FindVolumesToTrace(std::vector<std::wstring>& volumeNames) {
-        constexpr DWORD ENTRY_SIZE = 1024u;
+        constexpr uint32_t ENTRY_SIZE = 1024u;
         constexpr size_t NAME_OFFSET = offsetof(FILTER_VOLUME_STANDARD_INFORMATION, FilterVolumeName);
         std::array<uint8_t, ENTRY_SIZE> entry{};
         DWORD entrySize = 0u;
         VolumeFindHandle volumeFind;
-        HRESULT hFindRes = FilterVolumeFindFirst(FilterVolumeStandardInformation, entry.data(), ENTRY_SIZE, &entrySize, volumeFind.Put());
+        HRESULT hFindRes = FilterVolumeFindFirst(FilterVolumeStandardInformation, entry.data(), static_cast<DWORD>(entry.size()), &entrySize, volumeFind.Put());
 
         while (SUCCEEDED(hFindRes)) {
             FILTER_VOLUME_STANDARD_INFORMATION header{};
@@ -148,7 +148,7 @@ namespace {
                 volumeNames.push_back(std::move(volumeName));
             }
 
-            hFindRes = FilterVolumeFindNext(volumeFind.Get(), FilterVolumeStandardInformation, entry.data(), ENTRY_SIZE, &entrySize);
+            hFindRes = FilterVolumeFindNext(volumeFind.Get(), FilterVolumeStandardInformation, entry.data(), static_cast<DWORD>(entry.size()), &entrySize);
         }
 
         if (hFindRes != HRESULT_FROM_WIN32(ERROR_NO_MORE_ITEMS)) return hFindRes;
@@ -169,7 +169,6 @@ namespace mimo {
 
             const HRESULT hLoadRes = FilterLoad(MINIMON_NAME);
 
-            // treat an already-loaded driver as success
             if (hLoadRes == HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS)) return S_OK;
 
             if (hLoadRes == HRESULT_FROM_WIN32(ERROR_SERVICE_ALREADY_RUNNING)) return S_OK;
@@ -253,7 +252,6 @@ namespace mimo {
             const HRESULT hRes = FilterSendMessage(port.Get(), &commandMessage, static_cast<DWORD>(sizeof(commandMessage)), records.data(), static_cast<DWORD>(records.size_bytes()), &bytesReturned);
 
             // empty list on an idle volume: STATUS_NO_MORE_ENTRIES surfaces as ERROR_NO_MORE_ITEMS
-            // report zero records and keep polling
             if (hRes == HRESULT_FROM_WIN32(ERROR_NO_MORE_ITEMS)) {
                 records = records.first(0u);
 
