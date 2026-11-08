@@ -45,6 +45,75 @@ namespace {
     }
 
 
+    std::atomic<bool> stopRequested;
+
+    BOOL WINAPI HandlerRoutine(DWORD ctrlType) {
+        constexpr std::chrono::seconds CLOSE_WAIT{ 4 };
+
+        switch (ctrlType) {
+
+            case CTRL_C_EVENT:
+            case CTRL_BREAK_EVENT:
+                stopRequested.store(true);
+
+                return TRUE;
+
+            case CTRL_CLOSE_EVENT:
+            case CTRL_LOGOFF_EVENT:
+            case CTRL_SHUTDOWN_EVENT:
+                stopRequested.store(true);
+                // the system terminates the process on return or when the handler's budget elapses (5 s for close), so the wait has to happen here
+                // the main thread exits the process once the backlog is written, which cuts the sleep short
+                std::this_thread::sleep_for(CLOSE_WAIT);
+                filter::Unload();
+
+                return TRUE;
+        }
+
+        return FALSE;
+    }
+
+
+    void DisplayError(HRESULT hRes) {
+        constexpr uint32_t MESSAGE_WCHAR_COUNT = 1024u;
+        std::array<wchar_t, MESSAGE_WCHAR_COUNT> buffer{};
+        const DWORD wcharCount = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, static_cast<DWORD>(hRes), 0u, buffer.data(), static_cast<DWORD>(buffer.size()), nullptr);
+        const std::string message = wcharCount ? text::ConvertToUtf8(buffer.data()) : "failed to translate error code";
+        std::cerr << std::format("Error: 0x{:08X}, {}\n", static_cast<uint32_t>(hRes), message);
+
+        return;
+    }
+
+
+    int ReportResult(HRESULT hRes, std::string_view errorMessage) {
+
+        if (SUCCEEDED(hRes)) return EXIT_SUCCESS;
+
+        std::cerr << std::format("{}\n", errorMessage);
+        DisplayError(hRes);
+
+        return EXIT_FAILURE;
+    }
+
+
+    void DisplayAdminRightsError() {
+        std::cerr << "This operation requires administrator rights - run from an elevated command prompt.\n";
+
+        return;
+    }
+
+
+    int ReportActionResult(HRESULT hRes, std::string_view errorMessage) {
+        const int result = ReportResult(hRes, errorMessage);
+
+        if (hRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED)) {
+            DisplayAdminRightsError();
+        }
+
+        return result;
+    }
+
+
     bool IsSameName(std::wstring_view arg, std::wstring_view name) {
 
         return std::ranges::equal(arg, name, [](wchar_t left, wchar_t right) { return std::towlower(left) == std::towlower(right); });
@@ -183,46 +252,6 @@ namespace {
     }
 
 
-    void DisplayError(HRESULT hRes) {
-        constexpr uint32_t MESSAGE_WCHAR_COUNT = 1024u;
-        std::array<wchar_t, MESSAGE_WCHAR_COUNT> buffer{};
-        const DWORD wcharCount = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, static_cast<DWORD>(hRes), 0u, buffer.data(), static_cast<DWORD>(buffer.size()), nullptr);
-        const std::string message = wcharCount ? text::ConvertToUtf8(buffer.data()) : "failed to translate error code";
-        std::cerr << std::format("Error: 0x{:08X}, {}\n", static_cast<uint32_t>(hRes), message);
-
-        return;
-    }
-
-
-    int ReportResult(HRESULT hRes, std::string_view errorMessage) {
-
-        if (SUCCEEDED(hRes)) return EXIT_SUCCESS;
-
-        std::cerr << std::format("{}\n", errorMessage);
-        DisplayError(hRes);
-
-        return EXIT_FAILURE;
-    }
-
-
-    void DisplayAdminRightsError() {
-        std::cerr << "This operation requires administrator rights - run from an elevated command prompt.\n";
-
-        return;
-    }
-
-
-    int ReportActionResult(HRESULT hRes, std::string_view errorMessage) {
-        const int result = ReportResult(hRes, errorMessage);
-
-        if (hRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED)) {
-            DisplayAdminRightsError();
-        }
-
-        return result;
-    }
-
-
     std::wstring RenderVersion(const protocol::Version& version) {
 
         return std::format(L"{}.{}.{}", version.major, version.minor, version.patch);
@@ -258,35 +287,6 @@ namespace {
         std::cout << std::format("MiniMonClient {}, MiniMonFlt {}\n", clientText, driverText);
 
         return true;
-    }
-
-
-    std::atomic<bool> stopRequested;
-
-    BOOL WINAPI HandlerRoutine(DWORD ctrlType) {
-        constexpr std::chrono::seconds CLOSE_WAIT{ 4 };
-
-        switch (ctrlType) {
-
-            case CTRL_C_EVENT:
-            case CTRL_BREAK_EVENT:
-                stopRequested.store(true);
-
-                return TRUE;
-
-            case CTRL_CLOSE_EVENT:
-            case CTRL_LOGOFF_EVENT:
-            case CTRL_SHUTDOWN_EVENT:
-                stopRequested.store(true);
-                // the system terminates the process on return or when the handler's budget elapses (5 s for close), so the wait has to happen here
-                // the main thread exits the process once the backlog is written, which cuts the sleep short
-                std::this_thread::sleep_for(CLOSE_WAIT);
-                filter::Unload();
-
-                return TRUE;
-        }
-
-        return FALSE;
     }
 
 
