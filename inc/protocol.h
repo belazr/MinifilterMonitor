@@ -32,7 +32,7 @@ namespace mimo {
 
         static_assert(sizeof(Version) == 6u, "protocol::Version layout drift");
 
-        inline constexpr Version MINIMON_VERSION{ 0u, 1u, 0u };
+        inline constexpr Version MINIMON_VERSION{ 0u, 2u, 0u };
 
         using ObjectId = uint64_t;
 

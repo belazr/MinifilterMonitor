@@ -3,7 +3,7 @@ Signature   = "$Windows NT$"
 Class       = "ActivityMonitor"                         ; This is determined by the work this filter driver does
 ClassGuid   = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}    ; This value is determined by the Class
 Provider    = %ProviderString%
-DriverVer   = 06/10/2026,0.1.0.0
+DriverVer   = 11/08/2026,0.2.0.0
 CatalogFile = MiniMonFlt.cat
 PnpLockdown = 1
 

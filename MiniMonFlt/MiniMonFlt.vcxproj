@@ -88,7 +88,7 @@
   <ItemGroup>
     <Inf Include="MiniMonFlt.inf">
       <SpecifyDriverVerDirectiveVersion>true</SpecifyDriverVerDirectiveVersion>
-      <TimeStamp>0.1.0.0</TimeStamp>
+      <TimeStamp>0.2.0.0</TimeStamp>
     </Inf>
   </ItemGroup>
   <ItemGroup>
