@@ -96,24 +96,6 @@ namespace {
     }
 
 
-    void DisplayAdminRightsError() {
-        std::cerr << "This operation requires administrator rights - run from an elevated command prompt.\n";
-
-        return;
-    }
-
-
-    int ReportActionResult(HRESULT hRes, std::string_view errorMessage) {
-        const int result = ReportResult(hRes, errorMessage);
-
-        if (hRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED)) {
-            DisplayAdminRightsError();
-        }
-
-        return result;
-    }
-
-
     bool IsSameName(std::wstring_view arg, std::wstring_view name) {
 
         return std::ranges::equal(arg, name, [](wchar_t left, wchar_t right) { return std::towlower(left) == std::towlower(right); });
@@ -449,7 +431,7 @@ int wmain(int argc, wchar_t* argv[]) {
 
     const HRESULT hLoadRes = filter::Load();
 
-    if (FAILED(hLoadRes)) return ReportActionResult(hLoadRes, "Failed to load driver");
+    if (FAILED(hLoadRes)) return ReportResult(hLoadRes, hLoadRes == HRESULT_FROM_WIN32(ERROR_NOT_ALL_ASSIGNED) ? "Failed to load driver, run from an elevated command prompt" : "Failed to load driver");
 
     InvalidHandle port;
     const HRESULT hConnectRes = filter::Connect(port);
