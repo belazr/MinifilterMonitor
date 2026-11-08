@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdint>
 #include <mutex>
 
 namespace mimo {
@@ -10,7 +9,7 @@ namespace mimo {
         size_t polls = 0u;
         size_t captured = 0u;
         size_t written = 0u;
-        uint32_t dropped = 0u;
+        size_t dropped = 0u;
     };
 
     class Counter final {
@@ -21,7 +20,7 @@ namespace mimo {
 
         Counter& operator=(const Counter&) = delete;
 
-        void AddDrained(size_t drainedCount, uint32_t totalDroppedCount);
+        void AddDrained(size_t drainedCount, size_t totalDroppedCount);
 
         void AddWritten(size_t writtenCount);
 

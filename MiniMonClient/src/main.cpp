@@ -339,7 +339,7 @@ namespace {
         constexpr std::chrono::milliseconds POLL_INTERVAL{ 200 };
         std::vector<protocol::Record> records(RECORD_COUNT);
         HRESULT hRes = S_OK;
-        uint32_t totalDroppedCount = 0u;
+        size_t totalDroppedCount = 0u;
 
         while (!stopRequested.load()) {
             std::span<protocol::Record> received{ records };
@@ -350,7 +350,7 @@ namespace {
             const bool full = received.size() == RECORD_COUNT;
 
             if (!received.empty()) {
-                totalDroppedCount = received.back().droppedRecords;
+                totalDroppedCount = received.back().totalDroppedCount;
             }
 
             counter.AddDrained(received.size(), totalDroppedCount);

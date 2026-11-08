@@ -15,7 +15,7 @@ namespace {
     LIST_ENTRY RecordList;
     NPAGED_LOOKASIDE_LIST EntryLookaside;
     volatile LONG RecordsAllocated;
-    volatile LONG DroppedRecords;
+    volatile LONG TotalDroppedCount;
     volatile LONG RecordSequenceNumber;
     bool Created;
 
@@ -101,7 +101,7 @@ namespace mimo {
             Entry* const pEntry = AllocateEntry();
 
             if (!pEntry) {
-                InterlockedIncrement(&DroppedRecords);
+                InterlockedIncrement(&TotalDroppedCount);
 
                 return nullptr;
             }
@@ -126,7 +126,7 @@ namespace mimo {
             KIRQL oldIrql{};
             KeAcquireSpinLock(&RecordListLock, &oldIrql);
 
-            pEntry->record.droppedRecords = static_cast<uint32_t>(DroppedRecords);
+            pEntry->record.totalDroppedCount = static_cast<uint32_t>(TotalDroppedCount);
             InsertTailList(&RecordList, &pEntry->list);
 
             KeReleaseSpinLock(&RecordListLock, oldIrql);
@@ -183,7 +183,7 @@ namespace mimo {
                 DeleteEntry(pEntry);
             }
 
-            InterlockedExchange(&DroppedRecords, 0);
+            InterlockedExchange(&TotalDroppedCount, 0);
 
             return;
         }

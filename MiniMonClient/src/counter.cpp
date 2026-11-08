@@ -1,12 +1,11 @@
 #include "counter.h"
 
 #include <cstddef>
-#include <cstdint>
 #include <mutex>
 
 namespace mimo {
 
-    void Counter::AddDrained(size_t drainedCount, uint32_t totalDroppedCount) {
+    void Counter::AddDrained(size_t drainedCount, size_t totalDroppedCount) {
         const std::lock_guard<std::mutex> lock{ this->mutex };
         this->counts.polls++;
         this->counts.captured += drainedCount;

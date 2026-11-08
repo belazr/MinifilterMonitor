@@ -846,7 +846,7 @@ namespace mimo {
 
         struct Record {
             uint32_t sequenceNumber;
-            uint32_t droppedRecords;
+            uint32_t totalDroppedCount;
             uint8_t reserved[8u];
             RecordData data;
         };
