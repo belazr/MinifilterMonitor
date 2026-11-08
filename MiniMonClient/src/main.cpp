@@ -186,8 +186,8 @@ namespace {
     void DisplayError(HRESULT hRes) {
         constexpr uint32_t MESSAGE_WCHAR_COUNT = 1024u;
         std::array<wchar_t, MESSAGE_WCHAR_COUNT> buffer{};
-        const DWORD count = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, static_cast<DWORD>(hRes), 0u, buffer.data(), static_cast<DWORD>(buffer.size()), nullptr);
-        const std::string message = count ? text::ConvertToUtf8(buffer.data()) : "failed to translate error code";
+        const DWORD wcharCount = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, static_cast<DWORD>(hRes), 0u, buffer.data(), static_cast<DWORD>(buffer.size()), nullptr);
+        const std::string message = wcharCount ? text::ConvertToUtf8(buffer.data()) : "failed to translate error code";
         std::cerr << std::format("Error: 0x{:08X}, {}\n", static_cast<uint32_t>(hRes), message);
 
         return;
