@@ -52,9 +52,8 @@ namespace mimo {
 
 
     void Sink::WriteCrlfLine(std::ofstream& stream, std::wstring_view line) {
-        std::string lineBytes = text::ConvertToUtf8(line);
-        lineBytes.back() = '\r';
-        lineBytes.push_back('\n');
+        std::string lineBytes = text::ConvertToUtf8(line.substr(0u, line.rfind(L'\n')));
+        lineBytes += "\r\n";
         stream << lineBytes;
 
         return;
