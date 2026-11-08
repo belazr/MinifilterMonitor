@@ -14,17 +14,17 @@ namespace {
     KSPIN_LOCK RecordListLock;
     LIST_ENTRY RecordList;
     NPAGED_LOOKASIDE_LIST EntryLookaside;
-    volatile LONG RecordsAllocated;
+    volatile LONG AllocatedCount;
     volatile LONG TotalDroppedCount;
-    volatile LONG RecordSequenceNumber;
+    volatile LONG SequenceNumber;
     bool Created;
 
     records::Entry* AllocateEntry() {
-        const LONG count = InterlockedIncrement(&RecordsAllocated);
+        const LONG count = InterlockedIncrement(&AllocatedCount);
         const ULONGLONG maxEntries = static_cast<ULONGLONG>(config::GetMaxMemoryKb()) * 1024u / sizeof(records::Entry);
 
         if (static_cast<ULONGLONG>(count) > maxEntries) {
-            InterlockedDecrement(&RecordsAllocated);
+            InterlockedDecrement(&AllocatedCount);
 
             return nullptr;
         }
@@ -32,7 +32,7 @@ namespace {
         records::Entry* const pEntry = static_cast<records::Entry*>(ExAllocateFromNPagedLookasideList(&EntryLookaside));
 
         if (!pEntry) {
-            InterlockedDecrement(&RecordsAllocated);
+            InterlockedDecrement(&AllocatedCount);
 
             return nullptr;
         }
@@ -42,7 +42,7 @@ namespace {
 
 
     void FreeEntry(_In_ records::Entry* pEntry) {
-        InterlockedDecrement(&RecordsAllocated);
+        InterlockedDecrement(&AllocatedCount);
         ExFreeToNPagedLookasideList(&EntryLookaside, pEntry);
 
         return;
@@ -107,7 +107,7 @@ namespace mimo {
             }
 
             RtlZeroMemory(&pEntry->record, sizeof(pEntry->record));
-            pEntry->record.sequenceNumber = static_cast<uint32_t>(InterlockedIncrement(&RecordSequenceNumber));
+            pEntry->record.sequenceNumber = static_cast<uint32_t>(InterlockedIncrement(&SequenceNumber));
 
             return pEntry;
         }
