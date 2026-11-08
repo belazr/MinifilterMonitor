@@ -24,6 +24,9 @@ namespace mimo {
             inline constexpr uint64_t FSRTL_ASYNC_CACHED_READ_TOP_LEVEL_IRP = 0x07u;
             inline constexpr uint64_t FSRTL_VOLSNAP_TOP_LEVEL_IRP           = 0x08u;
 
+            // RecordData::status, NTSTATUS values
+            inline constexpr int32_t STATUS_SUCCESS = 0;
+
             // RecordData::irpFlags, IRP flags
             inline constexpr uint32_t IRP_NOCACHE                = 0x00000001u;
             inline constexpr uint32_t IRP_PAGING_IO              = 0x00000002u;
