@@ -1,12 +1,12 @@
 #include "create.h"
 
 #include "..\eas.h"
-#include "..\kernel.h"
 #include "..\names.h"
 #include "..\values.h"
 
 #include "..\..\text.h"
 
+#include "..\..\..\..\inc\kernel.h"
 #include "..\..\..\..\inc\protocol.h"
 
 #include <cstdint>
@@ -35,7 +35,7 @@ namespace {
 
         result += std::format(L", Attributes: {}, ShareMode: {}", trace::names::RenderFileAttributes(fileAttributes), trace::names::RenderShareAccess(shareAccess));
 
-        if (disposition == trace::kernel::FILE_OPEN) {
+        if (disposition == kernel::FILE_OPEN) {
             result += L", AllocationSize: n/a";
         }
         else {

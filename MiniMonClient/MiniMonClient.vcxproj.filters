@@ -101,6 +101,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\inc\kernel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\inc\protocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -183,9 +186,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\format.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\trace\kernel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\trace\names.h">

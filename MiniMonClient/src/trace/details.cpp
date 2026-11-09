@@ -19,8 +19,7 @@
 #include "details\volume.h"
 #include "details\wmi.h"
 
-#include "kernel.h"
-
+#include "..\..\..\inc\kernel.h"
 #include "..\..\..\inc\protocol.h"
 
 #include <string>

@@ -1,12 +1,12 @@
 #include "quota.h"
 
-#include "..\kernel.h"
 #include "..\names.h"
 #include "..\payload.h"
 #include "..\values.h"
 
 #include "..\..\text.h"
 
+#include "..\..\..\..\inc\kernel.h"
 #include "..\..\..\..\inc\protocol.h"
 
 #include <cstddef>
@@ -34,8 +34,8 @@ namespace {
         bool terminated = false;
 
         while (true) {
-            constexpr size_t SID_OFFSET = offsetof(trace::kernel::FILE_GET_QUOTA_INFORMATION, Sid);
-            trace::kernel::FILE_GET_QUOTA_INFORMATION entry{};
+            constexpr size_t SID_OFFSET = offsetof(kernel::FILE_GET_QUOTA_INFORMATION, Sid);
+            kernel::FILE_GET_QUOTA_INFORMATION entry{};
 
             if (!trace::payload::ReadHeader(payload, entry, SID_OFFSET, offset)) break;
 
@@ -94,8 +94,8 @@ namespace {
         bool terminated = false;
 
         while (true) {
-            constexpr size_t SID_OFFSET = offsetof(trace::kernel::FILE_QUOTA_INFORMATION, Sid);
-            trace::kernel::FILE_QUOTA_INFORMATION entry{};
+            constexpr size_t SID_OFFSET = offsetof(kernel::FILE_QUOTA_INFORMATION, Sid);
+            kernel::FILE_QUOTA_INFORMATION entry{};
 
             if (!trace::payload::ReadHeader(payload, entry, SID_OFFSET, offset)) break;
 

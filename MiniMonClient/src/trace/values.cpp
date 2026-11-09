@@ -1,8 +1,8 @@
 #include "values.h"
 
-#include "kernel.h"
-
 #include "..\text.h"
+
+#include "..\..\..\inc\kernel.h"
 
 #include <Windows.h>
 #include <sddl.h>

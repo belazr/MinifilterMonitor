@@ -49,6 +49,7 @@
     <ClCompile Include="src\trace\values.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\inc\kernel.h" />
     <ClInclude Include="..\inc\protocol.h" />
     <ClInclude Include="src\counter.h" />
     <ClInclude Include="src\filter.h" />
@@ -77,7 +78,6 @@
     <ClInclude Include="src\trace\details\wmi.h" />
     <ClInclude Include="src\trace\eas.h" />
     <ClInclude Include="src\trace\format.h" />
-    <ClInclude Include="src\trace\kernel.h" />
     <ClInclude Include="src\trace\names.h" />
     <ClInclude Include="src\trace\payload.h" />
     <ClInclude Include="src\trace\values.h" />

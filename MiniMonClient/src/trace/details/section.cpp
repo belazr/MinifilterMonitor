@@ -1,8 +1,8 @@
 #include "section.h"
 
-#include "..\kernel.h"
 #include "..\names.h"
 
+#include "..\..\..\..\inc\kernel.h"
 #include "..\..\..\..\inc\protocol.h"
 
 #include <cstdint>

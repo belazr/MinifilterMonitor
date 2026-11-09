@@ -1,12 +1,12 @@
 #include "ea.h"
 
 #include "..\eas.h"
-#include "..\kernel.h"
 #include "..\names.h"
 #include "..\payload.h"
 
 #include "..\..\text.h"
 
+#include "..\..\..\..\inc\kernel.h"
 #include "..\..\..\..\inc\protocol.h"
 
 #include <cstddef>
@@ -34,8 +34,8 @@ namespace {
         bool terminated = false;
 
         while (true) {
-            constexpr size_t NAME_OFFSET = offsetof(trace::kernel::FILE_GET_EA_INFORMATION, EaName);
-            trace::kernel::FILE_GET_EA_INFORMATION entry{};
+            constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_GET_EA_INFORMATION, EaName);
+            kernel::FILE_GET_EA_INFORMATION entry{};
 
             if (!trace::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 

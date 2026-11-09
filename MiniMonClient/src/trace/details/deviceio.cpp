@@ -1,12 +1,12 @@
 #include "deviceio.h"
 
-#include "..\kernel.h"
 #include "..\names.h"
 #include "..\payload.h"
 #include "..\values.h"
 
 #include "..\..\text.h"
 
+#include "..\..\..\..\inc\kernel.h"
 #include "..\..\..\..\inc\protocol.h"
 
 #include <Windows.h>
@@ -42,13 +42,13 @@ namespace {
     }
 
 
-    std::wstring RenderPropertyQueryPayload(const trace::kernel::STORAGE_PROPERTY_QUERY& payload) {
+    std::wstring RenderPropertyQueryPayload(const kernel::STORAGE_PROPERTY_QUERY& payload) {
 
         return std::format(L"PropertyId: {}, QueryType: {}", trace::names::RenderStoragePropertyId(payload.PropertyId), trace::names::RenderStorageQueryType(payload.QueryType));
     }
 
 
-    std::wstring RenderNamePayload(const trace::kernel::MOUNTDEV_NAME& payload, std::span<const uint8_t> nameData) {
+    std::wstring RenderNamePayload(const kernel::MOUNTDEV_NAME& payload, std::span<const uint8_t> nameData) {
 
         return std::format(L"Name: {}", trace::payload::RenderName(nameData, payload.NameLength));
     }
@@ -61,18 +61,18 @@ namespace {
         switch (ioControlCode) {
 
             case IOCTL_STORAGE_QUERY_PROPERTY: {
-                constexpr size_t PARAMETERS_OFFSET = offsetof(trace::kernel::STORAGE_PROPERTY_QUERY, AdditionalParameters);
-                trace::kernel::STORAGE_PROPERTY_QUERY propertyQuery{};
+                constexpr size_t PARAMETERS_OFFSET = offsetof(kernel::STORAGE_PROPERTY_QUERY, AdditionalParameters);
+                kernel::STORAGE_PROPERTY_QUERY propertyQuery{};
 
                 if (trace::payload::ReadHeader(input, propertyQuery, PARAMETERS_OFFSET)) return RenderPropertyQueryPayload(propertyQuery);
 
                 break;
             }
 
-            case trace::kernel::IOCTL_MOUNTDEV_LINK_CREATED:
-            case trace::kernel::IOCTL_MOUNTDEV_LINK_DELETED: {
-                constexpr size_t NAME_OFFSET = offsetof(trace::kernel::MOUNTDEV_NAME, Name);
-                trace::kernel::MOUNTDEV_NAME name{};
+            case kernel::IOCTL_MOUNTDEV_LINK_CREATED:
+            case kernel::IOCTL_MOUNTDEV_LINK_DELETED: {
+                constexpr size_t NAME_OFFSET = offsetof(kernel::MOUNTDEV_NAME, Name);
+                kernel::MOUNTDEV_NAME name{};
 
                 if (trace::payload::ReadHeader(input, name, NAME_OFFSET)) return RenderNamePayload(name, input.subspan(NAME_OFFSET));
 
@@ -99,31 +99,31 @@ namespace {
     }
 
 
-    std::wstring RenderGeometryPayload(const trace::kernel::DISK_GEOMETRY& payload) {
+    std::wstring RenderGeometryPayload(const kernel::DISK_GEOMETRY& payload) {
 
         return std::format(L"Cylinders: {}, MediaType: {}, TracksPerCylinder: {}, SectorsPerTrack: {}, BytesPerSector: {}", payload.Cylinders, trace::names::RenderMediaType(payload.MediaType), payload.TracksPerCylinder, payload.SectorsPerTrack, payload.BytesPerSector);
     }
 
 
-    std::wstring RenderGeometryExPayload(const trace::kernel::DISK_GEOMETRY_EX& payload) {
+    std::wstring RenderGeometryExPayload(const kernel::DISK_GEOMETRY_EX& payload) {
 
         return std::format(L"{}, DiskSize: {}", RenderGeometryPayload(payload.Geometry), payload.DiskSize);
     }
 
 
-    std::wstring RenderLengthPayload(const trace::kernel::GET_LENGTH_INFORMATION& payload) {
+    std::wstring RenderLengthPayload(const kernel::GET_LENGTH_INFORMATION& payload) {
 
         return std::format(L"Length: {}", payload.Length);
     }
 
 
-    std::wstring RenderPartitionExPayloadMbr(const trace::kernel::PARTITION_INFORMATION_MBR& mbr) {
+    std::wstring RenderPartitionExPayloadMbr(const kernel::PARTITION_INFORMATION_MBR& mbr) {
 
         return std::format(L"PartitionType: 0x{:X}, BootIndicator: {}, RecognizedPartition: {}, HiddenSectors: {}, PartitionId: {}", mbr.PartitionType, trace::values::RenderBoolean(mbr.BootIndicator), trace::values::RenderBoolean(mbr.RecognizedPartition), mbr.HiddenSectors, trace::values::RenderGuid(mbr.PartitionId));
     }
 
 
-    std::wstring RenderPartitionExPayloadGpt(const trace::kernel::PARTITION_INFORMATION_GPT& gpt) {
+    std::wstring RenderPartitionExPayloadGpt(const kernel::PARTITION_INFORMATION_GPT& gpt) {
         std::wstring result = std::format(L"PartitionType: {}, PartitionId: {}, Attributes: 0x{:X}", trace::values::RenderGuid(gpt.PartitionType), trace::values::RenderGuid(gpt.PartitionId), gpt.Attributes);
         const std::wstring_view name = text::Extract(gpt.Name);
 
@@ -135,7 +135,7 @@ namespace {
     }
 
 
-    std::wstring RenderPartitionExPayload(const trace::kernel::PARTITION_INFORMATION_EX& payload) {
+    std::wstring RenderPartitionExPayload(const kernel::PARTITION_INFORMATION_EX& payload) {
         std::wstring result = std::format(L"PartitionStyle: {}", trace::names::RenderPartitionStyle(payload.PartitionStyle));
 
         if (payload.PartitionOrdinal) {
@@ -168,39 +168,39 @@ namespace {
     }
 
 
-    std::wstring RenderDiskAttributesPayload(const trace::kernel::GET_DISK_ATTRIBUTES& payload) {
+    std::wstring RenderDiskAttributesPayload(const kernel::GET_DISK_ATTRIBUTES& payload) {
 
         return std::format(L"Version: {}, Attributes: {}", payload.Version, trace::names::RenderDiskAttributes(static_cast<uint32_t>(payload.Attributes)));
     }
 
 
-    std::wstring RenderHotplugPayload(const trace::kernel::STORAGE_HOTPLUG_INFO& payload) {
+    std::wstring RenderHotplugPayload(const kernel::STORAGE_HOTPLUG_INFO& payload) {
 
         return std::format(L"Size: {}, MediaRemovable: {}, MediaHotplug: {}, DeviceHotplug: {}, WriteCacheEnableOverride: {}", payload.Size, trace::values::RenderBoolean(payload.MediaRemovable), trace::values::RenderBoolean(payload.MediaHotplug), trace::values::RenderBoolean(payload.DeviceHotplug), trace::values::RenderBoolean(payload.WriteCacheEnableOverride));
     }
 
 
-    std::wstring RenderDeviceNumberPayload(const trace::kernel::STORAGE_DEVICE_NUMBER& payload) {
+    std::wstring RenderDeviceNumberPayload(const kernel::STORAGE_DEVICE_NUMBER& payload) {
 
         return std::format(L"DeviceType: {}, DeviceNumber: {}, PartitionNumber: {}", trace::names::RenderDeviceType(payload.DeviceType), payload.DeviceNumber, trace::values::RenderPartitionNumber(payload.PartitionNumber));
     }
 
 
-    std::wstring RenderDeviceNumberExPayload(const trace::kernel::STORAGE_DEVICE_NUMBER_EX& payload) {
+    std::wstring RenderDeviceNumberExPayload(const kernel::STORAGE_DEVICE_NUMBER_EX& payload) {
 
         return std::format(L"Version: {}, Size: {}, Flags: {}, DeviceType: {}, DeviceNumber: {}, DeviceGuid: {}, PartitionNumber: {}", payload.Version, payload.Size, trace::names::RenderStorageDeviceFlags(payload.Flags), trace::names::RenderDeviceType(payload.DeviceType), payload.DeviceNumber, trace::values::RenderGuid(payload.DeviceGuid), trace::values::RenderPartitionNumber(payload.PartitionNumber));
     }
 
 
-    std::wstring RenderDescriptorHeaderPayload(const trace::kernel::STORAGE_DESCRIPTOR_HEADER& payload) {
+    std::wstring RenderDescriptorHeaderPayload(const kernel::STORAGE_DESCRIPTOR_HEADER& payload) {
 
         return std::format(L"Version: {}, Size: {}", payload.Version, payload.Size);
     }
 
 
     std::wstring RenderDiskExtentsPayload(std::span<const uint8_t> payload) {
-        constexpr size_t EXTENTS_OFFSET = offsetof(trace::kernel::VOLUME_DISK_EXTENTS, Extents);
-        trace::kernel::VOLUME_DISK_EXTENTS extents{};
+        constexpr size_t EXTENTS_OFFSET = offsetof(kernel::VOLUME_DISK_EXTENTS, Extents);
+        kernel::VOLUME_DISK_EXTENTS extents{};
 
         if (!trace::payload::ReadHeader(payload, extents, EXTENTS_OFFSET)) return {};
 
@@ -209,7 +209,7 @@ namespace {
         uint32_t index = 1u;
 
         while (index <= extents.NumberOfDiskExtents) {
-            trace::kernel::DISK_EXTENT extent{};
+            kernel::DISK_EXTENT extent{};
 
             if (!trace::payload::ReadValue(payload, extent, offset)) break;
 
@@ -247,7 +247,7 @@ namespace {
         switch (ioControlCode) {
 
             case IOCTL_DISK_GET_DRIVE_GEOMETRY: {
-                trace::kernel::DISK_GEOMETRY geometry{};
+                kernel::DISK_GEOMETRY geometry{};
 
                 if (trace::payload::ReadValue(output, geometry)) return RenderGeometryPayload(geometry);
 
@@ -255,8 +255,8 @@ namespace {
             }
 
             case IOCTL_DISK_GET_DRIVE_GEOMETRY_EX: {
-                constexpr size_t DATA_OFFSET = offsetof(trace::kernel::DISK_GEOMETRY_EX, Data);
-                trace::kernel::DISK_GEOMETRY_EX geometryEx{};
+                constexpr size_t DATA_OFFSET = offsetof(kernel::DISK_GEOMETRY_EX, Data);
+                kernel::DISK_GEOMETRY_EX geometryEx{};
 
                 if (trace::payload::ReadHeader(output, geometryEx, DATA_OFFSET)) return RenderGeometryExPayload(geometryEx);
 
@@ -264,7 +264,7 @@ namespace {
             }
 
             case IOCTL_DISK_GET_LENGTH_INFO: {
-                trace::kernel::GET_LENGTH_INFORMATION length{};
+                kernel::GET_LENGTH_INFORMATION length{};
 
                 if (trace::payload::ReadValue(output, length)) return RenderLengthPayload(length);
 
@@ -272,7 +272,7 @@ namespace {
             }
 
             case IOCTL_DISK_GET_PARTITION_INFO_EX: {
-                trace::kernel::PARTITION_INFORMATION_EX partitionEx{};
+                kernel::PARTITION_INFORMATION_EX partitionEx{};
 
                 if (trace::payload::ReadValue(output, partitionEx)) return RenderPartitionExPayload(partitionEx);
 
@@ -280,7 +280,7 @@ namespace {
             }
 
             case IOCTL_DISK_GET_DISK_ATTRIBUTES: {
-                trace::kernel::GET_DISK_ATTRIBUTES diskAttributes{};
+                kernel::GET_DISK_ATTRIBUTES diskAttributes{};
 
                 if (trace::payload::ReadValue(output, diskAttributes)) return RenderDiskAttributesPayload(diskAttributes);
 
@@ -288,7 +288,7 @@ namespace {
             }
 
             case IOCTL_STORAGE_GET_HOTPLUG_INFO: {
-                trace::kernel::STORAGE_HOTPLUG_INFO hotplug{};
+                kernel::STORAGE_HOTPLUG_INFO hotplug{};
 
                 if (trace::payload::ReadValue(output, hotplug)) return RenderHotplugPayload(hotplug);
 
@@ -296,7 +296,7 @@ namespace {
             }
 
             case IOCTL_STORAGE_GET_DEVICE_NUMBER: {
-                trace::kernel::STORAGE_DEVICE_NUMBER deviceNumber{};
+                kernel::STORAGE_DEVICE_NUMBER deviceNumber{};
 
                 if (trace::payload::ReadValue(output, deviceNumber)) return RenderDeviceNumberPayload(deviceNumber);
 
@@ -304,7 +304,7 @@ namespace {
             }
 
             case IOCTL_STORAGE_GET_DEVICE_NUMBER_EX: {
-                trace::kernel::STORAGE_DEVICE_NUMBER_EX deviceNumberEx{};
+                kernel::STORAGE_DEVICE_NUMBER_EX deviceNumberEx{};
 
                 if (trace::payload::ReadValue(output, deviceNumberEx)) return RenderDeviceNumberExPayload(deviceNumberEx);
 
@@ -312,7 +312,7 @@ namespace {
             }
 
             case IOCTL_STORAGE_QUERY_PROPERTY: {
-                trace::kernel::STORAGE_DESCRIPTOR_HEADER descriptorHeader{};
+                kernel::STORAGE_DESCRIPTOR_HEADER descriptorHeader{};
 
                 if (trace::payload::ReadValue(output, descriptorHeader)) return RenderDescriptorHeaderPayload(descriptorHeader);
 
@@ -339,9 +339,9 @@ namespace {
                 break;
             }
 
-            case trace::kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME: {
-                constexpr size_t NAME_OFFSET = offsetof(trace::kernel::MOUNTDEV_NAME, Name);
-                trace::kernel::MOUNTDEV_NAME name{};
+            case kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME: {
+                constexpr size_t NAME_OFFSET = offsetof(kernel::MOUNTDEV_NAME, Name);
+                kernel::MOUNTDEV_NAME name{};
 
                 if (trace::payload::ReadHeader(output, name, NAME_OFFSET)) return RenderNamePayload(name, output.subspan(NAME_OFFSET));
 

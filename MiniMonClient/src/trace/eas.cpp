@@ -1,10 +1,11 @@
 #include "eas.h"
 
-#include "kernel.h"
 #include "names.h"
 #include "payload.h"
 
 #include "..\text.h"
+
+#include "..\..\..\inc\kernel.h"
 
 #include <cstddef>
 #include <cstdint>

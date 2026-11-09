@@ -1,9 +1,9 @@
 #include "readwrite.h"
 
-#include "..\kernel.h"
 #include "..\names.h"
 #include "..\values.h"
 
+#include "..\..\..\..\inc\kernel.h"
 #include "..\..\..\..\inc\protocol.h"
 
 #include <cstdint>
