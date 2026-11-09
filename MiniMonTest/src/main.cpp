@@ -1,0 +1,144 @@
+#include "text.h"
+
+#include <Windows.h>
+
+#include <algorithm>
+#include <array>
+#include <cstdint>
+#include <cstdlib>
+#include <cwctype>
+#include <format>
+#include <ios>
+#include <iostream>
+#include <optional>
+#include <ostream>
+#include <string>
+#include <string_view>
+
+using namespace mimo;
+
+namespace {
+
+    void ConfigureOutput() {
+        SetConsoleOutputCP(CP_UTF8);
+        std::cout.setf(std::ios::unitbuf);
+
+        return;
+    }
+
+
+    bool IsSameName(std::wstring_view arg, std::wstring_view name) {
+
+        return std::ranges::equal(arg, name, [](wchar_t left, wchar_t right) { return std::towlower(left) == std::towlower(right); });
+    }
+
+
+    struct Parameters {
+        std::optional<std::wstring> directory;
+        bool help = false;
+    };
+
+    std::optional<Parameters> ParseParameters(int argc, wchar_t* argv[]) {
+        Parameters parameters;
+
+        for (int i = 0; i < argc; i++) {
+            const std::wstring_view arg = argv[i];
+
+            if (IsSameName(arg, L"/?")) {
+
+                if (parameters.help) return std::nullopt;
+
+                parameters.help = true;
+
+                continue;
+            }
+
+            if (IsSameName(arg, L"/d")) {
+
+                if (parameters.directory.has_value()) return std::nullopt;
+
+                if (i + 1 >= argc) return std::nullopt;
+
+                i++;
+                parameters.directory = argv[i];
+
+                continue;
+            }
+
+            return std::nullopt;
+        }
+
+        return parameters;
+    }
+
+
+    bool ValidateParameters(const Parameters& parameters) {
+
+        if (parameters.help) return !parameters.directory.has_value();
+
+        return parameters.directory.has_value() && !parameters.directory->empty();
+    }
+
+
+    void PrintUsage(std::ostream& stream) {
+        stream << "Usage: MiniMonTest /d <directory>\n";
+        stream << "       MiniMonTest /?\n";
+        stream << "    /d <directory> runs the file operations in <directory>\n";
+        stream << "    /?             prints this usage\n";
+
+        return;
+    }
+
+
+    void DisplayError(HRESULT hRes) {
+        constexpr uint32_t MESSAGE_WCHAR_COUNT = 1024u;
+        std::array<wchar_t, MESSAGE_WCHAR_COUNT> buffer{};
+        const DWORD wcharCount = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, static_cast<DWORD>(hRes), 0u, buffer.data(), static_cast<DWORD>(buffer.size()), nullptr);
+        const std::string message = wcharCount ? text::ConvertToUtf8(buffer.data()) : "failed to translate error code";
+        std::cerr << std::format("Error: 0x{:08X}, {}\n", static_cast<uint32_t>(hRes), message);
+
+        return;
+    }
+
+
+    bool VerifyDirectory(const std::wstring& path) {
+        const DWORD attributes = GetFileAttributesW(path.c_str());
+
+        if (attributes == INVALID_FILE_ATTRIBUTES) {
+            std::cerr << "Failed to query directory attributes\n";
+            DisplayError(HRESULT_FROM_WIN32(GetLastError()));
+
+            return false;
+        }
+
+        if (!(attributes & FILE_ATTRIBUTE_DIRECTORY)) {
+            std::cerr << "Not a directory\n";
+
+            return false;
+        }
+
+        return true;
+    }
+
+}
+
+int wmain(int argc, wchar_t* argv[]) {
+    ConfigureOutput();
+    const std::optional<Parameters> parameters = ParseParameters(argc - 1, &argv[1u]);
+
+    if (!parameters.has_value() || !ValidateParameters(*parameters)) {
+        PrintUsage(std::cerr);
+
+        return EXIT_FAILURE;
+    }
+
+    if (parameters->help) {
+        PrintUsage(std::cout);
+
+        return EXIT_SUCCESS;
+    }
+
+    if (!VerifyDirectory(*parameters->directory)) return EXIT_FAILURE;
+
+    return EXIT_SUCCESS;
+}

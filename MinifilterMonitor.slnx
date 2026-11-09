@@ -9,4 +9,5 @@
     <Build Solution="*|x86" Project="false" />
     <Deploy />
   </Project>
+  <Project Path="MiniMonTest/MiniMonTest.vcxproj" Id="0ec976b6-974a-4ed2-b1eb-659c38a23c64" />
 </Solution>
