@@ -120,6 +120,32 @@ namespace {
         return true;
     }
 
+
+    std::optional<std::wstring> ResolveNtDirectory(const std::wstring& path) {
+        const DWORD bufferWcharCount = GetFullPathNameW(path.c_str(), 0u, nullptr, nullptr);
+        std::wstring fullPath(bufferWcharCount, L'\0');
+        const DWORD pathWcharCount = GetFullPathNameW(path.c_str(), bufferWcharCount, fullPath.data(), nullptr);
+
+        if (!pathWcharCount) {
+            std::cerr << "Failed to resolve the directory path\n";
+            DisplayError(HRESULT_FROM_WIN32(GetLastError()));
+
+            return std::nullopt;
+        }
+
+        fullPath.resize(pathWcharCount);
+
+        if (fullPath.ends_with(L'\\')) {
+            fullPath.pop_back();
+        }
+
+        if (fullPath.starts_with(L"\\\\?\\")) return std::format(L"\\??\\{}", fullPath.substr(4u));
+
+        if (fullPath.starts_with(L"\\\\")) return std::format(L"\\??\\UNC\\{}", fullPath.substr(2u));
+
+        return std::format(L"\\??\\{}", fullPath);
+    }
+
 }
 
 int wmain(int argc, wchar_t* argv[]) {
@@ -139,6 +165,10 @@ int wmain(int argc, wchar_t* argv[]) {
     }
 
     if (!VerifyDirectory(*parameters->directory)) return EXIT_FAILURE;
+
+    const std::optional<std::wstring> ntDirectory = ResolveNtDirectory(*parameters->directory);
+
+    if (!ntDirectory.has_value()) return EXIT_FAILURE;
 
     return EXIT_SUCCESS;
 }
