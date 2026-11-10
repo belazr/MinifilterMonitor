@@ -23,6 +23,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\handle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\text.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -23,6 +23,7 @@
     <ClCompile Include="src\text.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\handle.h" />
     <ClInclude Include="src\text.h" />
   </ItemGroup>
   <ItemGroup>
