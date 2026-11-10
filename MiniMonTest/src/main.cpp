@@ -1,3 +1,4 @@
+#include "test.h"
 #include "text.h"
 
 #include <Windows.h>
@@ -170,5 +171,8 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (!ntDirectory.has_value()) return EXIT_FAILURE;
 
-    return EXIT_SUCCESS;
+    test::Counts counts{};
+    std::cout << std::format("Operations: {}, unexpected: {}\n", counts.operations, counts.unexpected);
+
+    return counts.unexpected ? EXIT_FAILURE : EXIT_SUCCESS;
 }

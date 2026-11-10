@@ -20,10 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\test.cpp" />
     <ClCompile Include="src\text.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\handle.h" />
+    <ClInclude Include="src\test.h" />
     <ClInclude Include="src\text.h" />
   </ItemGroup>
   <ItemGroup>
