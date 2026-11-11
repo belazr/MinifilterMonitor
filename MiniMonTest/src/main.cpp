@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cwctype>
+#include <filesystem>
 #include <format>
 #include <ios>
 #include <iostream>
@@ -17,6 +18,7 @@
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <system_error>
 
 using namespace mimo;
 
@@ -86,7 +88,7 @@ namespace {
     void PrintUsage(std::ostream& stream) {
         stream << "Usage: MiniMonTest /d <directory>\n";
         stream << "       MiniMonTest /?\n";
-        stream << "    /d <directory> runs the file operations in <directory>\n";
+        stream << "    /d <directory> runs the file operations in a work directory inside <directory>\n";
         stream << "    /?             prints this usage\n";
 
         return;
@@ -121,6 +123,41 @@ namespace {
         }
 
         return true;
+    }
+
+
+    bool RemoveWorkDirectory(std::wstring_view path) {
+        std::error_code error;
+        std::filesystem::remove_all(path, error);
+
+        if (error.value() != ERROR_SUCCESS) {
+            std::cerr << "Failed to remove the work directory\n";
+            DisplayError(HRESULT_FROM_WIN32(static_cast<DWORD>(error.value())));
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    std::optional<std::wstring> CreateWorkDirectory(std::wstring_view directory) {
+        constexpr std::wstring_view NAME = L"MiniMonTest.tmp";
+        const std::filesystem::path path = std::filesystem::path(directory) / NAME;
+
+        if (!RemoveWorkDirectory(path.wstring())) return std::nullopt;
+
+        std::error_code error;
+        std::filesystem::create_directory(path, error);
+
+        if (error.value() != ERROR_SUCCESS) {
+            std::cerr << "Failed to create the work directory\n";
+            DisplayError(HRESULT_FROM_WIN32(static_cast<DWORD>(error.value())));
+
+            return std::nullopt;
+        }
+
+        return path.wstring();
     }
 
 
@@ -169,13 +206,22 @@ int wmain(int argc, wchar_t* argv[]) {
 
     if (!VerifyDirectory(*parameters->directory)) return EXIT_FAILURE;
 
-    const std::optional<std::wstring> ntDirectory = ResolveNtDirectory(*parameters->directory);
+    const std::optional<std::wstring> workDirectory = CreateWorkDirectory(*parameters->directory);
 
-    if (!ntDirectory.has_value()) return EXIT_FAILURE;
+    if (!workDirectory.has_value()) return EXIT_FAILURE;
+
+    const std::optional<std::wstring> ntDirectory = ResolveNtDirectory(*workDirectory);
+
+    if (!ntDirectory.has_value()) {
+        RemoveWorkDirectory(*workDirectory);
+
+        return EXIT_FAILURE;
+    }
 
     test::Counts counts{};
     operations::create::Run(*ntDirectory, counts);
+    const bool removed = RemoveWorkDirectory(*workDirectory);
     std::cout << std::format("Operations: {}, unexpected: {}\n", counts.operations, counts.unexpected);
 
-    return counts.unexpected ? EXIT_FAILURE : EXIT_SUCCESS;
+    return counts.unexpected || !removed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
