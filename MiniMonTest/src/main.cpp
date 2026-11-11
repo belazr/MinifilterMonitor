@@ -1,3 +1,5 @@
+#include "operations\create.h"
+
 #include "test.h"
 #include "text.h"
 
@@ -172,6 +174,7 @@ int wmain(int argc, wchar_t* argv[]) {
     if (!ntDirectory.has_value()) return EXIT_FAILURE;
 
     test::Counts counts{};
+    operations::create::Run(*ntDirectory, counts);
     std::cout << std::format("Operations: {}, unexpected: {}\n", counts.operations, counts.unexpected);
 
     return counts.unexpected ? EXIT_FAILURE : EXIT_SUCCESS;
