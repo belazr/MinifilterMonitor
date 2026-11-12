@@ -1,8 +1,9 @@
 #include "create.h"
 
-#include "..\error.h"
-#include "..\handle.h"
-#include "..\test.h"
+#include "..\report.h"
+
+#include "..\..\error.h"
+#include "..\..\handle.h"
 
 #include <Windows.h>
 #undef WIN32_NO_STATUS
@@ -25,7 +26,7 @@ using namespace mimo;
 namespace {
 
     struct Operation {
-        test::Description description;
+        test::report::Description description;
         std::wstring_view fileName;
         ULONG disposition;
         uint16_t eaValueSize;
@@ -123,35 +124,39 @@ namespace {
 
 namespace mimo {
 
-    namespace operations {
+    namespace test {
 
-        namespace create {
+        namespace operations {
 
-            bool Run(std::wstring_view ntDirectory, test::Counts& counts) {
-                constexpr ACCESS_MASK DESIRED_ACCESS = FILE_GENERIC_READ | FILE_WRITE_DATA | DELETE;
-                constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
+            namespace create {
 
-                for (const Operation& operation : OPERATIONS) {
-                    const std::wstring path = std::format(L"{}\\{}", ntDirectory, operation.fileName);
-                    const std::vector<std::byte> eaBuffer = operation.eaValueSize ? MakeEaBuffer(operation.eaValueSize) : std::vector<std::byte>{};
+                bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                    constexpr ACCESS_MASK DESIRED_ACCESS = FILE_GENERIC_READ | FILE_WRITE_DATA | DELETE;
+                    constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
 
-                    if (operation.impersonating && !StartImpersonation()) {
-                        test::Report(counts, MAJOR, operation.description, std::nullopt);
+                    for (const Operation& operation : OPERATIONS) {
+                        const std::wstring path = std::format(L"{}\\{}", ntDirectory, operation.fileName);
+                        const std::vector<std::byte> eaBuffer = operation.eaValueSize ? MakeEaBuffer(operation.eaValueSize) : std::vector<std::byte>{};
 
-                        continue;
+                        if (operation.impersonating && !StartImpersonation()) {
+                            report::Add(counts, MAJOR, operation.description, std::nullopt);
+
+                            continue;
+                        }
+
+                        FileHandle file;
+                        const NTSTATUS status = Create(file, path, DESIRED_ACCESS, SHARE_ALL, operation.disposition, FILE_NON_DIRECTORY_FILE, eaBuffer);
+
+                        const bool reverted = !operation.impersonating || StopImpersonation();
+                        report::Add(counts, MAJOR, operation.description, status);
+
+                        if (!reverted) return false;
+
                     }
 
-                    FileHandle file;
-                    const NTSTATUS status = Create(file, path, DESIRED_ACCESS, SHARE_ALL, operation.disposition, FILE_NON_DIRECTORY_FILE, eaBuffer);
-
-                    const bool reverted = !operation.impersonating || StopImpersonation();
-                    test::Report(counts, MAJOR, operation.description, status);
-
-                    if (!reverted) return false;
-
+                    return true;
                 }
 
-                return true;
             }
 
         }

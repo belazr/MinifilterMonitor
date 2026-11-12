@@ -21,10 +21,13 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\operations\create.cpp">
+    <ClCompile Include="src\test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\test.cpp">
+    <ClCompile Include="src\test\operations\create.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\report.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\text.cpp">
@@ -38,10 +41,13 @@
     <ClInclude Include="src\handle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\operations\create.h">
+    <ClInclude Include="src\test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\test.h">
+    <ClInclude Include="src\test\operations\create.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\report.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\text.h">

@@ -1,45 +1,110 @@
 #include "test.h"
 
-#include "text.h"
+#include "test\operations\create.h"
+#include "test\report.h"
 
-#include <cstdint>
+#include "error.h"
+
+#include <Windows.h>
+
+#include <filesystem>
 #include <format>
 #include <iostream>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <system_error>
+
+using namespace mimo;
+
+namespace {
+
+    bool RemoveWorkDirectory(std::wstring_view path) {
+        std::error_code errorCode;
+        std::filesystem::remove_all(path, errorCode);
+
+        if (errorCode.value() != ERROR_SUCCESS) {
+            std::cerr << "Failed to remove the work directory\n";
+            error::Display(static_cast<DWORD>(errorCode.value()));
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    std::optional<std::wstring> CreateWorkDirectory(std::wstring_view directory) {
+        constexpr std::wstring_view NAME = L"MiniMonTest.tmp";
+        const std::filesystem::path path = std::filesystem::path(directory) / NAME;
+
+        if (!RemoveWorkDirectory(path.wstring())) return std::nullopt;
+
+        std::error_code errorCode;
+        std::filesystem::create_directory(path, errorCode);
+
+        if (errorCode.value() != ERROR_SUCCESS) {
+            std::cerr << "Failed to create the work directory\n";
+            error::Display(static_cast<DWORD>(errorCode.value()));
+
+            return std::nullopt;
+        }
+
+        return path.wstring();
+    }
+
+
+    std::optional<std::wstring> ResolveNtDirectory(const std::wstring& path) {
+        const DWORD bufferWcharCount = GetFullPathNameW(path.c_str(), 0u, nullptr, nullptr);
+        std::wstring fullPath(bufferWcharCount, L'\0');
+        const DWORD pathWcharCount = GetFullPathNameW(path.c_str(), bufferWcharCount, fullPath.data(), nullptr);
+
+        if (!pathWcharCount) {
+            const DWORD lastError = GetLastError();
+            std::cerr << "Failed to resolve the directory path\n";
+            error::Display(lastError);
+
+            return std::nullopt;
+        }
+
+        fullPath.resize(pathWcharCount);
+
+        if (fullPath.ends_with(L'\\')) {
+            fullPath.pop_back();
+        }
+
+        if (fullPath.starts_with(L"\\\\?\\")) return std::format(L"\\??\\{}", fullPath.substr(4u));
+
+        if (fullPath.starts_with(L"\\\\")) return std::format(L"\\??\\UNC\\{}", fullPath.substr(2u));
+
+        return std::format(L"\\??\\{}", fullPath);
+    }
+
+}
 
 namespace mimo {
 
     namespace test {
 
-        void Report(
-            Counts& counts,
-            std::string_view major,
-            const Description& description,
-            std::optional<NTSTATUS> status
-        ) {
-            const std::string name = text::ConvertToUtf8(description.name);
-            counts.operations++;
+        bool Run(std::wstring_view directory) {
+            const std::optional<std::wstring> workDirectory = CreateWorkDirectory(directory);
 
-            if (!status.has_value()) {
-                std::cerr << std::format("{} {}: not executed, expected 0x{:08X}\n", major, name, static_cast<uint32_t>(description.expectedStatus));
-                counts.notExecuted++;
+            if (!workDirectory.has_value()) return false;
 
-                return;
+            const std::optional<std::wstring> ntDirectory = ResolveNtDirectory(*workDirectory);
+
+            if (!ntDirectory.has_value()) {
+                RemoveWorkDirectory(*workDirectory);
+
+                return false;
             }
 
-            const std::string line = std::format("{} {}: status 0x{:08X}, expected 0x{:08X}\n", major, name, static_cast<uint32_t>(*status), static_cast<uint32_t>(description.expectedStatus));
+            report::Counts counts{};
+            const bool completed = operations::create::Run(*ntDirectory, counts);
+            const bool removed = RemoveWorkDirectory(*workDirectory);
+            std::cout << std::format("Operations: {}, not executed: {}, unexpected: {}\n", counts.operations, counts.notExecuted, counts.unexpected);
 
-            if (*status == description.expectedStatus) {
-                std::cout << line;
-            }
-            else {
-                std::cerr << line;
-                counts.unexpected++;
-            }
-
-            return;
+            return completed && !counts.notExecuted && !counts.unexpected && removed;
         }
 
     }

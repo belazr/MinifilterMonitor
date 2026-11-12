@@ -21,15 +21,17 @@
   <ItemGroup>
     <ClCompile Include="src\error.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\operations\create.cpp" />
     <ClCompile Include="src\test.cpp" />
+    <ClCompile Include="src\test\operations\create.cpp" />
+    <ClCompile Include="src\test\report.cpp" />
     <ClCompile Include="src\text.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\error.h" />
     <ClInclude Include="src\handle.h" />
-    <ClInclude Include="src\operations\create.h" />
     <ClInclude Include="src\test.h" />
+    <ClInclude Include="src\test\operations\create.h" />
+    <ClInclude Include="src\test\report.h" />
     <ClInclude Include="src\text.h" />
   </ItemGroup>
   <ItemGroup>
