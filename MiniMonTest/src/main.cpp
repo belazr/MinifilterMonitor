@@ -208,9 +208,9 @@ int wmain(int argc, wchar_t* argv[]) {
     }
 
     test::Counts counts{};
-    operations::create::Run(*ntDirectory, counts);
+    const bool completed = operations::create::Run(*ntDirectory, counts);
     const bool removed = RemoveWorkDirectory(*workDirectory);
-    std::cout << std::format("Operations: {}, unexpected: {}\n", counts.operations, counts.unexpected);
+    std::cout << std::format("Operations: {}, not executed: {}, unexpected: {}\n", counts.operations, counts.notExecuted, counts.unexpected);
 
-    return counts.unexpected || !removed ? EXIT_FAILURE : EXIT_SUCCESS;
+    return !completed || counts.notExecuted || counts.unexpected || !removed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

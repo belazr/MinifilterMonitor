@@ -10,7 +10,7 @@ namespace mimo {
 
         namespace create {
 
-            void Run(std::wstring_view ntDirectory, test::Counts& counts);
+            bool Run(std::wstring_view ntDirectory, test::Counts& counts);
 
         }
 

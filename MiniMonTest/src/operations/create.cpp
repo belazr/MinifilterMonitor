@@ -1,5 +1,6 @@
 #include "create.h"
 
+#include "..\error.h"
 #include "..\handle.h"
 #include "..\test.h"
 
@@ -12,6 +13,8 @@
 #include <cstdint>
 #include <cstring>
 #include <format>
+#include <iostream>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -26,14 +29,16 @@ namespace {
         std::wstring_view fileName;
         ULONG disposition;
         uint16_t eaValueSize;
+        bool impersonating;
     };
 
     constexpr Operation OPERATIONS[]{
-        { { L"create-new",          STATUS_SUCCESS               }, L"file",         FILE_CREATE, 0u    },
-        { { L"open-existing",       STATUS_SUCCESS               }, L"file",         FILE_OPEN,   0u    },
-        { { L"open-missing",        STATUS_OBJECT_NAME_NOT_FOUND }, L"missing",      FILE_OPEN,   0u    },
-        { { L"create-ea",           STATUS_SUCCESS               }, L"ea",           FILE_CREATE, 8u    },
-        { { L"create-ea-oversized", STATUS_SUCCESS               }, L"ea-oversized", FILE_CREATE, 1024u },
+        { { L"create-new",          STATUS_SUCCESS               }, L"file",         FILE_CREATE, 0u,    false },
+        { { L"open-existing",       STATUS_SUCCESS               }, L"file",         FILE_OPEN,   0u,    false },
+        { { L"open-missing",        STATUS_OBJECT_NAME_NOT_FOUND }, L"missing",      FILE_OPEN,   0u,    false },
+        { { L"create-ea",           STATUS_SUCCESS               }, L"ea",           FILE_CREATE, 8u,    false },
+        { { L"create-ea-oversized", STATUS_SUCCESS               }, L"ea-oversized", FILE_CREATE, 1024u, false },
+        { { L"open-impersonating",  STATUS_SUCCESS               }, L"file",         FILE_OPEN,   0u,    true  },
     };
 
     struct FILE_FULL_EA_INFORMATION {
@@ -56,6 +61,34 @@ namespace {
         std::memcpy(buffer.data() + NAME_OFFSET, NAME.data(), NAME.size());
 
         return buffer;
+    }
+
+
+    bool StartImpersonation() {
+
+        if (!ImpersonateSelf(SecurityImpersonation)) {
+            const DWORD lastError = GetLastError();
+            std::cerr << "Failed to impersonate\n";
+            error::Display(lastError);
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    bool StopImpersonation() {
+
+        if (!RevertToSelf()) {
+            const DWORD lastError = GetLastError();
+            std::cerr << "Failed to revert the impersonation\n";
+            error::Display(lastError);
+
+            return false;
+        }
+
+        return true;
     }
 
 
@@ -94,19 +127,31 @@ namespace mimo {
 
         namespace create {
 
-            void Run(std::wstring_view ntDirectory, test::Counts& counts) {
+            bool Run(std::wstring_view ntDirectory, test::Counts& counts) {
                 constexpr ACCESS_MASK DESIRED_ACCESS = FILE_GENERIC_READ | FILE_WRITE_DATA | DELETE;
                 constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
 
                 for (const Operation& operation : OPERATIONS) {
                     const std::wstring path = std::format(L"{}\\{}", ntDirectory, operation.fileName);
                     const std::vector<std::byte> eaBuffer = operation.eaValueSize ? MakeEaBuffer(operation.eaValueSize) : std::vector<std::byte>{};
+
+                    if (operation.impersonating && !StartImpersonation()) {
+                        test::Report(counts, MAJOR, operation.description, std::nullopt);
+
+                        continue;
+                    }
+
                     FileHandle file;
                     const NTSTATUS status = Create(file, path, DESIRED_ACCESS, SHARE_ALL, operation.disposition, FILE_NON_DIRECTORY_FILE, eaBuffer);
+
+                    const bool reverted = !operation.impersonating || StopImpersonation();
                     test::Report(counts, MAJOR, operation.description, status);
+
+                    if (!reverted) return false;
+
                 }
 
-                return;
+                return true;
             }
 
         }

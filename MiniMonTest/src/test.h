@@ -4,6 +4,7 @@
 #include <winternl.h>
 
 #include <cstdint>
+#include <optional>
 #include <string_view>
 
 namespace mimo {
@@ -17,6 +18,7 @@ namespace mimo {
 
         struct Counts {
             uint32_t operations = 0u;
+            uint32_t notExecuted = 0u;
             uint32_t unexpected = 0u;
         };
 
@@ -24,7 +26,7 @@ namespace mimo {
             Counts& counts,
             std::string_view major,
             const Description& description,
-            NTSTATUS status
+            std::optional<NTSTATUS> status
         );
 
     }
