@@ -16,6 +16,18 @@ using namespace mimo;
 
 namespace {
 
+    struct Operation {
+        test::Description description;
+        std::wstring_view fileName;
+        ULONG disposition;
+    };
+
+    constexpr Operation OPERATIONS[]{
+        { { L"create-new",    STATUS_SUCCESS               }, L"file",    FILE_CREATE },
+        { { L"open-existing", STATUS_SUCCESS               }, L"file",    FILE_OPEN   },
+        { { L"open-missing",  STATUS_OBJECT_NAME_NOT_FOUND }, L"missing", FILE_OPEN   },
+    };
+
     using FileHandle = Handle<NtClose>;
 
     NTSTATUS Create(
@@ -51,13 +63,15 @@ namespace mimo {
         namespace create {
 
             void Run(std::wstring_view ntDirectory, test::Counts& counts) {
-                constexpr test::Description DESCRIPTION{ L"open-missing", STATUS_OBJECT_NAME_NOT_FOUND };
                 constexpr ACCESS_MASK DESIRED_ACCESS = FILE_GENERIC_READ | FILE_WRITE_DATA | DELETE;
                 constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
-                const std::wstring path = std::format(L"{}\\{}", ntDirectory, DESCRIPTION.name);
-                FileHandle file;
-                const test::Result result{ Create(file, path, DESIRED_ACCESS, SHARE_ALL, FILE_OPEN, FILE_NON_DIRECTORY_FILE) };
-                test::Report(counts, MAJOR, DESCRIPTION, result);
+
+                for (const Operation& operation : OPERATIONS) {
+                    const std::wstring path = std::format(L"{}\\{}", ntDirectory, operation.fileName);
+                    FileHandle file;
+                    const NTSTATUS status = Create(file, path, DESIRED_ACCESS, SHARE_ALL, operation.disposition, FILE_NON_DIRECTORY_FILE);
+                    test::Report(counts, MAJOR, operation.description, status);
+                }
 
                 return;
             }

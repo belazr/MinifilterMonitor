@@ -15,10 +15,6 @@ namespace mimo {
             NTSTATUS expectedStatus;
         };
 
-        struct Result {
-            NTSTATUS status;
-        };
-
         struct Counts {
             uint32_t operations = 0u;
             uint32_t unexpected = 0u;
@@ -28,7 +24,7 @@ namespace mimo {
             Counts& counts,
             std::string_view major,
             const Description& description,
-            const Result& result
+            NTSTATUS status
         );
 
     }
