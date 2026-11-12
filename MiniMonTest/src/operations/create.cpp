@@ -8,9 +8,14 @@
 #include <ntstatus.h>
 #include <winternl.h>
 
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <format>
+#include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 using namespace mimo;
 
@@ -20,13 +25,39 @@ namespace {
         test::Description description;
         std::wstring_view fileName;
         ULONG disposition;
+        uint16_t eaValueSize;
     };
 
     constexpr Operation OPERATIONS[]{
-        { { L"create-new",    STATUS_SUCCESS               }, L"file",    FILE_CREATE },
-        { { L"open-existing", STATUS_SUCCESS               }, L"file",    FILE_OPEN   },
-        { { L"open-missing",  STATUS_OBJECT_NAME_NOT_FOUND }, L"missing", FILE_OPEN   },
+        { { L"create-new",          STATUS_SUCCESS               }, L"file",         FILE_CREATE, 0u    },
+        { { L"open-existing",       STATUS_SUCCESS               }, L"file",         FILE_OPEN,   0u    },
+        { { L"open-missing",        STATUS_OBJECT_NAME_NOT_FOUND }, L"missing",      FILE_OPEN,   0u    },
+        { { L"create-ea",           STATUS_SUCCESS               }, L"ea",           FILE_CREATE, 8u    },
+        { { L"create-ea-oversized", STATUS_SUCCESS               }, L"ea-oversized", FILE_CREATE, 1024u },
     };
+
+    struct FILE_FULL_EA_INFORMATION {
+        ULONG NextEntryOffset;
+        UCHAR Flags;
+        UCHAR EaNameLength;
+        USHORT EaValueLength;
+        CHAR EaName[1u];
+    };
+
+    std::vector<std::byte> MakeEaBuffer(uint16_t valueSize) {
+        constexpr std::string_view NAME = "MINIMON";
+        constexpr size_t NAME_OFFSET = offsetof(FILE_FULL_EA_INFORMATION, EaName);
+        FILE_FULL_EA_INFORMATION entry{};
+        entry.EaNameLength = static_cast<UCHAR>(NAME.size());
+        entry.EaValueLength = static_cast<USHORT>(valueSize);
+
+        std::vector<std::byte> buffer(NAME_OFFSET + NAME.size() + 1u + valueSize);
+        std::memcpy(buffer.data(), &entry, NAME_OFFSET);
+        std::memcpy(buffer.data() + NAME_OFFSET, NAME.data(), NAME.size());
+
+        return buffer;
+    }
+
 
     using FileHandle = Handle<NtClose>;
 
@@ -36,7 +67,8 @@ namespace {
         ACCESS_MASK desiredAccess,
         ULONG shareAccess,
         ULONG disposition,
-        ULONG options
+        ULONG options,
+        std::span<const std::byte> eaBuffer
     ) {
         UNICODE_STRING objectName{};
         objectName.Length = static_cast<USHORT>(path.size() * sizeof(wchar_t));
@@ -48,7 +80,7 @@ namespace {
 
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtCreateFile(file.Put(), desiredAccess, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, shareAccess, disposition, options, nullptr, 0u);
+        return NtCreateFile(file.Put(), desiredAccess, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, shareAccess, disposition, options, const_cast<std::byte*>(eaBuffer.data()), static_cast<ULONG>(eaBuffer.size()));
     }
 
 
@@ -68,8 +100,9 @@ namespace mimo {
 
                 for (const Operation& operation : OPERATIONS) {
                     const std::wstring path = std::format(L"{}\\{}", ntDirectory, operation.fileName);
+                    const std::vector<std::byte> eaBuffer = operation.eaValueSize ? MakeEaBuffer(operation.eaValueSize) : std::vector<std::byte>{};
                     FileHandle file;
-                    const NTSTATUS status = Create(file, path, DESIRED_ACCESS, SHARE_ALL, operation.disposition, FILE_NON_DIRECTORY_FILE);
+                    const NTSTATUS status = Create(file, path, DESIRED_ACCESS, SHARE_ALL, operation.disposition, FILE_NON_DIRECTORY_FILE, eaBuffer);
                     test::Report(counts, MAJOR, operation.description, status);
                 }
 
