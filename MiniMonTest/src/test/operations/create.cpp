@@ -1,6 +1,7 @@
 #include "create.h"
 
 #include "..\report.h"
+#include "..\target.h"
 
 #include "..\..\error.h"
 #include "..\..\handle.h"
@@ -34,12 +35,12 @@ namespace {
     };
 
     constexpr Operation OPERATIONS[]{
-        { { L"create-new",          STATUS_SUCCESS               }, L"file",         FILE_CREATE, 0u,    false },
-        { { L"open-existing",       STATUS_SUCCESS               }, L"file",         FILE_OPEN,   0u,    false },
-        { { L"open-missing",        STATUS_OBJECT_NAME_NOT_FOUND }, L"missing",      FILE_OPEN,   0u,    false },
-        { { L"create-ea",           STATUS_SUCCESS               }, L"ea",           FILE_CREATE, 8u,    false },
-        { { L"create-ea-oversized", STATUS_SUCCESS               }, L"ea-oversized", FILE_CREATE, 1024u, false },
-        { { L"open-impersonating",  STATUS_SUCCESS               }, L"file",         FILE_OPEN,   0u,    true  },
+        { { L"create-new",          STATUS_SUCCESS               }, test::Target::NAME, FILE_CREATE, 0u,    false },
+        { { L"open-existing",       STATUS_SUCCESS               }, test::Target::NAME, FILE_OPEN,   0u,    false },
+        { { L"open-missing",        STATUS_OBJECT_NAME_NOT_FOUND }, L"missing",         FILE_OPEN,   0u,    false },
+        { { L"create-ea",           STATUS_SUCCESS               }, L"ea",              FILE_CREATE, 8u,    false },
+        { { L"create-ea-oversized", STATUS_SUCCESS               }, L"ea-oversized",    FILE_CREATE, 1024u, false },
+        { { L"open-impersonating",  STATUS_SUCCESS               }, test::Target::NAME, FILE_OPEN,   0u,    true  },
     };
 
     struct FILE_FULL_EA_INFORMATION {

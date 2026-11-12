@@ -24,6 +24,7 @@
     <ClCompile Include="src\test.cpp" />
     <ClCompile Include="src\test\operations\create.cpp" />
     <ClCompile Include="src\test\report.cpp" />
+    <ClCompile Include="src\test\target.cpp" />
     <ClCompile Include="src\text.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -32,6 +33,7 @@
     <ClInclude Include="src\test.h" />
     <ClInclude Include="src\test\operations\create.h" />
     <ClInclude Include="src\test\report.h" />
+    <ClInclude Include="src\test\target.h" />
     <ClInclude Include="src\text.h" />
   </ItemGroup>
   <ItemGroup>
