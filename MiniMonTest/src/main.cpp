@@ -1,13 +1,11 @@
 #include "operations\create.h"
 
+#include "error.h"
 #include "test.h"
-#include "text.h"
 
 #include <Windows.h>
 
 #include <algorithm>
-#include <array>
-#include <cstdint>
 #include <cstdlib>
 #include <cwctype>
 #include <filesystem>
@@ -95,23 +93,13 @@ namespace {
     }
 
 
-    void DisplayError(HRESULT hRes) {
-        constexpr uint32_t MESSAGE_WCHAR_COUNT = 1024u;
-        std::array<wchar_t, MESSAGE_WCHAR_COUNT> buffer{};
-        const DWORD wcharCount = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, static_cast<DWORD>(hRes), 0u, buffer.data(), static_cast<DWORD>(buffer.size()), nullptr);
-        const std::string message = wcharCount ? text::ConvertToUtf8(buffer.data()) : "failed to translate error code";
-        std::cerr << std::format("Error: 0x{:08X}, {}\n", static_cast<uint32_t>(hRes), message);
-
-        return;
-    }
-
-
     bool VerifyDirectory(const std::wstring& path) {
         const DWORD attributes = GetFileAttributesW(path.c_str());
 
         if (attributes == INVALID_FILE_ATTRIBUTES) {
+            const DWORD lastError = GetLastError();
             std::cerr << "Failed to query directory attributes\n";
-            DisplayError(HRESULT_FROM_WIN32(GetLastError()));
+            error::Display(lastError);
 
             return false;
         }
@@ -127,12 +115,12 @@ namespace {
 
 
     bool RemoveWorkDirectory(std::wstring_view path) {
-        std::error_code error;
-        std::filesystem::remove_all(path, error);
+        std::error_code errorCode;
+        std::filesystem::remove_all(path, errorCode);
 
-        if (error.value() != ERROR_SUCCESS) {
+        if (errorCode.value() != ERROR_SUCCESS) {
             std::cerr << "Failed to remove the work directory\n";
-            DisplayError(HRESULT_FROM_WIN32(static_cast<DWORD>(error.value())));
+            error::Display(static_cast<DWORD>(errorCode.value()));
 
             return false;
         }
@@ -147,12 +135,12 @@ namespace {
 
         if (!RemoveWorkDirectory(path.wstring())) return std::nullopt;
 
-        std::error_code error;
-        std::filesystem::create_directory(path, error);
+        std::error_code errorCode;
+        std::filesystem::create_directory(path, errorCode);
 
-        if (error.value() != ERROR_SUCCESS) {
+        if (errorCode.value() != ERROR_SUCCESS) {
             std::cerr << "Failed to create the work directory\n";
-            DisplayError(HRESULT_FROM_WIN32(static_cast<DWORD>(error.value())));
+            error::Display(static_cast<DWORD>(errorCode.value()));
 
             return std::nullopt;
         }
@@ -167,8 +155,9 @@ namespace {
         const DWORD pathWcharCount = GetFullPathNameW(path.c_str(), bufferWcharCount, fullPath.data(), nullptr);
 
         if (!pathWcharCount) {
+            const DWORD lastError = GetLastError();
             std::cerr << "Failed to resolve the directory path\n";
-            DisplayError(HRESULT_FROM_WIN32(GetLastError()));
+            error::Display(lastError);
 
             return std::nullopt;
         }
