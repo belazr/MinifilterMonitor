@@ -1,7 +1,6 @@
 #include "create.h"
 
 #include "..\report.h"
-#include "..\target.h"
 
 #include "..\..\error.h"
 #include "..\..\handle.h"
@@ -28,19 +27,17 @@ namespace {
 
     struct Operation {
         test::report::Description description;
-        std::wstring_view fileName;
         ULONG disposition;
         uint16_t eaValueSize;
         bool impersonating;
     };
 
     constexpr Operation OPERATIONS[]{
-        { { L"create-new",          STATUS_SUCCESS               }, test::Target::NAME, FILE_CREATE, 0u,    false },
-        { { L"open-existing",       STATUS_SUCCESS               }, test::Target::NAME, FILE_OPEN,   0u,    false },
-        { { L"open-missing",        STATUS_OBJECT_NAME_NOT_FOUND }, L"missing",         FILE_OPEN,   0u,    false },
-        { { L"create-ea",           STATUS_SUCCESS               }, L"ea",              FILE_CREATE, 8u,    false },
-        { { L"create-ea-oversized", STATUS_SUCCESS               }, L"ea-oversized",    FILE_CREATE, 1024u, false },
-        { { L"open-impersonating",  STATUS_SUCCESS               }, test::Target::NAME, FILE_OPEN,   0u,    true  },
+        { { L"create-new",           STATUS_SUCCESS               }, FILE_CREATE, 0u,    false },
+        { { L"open-missing",         STATUS_OBJECT_NAME_NOT_FOUND }, FILE_OPEN,   0u,    false },
+        { { L"create-ea",            STATUS_SUCCESS               }, FILE_CREATE, 8u,    false },
+        { { L"create-ea-oversized",  STATUS_SUCCESS               }, FILE_CREATE, 1024u, false },
+        { { L"create-impersonating", STATUS_SUCCESS               }, FILE_CREATE, 0u,    true  },
     };
 
     struct FILE_FULL_EA_INFORMATION {
@@ -136,7 +133,7 @@ namespace mimo {
                     constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
 
                     for (const Operation& operation : OPERATIONS) {
-                        const std::wstring path = std::format(L"{}\\{}", ntDirectory, operation.fileName);
+                        const std::wstring path = std::format(L"{}\\{}", ntDirectory, operation.description.name);
                         const std::vector<std::byte> eaBuffer = operation.eaValueSize ? MakeEaBuffer(operation.eaValueSize) : std::vector<std::byte>{};
 
                         if (operation.impersonating && !StartImpersonation()) {

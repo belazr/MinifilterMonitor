@@ -14,8 +14,6 @@ namespace mimo {
 
         class Target final {
         public:
-            static constexpr std::wstring_view NAME = L"file";
-
             explicit Target(std::wstring_view ntDirectory, std::wstring_view name);
 
             Target(const Target&) = delete;
