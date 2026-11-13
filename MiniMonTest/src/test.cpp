@@ -1,6 +1,7 @@
 #include "test.h"
 
 #include "test\operations\create.h"
+#include "test\operations\readwrite.h"
 #include "test\report.h"
 
 #include "error.h"
@@ -100,7 +101,7 @@ namespace mimo {
             }
 
             report::Counts counts{};
-            const bool completed = operations::create::Run(*ntDirectory, counts);
+            const bool completed = operations::create::Run(*ntDirectory, counts) && operations::readwrite::Run(*ntDirectory, counts);
             const bool removed = RemoveWorkDirectory(*workDirectory);
             std::cout << std::format("Operations: {}, not executed: {}, unexpected: {}\n", counts.operations, counts.notExecuted, counts.unexpected);
 
