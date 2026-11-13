@@ -36,37 +36,16 @@ namespace {
 
     struct Operation {
         test::report::Description description;
-        int64_t offset;
         uint32_t size;
     };
 
     constexpr Operation OPERATIONS[]{
-        { { L"write",           STATUS_SUCCESS }, 0,  16u },
-        { { L"write-oversized", STATUS_SUCCESS }, 16, 64u },
+        { { L"write",           STATUS_SUCCESS }, 16u },
+        { { L"write-oversized", STATUS_SUCCESS }, 64u },
     };
 
-    bool OpenTarget(test::Target& target) {
-        const NTSTATUS status = target.Open(FILE_WRITE_DATA);
-
-        if (!NT_SUCCESS(status)) {
-            std::cerr << "Failed to open the target file\n";
-            error::Display(RtlNtStatusToDosError(status));
-
-            return false;
-        }
-
-        return true;
-    }
-
-
-    NTSTATUS Write(
-        const test::Target& target,
-        int64_t offset,
-        std::span<const std::byte> data
-    ) {
+    NTSTATUS Write(const test::Target& target, std::span<const std::byte> data) {
         LARGE_INTEGER byteOffset{};
-        byteOffset.QuadPart = static_cast<LONGLONG>(offset);
-
         IO_STATUS_BLOCK ioStatus{};
 
         return NtWriteFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, const_cast<std::byte*>(data.data()), static_cast<ULONG>(data.size()), &byteOffset, nullptr);
@@ -87,20 +66,22 @@ namespace mimo {
 
                 bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
                     constexpr std::byte FILL{ 0x4D };
-                    Target target{ ntDirectory };
-                    const bool opened = OpenTarget(target);
 
                     for (const Operation& operation : OPERATIONS) {
+                        Target target{ ntDirectory, operation.description.name };
+                        const NTSTATUS createStatus = target.Create(FILE_WRITE_DATA);
 
-                        if (!opened) {
+                        if (!NT_SUCCESS(createStatus)) {
+                            std::cerr << "Failed to create the target file\n";
+                            error::Display(RtlNtStatusToDosError(createStatus));
                             report::Add(counts, MAJOR, operation.description, std::nullopt);
 
                             continue;
                         }
 
                         const std::vector<std::byte> data(operation.size, FILL);
-                        const NTSTATUS status = Write(target, operation.offset, data);
-                        report::Add(counts, MAJOR, operation.description, status);
+                        const NTSTATUS writeStatus = Write(target, data);
+                        report::Add(counts, MAJOR, operation.description, writeStatus);
                     }
 
                     return true;

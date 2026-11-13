@@ -16,13 +16,13 @@ namespace mimo {
         public:
             static constexpr std::wstring_view NAME = L"file";
 
-            explicit Target(std::wstring_view ntDirectory);
+            explicit Target(std::wstring_view ntDirectory, std::wstring_view name);
 
             Target(const Target&) = delete;
 
             Target& operator=(const Target&) = delete;
 
-            NTSTATUS Open(ACCESS_MASK desiredAccess);
+            NTSTATUS Create(ACCESS_MASK desiredAccess);
 
             HANDLE Get() const;
 

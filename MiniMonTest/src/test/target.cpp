@@ -10,10 +10,10 @@ namespace mimo {
 
     namespace test {
 
-        Target::Target(std::wstring_view ntDirectory) : path(std::format(L"{}\\{}", ntDirectory, NAME)) {}
+        Target::Target(std::wstring_view ntDirectory, std::wstring_view name) : path(std::format(L"{}\\{}", ntDirectory, name)) {}
 
 
-        NTSTATUS Target::Open(ACCESS_MASK desiredAccess) {
+        NTSTATUS Target::Create(ACCESS_MASK desiredAccess) {
             constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
             constexpr ULONG OPTIONS = FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT;
             UNICODE_STRING objectName{};
@@ -26,7 +26,7 @@ namespace mimo {
 
             IO_STATUS_BLOCK ioStatus{};
 
-            return NtCreateFile(this->file.Put(), desiredAccess | SYNCHRONIZE, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, FILE_OPEN, OPTIONS, nullptr, 0u);
+            return NtCreateFile(this->file.Put(), desiredAccess | SYNCHRONIZE, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, FILE_CREATE, OPTIONS, nullptr, 0u);
         }
 
 
