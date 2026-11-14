@@ -44,6 +44,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\inc\kernel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
