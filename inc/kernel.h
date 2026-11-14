@@ -22,9 +22,6 @@ namespace mimo {
         inline constexpr uint64_t FSRTL_ASYNC_CACHED_READ_TOP_LEVEL_IRP = 0x07u;
         inline constexpr uint64_t FSRTL_VOLSNAP_TOP_LEVEL_IRP           = 0x08u;
 
-        // RecordData::status, NTSTATUS values
-        inline constexpr int32_t STATUS_SUCCESS = 0;
-
         // RecordData::irpFlags, IRP flags
         inline constexpr uint32_t IRP_NOCACHE                = 0x00000001u;
         inline constexpr uint32_t IRP_PAGING_IO              = 0x00000002u;
@@ -242,43 +239,8 @@ namespace mimo {
         inline constexpr uint32_t IO_REPARSE_TAG_LX_CHR     = 0x80000025u;
         inline constexpr uint32_t IO_REPARSE_TAG_LX_BLK     = 0x80000026u;
 
-        inline constexpr uint32_t FILE_SUPERSEDE    = 0x00000000u;
-        inline constexpr uint32_t FILE_OPEN         = 0x00000001u;
-        inline constexpr uint32_t FILE_CREATE       = 0x00000002u;
-        inline constexpr uint32_t FILE_OPEN_IF      = 0x00000003u;
-        inline constexpr uint32_t FILE_OVERWRITE    = 0x00000004u;
-        inline constexpr uint32_t FILE_OVERWRITE_IF = 0x00000005u;
-
-        inline constexpr uint64_t FILE_SUPERSEDED     = 0u;
-        inline constexpr uint64_t FILE_OPENED         = 1u;
-        inline constexpr uint64_t FILE_CREATED        = 2u;
-        inline constexpr uint64_t FILE_OVERWRITTEN    = 3u;
-        inline constexpr uint64_t FILE_EXISTS         = 4u;
-        inline constexpr uint64_t FILE_DOES_NOT_EXIST = 5u;
-
-        inline constexpr uint32_t FILE_DIRECTORY_FILE            = 0x00000001u;
-        inline constexpr uint32_t FILE_WRITE_THROUGH             = 0x00000002u;
-        inline constexpr uint32_t FILE_SEQUENTIAL_ONLY           = 0x00000004u;
-        inline constexpr uint32_t FILE_NO_INTERMEDIATE_BUFFERING = 0x00000008u;
-        inline constexpr uint32_t FILE_SYNCHRONOUS_IO_ALERT      = 0x00000010u;
-        inline constexpr uint32_t FILE_SYNCHRONOUS_IO_NONALERT   = 0x00000020u;
-        inline constexpr uint32_t FILE_NON_DIRECTORY_FILE        = 0x00000040u;
-        inline constexpr uint32_t FILE_CREATE_TREE_CONNECTION    = 0x00000080u;
-        inline constexpr uint32_t FILE_COMPLETE_IF_OPLOCKED      = 0x00000100u;
-        inline constexpr uint32_t FILE_NO_EA_KNOWLEDGE           = 0x00000200u;
-        inline constexpr uint32_t FILE_OPEN_REMOTE_INSTANCE      = 0x00000400u;
-        inline constexpr uint32_t FILE_RANDOM_ACCESS             = 0x00000800u;
-        inline constexpr uint32_t FILE_DELETE_ON_CLOSE           = 0x00001000u;
-        inline constexpr uint32_t FILE_OPEN_BY_FILE_ID           = 0x00002000u;
-        inline constexpr uint32_t FILE_OPEN_FOR_BACKUP_INTENT    = 0x00004000u;
-        inline constexpr uint32_t FILE_NO_COMPRESSION            = 0x00008000u;
-        inline constexpr uint32_t FILE_OPEN_REQUIRING_OPLOCK     = 0x00010000u;
-        inline constexpr uint32_t FILE_DISALLOW_EXCLUSIVE        = 0x00020000u;
-        inline constexpr uint32_t FILE_SESSION_AWARE             = 0x00040000u;
-        inline constexpr uint32_t FILE_RESERVE_OPFILTER          = 0x00100000u;
-        inline constexpr uint32_t FILE_OPEN_REPARSE_POINT        = 0x00200000u;
-        inline constexpr uint32_t FILE_OPEN_NO_RECALL            = 0x00400000u;
-        inline constexpr uint32_t FILE_OPEN_FOR_FREE_SPACE_QUERY = 0x00800000u;
+        inline constexpr uint32_t FILE_DISALLOW_EXCLUSIVE = 0x00020000u;
+        inline constexpr uint32_t FILE_SESSION_AWARE      = 0x00040000u;
 
         // read/write ByteOffset sentinels
         inline constexpr int64_t FILE_WRITE_TO_END_OF_FILE      = -1;
