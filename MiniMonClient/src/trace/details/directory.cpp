@@ -1,5 +1,6 @@
 #include "directory.h"
 
+#include "..\layouts.h"
 #include "..\names.h"
 #include "..\payload.h"
 #include "..\values.h"
@@ -91,7 +92,7 @@ namespace {
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
-        kernel::FILE_OBJECTID_INFORMATION objectId{};
+        trace::layouts::FILE_OBJECTID_INFORMATION objectId{};
 
         while (trace::payload::ReadValue(payload, objectId, offset)) {
             result += std::format(L"{}: FileReference: {}, ObjectId: {}, ", index, trace::values::RenderFileId(static_cast<uint64_t>(objectId.FileReference)), trace::values::RenderGuid(objectId.ObjectId));
@@ -116,7 +117,7 @@ namespace {
         std::wstring result;
         size_t offset = 0u;
         uint32_t index = 1u;
-        kernel::FILE_REPARSE_POINT_INFORMATION reparsePoint{};
+        trace::layouts::FILE_REPARSE_POINT_INFORMATION reparsePoint{};
 
         while (trace::payload::ReadValue(payload, reparsePoint, offset)) {
             result += std::format(L"{}: FileReference: {}, Tag: {}, ", index, trace::values::RenderFileId(static_cast<uint64_t>(reparsePoint.FileReference)), trace::names::RenderReparseTag(reparsePoint.Tag));
@@ -142,19 +143,19 @@ namespace {
 
             case kernel::FileDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_DIRECTORY_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_DIRECTORY_INFORMATION>(payload);
 
             case kernel::FileFullDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_FULL_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_FULL_DIR_INFORMATION>(payload);
 
             case kernel::FileBothDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_BOTH_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_BOTH_DIR_INFORMATION>(payload);
 
             case kernel::FileNamesInformation:
 
-                return RenderEntriesPayload<kernel::FILE_NAMES_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_NAMES_INFORMATION>(payload);
 
             case kernel::FileObjectIdInformation:
 
@@ -166,39 +167,39 @@ namespace {
 
             case kernel::FileIdBothDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_ID_BOTH_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_ID_BOTH_DIR_INFORMATION>(payload);
 
             case kernel::FileIdFullDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_ID_FULL_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_ID_FULL_DIR_INFORMATION>(payload);
 
             case kernel::FileIdGlobalTxDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_ID_GLOBAL_TX_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_ID_GLOBAL_TX_DIR_INFORMATION>(payload);
 
             case kernel::FileIdExtdDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_ID_EXTD_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_ID_EXTD_DIR_INFORMATION>(payload);
 
             case kernel::FileIdExtdBothDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_ID_EXTD_BOTH_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_ID_EXTD_BOTH_DIR_INFORMATION>(payload);
 
             case kernel::FileId64ExtdDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_ID_64_EXTD_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_ID_64_EXTD_DIR_INFORMATION>(payload);
 
             case kernel::FileId64ExtdBothDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_ID_64_EXTD_BOTH_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_ID_64_EXTD_BOTH_DIR_INFORMATION>(payload);
 
             case kernel::FileIdAllExtdDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_ID_ALL_EXTD_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_ID_ALL_EXTD_DIR_INFORMATION>(payload);
 
             case kernel::FileIdAllExtdBothDirectoryInformation:
 
-                return RenderEntriesPayload<kernel::FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION>(payload);
+                return RenderEntriesPayload<trace::layouts::FILE_ID_ALL_EXTD_BOTH_DIR_INFORMATION>(payload);
 
         }
 
@@ -302,15 +303,15 @@ namespace {
 
             case kernel::DirectoryNotifyInformation:
 
-                return RenderChangesPayload<kernel::FILE_NOTIFY_INFORMATION>(payload);
+                return RenderChangesPayload<trace::layouts::FILE_NOTIFY_INFORMATION>(payload);
 
             case kernel::DirectoryNotifyExtendedInformation:
 
-                return RenderChangesPayload<kernel::FILE_NOTIFY_EXTENDED_INFORMATION>(payload);
+                return RenderChangesPayload<trace::layouts::FILE_NOTIFY_EXTENDED_INFORMATION>(payload);
 
             case kernel::DirectoryNotifyFullInformation:
 
-                return RenderChangesPayload<kernel::FILE_NOTIFY_FULL_INFORMATION>(payload);
+                return RenderChangesPayload<trace::layouts::FILE_NOTIFY_FULL_INFORMATION>(payload);
 
         }
 

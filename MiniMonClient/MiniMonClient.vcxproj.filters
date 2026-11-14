@@ -188,6 +188,9 @@
     <ClInclude Include="src\trace\format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\trace\layouts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\trace\names.h">
       <Filter>Header Files</Filter>
     </ClInclude>

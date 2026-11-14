@@ -1,11 +1,10 @@
 #include "eas.h"
 
+#include "layouts.h"
 #include "names.h"
 #include "payload.h"
 
 #include "..\text.h"
-
-#include "..\..\..\inc\kernel.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -29,8 +28,8 @@ namespace mimo {
                 bool terminated = false;
 
                 while (true) {
-                    constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_FULL_EA_INFORMATION, EaName);
-                    kernel::FILE_FULL_EA_INFORMATION entry{};
+                    constexpr size_t NAME_OFFSET = offsetof(layouts::FILE_FULL_EA_INFORMATION, EaName);
+                    layouts::FILE_FULL_EA_INFORMATION entry{};
 
                     if (!payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 

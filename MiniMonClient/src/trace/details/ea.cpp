@@ -1,6 +1,7 @@
 #include "ea.h"
 
 #include "..\eas.h"
+#include "..\layouts.h"
 #include "..\names.h"
 #include "..\payload.h"
 
@@ -34,8 +35,8 @@ namespace {
         bool terminated = false;
 
         while (true) {
-            constexpr size_t NAME_OFFSET = offsetof(kernel::FILE_GET_EA_INFORMATION, EaName);
-            kernel::FILE_GET_EA_INFORMATION entry{};
+            constexpr size_t NAME_OFFSET = offsetof(trace::layouts::FILE_GET_EA_INFORMATION, EaName);
+            trace::layouts::FILE_GET_EA_INFORMATION entry{};
 
             if (!trace::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
 

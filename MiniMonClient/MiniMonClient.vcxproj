@@ -78,6 +78,7 @@
     <ClInclude Include="src\trace\details\wmi.h" />
     <ClInclude Include="src\trace\eas.h" />
     <ClInclude Include="src\trace\format.h" />
+    <ClInclude Include="src\trace\layouts.h" />
     <ClInclude Include="src\trace\names.h" />
     <ClInclude Include="src\trace\payload.h" />
     <ClInclude Include="src\trace\values.h" />
