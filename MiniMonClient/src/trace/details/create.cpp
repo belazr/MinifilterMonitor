@@ -6,8 +6,13 @@
 
 #include "..\..\text.h"
 
-#include "..\..\..\..\inc\kernel.h"
 #include "..\..\..\..\inc\protocol.h"
+
+#define WIN32_NO_STATUS
+#include <Windows.h>
+#undef WIN32_NO_STATUS
+#include <ntstatus.h>
+#include <winternl.h>
 
 #include <cstdint>
 #include <format>
@@ -35,7 +40,7 @@ namespace {
 
         result += std::format(L", Attributes: {}, ShareMode: {}", trace::names::RenderFileAttributes(fileAttributes), trace::names::RenderShareAccess(shareAccess));
 
-        if (disposition == kernel::FILE_OPEN) {
+        if (disposition == FILE_OPEN) {
             result += L", AllocationSize: n/a";
         }
         else {
@@ -93,7 +98,7 @@ namespace mimo {
                         details += std::format(L", Impersonating: {}", values::RenderSid(createSupplement.impersonatedSid));
                     }
 
-                    if (data.status == kernel::STATUS_SUCCESS || data.information == kernel::FILE_EXISTS || data.information == kernel::FILE_DOES_NOT_EXIST) {
+                    if (data.status == STATUS_SUCCESS || data.information == FILE_EXISTS || data.information == FILE_DOES_NOT_EXIST) {
                         details += std::format(L", OpenResult: {}", names::RenderOpenResult(data.information));
                     }
 

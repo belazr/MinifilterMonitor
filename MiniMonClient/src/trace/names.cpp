@@ -9,6 +9,7 @@
 #include <ntstatus.h>
 #include <winioctl.h>
 #include <ntddvol.h>    // after winioctl.h, whose volume section it repeats under an IOCTL_VOLUME_BASE guard
+#include <winternl.h>
 #include <wnnc.h>
 
 #include <cstddef>
@@ -108,29 +109,29 @@ namespace {
     static_assert(CompositesPrecedeComponents(DESIRED_ACCESS_NAMES), "composite entry after its components in DESIRED_ACCESS_NAMES");
 
     constexpr FlagName CREATE_OPTION_NAMES[]{
-        { kernel::FILE_DIRECTORY_FILE,            L"Directory" },
-        { kernel::FILE_WRITE_THROUGH,             L"Write Through" },
-        { kernel::FILE_SEQUENTIAL_ONLY,           L"Sequential Access" },
-        { kernel::FILE_NO_INTERMEDIATE_BUFFERING, L"No Buffering" },
-        { kernel::FILE_SYNCHRONOUS_IO_ALERT,      L"Synchronous IO Alert" },
-        { kernel::FILE_SYNCHRONOUS_IO_NONALERT,   L"Synchronous IO Non-Alert" },
-        { kernel::FILE_NON_DIRECTORY_FILE,        L"Non-Directory File" },
-        { kernel::FILE_CREATE_TREE_CONNECTION,    L"Create Tree Connection" },
-        { kernel::FILE_COMPLETE_IF_OPLOCKED,      L"Complete If Oplocked" },
-        { kernel::FILE_NO_EA_KNOWLEDGE,           L"No EA Knowledge" },
-        { kernel::FILE_OPEN_REMOTE_INSTANCE,      L"Open Remote Instance" },
-        { kernel::FILE_RANDOM_ACCESS,             L"Random Access" },
-        { kernel::FILE_DELETE_ON_CLOSE,           L"Delete On Close" },
-        { kernel::FILE_OPEN_BY_FILE_ID,           L"Open By ID" },
-        { kernel::FILE_OPEN_FOR_BACKUP_INTENT,    L"Open For Backup" },
-        { kernel::FILE_NO_COMPRESSION,            L"No Compression" },
-        { kernel::FILE_OPEN_REQUIRING_OPLOCK,     L"Open Requiring Oplock" },
-        { kernel::FILE_DISALLOW_EXCLUSIVE,        L"Disallow Exclusive" },
-        { kernel::FILE_SESSION_AWARE,             L"Session Aware" },
-        { kernel::FILE_RESERVE_OPFILTER,          L"Reserve OpFilter" },
-        { kernel::FILE_OPEN_REPARSE_POINT,        L"Open Reparse Point" },
-        { kernel::FILE_OPEN_NO_RECALL,            L"Open No Recall" },
-        { kernel::FILE_OPEN_FOR_FREE_SPACE_QUERY, L"Open For Free Space Query" },
+        { FILE_DIRECTORY_FILE,             L"Directory" },
+        { FILE_WRITE_THROUGH,              L"Write Through" },
+        { FILE_SEQUENTIAL_ONLY,            L"Sequential Access" },
+        { FILE_NO_INTERMEDIATE_BUFFERING,  L"No Buffering" },
+        { FILE_SYNCHRONOUS_IO_ALERT,       L"Synchronous IO Alert" },
+        { FILE_SYNCHRONOUS_IO_NONALERT,    L"Synchronous IO Non-Alert" },
+        { FILE_NON_DIRECTORY_FILE,         L"Non-Directory File" },
+        { FILE_CREATE_TREE_CONNECTION,     L"Create Tree Connection" },
+        { FILE_COMPLETE_IF_OPLOCKED,       L"Complete If Oplocked" },
+        { FILE_NO_EA_KNOWLEDGE,            L"No EA Knowledge" },
+        { FILE_OPEN_REMOTE_INSTANCE,       L"Open Remote Instance" },
+        { FILE_RANDOM_ACCESS,              L"Random Access" },
+        { FILE_DELETE_ON_CLOSE,            L"Delete On Close" },
+        { FILE_OPEN_BY_FILE_ID,            L"Open By ID" },
+        { FILE_OPEN_FOR_BACKUP_INTENT,     L"Open For Backup" },
+        { FILE_NO_COMPRESSION,             L"No Compression" },
+        { FILE_OPEN_REQUIRING_OPLOCK,      L"Open Requiring Oplock" },
+        { kernel::FILE_DISALLOW_EXCLUSIVE, L"Disallow Exclusive" },
+        { kernel::FILE_SESSION_AWARE,      L"Session Aware" },
+        { FILE_RESERVE_OPFILTER,           L"Reserve OpFilter" },
+        { FILE_OPEN_REPARSE_POINT,         L"Open Reparse Point" },
+        { FILE_OPEN_NO_RECALL,             L"Open No Recall" },
+        { FILE_OPEN_FOR_FREE_SPACE_QUERY,  L"Open For Free Space Query" },
     };
 
     static_assert(CompositesPrecedeComponents(CREATE_OPTION_NAMES), "composite entry after its components in CREATE_OPTION_NAMES");
@@ -1155,12 +1156,12 @@ namespace mimo {
             std::wstring RenderCreateDisposition(uint32_t disposition) {
 
                 switch (disposition) {
-                    case kernel::FILE_SUPERSEDE:    return L"Supersede";
-                    case kernel::FILE_OPEN:         return L"Open";
-                    case kernel::FILE_CREATE:       return L"Create";
-                    case kernel::FILE_OPEN_IF:      return L"OpenIf";
-                    case kernel::FILE_OVERWRITE:    return L"Overwrite";
-                    case kernel::FILE_OVERWRITE_IF: return L"OverwriteIf";
+                    case FILE_SUPERSEDE:    return L"Supersede";
+                    case FILE_OPEN:         return L"Open";
+                    case FILE_CREATE:       return L"Create";
+                    case FILE_OPEN_IF:      return L"OpenIf";
+                    case FILE_OVERWRITE:    return L"Overwrite";
+                    case FILE_OVERWRITE_IF: return L"OverwriteIf";
                 }
 
                 return std::to_wstring(disposition);
@@ -1170,12 +1171,12 @@ namespace mimo {
             std::wstring RenderOpenResult(uint64_t information) {
 
                 switch (information) {
-                    case kernel::FILE_SUPERSEDED:     return L"Superseded";
-                    case kernel::FILE_OPENED:         return L"Opened";
-                    case kernel::FILE_CREATED:        return L"Created";
-                    case kernel::FILE_OVERWRITTEN:    return L"Overwritten";
-                    case kernel::FILE_EXISTS:         return L"Exists";
-                    case kernel::FILE_DOES_NOT_EXIST: return L"Does Not Exist";
+                    case FILE_SUPERSEDED:     return L"Superseded";
+                    case FILE_OPENED:         return L"Opened";
+                    case FILE_CREATED:        return L"Created";
+                    case FILE_OVERWRITTEN:    return L"Overwritten";
+                    case FILE_EXISTS:         return L"Exists";
+                    case FILE_DOES_NOT_EXIST: return L"Does Not Exist";
                 }
 
                 return std::to_wstring(information);
