@@ -2,6 +2,9 @@
 
 #include "..\text.h"
 
+#include <Windows.h>
+#include <winternl.h>
+
 #include <cstdint>
 #include <format>
 #include <iostream>
