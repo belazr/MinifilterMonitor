@@ -135,9 +135,9 @@ namespace {
     };
 
     template <typename Info>
-    std::vector<std::byte> MakeBuffer(const Info& info) {
-        std::vector<std::byte> buffer(sizeof(info));
-        std::memcpy(buffer.data(), &info, sizeof(info));
+    std::vector<std::byte> MakeBuffer(const Info& payload) {
+        std::vector<std::byte> buffer(sizeof(payload));
+        std::memcpy(buffer.data(), &payload, sizeof(payload));
 
         return buffer;
     }
@@ -146,12 +146,12 @@ namespace {
     std::vector<std::byte> MakeNameBuffer(uint32_t flags, std::wstring_view targetPath) {
         constexpr size_t NAME_OFFSET = offsetof(FILE_RENAME_INFO, FileName);
         const size_t nameSize = targetPath.size() * sizeof(wchar_t);
-        FILE_RENAME_INFO info{};
-        info.Flags = static_cast<DWORD>(flags);
-        info.FileNameLength = static_cast<DWORD>(nameSize);
+        FILE_RENAME_INFO header{};
+        header.Flags = static_cast<DWORD>(flags);
+        header.FileNameLength = static_cast<DWORD>(nameSize);
 
         std::vector<std::byte> buffer(NAME_OFFSET + nameSize);
-        std::memcpy(buffer.data(), &info, NAME_OFFSET);
+        std::memcpy(buffer.data(), &header, NAME_OFFSET);
         std::memcpy(buffer.data() + NAME_OFFSET, targetPath.data(), nameSize);
 
         return buffer;
@@ -162,11 +162,11 @@ namespace {
         constexpr std::wstring_view NAME = L"MIMO~1";
         constexpr size_t NAME_OFFSET = offsetof(FILE_NAME_INFO, FileName);
         constexpr size_t NAME_SIZE = NAME.size() * sizeof(wchar_t);
-        FILE_NAME_INFO info{};
-        info.FileNameLength = static_cast<DWORD>(NAME_SIZE);
+        FILE_NAME_INFO header{};
+        header.FileNameLength = static_cast<DWORD>(NAME_SIZE);
 
         std::vector<std::byte> buffer(NAME_OFFSET + NAME_SIZE);
-        std::memcpy(buffer.data(), &info, NAME_OFFSET);
+        std::memcpy(buffer.data(), &header, NAME_OFFSET);
         std::memcpy(buffer.data() + NAME_OFFSET, NAME.data(), NAME_SIZE);
 
         return buffer;
