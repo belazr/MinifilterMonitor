@@ -13,9 +13,9 @@ namespace mimo {
         Target::Target(std::wstring_view ntDirectory, std::wstring_view name) : path(std::format(L"{}\\{}", ntDirectory, name)) {}
 
 
-        NTSTATUS Target::Create(ACCESS_MASK desiredAccess) {
+        NTSTATUS Target::Create(ACCESS_MASK desiredAccess, bool asynchronous) {
             constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
-            constexpr ULONG OPTIONS = FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT;
+            const ULONG options = asynchronous ? FILE_NON_DIRECTORY_FILE : FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT;
             UNICODE_STRING objectName{};
             objectName.Length = static_cast<USHORT>(this->path.size() * sizeof(wchar_t));
             objectName.MaximumLength = objectName.Length;
@@ -26,7 +26,7 @@ namespace mimo {
 
             IO_STATUS_BLOCK ioStatus{};
 
-            return NtCreateFile(this->file.Put(), desiredAccess | SYNCHRONIZE, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, FILE_CREATE, OPTIONS, nullptr, 0u);
+            return NtCreateFile(this->file.Put(), desiredAccess | SYNCHRONIZE, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, FILE_CREATE, options, nullptr, 0u);
         }
 
 

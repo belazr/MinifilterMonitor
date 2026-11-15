@@ -20,7 +20,7 @@ namespace mimo {
 
             Target& operator=(const Target&) = delete;
 
-            NTSTATUS Create(ACCESS_MASK desiredAccess);
+            NTSTATUS Create(ACCESS_MASK desiredAccess, bool asynchronous = false);
 
             HANDLE Get() const;
 

@@ -47,28 +47,29 @@ namespace {
         test::report::Description description;
         uint32_t infoClass;
         uint32_t size;
+        bool asynchronous;
     };
 
     constexpr QueryOperation QUERY_OPERATIONS[]{
-        { { L"query-basic",         STATUS_SUCCESS         }, kernel::FileBasicInformation,               1024u },
-        { { L"query-standard",      STATUS_SUCCESS         }, kernel::FileStandardInformation,            1024u },
-        { { L"query-internal",      STATUS_SUCCESS         }, kernel::FileInternalInformation,            1024u },
-        { { L"query-ea",            STATUS_SUCCESS         }, kernel::FileEaInformation,                  1024u },
-        { { L"query-name",          STATUS_SUCCESS         }, kernel::FileNameInformation,                1024u },
-        { { L"query-name-overflow", STATUS_BUFFER_OVERFLOW }, kernel::FileNameInformation,                8u    },
-        { { L"query-position",      STATUS_SUCCESS         }, kernel::FilePositionInformation,            1024u },
-        { { L"query-all",           STATUS_SUCCESS         }, kernel::FileAllInformation,                 1024u },
-        { { L"query-stream",        STATUS_SUCCESS         }, kernel::FileStreamInformation,              1024u },
-        { { L"query-compression",   STATUS_SUCCESS         }, kernel::FileCompressionInformation,         1024u },
-        { { L"query-network-open",  STATUS_SUCCESS         }, kernel::FileNetworkOpenInformation,         1024u },
-        { { L"query-attribute-tag", STATUS_SUCCESS         }, kernel::FileAttributeTagInformation,        1024u },
-        { { L"query-hard-link",     STATUS_SUCCESS         }, kernel::FileHardLinkInformation,            1024u },
-        { { L"query-process-ids",   STATUS_SUCCESS         }, kernel::FileProcessIdsUsingFileInformation, 1024u },
-        { { L"query-standard-link", STATUS_SUCCESS         }, kernel::FileStandardLinkInformation,        1024u },
-        { { L"query-volume-name",   STATUS_SUCCESS         }, kernel::FileVolumeNameInformation,          1024u },
-        { { L"query-id",            STATUS_SUCCESS         }, kernel::FileIdInformation,                  1024u },
-        { { L"query-stat",          STATUS_SUCCESS         }, kernel::FileStatInformation,                1024u },
-        { { L"query-stat-lx",       STATUS_SUCCESS         }, kernel::FileStatLxInformation,              1024u },
+        { { L"query-basic",         STATUS_SUCCESS         }, kernel::FileBasicInformation,               1024u, false },
+        { { L"query-standard",      STATUS_SUCCESS         }, kernel::FileStandardInformation,            1024u, false },
+        { { L"query-internal",      STATUS_SUCCESS         }, kernel::FileInternalInformation,            1024u, false },
+        { { L"query-ea",            STATUS_SUCCESS         }, kernel::FileEaInformation,                  1024u, false },
+        { { L"query-name",          STATUS_SUCCESS         }, kernel::FileNameInformation,                1024u, false },
+        { { L"query-name-overflow", STATUS_BUFFER_OVERFLOW }, kernel::FileNameInformation,                8u,    false },
+        { { L"query-position",      STATUS_SUCCESS         }, kernel::FilePositionInformation,            1024u, true  },
+        { { L"query-all",           STATUS_SUCCESS         }, kernel::FileAllInformation,                 1024u, false },
+        { { L"query-stream",        STATUS_SUCCESS         }, kernel::FileStreamInformation,              1024u, false },
+        { { L"query-compression",   STATUS_SUCCESS         }, kernel::FileCompressionInformation,         1024u, false },
+        { { L"query-network-open",  STATUS_SUCCESS         }, kernel::FileNetworkOpenInformation,         1024u, false },
+        { { L"query-attribute-tag", STATUS_SUCCESS         }, kernel::FileAttributeTagInformation,        1024u, false },
+        { { L"query-hard-link",     STATUS_SUCCESS         }, kernel::FileHardLinkInformation,            1024u, false },
+        { { L"query-process-ids",   STATUS_SUCCESS         }, kernel::FileProcessIdsUsingFileInformation, 1024u, false },
+        { { L"query-standard-link", STATUS_SUCCESS         }, kernel::FileStandardLinkInformation,        1024u, false },
+        { { L"query-volume-name",   STATUS_SUCCESS         }, kernel::FileVolumeNameInformation,          1024u, false },
+        { { L"query-id",            STATUS_SUCCESS         }, kernel::FileIdInformation,                  1024u, false },
+        { { L"query-stat",          STATUS_SUCCESS         }, kernel::FileStatInformation,                1024u, false },
+        { { L"query-stat-lx",       STATUS_SUCCESS         }, kernel::FileStatLxInformation,              1024u, false },
     };
 
     NTSTATUS Query(
@@ -88,7 +89,7 @@ namespace {
 
         for (const QueryOperation& operation : QUERY_OPERATIONS) {
             test::Target target{ ntDirectory, operation.description.name };
-            const NTSTATUS createStatus = target.Create(FILE_GENERIC_READ);
+            const NTSTATUS createStatus = target.Create(FILE_GENERIC_READ, operation.asynchronous);
 
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
