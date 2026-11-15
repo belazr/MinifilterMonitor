@@ -112,24 +112,26 @@ namespace {
         test::report::Description description;
         uint32_t infoClass;
         uint32_t value;
+        bool asynchronous;
     };
 
     constexpr SetOperation SET_OPERATIONS[]{
-        { { L"set-basic",                 STATUS_SUCCESS            }, kernel::FileBasicInformation,               FILE_ATTRIBUTE_HIDDEN                               },
-        { { L"set-rename",                STATUS_SUCCESS            }, kernel::FileRenameInformation,              1u                                                  },
-        { { L"set-link",                  STATUS_SUCCESS            }, kernel::FileLinkInformation,                1u                                                  },
-        { { L"set-disposition",           STATUS_SUCCESS            }, kernel::FileDispositionInformation,         1u                                                  },
-        { { L"set-allocation",            STATUS_SUCCESS            }, kernel::FileAllocationInformation,          4096u                                               },
-        { { L"set-end-of-file",           STATUS_SUCCESS            }, kernel::FileEndOfFileInformation,           16u                                                 },
-        { { L"set-valid-data-length",     STATUS_PRIVILEGE_NOT_HELD }, kernel::FileValidDataLengthInformation,     16u                                                 },
-        { { L"set-short-name",            STATUS_SUCCESS            }, kernel::FileShortNameInformation,           0u                                                  },
-        { { L"set-disposition-ex",        STATUS_SUCCESS            }, kernel::FileDispositionInformationEx,       kernel::FILE_DISPOSITION_DELETE                     },
-        { { L"set-rename-ex",             STATUS_SUCCESS            }, kernel::FileRenameInformationEx,            kernel::FILE_RENAME_POSIX_SEMANTICS                 },
-        { { L"set-desired-storage-class", STATUS_SUCCESS            }, kernel::FileDesiredStorageClassInformation, static_cast<uint32_t>(FileStorageTierClassCapacity) },
-        { { L"set-case-sensitive",        STATUS_INVALID_PARAMETER  }, kernel::FileCaseSensitiveInformation,       FILE_CS_FLAG_CASE_SENSITIVE_DIR                     },
-        { { L"set-link-ex",               STATUS_SUCCESS            }, kernel::FileLinkInformationEx,              kernel::FILE_LINK_POSIX_SEMANTICS                   },
-        { { L"set-storage-reserve-id",    STATUS_SUCCESS            }, kernel::FileStorageReserveIdInformation,    static_cast<uint32_t>(StorageReserveIdSoft)         },
-        { { L"set-known-folder",          STATUS_INVALID_PARAMETER  }, kernel::FileKnownFolderInformation,         kernel::KnownFolderDocuments                        },
+        { { L"set-basic",                 STATUS_SUCCESS            }, kernel::FileBasicInformation,               FILE_ATTRIBUTE_HIDDEN,                               false },
+        { { L"set-rename",                STATUS_SUCCESS            }, kernel::FileRenameInformation,              1u,                                                  false },
+        { { L"set-link",                  STATUS_SUCCESS            }, kernel::FileLinkInformation,                1u,                                                  false },
+        { { L"set-disposition",           STATUS_SUCCESS            }, kernel::FileDispositionInformation,         1u,                                                  false },
+        { { L"set-position",              STATUS_SUCCESS            }, kernel::FilePositionInformation,            8u,                                                  true  },
+        { { L"set-allocation",            STATUS_SUCCESS            }, kernel::FileAllocationInformation,          4096u,                                               false },
+        { { L"set-end-of-file",           STATUS_SUCCESS            }, kernel::FileEndOfFileInformation,           16u,                                                 false },
+        { { L"set-valid-data-length",     STATUS_PRIVILEGE_NOT_HELD }, kernel::FileValidDataLengthInformation,     16u,                                                 false },
+        { { L"set-short-name",            STATUS_SUCCESS            }, kernel::FileShortNameInformation,           0u,                                                  false },
+        { { L"set-disposition-ex",        STATUS_SUCCESS            }, kernel::FileDispositionInformationEx,       kernel::FILE_DISPOSITION_DELETE,                     false },
+        { { L"set-rename-ex",             STATUS_SUCCESS            }, kernel::FileRenameInformationEx,            kernel::FILE_RENAME_POSIX_SEMANTICS,                 false },
+        { { L"set-desired-storage-class", STATUS_SUCCESS            }, kernel::FileDesiredStorageClassInformation, static_cast<uint32_t>(FileStorageTierClassCapacity), false },
+        { { L"set-case-sensitive",        STATUS_INVALID_PARAMETER  }, kernel::FileCaseSensitiveInformation,       FILE_CS_FLAG_CASE_SENSITIVE_DIR,                     false },
+        { { L"set-link-ex",               STATUS_SUCCESS            }, kernel::FileLinkInformationEx,              kernel::FILE_LINK_POSIX_SEMANTICS,                   false },
+        { { L"set-storage-reserve-id",    STATUS_SUCCESS            }, kernel::FileStorageReserveIdInformation,    static_cast<uint32_t>(StorageReserveIdSoft),         false },
+        { { L"set-known-folder",          STATUS_INVALID_PARAMETER  }, kernel::FileKnownFolderInformation,         kernel::KnownFolderDocuments,                        false },
     };
 
     template <typename Info>
@@ -171,6 +173,10 @@ namespace {
     }
 
 
+    struct FILE_POSITION_INFORMATION {
+        LARGE_INTEGER CurrentByteOffset;
+    };
+
     struct FILE_VALID_DATA_LENGTH_INFORMATION {
         LARGE_INTEGER ValidDataLength;
     };
@@ -210,6 +216,13 @@ namespace {
                 disposition.DeleteFile = static_cast<BOOLEAN>(value);
 
                 return MakeBuffer(disposition);
+            }
+
+            case kernel::FilePositionInformation: {
+                FILE_POSITION_INFORMATION position{};
+                position.CurrentByteOffset.QuadPart = static_cast<LONGLONG>(value);
+
+                return MakeBuffer(position);
             }
 
             case kernel::FileAllocationInformation: {
@@ -295,7 +308,7 @@ namespace {
 
         for (const SetOperation& operation : SET_OPERATIONS) {
             test::Target target{ ntDirectory, operation.description.name };
-            const NTSTATUS createStatus = target.Create(FILE_WRITE_ATTRIBUTES | FILE_WRITE_DATA | DELETE);
+            const NTSTATUS createStatus = target.Create(FILE_WRITE_ATTRIBUTES | FILE_WRITE_DATA | DELETE, operation.asynchronous);
 
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
