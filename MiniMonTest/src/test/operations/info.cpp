@@ -14,13 +14,24 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <format>
 #include <iostream>
 #include <optional>
 #include <span>
+#include <string>
 #include <string_view>
 #include <vector>
 
 extern "C" NTSYSAPI NTSTATUS NTAPI NtQueryInformationFile(
+    HANDLE hFile,
+    IO_STATUS_BLOCK* pIoStatus,
+    void* pBuffer,
+    ULONG bufferSize,
+    ULONG infoClass
+);
+
+extern "C" NTSYSAPI NTSTATUS NTAPI NtSetInformationFile(
     HANDLE hFile,
     IO_STATUS_BLOCK* pIoStatus,
     void* pBuffer,
@@ -95,6 +106,149 @@ namespace {
         return;
     }
 
+
+    struct SetOperation {
+        test::report::Description description;
+        uint32_t infoClass;
+        uint32_t value;
+    };
+
+    constexpr SetOperation SET_OPERATIONS[]{
+        { { L"set-basic",          STATUS_SUCCESS }, kernel::FileBasicInformation,         FILE_ATTRIBUTE_HIDDEN               },
+        { { L"set-rename",         STATUS_SUCCESS }, kernel::FileRenameInformation,        1u                                  },
+        { { L"set-link",           STATUS_SUCCESS }, kernel::FileLinkInformation,          1u                                  },
+        { { L"set-disposition",    STATUS_SUCCESS }, kernel::FileDispositionInformation,   1u                                  },
+        { { L"set-allocation",     STATUS_SUCCESS }, kernel::FileAllocationInformation,    4096u                               },
+        { { L"set-end-of-file",    STATUS_SUCCESS }, kernel::FileEndOfFileInformation,     16u                                 },
+        { { L"set-disposition-ex", STATUS_SUCCESS }, kernel::FileDispositionInformationEx, kernel::FILE_DISPOSITION_DELETE     },
+        { { L"set-rename-ex",      STATUS_SUCCESS }, kernel::FileRenameInformationEx,      kernel::FILE_RENAME_POSIX_SEMANTICS },
+        { { L"set-link-ex",        STATUS_SUCCESS }, kernel::FileLinkInformationEx,        kernel::FILE_LINK_POSIX_SEMANTICS   },
+    };
+
+    template <typename Info>
+    std::vector<std::byte> MakeBuffer(const Info& info) {
+        std::vector<std::byte> buffer(sizeof(info));
+        std::memcpy(buffer.data(), &info, sizeof(info));
+
+        return buffer;
+    }
+
+
+    std::vector<std::byte> MakeNameBuffer(uint32_t flags, std::wstring_view targetPath) {
+        constexpr size_t NAME_OFFSET = offsetof(FILE_RENAME_INFO, FileName);
+        const size_t nameSize = targetPath.size() * sizeof(wchar_t);
+        FILE_RENAME_INFO info{};
+        info.Flags = static_cast<DWORD>(flags);
+        info.FileNameLength = static_cast<DWORD>(nameSize);
+
+        std::vector<std::byte> buffer(NAME_OFFSET + nameSize);
+        std::memcpy(buffer.data(), &info, NAME_OFFSET);
+        std::memcpy(buffer.data() + NAME_OFFSET, targetPath.data(), nameSize);
+
+        return buffer;
+    }
+
+
+    std::optional<std::vector<std::byte>> MakeSetBuffer(
+        uint32_t infoClass,
+        uint32_t value,
+        std::wstring_view targetPath
+    ) {
+
+        switch (infoClass) {
+
+            case kernel::FileBasicInformation: {
+                FILE_BASIC_INFO basic{};
+                basic.FileAttributes = static_cast<DWORD>(value);
+
+                return MakeBuffer(basic);
+            }
+
+            case kernel::FileRenameInformation:
+            case kernel::FileLinkInformation:
+            case kernel::FileRenameInformationEx:
+            case kernel::FileLinkInformationEx:
+
+                return MakeNameBuffer(value, targetPath);
+
+            case kernel::FileDispositionInformation: {
+                FILE_DISPOSITION_INFO disposition{};
+                disposition.DeleteFile = static_cast<BOOLEAN>(value);
+
+                return MakeBuffer(disposition);
+            }
+
+            case kernel::FileAllocationInformation: {
+                FILE_ALLOCATION_INFO allocation{};
+                allocation.AllocationSize.QuadPart = static_cast<LONGLONG>(value);
+
+                return MakeBuffer(allocation);
+            }
+
+            case kernel::FileEndOfFileInformation: {
+                FILE_END_OF_FILE_INFO endOfFile{};
+                endOfFile.EndOfFile.QuadPart = static_cast<LONGLONG>(value);
+
+                return MakeBuffer(endOfFile);
+            }
+
+            case kernel::FileDispositionInformationEx: {
+                FILE_DISPOSITION_INFO_EX dispositionEx{};
+                dispositionEx.Flags = static_cast<DWORD>(value);
+
+                return MakeBuffer(dispositionEx);
+            }
+
+        }
+
+        return std::nullopt;
+    }
+
+
+    NTSTATUS Set(
+        const test::Target& target,
+        uint32_t infoClass,
+        std::span<const std::byte> data
+    ) {
+        IO_STATUS_BLOCK ioStatus{};
+
+        return NtSetInformationFile(target.Get(), &ioStatus, const_cast<std::byte*>(data.data()), static_cast<ULONG>(data.size()), static_cast<ULONG>(infoClass));
+    }
+
+
+    constexpr std::string_view SET_MAJOR = "Set information";
+
+    void RunSetOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+
+        for (const SetOperation& operation : SET_OPERATIONS) {
+            test::Target target{ ntDirectory, operation.description.name };
+            const NTSTATUS createStatus = target.Create(FILE_WRITE_ATTRIBUTES | FILE_WRITE_DATA | DELETE);
+
+            if (!NT_SUCCESS(createStatus)) {
+                std::cerr << "Failed to create the target file\n";
+                error::Display(RtlNtStatusToDosError(createStatus));
+                test::report::Add(counts, SET_MAJOR, operation.description, std::nullopt);
+
+                continue;
+            }
+
+            const std::wstring targetPath = std::format(L"{}\\{}-target", ntDirectory, operation.description.name);
+            const std::optional<std::vector<std::byte>> data = MakeSetBuffer(operation.infoClass, operation.value, targetPath);
+
+            if (!data.has_value()) {
+                std::cerr << "No payload for the information class\n";
+                test::report::Add(counts, SET_MAJOR, operation.description, std::nullopt);
+
+                continue;
+            }
+
+            const NTSTATUS setStatus = Set(target, operation.infoClass, *data);
+            test::report::Add(counts, SET_MAJOR, operation.description, setStatus);
+        }
+
+        return;
+    }
+
 }
 
 namespace mimo {
@@ -107,6 +261,7 @@ namespace mimo {
 
                 bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
                     RunQueryOperations(ntDirectory, counts);
+                    RunSetOperations(ntDirectory, counts);
 
                     return true;
                 }
