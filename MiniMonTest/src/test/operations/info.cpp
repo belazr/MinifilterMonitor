@@ -114,15 +114,21 @@ namespace {
     };
 
     constexpr SetOperation SET_OPERATIONS[]{
-        { { L"set-basic",          STATUS_SUCCESS }, kernel::FileBasicInformation,         FILE_ATTRIBUTE_HIDDEN               },
-        { { L"set-rename",         STATUS_SUCCESS }, kernel::FileRenameInformation,        1u                                  },
-        { { L"set-link",           STATUS_SUCCESS }, kernel::FileLinkInformation,          1u                                  },
-        { { L"set-disposition",    STATUS_SUCCESS }, kernel::FileDispositionInformation,   1u                                  },
-        { { L"set-allocation",     STATUS_SUCCESS }, kernel::FileAllocationInformation,    4096u                               },
-        { { L"set-end-of-file",    STATUS_SUCCESS }, kernel::FileEndOfFileInformation,     16u                                 },
-        { { L"set-disposition-ex", STATUS_SUCCESS }, kernel::FileDispositionInformationEx, kernel::FILE_DISPOSITION_DELETE     },
-        { { L"set-rename-ex",      STATUS_SUCCESS }, kernel::FileRenameInformationEx,      kernel::FILE_RENAME_POSIX_SEMANTICS },
-        { { L"set-link-ex",        STATUS_SUCCESS }, kernel::FileLinkInformationEx,        kernel::FILE_LINK_POSIX_SEMANTICS   },
+        { { L"set-basic",                 STATUS_SUCCESS            }, kernel::FileBasicInformation,               FILE_ATTRIBUTE_HIDDEN                               },
+        { { L"set-rename",                STATUS_SUCCESS            }, kernel::FileRenameInformation,              1u                                                  },
+        { { L"set-link",                  STATUS_SUCCESS            }, kernel::FileLinkInformation,                1u                                                  },
+        { { L"set-disposition",           STATUS_SUCCESS            }, kernel::FileDispositionInformation,         1u                                                  },
+        { { L"set-allocation",            STATUS_SUCCESS            }, kernel::FileAllocationInformation,          4096u                                               },
+        { { L"set-end-of-file",           STATUS_SUCCESS            }, kernel::FileEndOfFileInformation,           16u                                                 },
+        { { L"set-valid-data-length",     STATUS_PRIVILEGE_NOT_HELD }, kernel::FileValidDataLengthInformation,     16u                                                 },
+        { { L"set-short-name",            STATUS_SUCCESS            }, kernel::FileShortNameInformation,           0u                                                  },
+        { { L"set-disposition-ex",        STATUS_SUCCESS            }, kernel::FileDispositionInformationEx,       kernel::FILE_DISPOSITION_DELETE                     },
+        { { L"set-rename-ex",             STATUS_SUCCESS            }, kernel::FileRenameInformationEx,            kernel::FILE_RENAME_POSIX_SEMANTICS                 },
+        { { L"set-desired-storage-class", STATUS_SUCCESS            }, kernel::FileDesiredStorageClassInformation, static_cast<uint32_t>(FileStorageTierClassCapacity) },
+        { { L"set-case-sensitive",        STATUS_INVALID_PARAMETER  }, kernel::FileCaseSensitiveInformation,       FILE_CS_FLAG_CASE_SENSITIVE_DIR                     },
+        { { L"set-link-ex",               STATUS_SUCCESS            }, kernel::FileLinkInformationEx,              kernel::FILE_LINK_POSIX_SEMANTICS                   },
+        { { L"set-storage-reserve-id",    STATUS_SUCCESS            }, kernel::FileStorageReserveIdInformation,    static_cast<uint32_t>(StorageReserveIdSoft)         },
+        { { L"set-known-folder",          STATUS_INVALID_PARAMETER  }, kernel::FileKnownFolderInformation,         kernel::KnownFolderDocuments                        },
     };
 
     template <typename Info>
@@ -148,6 +154,33 @@ namespace {
         return buffer;
     }
 
+
+    std::vector<std::byte> MakeShortNameBuffer() {
+        constexpr std::wstring_view NAME = L"MIMO~1";
+        constexpr size_t NAME_OFFSET = offsetof(FILE_NAME_INFO, FileName);
+        constexpr size_t NAME_SIZE = NAME.size() * sizeof(wchar_t);
+        FILE_NAME_INFO info{};
+        info.FileNameLength = static_cast<DWORD>(NAME_SIZE);
+
+        std::vector<std::byte> buffer(NAME_OFFSET + NAME_SIZE);
+        std::memcpy(buffer.data(), &info, NAME_OFFSET);
+        std::memcpy(buffer.data() + NAME_OFFSET, NAME.data(), NAME_SIZE);
+
+        return buffer;
+    }
+
+
+    struct FILE_VALID_DATA_LENGTH_INFORMATION {
+        LARGE_INTEGER ValidDataLength;
+    };
+
+    struct FILE_STORAGE_RESERVE_ID_INFORMATION {
+        STORAGE_RESERVE_ID StorageReserveId;
+    };
+
+    struct FILE_KNOWN_FOLDER_INFORMATION {
+        ULONG Type;
+    };
 
     std::optional<std::vector<std::byte>> MakeSetBuffer(
         uint32_t infoClass,
@@ -192,11 +225,50 @@ namespace {
                 return MakeBuffer(endOfFile);
             }
 
+            case kernel::FileValidDataLengthInformation: {
+                FILE_VALID_DATA_LENGTH_INFORMATION validDataLength{};
+                validDataLength.ValidDataLength.QuadPart = static_cast<LONGLONG>(value);
+
+                return MakeBuffer(validDataLength);
+            }
+
+            case kernel::FileShortNameInformation:
+
+                return MakeShortNameBuffer();
+
             case kernel::FileDispositionInformationEx: {
                 FILE_DISPOSITION_INFO_EX dispositionEx{};
                 dispositionEx.Flags = static_cast<DWORD>(value);
 
                 return MakeBuffer(dispositionEx);
+            }
+
+            case kernel::FileDesiredStorageClassInformation: {
+                FILE_DESIRED_STORAGE_CLASS_INFORMATION desiredStorageClass{};
+                desiredStorageClass.Class = static_cast<FILE_STORAGE_TIER_CLASS>(value);
+
+                return MakeBuffer(desiredStorageClass);
+            }
+
+            case kernel::FileCaseSensitiveInformation: {
+                FILE_CASE_SENSITIVE_INFO caseSensitive{};
+                caseSensitive.Flags = static_cast<ULONG>(value);
+
+                return MakeBuffer(caseSensitive);
+            }
+
+            case kernel::FileStorageReserveIdInformation: {
+                FILE_STORAGE_RESERVE_ID_INFORMATION storageReserveId{};
+                storageReserveId.StorageReserveId = static_cast<STORAGE_RESERVE_ID>(value);
+
+                return MakeBuffer(storageReserveId);
+            }
+
+            case kernel::FileKnownFolderInformation: {
+                FILE_KNOWN_FOLDER_INFORMATION knownFolder{};
+                knownFolder.Type = static_cast<ULONG>(value);
+
+                return MakeBuffer(knownFolder);
             }
 
         }
