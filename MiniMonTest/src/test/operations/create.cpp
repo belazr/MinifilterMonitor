@@ -101,17 +101,19 @@ namespace {
     ) {
         constexpr ACCESS_MASK DESIRED_ACCESS = FILE_GENERIC_READ | FILE_WRITE_DATA | DELETE;
         constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
+        std::wstring objectPath{ path };
         UNICODE_STRING objectName{};
-        objectName.Length = static_cast<USHORT>(path.size() * sizeof(wchar_t));
+        objectName.Length = static_cast<USHORT>(objectPath.size() * sizeof(wchar_t));
         objectName.MaximumLength = objectName.Length;
-        objectName.Buffer = const_cast<wchar_t*>(path.data());
+        objectName.Buffer = objectPath.data();
 
         OBJECT_ATTRIBUTES objectAttributes{};
         InitializeObjectAttributes(&objectAttributes, &objectName, OBJ_CASE_INSENSITIVE, nullptr, nullptr);
 
+        std::vector<std::byte> buffer(eaBuffer.begin(), eaBuffer.end());
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtCreateFile(file.Put(), DESIRED_ACCESS, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, disposition, FILE_NON_DIRECTORY_FILE, const_cast<std::byte*>(eaBuffer.data()), static_cast<ULONG>(eaBuffer.size()));
+        return NtCreateFile(file.Put(), DESIRED_ACCESS, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, disposition, FILE_NON_DIRECTORY_FILE, buffer.data(), static_cast<ULONG>(buffer.size()));
     }
 
 

@@ -64,10 +64,11 @@ namespace {
     constexpr std::byte FILL{ 0x4D };
 
     NTSTATUS Write(const test::Target& target, std::span<const std::byte> data) {
+        std::vector<std::byte> buffer(data.begin(), data.end());
         LARGE_INTEGER byteOffset{};
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtWriteFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, const_cast<std::byte*>(data.data()), static_cast<ULONG>(data.size()), &byteOffset, nullptr);
+        return NtWriteFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), &byteOffset, nullptr);
     }
 
 
