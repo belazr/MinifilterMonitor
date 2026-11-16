@@ -1039,6 +1039,7 @@ namespace mimo {
                     case STATUS_DEVICE_REMOVED:                   return L"STATUS_DEVICE_REMOVED";
                     case STATUS_FILE_SYSTEM_LIMITATION:           return L"STATUS_FILE_SYSTEM_LIMITATION";
                     case STATUS_FILE_NOT_AVAILABLE:               return L"STATUS_FILE_NOT_AVAILABLE";
+                    case STATUS_STORAGE_RESERVE_DOES_NOT_EXIST:   return L"STATUS_STORAGE_RESERVE_DOES_NOT_EXIST";
                     case STATUS_VOLUME_DIRTY:                     return L"STATUS_VOLUME_DIRTY";
                     case STATUS_BAD_FILE_TYPE:                    return L"STATUS_BAD_FILE_TYPE";
                     case STATUS_FILE_TOO_LARGE:                   return L"STATUS_FILE_TOO_LARGE";
