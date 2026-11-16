@@ -24,6 +24,8 @@ namespace mimo {
 
             HANDLE Get() const;
 
+            std::wstring_view GetPath() const;
+
         private:
             std::wstring path;
             Handle<NtClose> file;

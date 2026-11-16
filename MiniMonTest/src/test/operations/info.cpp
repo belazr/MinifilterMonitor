@@ -39,6 +39,8 @@ extern "C" NTSYSAPI NTSTATUS NTAPI NtSetInformationFile(
     ULONG infoClass
 );
 
+extern "C" NTSYSAPI NTSTATUS NTAPI NtQueryFullAttributesFile(OBJECT_ATTRIBUTES* pObjectAttributes, void* pBuffer);
+
 using namespace mimo;
 
 namespace {
@@ -296,9 +298,10 @@ namespace {
         uint32_t infoClass,
         std::span<const std::byte> data
     ) {
+        std::vector<std::byte> buffer(data.begin(), data.end());
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtSetInformationFile(target.Get(), &ioStatus, const_cast<std::byte*>(data.data()), static_cast<ULONG>(data.size()), static_cast<ULONG>(infoClass));
+        return NtSetInformationFile(target.Get(), &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), static_cast<ULONG>(infoClass));
     }
 
 
@@ -335,6 +338,60 @@ namespace {
         return;
     }
 
+
+    constexpr test::report::Description NETWORK_QUERY_OPEN_DESCRIPTIONS[]{
+        { L"network-query-open", STATUS_SUCCESS },
+    };
+
+    struct FILE_NETWORK_OPEN_INFORMATION {
+        LARGE_INTEGER CreationTime;
+        LARGE_INTEGER LastAccessTime;
+        LARGE_INTEGER LastWriteTime;
+        LARGE_INTEGER ChangeTime;
+        LARGE_INTEGER AllocationSize;
+        LARGE_INTEGER EndOfFile;
+        ULONG FileAttributes;
+    };
+
+    NTSTATUS QueryFullAttributes(const test::Target& target) {
+        std::wstring path{ target.GetPath() };
+        UNICODE_STRING objectName{};
+        objectName.Length = static_cast<USHORT>(path.size() * sizeof(wchar_t));
+        objectName.MaximumLength = objectName.Length;
+        objectName.Buffer = path.data();
+
+        OBJECT_ATTRIBUTES objectAttributes{};
+        InitializeObjectAttributes(&objectAttributes, &objectName, OBJ_CASE_INSENSITIVE, nullptr, nullptr);
+
+        FILE_NETWORK_OPEN_INFORMATION networkOpen{};
+
+        return NtQueryFullAttributesFile(&objectAttributes, &networkOpen);
+    }
+
+
+    constexpr std::string_view NETWORK_QUERY_OPEN_MAJOR = "Network query open";
+
+    void RunNetworkQueryOpenOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+
+        for (const test::report::Description& description : NETWORK_QUERY_OPEN_DESCRIPTIONS) {
+            test::Target target{ ntDirectory, description.name };
+            const NTSTATUS createStatus = target.Create(FILE_READ_ATTRIBUTES);
+
+            if (!NT_SUCCESS(createStatus)) {
+                std::cerr << "Failed to create the target file\n";
+                error::Display(RtlNtStatusToDosError(createStatus));
+                test::report::Add(counts, NETWORK_QUERY_OPEN_MAJOR, description, std::nullopt);
+
+                continue;
+            }
+
+            const NTSTATUS queryStatus = QueryFullAttributes(target);
+            test::report::Add(counts, NETWORK_QUERY_OPEN_MAJOR, description, queryStatus);
+        }
+
+        return;
+    }
+
 }
 
 namespace mimo {
@@ -348,6 +405,7 @@ namespace mimo {
                 bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
                     RunQueryOperations(ntDirectory, counts);
                     RunSetOperations(ntDirectory, counts);
+                    RunNetworkQueryOpenOperations(ntDirectory, counts);
 
                     return true;
                 }

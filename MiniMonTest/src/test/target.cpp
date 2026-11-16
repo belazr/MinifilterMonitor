@@ -35,6 +35,12 @@ namespace mimo {
             return this->file.Get();
         }
 
+
+        std::wstring_view Target::GetPath() const {
+
+            return this->path;
+        }
+
     }
 
 }
