@@ -85,11 +85,12 @@ namespace {
     NTSTATUS Query(
         const test::Target& target,
         uint32_t infoClass,
-        std::span<std::byte> data
+        uint32_t size
     ) {
+        std::vector<std::byte> buffer(size);
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtQueryInformationFile(target.Get(), &ioStatus, data.data(), static_cast<ULONG>(data.size()), static_cast<ULONG>(infoClass));
+        return NtQueryInformationFile(target.Get(), &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), static_cast<ULONG>(infoClass));
     }
 
 
@@ -109,8 +110,7 @@ namespace {
                 continue;
             }
 
-            std::vector<std::byte> data(operation.size);
-            const NTSTATUS queryStatus = Query(target, operation.infoClass, data);
+            const NTSTATUS queryStatus = Query(target, operation.infoClass, operation.size);
             test::report::Add(counts, QUERY_MAJOR, operation.description, queryStatus);
         }
 

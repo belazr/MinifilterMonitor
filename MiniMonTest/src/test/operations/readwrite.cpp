@@ -73,13 +73,14 @@ namespace {
 
     NTSTATUS Read(
         const test::Target& target,
-        std::span<std::byte> data,
+        uint32_t size,
         ULONG* pKey
     ) {
+        std::vector<std::byte> buffer(size);
         LARGE_INTEGER byteOffset{};
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtReadFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, data.data(), static_cast<ULONG>(data.size()), &byteOffset, pKey);
+        return NtReadFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), &byteOffset, pKey);
     }
 
 
@@ -110,9 +111,8 @@ namespace {
                 continue;
             }
 
-            std::vector<std::byte> data(operation.size);
             ULONG key = static_cast<ULONG>(operation.key);
-            const NTSTATUS readStatus = Read(target, data, operation.key ? &key : nullptr);
+            const NTSTATUS readStatus = Read(target, operation.size, operation.key ? &key : nullptr);
             test::report::Add(counts, READ_MAJOR, operation.description, readStatus);
         }
 
