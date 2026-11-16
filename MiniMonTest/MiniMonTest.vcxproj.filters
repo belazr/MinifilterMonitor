@@ -30,6 +30,9 @@
     <ClCompile Include="src\test\operations\ea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\test\operations\flush.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\test\operations\info.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,6 +66,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\test\operations\ea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\operations\flush.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\test\operations\info.h">

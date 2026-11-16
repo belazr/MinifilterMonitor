@@ -24,6 +24,7 @@
     <ClCompile Include="src\test.cpp" />
     <ClCompile Include="src\test\operations\create.cpp" />
     <ClCompile Include="src\test\operations\ea.cpp" />
+    <ClCompile Include="src\test\operations\flush.cpp" />
     <ClCompile Include="src\test\operations\info.cpp" />
     <ClCompile Include="src\test\operations\readwrite.cpp" />
     <ClCompile Include="src\test\report.cpp" />
@@ -37,6 +38,7 @@
     <ClInclude Include="src\test.h" />
     <ClInclude Include="src\test\operations\create.h" />
     <ClInclude Include="src\test\operations\ea.h" />
+    <ClInclude Include="src\test\operations\flush.h" />
     <ClInclude Include="src\test\operations\info.h" />
     <ClInclude Include="src\test\operations\readwrite.h" />
     <ClInclude Include="src\test\report.h" />
