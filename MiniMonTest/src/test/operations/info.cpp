@@ -124,22 +124,22 @@ namespace {
     };
 
     constexpr SetOperation SET_OPERATIONS[]{
-        { { L"set-info-basic",                 STATUS_SUCCESS            }, kernel::FileBasicInformation,               FILE_ATTRIBUTE_HIDDEN,                               false },
-        { { L"set-info-rename",                STATUS_SUCCESS            }, kernel::FileRenameInformation,              1u,                                                  false },
-        { { L"set-info-link",                  STATUS_SUCCESS            }, kernel::FileLinkInformation,                1u,                                                  false },
-        { { L"set-info-disposition",           STATUS_SUCCESS            }, kernel::FileDispositionInformation,         1u,                                                  false },
-        { { L"set-info-position",              STATUS_SUCCESS            }, kernel::FilePositionInformation,            8u,                                                  true  },
-        { { L"set-info-allocation",            STATUS_SUCCESS            }, kernel::FileAllocationInformation,          4096u,                                               false },
-        { { L"set-info-end-of-file",           STATUS_SUCCESS            }, kernel::FileEndOfFileInformation,           16u,                                                 false },
-        { { L"set-info-valid-data-length",     STATUS_PRIVILEGE_NOT_HELD }, kernel::FileValidDataLengthInformation,     16u,                                                 false },
-        { { L"set-info-short-name",            STATUS_SUCCESS            }, kernel::FileShortNameInformation,           0u,                                                  false },
-        { { L"set-info-disposition-ex",        STATUS_SUCCESS            }, kernel::FileDispositionInformationEx,       kernel::FILE_DISPOSITION_DELETE,                     false },
-        { { L"set-info-rename-ex",             STATUS_SUCCESS            }, kernel::FileRenameInformationEx,            kernel::FILE_RENAME_POSIX_SEMANTICS,                 false },
-        { { L"set-info-desired-storage-class", STATUS_SUCCESS            }, kernel::FileDesiredStorageClassInformation, static_cast<uint32_t>(FileStorageTierClassCapacity), false },
-        { { L"set-info-case-sensitive",        STATUS_INVALID_PARAMETER  }, kernel::FileCaseSensitiveInformation,       FILE_CS_FLAG_CASE_SENSITIVE_DIR,                     false },
-        { { L"set-info-link-ex",               STATUS_SUCCESS            }, kernel::FileLinkInformationEx,              kernel::FILE_LINK_POSIX_SEMANTICS,                   false },
-        { { L"set-info-storage-reserve-id",    STATUS_SUCCESS            }, kernel::FileStorageReserveIdInformation,    static_cast<uint32_t>(StorageReserveIdSoft),         false },
-        { { L"set-info-known-folder",          STATUS_INVALID_PARAMETER  }, kernel::FileKnownFolderInformation,         kernel::KnownFolderDocuments,                        false },
+        { { L"set-info-basic",                 STATUS_SUCCESS                        }, kernel::FileBasicInformation,               FILE_ATTRIBUTE_HIDDEN,                               false },
+        { { L"set-info-rename",                STATUS_SUCCESS                        }, kernel::FileRenameInformation,              1u,                                                  false },
+        { { L"set-info-link",                  STATUS_SUCCESS                        }, kernel::FileLinkInformation,                1u,                                                  false },
+        { { L"set-info-disposition",           STATUS_SUCCESS                        }, kernel::FileDispositionInformation,         1u,                                                  false },
+        { { L"set-info-position",              STATUS_SUCCESS                        }, kernel::FilePositionInformation,            8u,                                                  true  },
+        { { L"set-info-allocation",            STATUS_SUCCESS                        }, kernel::FileAllocationInformation,          4096u,                                               false },
+        { { L"set-info-end-of-file",           STATUS_SUCCESS                        }, kernel::FileEndOfFileInformation,           16u,                                                 false },
+        { { L"set-info-valid-data-length",     STATUS_PRIVILEGE_NOT_HELD             }, kernel::FileValidDataLengthInformation,     16u,                                                 false },
+        { { L"set-info-short-name",            STATUS_SUCCESS                        }, kernel::FileShortNameInformation,           0u,                                                  false },
+        { { L"set-info-disposition-ex",        STATUS_SUCCESS                        }, kernel::FileDispositionInformationEx,       kernel::FILE_DISPOSITION_DELETE,                     false },
+        { { L"set-info-rename-ex",             STATUS_SUCCESS                        }, kernel::FileRenameInformationEx,            kernel::FILE_RENAME_POSIX_SEMANTICS,                 false },
+        { { L"set-info-desired-storage-class", STATUS_SUCCESS                        }, kernel::FileDesiredStorageClassInformation, static_cast<uint32_t>(FileStorageTierClassCapacity), false },
+        { { L"set-info-case-sensitive",        STATUS_INVALID_PARAMETER              }, kernel::FileCaseSensitiveInformation,       FILE_CS_FLAG_CASE_SENSITIVE_DIR,                     false },
+        { { L"set-info-link-ex",               STATUS_SUCCESS                        }, kernel::FileLinkInformationEx,              kernel::FILE_LINK_POSIX_SEMANTICS,                   false },
+        { { L"set-info-storage-reserve-id",    STATUS_STORAGE_RESERVE_DOES_NOT_EXIST }, kernel::FileStorageReserveIdInformation,    static_cast<uint32_t>(StorageReserveIdSoft),         false },
+        { { L"set-info-known-folder",          STATUS_INVALID_PARAMETER              }, kernel::FileKnownFolderInformation,         kernel::KnownFolderDocuments,                        false },
     };
 
     template <typename Info>
