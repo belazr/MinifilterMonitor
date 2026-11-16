@@ -50,7 +50,7 @@ namespace {
     };
 
     constexpr QueryOperation QUERY_OPERATIONS[]{
-        { { L"query-ea-full",      STATUS_SUCCESS        }, 8u,    1024u, false },
+        { { L"query-ea",           STATUS_SUCCESS        }, 8u,    1024u, false },
         { { L"query-ea-list",      STATUS_SUCCESS        }, 8u,    1024u, true  },
         { { L"query-ea-oversized", STATUS_SUCCESS        }, 2048u, 4096u, false },
         { { L"query-ea-missing",   STATUS_NO_EAS_ON_FILE }, 0u,    1024u, false },

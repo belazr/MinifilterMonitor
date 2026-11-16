@@ -34,7 +34,7 @@ namespace {
 
     constexpr Operation OPERATIONS[]{
         { { L"create-new",           STATUS_SUCCESS               }, FILE_CREATE, 0u,    false },
-        { { L"open-missing",         STATUS_OBJECT_NAME_NOT_FOUND }, FILE_OPEN,   0u,    false },
+        { { L"create-open-missing",  STATUS_OBJECT_NAME_NOT_FOUND }, FILE_OPEN,   0u,    false },
         { { L"create-ea",            STATUS_SUCCESS               }, FILE_CREATE, 8u,    false },
         { { L"create-ea-oversized",  STATUS_SUCCESS               }, FILE_CREATE, 1024u, false },
         { { L"create-impersonating", STATUS_SUCCESS               }, FILE_CREATE, 0u,    true  },
