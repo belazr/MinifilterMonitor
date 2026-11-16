@@ -39,6 +39,14 @@ extern "C" NTSYSAPI NTSTATUS NTAPI NtSetInformationFile(
     ULONG infoClass
 );
 
+extern "C" NTSYSAPI NTSTATUS NTAPI NtQueryInformationByName(
+    OBJECT_ATTRIBUTES* pObjectAttributes,
+    IO_STATUS_BLOCK* pIoStatus,
+    void* pBuffer,
+    ULONG bufferSize,
+    ULONG infoClass
+);
+
 extern "C" NTSYSAPI NTSTATUS NTAPI NtQueryFullAttributesFile(OBJECT_ATTRIBUTES* pObjectAttributes, void* pBuffer);
 
 using namespace mimo;
@@ -339,6 +347,56 @@ namespace {
     }
 
 
+    constexpr test::report::Description QUERY_OPEN_DESCRIPTIONS[]{
+        { L"query-open", STATUS_SUCCESS },
+    };
+
+    NTSTATUS QueryByName(
+        const test::Target& target,
+        uint32_t infoClass,
+        std::span<std::byte> data
+    ) {
+        std::wstring path{ target.GetPath() };
+        UNICODE_STRING objectName{};
+        objectName.Length = static_cast<USHORT>(path.size() * sizeof(wchar_t));
+        objectName.MaximumLength = objectName.Length;
+        objectName.Buffer = path.data();
+
+        OBJECT_ATTRIBUTES objectAttributes{};
+        InitializeObjectAttributes(&objectAttributes, &objectName, OBJ_CASE_INSENSITIVE, nullptr, nullptr);
+
+        IO_STATUS_BLOCK ioStatus{};
+
+        return NtQueryInformationByName(&objectAttributes, &ioStatus, data.data(), static_cast<ULONG>(data.size()), static_cast<ULONG>(infoClass));
+    }
+
+
+    constexpr std::string_view QUERY_OPEN_MAJOR = "Query open";
+
+    void RunQueryOpenOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+        constexpr size_t BUFFER_SIZE = 1024u;
+
+        for (const test::report::Description& description : QUERY_OPEN_DESCRIPTIONS) {
+            test::Target target{ ntDirectory, description.name };
+            const NTSTATUS createStatus = target.Create(FILE_READ_ATTRIBUTES);
+
+            if (!NT_SUCCESS(createStatus)) {
+                std::cerr << "Failed to create the target file\n";
+                error::Display(RtlNtStatusToDosError(createStatus));
+                test::report::Add(counts, QUERY_OPEN_MAJOR, description, std::nullopt);
+
+                continue;
+            }
+
+            std::vector<std::byte> data(BUFFER_SIZE);
+            const NTSTATUS queryStatus = QueryByName(target, kernel::FileStatInformation, data);
+            test::report::Add(counts, QUERY_OPEN_MAJOR, description, queryStatus);
+        }
+
+        return;
+    }
+
+
     constexpr test::report::Description NETWORK_QUERY_OPEN_DESCRIPTIONS[]{
         { L"network-query-open", STATUS_SUCCESS },
     };
@@ -405,6 +463,7 @@ namespace mimo {
                 bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
                     RunQueryOperations(ntDirectory, counts);
                     RunSetOperations(ntDirectory, counts);
+                    RunQueryOpenOperations(ntDirectory, counts);
                     RunNetworkQueryOpenOperations(ntDirectory, counts);
 
                     return true;
