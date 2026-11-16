@@ -351,11 +351,8 @@ namespace {
         { L"query-open", STATUS_SUCCESS },
     };
 
-    NTSTATUS QueryByName(
-        const test::Target& target,
-        uint32_t infoClass,
-        std::span<std::byte> data
-    ) {
+    NTSTATUS QueryByName(const test::Target& target) {
+        constexpr size_t BUFFER_SIZE = 1024u;
         std::wstring path{ target.GetPath() };
         UNICODE_STRING objectName{};
         objectName.Length = static_cast<USHORT>(path.size() * sizeof(wchar_t));
@@ -365,16 +362,16 @@ namespace {
         OBJECT_ATTRIBUTES objectAttributes{};
         InitializeObjectAttributes(&objectAttributes, &objectName, OBJ_CASE_INSENSITIVE, nullptr, nullptr);
 
+        std::vector<std::byte> buffer(BUFFER_SIZE);
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtQueryInformationByName(&objectAttributes, &ioStatus, data.data(), static_cast<ULONG>(data.size()), static_cast<ULONG>(infoClass));
+        return NtQueryInformationByName(&objectAttributes, &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), static_cast<ULONG>(kernel::FileStatInformation));
     }
 
 
     constexpr std::string_view QUERY_OPEN_MAJOR = "Query open";
 
     void RunQueryOpenOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
-        constexpr size_t BUFFER_SIZE = 1024u;
 
         for (const test::report::Description& description : QUERY_OPEN_DESCRIPTIONS) {
             test::Target target{ ntDirectory, description.name };
@@ -388,8 +385,7 @@ namespace {
                 continue;
             }
 
-            std::vector<std::byte> data(BUFFER_SIZE);
-            const NTSTATUS queryStatus = QueryByName(target, kernel::FileStatInformation, data);
+            const NTSTATUS queryStatus = QueryByName(target);
             test::report::Add(counts, QUERY_OPEN_MAJOR, description, queryStatus);
         }
 

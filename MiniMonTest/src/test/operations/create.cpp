@@ -96,12 +96,11 @@ namespace {
     NTSTATUS Create(
         FileHandle& file,
         std::wstring_view path,
-        ACCESS_MASK desiredAccess,
-        ULONG shareAccess,
         ULONG disposition,
-        ULONG options,
         std::span<const std::byte> eaBuffer
     ) {
+        constexpr ACCESS_MASK DESIRED_ACCESS = FILE_GENERIC_READ | FILE_WRITE_DATA | DELETE;
+        constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
         UNICODE_STRING objectName{};
         objectName.Length = static_cast<USHORT>(path.size() * sizeof(wchar_t));
         objectName.MaximumLength = objectName.Length;
@@ -112,7 +111,7 @@ namespace {
 
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtCreateFile(file.Put(), desiredAccess, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, shareAccess, disposition, options, const_cast<std::byte*>(eaBuffer.data()), static_cast<ULONG>(eaBuffer.size()));
+        return NtCreateFile(file.Put(), DESIRED_ACCESS, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, disposition, FILE_NON_DIRECTORY_FILE, const_cast<std::byte*>(eaBuffer.data()), static_cast<ULONG>(eaBuffer.size()));
     }
 
 
@@ -129,8 +128,6 @@ namespace mimo {
             namespace create {
 
                 bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
-                    constexpr ACCESS_MASK DESIRED_ACCESS = FILE_GENERIC_READ | FILE_WRITE_DATA | DELETE;
-                    constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
 
                     for (const Operation& operation : OPERATIONS) {
                         const std::wstring path = std::format(L"{}\\{}", ntDirectory, operation.description.name);
@@ -143,7 +140,7 @@ namespace mimo {
                         }
 
                         FileHandle file;
-                        const NTSTATUS status = Create(file, path, DESIRED_ACCESS, SHARE_ALL, operation.disposition, FILE_NON_DIRECTORY_FILE, eaBuffer);
+                        const NTSTATUS status = Create(file, path, operation.disposition, eaBuffer);
 
                         const bool reverted = !operation.impersonating || StopImpersonation();
                         report::Add(counts, MAJOR, operation.description, status);
