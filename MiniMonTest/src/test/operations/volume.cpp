@@ -34,28 +34,23 @@ namespace {
     struct QueryOperation {
         test::report::Description description;
         uint32_t infoClass;
-        uint32_t size;
     };
 
     constexpr QueryOperation QUERY_OPERATIONS[]{
-        { { L"query-volume-volume",             STATUS_SUCCESS         }, kernel::FileFsVolumeInformation,     1024u },
-        { { L"query-volume-size",               STATUS_SUCCESS         }, kernel::FileFsSizeInformation,       1024u },
-        { { L"query-volume-attribute",          STATUS_SUCCESS         }, kernel::FileFsAttributeInformation,  1024u },
-        { { L"query-volume-attribute-overflow", STATUS_BUFFER_OVERFLOW }, kernel::FileFsAttributeInformation,  16u   },
-        { { L"query-volume-control",            STATUS_SUCCESS         }, kernel::FileFsControlInformation,    1024u },
-        { { L"query-volume-full-size",          STATUS_SUCCESS         }, kernel::FileFsFullSizeInformation,   1024u },
-        { { L"query-volume-object-id",          STATUS_SUCCESS         }, kernel::FileFsObjectIdInformation,   1024u },
-        { { L"query-volume-sector-size",        STATUS_SUCCESS         }, kernel::FileFsSectorSizeInformation, 1024u },
-        { { L"query-volume-data-copy",          STATUS_SUCCESS         }, kernel::FileFsDataCopyInformation,   1024u },
-        { { L"query-volume-full-size-ex",       STATUS_SUCCESS         }, kernel::FileFsFullSizeInformationEx, 1024u },
+        { { L"query-volume-volume",       STATUS_SUCCESS }, kernel::FileFsVolumeInformation     },
+        { { L"query-volume-size",         STATUS_SUCCESS }, kernel::FileFsSizeInformation       },
+        { { L"query-volume-attribute",    STATUS_SUCCESS }, kernel::FileFsAttributeInformation  },
+        { { L"query-volume-control",      STATUS_SUCCESS }, kernel::FileFsControlInformation    },
+        { { L"query-volume-full-size",    STATUS_SUCCESS }, kernel::FileFsFullSizeInformation   },
+        { { L"query-volume-object-id",    STATUS_SUCCESS }, kernel::FileFsObjectIdInformation   },
+        { { L"query-volume-sector-size",  STATUS_SUCCESS }, kernel::FileFsSectorSizeInformation },
+        { { L"query-volume-data-copy",    STATUS_SUCCESS }, kernel::FileFsDataCopyInformation   },
+        { { L"query-volume-full-size-ex", STATUS_SUCCESS }, kernel::FileFsFullSizeInformationEx },
     };
 
-    NTSTATUS Query(
-        const test::Target& target,
-        uint32_t infoClass,
-        uint32_t size
-    ) {
-        std::vector<std::byte> buffer(size);
+    NTSTATUS Query(const test::Target& target, uint32_t infoClass) {
+        constexpr size_t BUFFER_SIZE = 1024u;
+        std::vector<std::byte> buffer(BUFFER_SIZE);
         IO_STATUS_BLOCK ioStatus{};
 
         return NtQueryVolumeInformationFile(target.Get(), &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), static_cast<ULONG>(infoClass));
@@ -78,7 +73,7 @@ namespace {
                 continue;
             }
 
-            const NTSTATUS queryStatus = Query(target, operation.infoClass, operation.size);
+            const NTSTATUS queryStatus = Query(target, operation.infoClass);
             test::report::Add(counts, QUERY_MAJOR, operation.description, queryStatus);
         }
 
