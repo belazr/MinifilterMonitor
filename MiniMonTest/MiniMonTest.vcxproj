@@ -23,6 +23,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\test.cpp" />
     <ClCompile Include="src\test\operations\create.cpp" />
+    <ClCompile Include="src\test\operations\directory.cpp" />
     <ClCompile Include="src\test\operations\ea.cpp" />
     <ClCompile Include="src\test\operations\flush.cpp" />
     <ClCompile Include="src\test\operations\info.cpp" />
@@ -38,6 +39,7 @@
     <ClInclude Include="src\handle.h" />
     <ClInclude Include="src\test.h" />
     <ClInclude Include="src\test\operations\create.h" />
+    <ClInclude Include="src\test\operations\directory.h" />
     <ClInclude Include="src\test\operations\ea.h" />
     <ClInclude Include="src\test\operations\flush.h" />
     <ClInclude Include="src\test\operations\info.h" />
