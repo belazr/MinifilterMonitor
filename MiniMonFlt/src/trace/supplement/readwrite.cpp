@@ -21,7 +21,10 @@ namespace mimo {
                     if (!bufferSize) return;
 
                     ULONG readableSize = bufferSize;
-                    const void* const pWriteBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.Write.MdlAddress, pData->Iopb->Parameters.Write.WriteBuffer, &readableSize);
+
+                    // a paging buffer is read through its MDL only
+                    const void* const pRawBuffer = pData->Iopb->IrpFlags & IRP_PAGING_IO ? nullptr : pData->Iopb->Parameters.Write.WriteBuffer;
+                    const void* const pWriteBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.Write.MdlAddress, pRawBuffer, &readableSize);
 
                     if (!pWriteBuffer || !readableSize) return;
 
@@ -49,7 +52,10 @@ namespace mimo {
 
                     const ULONG dataSize = writtenSize < bufferSize ? static_cast<ULONG>(writtenSize) : bufferSize;
                     ULONG readableSize = dataSize;
-                    const void* const pReadBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.Read.MdlAddress, pData->Iopb->Parameters.Read.ReadBuffer, &readableSize);
+
+                    // a paging buffer is read through its MDL only
+                    const void* const pRawBuffer = pData->Iopb->IrpFlags & IRP_PAGING_IO ? nullptr : pData->Iopb->Parameters.Read.ReadBuffer;
+                    const void* const pReadBuffer = memory::GetReadableBuffer(pData, pData->Iopb->Parameters.Read.MdlAddress, pRawBuffer, &readableSize);
 
                     if (!pReadBuffer || !readableSize) return;
 
