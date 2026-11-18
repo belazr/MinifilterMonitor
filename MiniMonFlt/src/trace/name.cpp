@@ -27,6 +27,12 @@ namespace mimo {
                     goto done;
                 }
 
+                if (FsRtlIsPagingFile(pFltObjects->FileObject)) {
+                    formatStatus = RtlUnicodeStringCopyString(pName, L"[name unavailable: paging file]");
+
+                    goto done;
+                }
+
                 if (KeGetCurrentIrql() != PASSIVE_LEVEL) {
                     formatStatus = RtlUnicodeStringCopyString(pName, L"[name unavailable: above passive level]");
 

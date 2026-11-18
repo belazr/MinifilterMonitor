@@ -825,7 +825,8 @@ namespace mimo {
             uint32_t transactionSequence;   // per-transaction id, 0 if the operation is not transacted
             FltParameters parameters;
             uint32_t stackFrameCount;
-            uint8_t reserved[4u];
+            uint8_t pagingFile;             // 1 if the file object is a paging file
+            uint8_t reserved[3u];
             StackFrame stackTrace[STACK_TRACE_FRAME_COUNT];
             wchar_t name[NAME_WCHAR_COUNT];
             wchar_t altitude[ALTITUDE_WCHAR_COUNT];

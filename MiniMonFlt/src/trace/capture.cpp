@@ -256,36 +256,6 @@ static_assert(sizeof(driver::InstanceContext::altitude) == sizeof(protocol::Reco
 
 namespace {
 
-    void CaptureStackTrace(
-        _Out_writes_to_(capacity, *pCount) protocol::StackFrame* pFrames,
-        _In_ ULONG capacity,
-        _Out_ ULONG* pCount
-    ) {
-        constexpr ULONG STACK_TRACE_CAPTURE_COUNT = 16u;
-        void* addresses[STACK_TRACE_CAPTURE_COUNT]{};
-        const USHORT captured = RtlCaptureStackBackTrace(0u, static_cast<ULONG>(ARRAYSIZE(addresses)), addresses, nullptr);
-        ULONG first = 0u;
-
-        while (first < captured && trace::modules::IsOwnAddress(addresses[first])) {
-            first++;
-        }
-
-        const ULONG remaining = captured - first;
-
-        if (!remaining) {
-            *pCount = 0u;
-
-            return;
-        }
-
-        const ULONG count = remaining < capacity ? remaining : capacity;
-        trace::modules::Resolve(&addresses[first], count, pFrames);
-        *pCount = count;
-
-        return;
-    }
-
-
     void PopulateOriginRecordData(_Inout_ protocol::RecordData* pRecordData, _In_ const FLT_RELATED_OBJECTS* pFltObjects) {
         DEVICE_OBJECT* pDeviceObject = nullptr;
         const NTSTATUS status = FltGetDeviceObject(pFltObjects->Volume, &pDeviceObject);
@@ -317,13 +287,48 @@ namespace {
             FltReleaseContext(pFltContext);
         }
 
-        ULONG stackFrameCount = 0u;
-        CaptureStackTrace(pRecordData->stackTrace, static_cast<ULONG>(ARRAYSIZE(pRecordData->stackTrace)), &stackFrameCount);
-        pRecordData->stackFrameCount = static_cast<uint32_t>(stackFrameCount);
-
         LARGE_INTEGER originatingTime{};
         KeQuerySystemTimePrecise(&originatingTime);
         pRecordData->originatingTime = originatingTime.QuadPart;
+
+        return;
+    }
+
+
+    void CaptureStackTrace(
+        _Out_writes_to_(capacity, *pCount) protocol::StackFrame* pFrames,
+        _In_ ULONG capacity,
+        _Out_ ULONG* pCount
+    ) {
+        constexpr ULONG STACK_TRACE_CAPTURE_COUNT = 16u;
+        void* addresses[STACK_TRACE_CAPTURE_COUNT]{};
+        const USHORT captured = RtlCaptureStackBackTrace(0u, static_cast<ULONG>(ARRAYSIZE(addresses)), addresses, nullptr);
+        ULONG first = 0u;
+
+        while (first < captured && trace::modules::IsOwnAddress(addresses[first])) {
+            first++;
+        }
+
+        const ULONG remaining = captured - first;
+
+        if (!remaining) {
+            *pCount = 0u;
+
+            return;
+        }
+
+        const ULONG count = remaining < capacity ? remaining : capacity;
+        trace::modules::Resolve(&addresses[first], count, pFrames);
+        *pCount = count;
+
+        return;
+    }
+
+
+    void PopulateStackTrace(_Inout_ protocol::RecordData* pRecordData) {
+        ULONG stackFrameCount = 0u;
+        CaptureStackTrace(pRecordData->stackTrace, static_cast<ULONG>(ARRAYSIZE(pRecordData->stackTrace)), &stackFrameCount);
+        pRecordData->stackFrameCount = static_cast<uint32_t>(stackFrameCount);
 
         return;
     }
@@ -354,6 +359,7 @@ namespace mimo {
                 pRecordData->flags           = static_cast<uint32_t>(pData->Flags);
                 pRecordData->callbackData    = reinterpret_cast<protocol::ObjectId>(pData);
                 pRecordData->topLevelIrp     = reinterpret_cast<protocol::ObjectId>(IoGetTopLevelIrp());
+                pRecordData->pagingFile      = static_cast<uint8_t>(pFltObjects->FileObject && FsRtlIsPagingFile(pFltObjects->FileObject));
 
                 RtlCopyMemory(&pRecordData->parameters, &pData->Iopb->Parameters, sizeof(pRecordData->parameters));
 
@@ -364,6 +370,9 @@ namespace mimo {
                     pRecordData->truncated |= protocol::TRUNCATED_NAME;
                 }
 
+                if (pRecordData->pagingFile) return;
+
+                PopulateStackTrace(pRecordData);
                 supplement::PopulatePreOperation(&pRecordData->supplement, pData, pFltObjects);
 
                 return;
@@ -385,11 +394,13 @@ namespace mimo {
                     pRecordData->reparseTag = static_cast<uint32_t>(pData->TagData->FileTag);
                 }
 
-                supplement::PopulatePostOperation(&pRecordData->supplement, pData);
-
                 LARGE_INTEGER completionTime{};
                 KeQuerySystemTimePrecise(&completionTime);
                 pRecordData->completionTime = completionTime.QuadPart;
+
+                if (pRecordData->pagingFile) return;
+
+                supplement::PopulatePostOperation(&pRecordData->supplement, pData);
 
                 return;
             }
@@ -403,6 +414,7 @@ namespace mimo {
                 ULONG transactionSequence
             ) {
                 PopulateOriginRecordData(pRecordData, pFltObjects);
+                PopulateStackTrace(pRecordData);
 
                 pRecordData->transactionNotify = static_cast<uint32_t>(notificationMask);
                 pRecordData->transactionSequence = static_cast<uint32_t>(transactionSequence);
