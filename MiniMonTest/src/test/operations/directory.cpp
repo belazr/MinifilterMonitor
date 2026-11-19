@@ -12,11 +12,13 @@
 #include <ntstatus.h>
 #include <winternl.h>
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <format>
 #include <iostream>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -33,6 +35,18 @@ extern "C" NTSYSAPI NTSTATUS NTAPI NtQueryDirectoryFile(
     BOOLEAN returnSingleEntry,
     UNICODE_STRING* pFileName,
     BOOLEAN restartScan
+);
+
+extern "C" NTSYSAPI NTSTATUS NTAPI NtNotifyChangeDirectoryFile(
+    HANDLE hFile,
+    HANDLE hEvent,
+    PIO_APC_ROUTINE pApcRoutine,
+    void* pApcContext,
+    IO_STATUS_BLOCK* pIoStatus,
+    void* pBuffer,
+    ULONG bufferSize,
+    ULONG completionFilter,
+    BOOLEAN watchTree
 );
 
 using namespace mimo;
@@ -136,6 +150,92 @@ namespace {
         return;
     }
 
+
+    constexpr test::report::Description NOTIFY_DESCRIPTIONS[]{
+        { L"directory-control-notify", STATUS_SUCCESS },
+    };
+
+    NTSTATUS Notify(
+        const test::Target& target,
+        IO_STATUS_BLOCK& ioStatus,
+        std::span<std::byte> buffer
+    ) {
+
+        return NtNotifyChangeDirectoryFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), FILE_NOTIFY_CHANGE_FILE_NAME, FALSE);
+    }
+
+
+    bool WaitForCompletion(const test::Target& target) {
+        constexpr std::chrono::seconds TIMEOUT{ 5 };
+        const DWORD waitResult = WaitForSingleObject(target.Get(), static_cast<DWORD>(std::chrono::milliseconds{ TIMEOUT }.count()));
+
+        if (waitResult == WAIT_FAILED) {
+            const DWORD lastError = GetLastError();
+            std::cerr << "Failed to wait for the notify completion\n";
+            error::Display(lastError);
+
+            return false;
+        }
+
+        if (waitResult != WAIT_OBJECT_0) {
+            std::cerr << "The notify did not complete\n";
+
+            return false;
+        }
+
+        return true;
+    }
+
+
+    void RunNotifyOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+        constexpr size_t BUFFER_SIZE = 4096u;
+
+        for (const test::report::Description& description : NOTIFY_DESCRIPTIONS) {
+            // closing the target completes a waiting notify into the buffer and the status block, so they have to outlive it
+            std::vector<std::byte> buffer(BUFFER_SIZE);
+            IO_STATUS_BLOCK ioStatus{};
+            ioStatus.Status = STATUS_PENDING;
+            test::Target target{ ntDirectory, description.name };
+            const NTSTATUS createStatus = target.Create(FILE_LIST_DIRECTORY, true, true);
+
+            if (!NT_SUCCESS(createStatus)) {
+                std::cerr << "Failed to create the target directory\n";
+                error::Display(RtlNtStatusToDosError(createStatus));
+                test::report::Add(counts, MAJOR, description, std::nullopt);
+
+                continue;
+            }
+
+            const NTSTATUS notifyStatus = Notify(target, ioStatus, buffer);
+
+            if (notifyStatus != STATUS_PENDING) {
+                test::report::Add(counts, MAJOR, description, notifyStatus);
+
+                continue;
+            }
+
+            const NTSTATUS entriesStatus = CreateEntries(target.GetPath(), 1u);
+
+            if (!NT_SUCCESS(entriesStatus)) {
+                std::cerr << "Failed to create the target directory entries\n";
+                error::Display(RtlNtStatusToDosError(entriesStatus));
+                test::report::Add(counts, MAJOR, description, std::nullopt);
+
+                continue;
+            }
+
+            if (!WaitForCompletion(target)) {
+                test::report::Add(counts, MAJOR, description, std::nullopt);
+
+                continue;
+            }
+
+            test::report::Add(counts, MAJOR, description, ioStatus.Status);
+        }
+
+        return;
+    }
+
 }
 
 namespace mimo {
@@ -148,6 +248,7 @@ namespace mimo {
 
                 bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
                     RunQueryOperations(ntDirectory, counts);
+                    RunNotifyOperations(ntDirectory, counts);
 
                     return true;
                 }
