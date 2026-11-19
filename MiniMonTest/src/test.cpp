@@ -26,6 +26,7 @@ using namespace mimo;
 namespace {
 
     constexpr std::wstring_view EXTENDED_PREFIX = L"\\\\?\\";
+    constexpr std::wstring_view DEVICE_PREFIX   = L"\\\\.\\";
 
     std::optional<std::wstring> ResolveExtendedDirectory(const std::wstring& path) {
         const DWORD bufferWcharCount = GetFullPathNameW(path.c_str(), 0u, nullptr, nullptr);
@@ -47,6 +48,8 @@ namespace {
         }
 
         if (fullPath.starts_with(EXTENDED_PREFIX)) return fullPath;
+
+        if (fullPath.starts_with(DEVICE_PREFIX)) return std::format(L"{}{}", EXTENDED_PREFIX, fullPath.substr(DEVICE_PREFIX.size()));
 
         if (fullPath.starts_with(L"\\\\")) return std::format(L"{}UNC\\{}", EXTENDED_PREFIX, fullPath.substr(2u));
 
