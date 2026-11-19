@@ -167,13 +167,15 @@ namespace {
     struct NotifyOperation {
         test::report::Description description;
         uint32_t infoClass;
+        bool watchTree;
     };
 
     constexpr NotifyOperation NOTIFY_OPERATIONS[]{
-        { { L"directory-control-notify",             STATUS_SUCCESS }, 0u                                         },
-        { { L"directory-control-notify-ex",          STATUS_SUCCESS }, kernel::DirectoryNotifyInformation         },
-        { { L"directory-control-notify-ex-extended", STATUS_SUCCESS }, kernel::DirectoryNotifyExtendedInformation },
-        { { L"directory-control-notify-ex-full",     STATUS_SUCCESS }, kernel::DirectoryNotifyFullInformation     },
+        { { L"directory-control-notify",             STATUS_SUCCESS }, 0u,                                         false },
+        { { L"directory-control-notify-watch-tree",  STATUS_SUCCESS }, 0u,                                         true  },
+        { { L"directory-control-notify-ex",          STATUS_SUCCESS }, kernel::DirectoryNotifyInformation,         false },
+        { { L"directory-control-notify-ex-extended", STATUS_SUCCESS }, kernel::DirectoryNotifyExtendedInformation, false },
+        { { L"directory-control-notify-ex-full",     STATUS_SUCCESS }, kernel::DirectoryNotifyFullInformation,     false },
     };
 
     NTSTATUS NotifyEx(
@@ -190,10 +192,11 @@ namespace {
     NTSTATUS Notify(
         const test::Target& target,
         IO_STATUS_BLOCK& ioStatus,
-        std::span<std::byte> buffer
+        std::span<std::byte> buffer,
+        bool watchTree
     ) {
 
-        return NtNotifyChangeDirectoryFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), FILE_NOTIFY_CHANGE_FILE_NAME, FALSE);
+        return NtNotifyChangeDirectoryFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), FILE_NOTIFY_CHANGE_FILE_NAME, static_cast<BOOLEAN>(watchTree));
     }
 
 
@@ -238,7 +241,7 @@ namespace {
                 continue;
             }
 
-            const NTSTATUS notifyStatus = operation.infoClass ? NotifyEx(target, ioStatus, buffer, operation.infoClass) : Notify(target, ioStatus, buffer);
+            const NTSTATUS notifyStatus = operation.infoClass ? NotifyEx(target, ioStatus, buffer, operation.infoClass) : Notify(target, ioStatus, buffer, operation.watchTree);
 
             if (notifyStatus != STATUS_PENDING) {
                 test::report::Add(counts, MAJOR, operation.description, notifyStatus);
