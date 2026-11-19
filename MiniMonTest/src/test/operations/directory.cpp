@@ -213,7 +213,7 @@ namespace {
         }
 
         if (waitResult != WAIT_OBJECT_0) {
-            std::cerr << "The notify did not complete\n";
+            std::cerr << "The notify did not complete in time\n";
 
             return false;
         }
