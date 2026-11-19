@@ -49,6 +49,19 @@ extern "C" NTSYSAPI NTSTATUS NTAPI NtNotifyChangeDirectoryFile(
     BOOLEAN watchTree
 );
 
+extern "C" NTSYSAPI NTSTATUS NTAPI NtNotifyChangeDirectoryFileEx(
+    HANDLE hFile,
+    HANDLE hEvent,
+    PIO_APC_ROUTINE pApcRoutine,
+    void* pApcContext,
+    IO_STATUS_BLOCK* pIoStatus,
+    void* pBuffer,
+    ULONG bufferSize,
+    ULONG completionFilter,
+    BOOLEAN watchTree,
+    ULONG infoClass
+);
+
 using namespace mimo;
 
 namespace {
@@ -151,9 +164,28 @@ namespace {
     }
 
 
-    constexpr test::report::Description NOTIFY_DESCRIPTIONS[]{
-        { L"directory-control-notify", STATUS_SUCCESS },
+    struct NotifyOperation {
+        test::report::Description description;
+        uint32_t infoClass;
     };
+
+    constexpr NotifyOperation NOTIFY_OPERATIONS[]{
+        { { L"directory-control-notify",             STATUS_SUCCESS }, 0u                                         },
+        { { L"directory-control-notify-ex",          STATUS_SUCCESS }, kernel::DirectoryNotifyInformation         },
+        { { L"directory-control-notify-ex-extended", STATUS_SUCCESS }, kernel::DirectoryNotifyExtendedInformation },
+        { { L"directory-control-notify-ex-full",     STATUS_SUCCESS }, kernel::DirectoryNotifyFullInformation     },
+    };
+
+    NTSTATUS NotifyEx(
+        const test::Target& target,
+        IO_STATUS_BLOCK& ioStatus,
+        std::span<std::byte> buffer,
+        uint32_t infoClass
+    ) {
+
+        return NtNotifyChangeDirectoryFileEx(target.Get(), nullptr, nullptr, nullptr, &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), FILE_NOTIFY_CHANGE_FILE_NAME, FALSE, static_cast<ULONG>(infoClass));
+    }
+
 
     NTSTATUS Notify(
         const test::Target& target,
@@ -190,26 +222,26 @@ namespace {
     void RunNotifyOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
         constexpr size_t BUFFER_SIZE = 4096u;
 
-        for (const test::report::Description& description : NOTIFY_DESCRIPTIONS) {
+        for (const NotifyOperation& operation : NOTIFY_OPERATIONS) {
             // closing the target completes a waiting notify into the buffer and the status block, so they have to outlive it
             std::vector<std::byte> buffer(BUFFER_SIZE);
             IO_STATUS_BLOCK ioStatus{};
             ioStatus.Status = STATUS_PENDING;
-            test::Target target{ ntDirectory, description.name };
+            test::Target target{ ntDirectory, operation.description.name };
             const NTSTATUS createStatus = target.Create(FILE_LIST_DIRECTORY, true, true);
 
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target directory\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, MAJOR, description, std::nullopt);
+                test::report::Add(counts, MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
-            const NTSTATUS notifyStatus = Notify(target, ioStatus, buffer);
+            const NTSTATUS notifyStatus = operation.infoClass ? NotifyEx(target, ioStatus, buffer, operation.infoClass) : Notify(target, ioStatus, buffer);
 
             if (notifyStatus != STATUS_PENDING) {
-                test::report::Add(counts, MAJOR, description, notifyStatus);
+                test::report::Add(counts, MAJOR, operation.description, notifyStatus);
 
                 continue;
             }
@@ -219,18 +251,18 @@ namespace {
             if (!NT_SUCCESS(entriesStatus)) {
                 std::cerr << "Failed to create the target directory entries\n";
                 error::Display(RtlNtStatusToDosError(entriesStatus));
-                test::report::Add(counts, MAJOR, description, std::nullopt);
+                test::report::Add(counts, MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             if (!WaitForCompletion(target)) {
-                test::report::Add(counts, MAJOR, description, std::nullopt);
+                test::report::Add(counts, MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
-            test::report::Add(counts, MAJOR, description, ioStatus.Status);
+            test::report::Add(counts, MAJOR, operation.description, ioStatus.Status);
         }
 
         return;
