@@ -173,7 +173,6 @@ namespace {
     constexpr NotifyOperation NOTIFY_OPERATIONS[]{
         { { L"notify-directory",             STATUS_SUCCESS }, 0u,                                         false },
         { { L"notify-directory-watch-tree",  STATUS_SUCCESS }, 0u,                                         true  },
-        { { L"notify-directory-ex",          STATUS_SUCCESS }, kernel::DirectoryNotifyInformation,         false },
         { { L"notify-directory-ex-extended", STATUS_SUCCESS }, kernel::DirectoryNotifyExtendedInformation, false },
         { { L"notify-directory-ex-full",     STATUS_SUCCESS }, kernel::DirectoryNotifyFullInformation,     false },
     };
