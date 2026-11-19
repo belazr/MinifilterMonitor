@@ -346,7 +346,7 @@ namespace {
 
 
     constexpr test::report::Description QUERY_OPEN_DESCRIPTIONS[]{
-        { L"query-open", STATUS_SUCCESS },
+        { L"query-open-info", STATUS_SUCCESS },
     };
 
     NTSTATUS QueryByName(const test::Target& target) {
@@ -392,7 +392,7 @@ namespace {
 
 
     constexpr test::report::Description NETWORK_QUERY_OPEN_DESCRIPTIONS[]{
-        { L"network-query-open", STATUS_SUCCESS },
+        { L"network-query-open-info", STATUS_SUCCESS },
     };
 
     struct FILE_NETWORK_OPEN_INFORMATION {

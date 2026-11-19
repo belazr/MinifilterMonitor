@@ -75,22 +75,22 @@ namespace {
     };
 
     constexpr QueryOperation QUERY_OPERATIONS[]{
-        { { L"directory-control-query-directory",        STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, false, false },
-        { { L"directory-control-query-full",             STATUS_SUCCESS }, kernel::FileFullDirectoryInformation,          1u, false, false },
-        { { L"directory-control-query-both",             STATUS_SUCCESS }, kernel::FileBothDirectoryInformation,          1u, false, false },
-        { { L"directory-control-query-names",            STATUS_SUCCESS }, kernel::FileNamesInformation,                  1u, false, false },
-        { { L"directory-control-query-id-both",          STATUS_SUCCESS }, kernel::FileIdBothDirectoryInformation,        1u, false, false },
-        { { L"directory-control-query-id-full",          STATUS_SUCCESS }, kernel::FileIdFullDirectoryInformation,        1u, false, false },
-        { { L"directory-control-query-id-global-tx",     STATUS_SUCCESS }, kernel::FileIdGlobalTxDirectoryInformation,    1u, false, false },
-        { { L"directory-control-query-id-extd",          STATUS_SUCCESS }, kernel::FileIdExtdDirectoryInformation,        1u, false, false },
-        { { L"directory-control-query-id-extd-both",     STATUS_SUCCESS }, kernel::FileIdExtdBothDirectoryInformation,    1u, false, false },
-        { { L"directory-control-query-id-64-extd",       STATUS_SUCCESS }, kernel::FileId64ExtdDirectoryInformation,      1u, false, false },
-        { { L"directory-control-query-id-64-extd-both",  STATUS_SUCCESS }, kernel::FileId64ExtdBothDirectoryInformation,  1u, false, false },
-        { { L"directory-control-query-id-all-extd",      STATUS_SUCCESS }, kernel::FileIdAllExtdDirectoryInformation,     1u, false, false },
-        { { L"directory-control-query-id-all-extd-both", STATUS_SUCCESS }, kernel::FileIdAllExtdBothDirectoryInformation, 1u, false, false },
-        { { L"directory-control-query-oversized",        STATUS_SUCCESS }, kernel::FileDirectoryInformation,              8u, false, false },
-        { { L"directory-control-query-single",           STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, true,  false },
-        { { L"directory-control-query-filter",           STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, false, true  },
+        { { L"query-directory-info-directory",        STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, false, false },
+        { { L"query-directory-info-full",             STATUS_SUCCESS }, kernel::FileFullDirectoryInformation,          1u, false, false },
+        { { L"query-directory-info-both",             STATUS_SUCCESS }, kernel::FileBothDirectoryInformation,          1u, false, false },
+        { { L"query-directory-info-names",            STATUS_SUCCESS }, kernel::FileNamesInformation,                  1u, false, false },
+        { { L"query-directory-info-id-both",          STATUS_SUCCESS }, kernel::FileIdBothDirectoryInformation,        1u, false, false },
+        { { L"query-directory-info-id-full",          STATUS_SUCCESS }, kernel::FileIdFullDirectoryInformation,        1u, false, false },
+        { { L"query-directory-info-id-global-tx",     STATUS_SUCCESS }, kernel::FileIdGlobalTxDirectoryInformation,    1u, false, false },
+        { { L"query-directory-info-id-extd",          STATUS_SUCCESS }, kernel::FileIdExtdDirectoryInformation,        1u, false, false },
+        { { L"query-directory-info-id-extd-both",     STATUS_SUCCESS }, kernel::FileIdExtdBothDirectoryInformation,    1u, false, false },
+        { { L"query-directory-info-id-64-extd",       STATUS_SUCCESS }, kernel::FileId64ExtdDirectoryInformation,      1u, false, false },
+        { { L"query-directory-info-id-64-extd-both",  STATUS_SUCCESS }, kernel::FileId64ExtdBothDirectoryInformation,  1u, false, false },
+        { { L"query-directory-info-id-all-extd",      STATUS_SUCCESS }, kernel::FileIdAllExtdDirectoryInformation,     1u, false, false },
+        { { L"query-directory-info-id-all-extd-both", STATUS_SUCCESS }, kernel::FileIdAllExtdBothDirectoryInformation, 1u, false, false },
+        { { L"query-directory-info-oversized",        STATUS_SUCCESS }, kernel::FileDirectoryInformation,              8u, false, false },
+        { { L"query-directory-info-single",           STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, true,  false },
+        { { L"query-directory-info-filter",           STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, false, true  },
     };
 
     NTSTATUS CreateEntries(std::wstring_view ntDirectory, uint32_t count) {
@@ -171,11 +171,11 @@ namespace {
     };
 
     constexpr NotifyOperation NOTIFY_OPERATIONS[]{
-        { { L"directory-control-notify",             STATUS_SUCCESS }, 0u,                                         false },
-        { { L"directory-control-notify-watch-tree",  STATUS_SUCCESS }, 0u,                                         true  },
-        { { L"directory-control-notify-ex",          STATUS_SUCCESS }, kernel::DirectoryNotifyInformation,         false },
-        { { L"directory-control-notify-ex-extended", STATUS_SUCCESS }, kernel::DirectoryNotifyExtendedInformation, false },
-        { { L"directory-control-notify-ex-full",     STATUS_SUCCESS }, kernel::DirectoryNotifyFullInformation,     false },
+        { { L"notify-directory",             STATUS_SUCCESS }, 0u,                                         false },
+        { { L"notify-directory-watch-tree",  STATUS_SUCCESS }, 0u,                                         true  },
+        { { L"notify-directory-ex",          STATUS_SUCCESS }, kernel::DirectoryNotifyInformation,         false },
+        { { L"notify-directory-ex-extended", STATUS_SUCCESS }, kernel::DirectoryNotifyExtendedInformation, false },
+        { { L"notify-directory-ex-full",     STATUS_SUCCESS }, kernel::DirectoryNotifyFullInformation,     false },
     };
 
     NTSTATUS NotifyEx(
