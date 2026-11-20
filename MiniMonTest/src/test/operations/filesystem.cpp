@@ -13,8 +13,10 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <optional>
+#include <span>
 #include <string_view>
 #include <vector>
 
@@ -42,16 +44,64 @@ namespace {
 
     constexpr Operation OPERATIONS[]{
         { { L"filesystem-get-compression",         STATUS_SUCCESS }, FSCTL_GET_COMPRESSION         },
+        { { L"filesystem-set-compression",         STATUS_SUCCESS }, FSCTL_SET_COMPRESSION         },
         { { L"filesystem-get-ntfs-volume-data",    STATUS_SUCCESS }, FSCTL_GET_NTFS_VOLUME_DATA    },
         { { L"filesystem-create-or-get-object-id", STATUS_SUCCESS }, FSCTL_CREATE_OR_GET_OBJECT_ID },
+        { { L"filesystem-set-sparse",              STATUS_SUCCESS }, FSCTL_SET_SPARSE              },
+        { { L"filesystem-set-zero-data",           STATUS_SUCCESS }, FSCTL_SET_ZERO_DATA           },
     };
 
-    NTSTATUS Control(const test::Target& target, uint32_t fsControlCode) {
-        constexpr size_t BUFFER_SIZE = 1024u;
-        std::vector<std::byte> buffer(BUFFER_SIZE);
+    template <typename Input>
+    std::vector<std::byte> MakeBuffer(const Input& payload) {
+        std::vector<std::byte> buffer(sizeof(payload));
+        std::memcpy(buffer.data(), &payload, sizeof(payload));
+
+        return buffer;
+    }
+
+
+    std::vector<std::byte> MakeInputBuffer(uint32_t fsControlCode) {
+
+        switch (fsControlCode) {
+
+            case FSCTL_SET_COMPRESSION: {
+                constexpr USHORT COMPRESSION_FORMAT = COMPRESSION_FORMAT_DEFAULT;
+
+                return MakeBuffer(COMPRESSION_FORMAT);
+            }
+
+            case FSCTL_SET_SPARSE: {
+                FILE_SET_SPARSE_BUFFER sparse{};
+                sparse.SetSparse = TRUE;
+
+                return MakeBuffer(sparse);
+            }
+
+            case FSCTL_SET_ZERO_DATA: {
+                constexpr LONGLONG BEYOND_FINAL_ZERO = 16;
+                FILE_ZERO_DATA_INFORMATION zeroData{};
+                zeroData.BeyondFinalZero.QuadPart = BEYOND_FINAL_ZERO;
+
+                return MakeBuffer(zeroData);
+            }
+
+        }
+
+        return {};
+    }
+
+
+    NTSTATUS Control(
+        const test::Target& target,
+        uint32_t fsControlCode,
+        std::span<const std::byte> inputData
+    ) {
+        constexpr size_t OUTPUT_BUFFER_SIZE = 1024u;
+        std::vector<std::byte> inputBuffer(inputData.begin(), inputData.end());
+        std::vector<std::byte> outputBuffer(OUTPUT_BUFFER_SIZE);
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtFsControlFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, static_cast<ULONG>(fsControlCode), nullptr, 0u, buffer.data(), static_cast<ULONG>(buffer.size()));
+        return NtFsControlFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, static_cast<ULONG>(fsControlCode), inputBuffer.data(), static_cast<ULONG>(inputBuffer.size()), outputBuffer.data(), static_cast<ULONG>(outputBuffer.size()));
     }
 
 
@@ -71,7 +121,7 @@ namespace mimo {
 
                     for (const Operation& operation : OPERATIONS) {
                         Target target{ ntDirectory, operation.description.name };
-                        const NTSTATUS createStatus = target.Create(FILE_GENERIC_READ);
+                        const NTSTATUS createStatus = target.Create(FILE_GENERIC_READ | FILE_GENERIC_WRITE);
 
                         if (!NT_SUCCESS(createStatus)) {
                             std::cerr << "Failed to create the target file\n";
@@ -81,7 +131,8 @@ namespace mimo {
                             continue;
                         }
 
-                        const NTSTATUS controlStatus = Control(target, operation.fsControlCode);
+                        const std::vector<std::byte> inputData = MakeInputBuffer(operation.fsControlCode);
+                        const NTSTATUS controlStatus = Control(target, operation.fsControlCode, inputData);
                         report::Add(counts, MAJOR, operation.description, controlStatus);
                     }
 
