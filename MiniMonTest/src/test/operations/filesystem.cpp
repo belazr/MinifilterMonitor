@@ -49,6 +49,7 @@ namespace {
         { { L"filesystem-create-or-get-object-id", STATUS_SUCCESS }, FSCTL_CREATE_OR_GET_OBJECT_ID },
         { { L"filesystem-set-sparse",              STATUS_SUCCESS }, FSCTL_SET_SPARSE              },
         { { L"filesystem-set-zero-data",           STATUS_SUCCESS }, FSCTL_SET_ZERO_DATA           },
+        { { L"filesystem-query-allocated-ranges",  STATUS_SUCCESS }, FSCTL_QUERY_ALLOCATED_RANGES  },
     };
 
     template <typename Input>
@@ -89,6 +90,14 @@ namespace {
                 zeroData.BeyondFinalZero.QuadPart = BEYOND_FINAL_ZERO;
 
                 return MakeBuffer(zeroData);
+            }
+
+            case FSCTL_QUERY_ALLOCATED_RANGES: {
+                constexpr LONGLONG RANGE_SIZE = 16;
+                FILE_ALLOCATED_RANGE_BUFFER allocatedRange{};
+                allocatedRange.Length.QuadPart = RANGE_SIZE;
+
+                return MakeBuffer(allocatedRange);
             }
 
         }
