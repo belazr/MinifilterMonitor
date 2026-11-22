@@ -60,9 +60,15 @@ namespace {
     }
 
 
-    std::vector<std::byte> MakeInputBuffer(uint32_t fsControlCode) {
+    std::optional<std::vector<std::byte>> MakeInputBuffer(uint32_t fsControlCode) {
 
         switch (fsControlCode) {
+
+            case FSCTL_GET_COMPRESSION:
+            case FSCTL_GET_NTFS_VOLUME_DATA:
+            case FSCTL_CREATE_OR_GET_OBJECT_ID:
+
+                return std::vector<std::byte>{};
 
             case FSCTL_SET_COMPRESSION: {
                 constexpr USHORT COMPRESSION_FORMAT = COMPRESSION_FORMAT_DEFAULT;
@@ -87,7 +93,7 @@ namespace {
 
         }
 
-        return {};
+        return std::nullopt;
     }
 
 
@@ -131,8 +137,16 @@ namespace mimo {
                             continue;
                         }
 
-                        const std::vector<std::byte> inputData = MakeInputBuffer(operation.fsControlCode);
-                        const NTSTATUS controlStatus = Control(target, operation.fsControlCode, inputData);
+                        const std::optional<std::vector<std::byte>> inputData = MakeInputBuffer(operation.fsControlCode);
+
+                        if (!inputData.has_value()) {
+                            std::cerr << "No payload for the control code\n";
+                            report::Add(counts, MAJOR, operation.description, std::nullopt);
+
+                            continue;
+                        }
+
+                        const NTSTATUS controlStatus = Control(target, operation.fsControlCode, *inputData);
                         report::Add(counts, MAJOR, operation.description, controlStatus);
                     }
 
