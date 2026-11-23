@@ -28,6 +28,14 @@ extern "C" NTSYSAPI NTSTATUS NTAPI NtLockFile(
     BOOLEAN exclusiveLock
 );
 
+extern "C" NTSYSAPI NTSTATUS NTAPI NtUnlockFile(
+    HANDLE hFile,
+    IO_STATUS_BLOCK* pIoStatus,
+    LARGE_INTEGER* pByteOffset,
+    LARGE_INTEGER* pRangeSize,
+    ULONG key
+);
+
 using namespace mimo;
 
 namespace {
@@ -42,8 +50,9 @@ namespace {
         { { L"lock-key", STATUS_SUCCESS }, 0x4D4Du },
     };
 
+    constexpr LONGLONG RANGE_SIZE = 16;
+
     NTSTATUS Lock(const test::Target& target, uint32_t key) {
-        constexpr LONGLONG RANGE_SIZE = 16;
         LARGE_INTEGER byteOffset{};
         LARGE_INTEGER rangeSize{};
         rangeSize.QuadPart = RANGE_SIZE;
@@ -54,6 +63,75 @@ namespace {
 
 
     constexpr std::string_view MAJOR = "Lock control";
+
+    void RunLockOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+
+        for (const LockOperation& operation : LOCK_OPERATIONS) {
+            test::Target target{ ntDirectory, operation.description.name };
+            const NTSTATUS createStatus = target.Create(FILE_READ_DATA);
+
+            if (!NT_SUCCESS(createStatus)) {
+                std::cerr << "Failed to create the target file\n";
+                error::Display(RtlNtStatusToDosError(createStatus));
+                test::report::Add(counts, MAJOR, operation.description, std::nullopt);
+
+                continue;
+            }
+
+            const NTSTATUS lockStatus = Lock(target, operation.key);
+            test::report::Add(counts, MAJOR, operation.description, lockStatus);
+        }
+
+        return;
+    }
+
+
+    constexpr test::report::Description UNLOCK_DESCRIPTIONS[]{
+        { L"unlock", STATUS_SUCCESS },
+    };
+
+    constexpr uint32_t NO_KEY = 0u;
+
+    NTSTATUS Unlock(const test::Target& target) {
+        LARGE_INTEGER byteOffset{};
+        LARGE_INTEGER rangeSize{};
+        rangeSize.QuadPart = RANGE_SIZE;
+        IO_STATUS_BLOCK ioStatus{};
+
+        return NtUnlockFile(target.Get(), &ioStatus, &byteOffset, &rangeSize, static_cast<ULONG>(NO_KEY));
+    }
+
+
+    void RunUnlockOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+
+        for (const test::report::Description& description : UNLOCK_DESCRIPTIONS) {
+            test::Target target{ ntDirectory, description.name };
+            const NTSTATUS createStatus = target.Create(FILE_READ_DATA);
+
+            if (!NT_SUCCESS(createStatus)) {
+                std::cerr << "Failed to create the target file\n";
+                error::Display(RtlNtStatusToDosError(createStatus));
+                test::report::Add(counts, MAJOR, description, std::nullopt);
+
+                continue;
+            }
+
+            const NTSTATUS lockStatus = Lock(target, NO_KEY);
+
+            if (!NT_SUCCESS(lockStatus)) {
+                std::cerr << "Failed to lock the target file\n";
+                error::Display(RtlNtStatusToDosError(lockStatus));
+                test::report::Add(counts, MAJOR, description, std::nullopt);
+
+                continue;
+            }
+
+            const NTSTATUS unlockStatus = Unlock(target);
+            test::report::Add(counts, MAJOR, description, unlockStatus);
+        }
+
+        return;
+    }
 
 }
 
@@ -66,22 +144,8 @@ namespace mimo {
             namespace lock {
 
                 bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
-
-                    for (const LockOperation& operation : LOCK_OPERATIONS) {
-                        Target target{ ntDirectory, operation.description.name };
-                        const NTSTATUS createStatus = target.Create(FILE_READ_DATA);
-
-                        if (!NT_SUCCESS(createStatus)) {
-                            std::cerr << "Failed to create the target file\n";
-                            error::Display(RtlNtStatusToDosError(createStatus));
-                            report::Add(counts, MAJOR, operation.description, std::nullopt);
-
-                            continue;
-                        }
-
-                        const NTSTATUS lockStatus = Lock(target, operation.key);
-                        report::Add(counts, MAJOR, operation.description, lockStatus);
-                    }
+                    RunLockOperations(ntDirectory, counts);
+                    RunUnlockOperations(ntDirectory, counts);
 
                     return true;
                 }
