@@ -1,6 +1,7 @@
 #include "test.h"
 
 #include "test\operations\create.h"
+#include "test\operations\deviceio.h"
 #include "test\operations\directory.h"
 #include "test\operations\ea.h"
 #include "test\operations\filesystem.h"
@@ -109,7 +110,7 @@ namespace mimo {
 
             const std::wstring ntDirectory = std::format(L"\\??\\{}", std::wstring_view{ *workDirectory }.substr(EXTENDED_PREFIX.size()));
             report::Counts counts{};
-            const bool completed = operations::create::Run(ntDirectory, counts) && operations::readwrite::Run(ntDirectory, counts) && operations::info::Run(ntDirectory, counts) && operations::ea::Run(ntDirectory, counts) && operations::flush::Run(ntDirectory, counts) && operations::volume::Run(ntDirectory, counts) && operations::directory::Run(ntDirectory, counts) && operations::filesystem::Run(ntDirectory, counts);
+            const bool completed = operations::create::Run(ntDirectory, counts) && operations::readwrite::Run(ntDirectory, counts) && operations::info::Run(ntDirectory, counts) && operations::ea::Run(ntDirectory, counts) && operations::flush::Run(ntDirectory, counts) && operations::volume::Run(ntDirectory, counts) && operations::directory::Run(ntDirectory, counts) && operations::filesystem::Run(ntDirectory, counts) && operations::deviceio::Run(ntDirectory, counts);
             const bool removed = RemoveWorkDirectory(*workDirectory);
             std::cout << std::format("Operations: {}, not executed: {}, unexpected: {}\n", counts.operations, counts.notExecuted, counts.unexpected);
 

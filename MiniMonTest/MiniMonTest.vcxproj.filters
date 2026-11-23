@@ -27,6 +27,9 @@
     <ClCompile Include="src\test\operations\create.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\test\operations\deviceio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\test\operations\directory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\test\operations\create.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\operations\deviceio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\test\operations\directory.h">
