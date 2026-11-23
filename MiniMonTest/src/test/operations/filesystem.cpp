@@ -50,21 +50,14 @@ namespace {
         { { L"filesystem-get-compression",         STATUS_SUCCESS }, FSCTL_GET_COMPRESSION,         OUTPUT_BUFFER_SIZE, false },
         { { L"filesystem-set-compression",         STATUS_SUCCESS }, FSCTL_SET_COMPRESSION,         OUTPUT_BUFFER_SIZE, false },
         { { L"filesystem-get-ntfs-volume-data",    STATUS_SUCCESS }, FSCTL_GET_NTFS_VOLUME_DATA,    OUTPUT_BUFFER_SIZE, false },
+        { { L"filesystem-set-reparse-point",       STATUS_SUCCESS }, FSCTL_SET_REPARSE_POINT,       0u,                 true  },
+        { { L"filesystem-get-reparse-point",       STATUS_SUCCESS }, FSCTL_GET_REPARSE_POINT,       OUTPUT_BUFFER_SIZE, true  },
+        { { L"filesystem-delete-reparse-point",    STATUS_SUCCESS }, FSCTL_DELETE_REPARSE_POINT,    0u,                 true  },
         { { L"filesystem-create-or-get-object-id", STATUS_SUCCESS }, FSCTL_CREATE_OR_GET_OBJECT_ID, OUTPUT_BUFFER_SIZE, false },
         { { L"filesystem-set-sparse",              STATUS_SUCCESS }, FSCTL_SET_SPARSE,              OUTPUT_BUFFER_SIZE, false },
         { { L"filesystem-set-zero-data",           STATUS_SUCCESS }, FSCTL_SET_ZERO_DATA,           OUTPUT_BUFFER_SIZE, false },
-        { { L"filesystem-set-reparse-point",       STATUS_SUCCESS }, FSCTL_SET_REPARSE_POINT,       0u,                 true  },
         { { L"filesystem-query-allocated-ranges",  STATUS_SUCCESS }, FSCTL_QUERY_ALLOCATED_RANGES,  OUTPUT_BUFFER_SIZE, false },
     };
-
-    template <typename Input>
-    std::vector<std::byte> MakeBuffer(const Input& payload) {
-        std::vector<std::byte> buffer(sizeof(payload));
-        std::memcpy(buffer.data(), &payload, sizeof(payload));
-
-        return buffer;
-    }
-
 
     struct REPARSE_DATA_BUFFER {
         ULONG ReparseTag;
@@ -107,12 +100,65 @@ namespace {
     }
 
 
+    NTSTATUS Control(
+        const test::Target& target,
+        uint32_t fsControlCode,
+        std::span<const std::byte> inputData,
+        uint32_t outputSize
+    ) {
+        std::vector<std::byte> inputBuffer(inputData.begin(), inputData.end());
+        std::vector<std::byte> outputBuffer(outputSize);
+        IO_STATUS_BLOCK ioStatus{};
+
+        return NtFsControlFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, static_cast<ULONG>(fsControlCode), inputBuffer.data(), static_cast<ULONG>(inputBuffer.size()), outputBuffer.data(), static_cast<ULONG>(outputBuffer.size()));
+    }
+
+
+    NTSTATUS PrepareTarget(const test::Target& target, uint32_t fsControlCode) {
+
+        switch (fsControlCode) {
+
+            case FSCTL_GET_REPARSE_POINT:
+            case FSCTL_DELETE_REPARSE_POINT: {
+                const std::vector<std::byte> mountPoint = MakeMountPointBuffer();
+
+                return Control(target, FSCTL_SET_REPARSE_POINT, mountPoint, 0u);
+            }
+
+        }
+
+        return STATUS_SUCCESS;
+    }
+
+
+    template <typename Input>
+    std::vector<std::byte> MakeBuffer(const Input& payload) {
+        std::vector<std::byte> buffer(sizeof(payload));
+        std::memcpy(buffer.data(), &payload, sizeof(payload));
+
+        return buffer;
+    }
+
+
+    std::vector<std::byte> MakeMountPointTagBuffer() {
+        constexpr size_t DATA_OFFSET = offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer);
+        REPARSE_DATA_BUFFER header{};
+        header.ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+
+        std::vector<std::byte> buffer(DATA_OFFSET);
+        std::memcpy(buffer.data(), &header, DATA_OFFSET);
+
+        return buffer;
+    }
+
+
     std::optional<std::vector<std::byte>> MakeInputBuffer(uint32_t fsControlCode) {
 
         switch (fsControlCode) {
 
             case FSCTL_GET_COMPRESSION:
             case FSCTL_GET_NTFS_VOLUME_DATA:
+            case FSCTL_GET_REPARSE_POINT:
             case FSCTL_CREATE_OR_GET_OBJECT_ID:
 
                 return std::vector<std::byte>{};
@@ -126,6 +172,10 @@ namespace {
             case FSCTL_SET_REPARSE_POINT:
 
                 return MakeMountPointBuffer();
+
+            case FSCTL_DELETE_REPARSE_POINT:
+
+                return MakeMountPointTagBuffer();
 
             case FSCTL_SET_SPARSE: {
                 FILE_SET_SPARSE_BUFFER sparse{};
@@ -156,20 +206,6 @@ namespace {
     }
 
 
-    NTSTATUS Control(
-        const test::Target& target,
-        uint32_t fsControlCode,
-        std::span<const std::byte> inputData,
-        uint32_t outputSize
-    ) {
-        std::vector<std::byte> inputBuffer(inputData.begin(), inputData.end());
-        std::vector<std::byte> outputBuffer(outputSize);
-        IO_STATUS_BLOCK ioStatus{};
-
-        return NtFsControlFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, static_cast<ULONG>(fsControlCode), inputBuffer.data(), static_cast<ULONG>(inputBuffer.size()), outputBuffer.data(), static_cast<ULONG>(outputBuffer.size()));
-    }
-
-
     constexpr std::string_view MAJOR = "File system control";
 
 }
@@ -191,6 +227,16 @@ namespace mimo {
                         if (!NT_SUCCESS(createStatus)) {
                             std::cerr << "Failed to create the target\n";
                             error::Display(RtlNtStatusToDosError(createStatus));
+                            report::Add(counts, MAJOR, operation.description, std::nullopt);
+
+                            continue;
+                        }
+
+                        const NTSTATUS prepareStatus = PrepareTarget(target, operation.fsControlCode);
+
+                        if (!NT_SUCCESS(prepareStatus)) {
+                            std::cerr << "Failed to prepare the target\n";
+                            error::Display(RtlNtStatusToDosError(prepareStatus));
                             report::Add(counts, MAJOR, operation.description, std::nullopt);
 
                             continue;
