@@ -3,6 +3,31 @@
 #include <fltKernel.h>
 #include <ntstrsafe.h>
 
+namespace {
+
+    // this runs inside every paging read and RtlUnicodeStringPrintf reads pageable memory
+    // the read that brings such a page in runs this again, so a status is written without it
+    NTSTATUS AppendStatus(_Inout_ UNICODE_STRING* pName, _In_ NTSTATUS status) {
+        constexpr ULONG STATUS_DIGIT_COUNT = 8u;
+        constexpr WCHAR HEX_DIGITS[] = L"0123456789ABCDEF";
+        WCHAR digits[STATUS_DIGIT_COUNT]{};
+        ULONG value = static_cast<ULONG>(status);
+
+        for (ULONG i = STATUS_DIGIT_COUNT; i > 0u; i--) {
+            digits[i - 1u] = HEX_DIGITS[value & 0xFu];
+            value >>= 4u;
+        }
+
+        UNICODE_STRING digitText{};
+        digitText.Buffer = digits;
+        digitText.Length = static_cast<USHORT>(sizeof(digits));
+        digitText.MaximumLength = digitText.Length;
+
+        return RtlUnicodeStringCat(pName, &digitText);
+    }
+
+}
+
 namespace mimo {
 
     namespace trace {
@@ -49,7 +74,7 @@ namespace mimo {
 
                 #endif // DBG
 
-                    formatStatus = RtlUnicodeStringPrintf(pName, L"%wZ", &pNormalizedInfo->Name);
+                    formatStatus = RtlUnicodeStringCopy(pName, &pNormalizedInfo->Name);
 
                     goto done;
                 }
@@ -57,12 +82,40 @@ namespace mimo {
                 openedStatus = FltGetFileNameInformation(pData, FLT_FILE_NAME_OPENED | FLT_FILE_NAME_QUERY_ALWAYS_ALLOW_CACHE_LOOKUP, &pOpenedInfo);
 
                 if (NT_SUCCESS(openedStatus)) {
-                    formatStatus = RtlUnicodeStringPrintf(pName, L"%wZ [opened: normalize 0x%08X]", &pOpenedInfo->Name, normalizedStatus);
+                    formatStatus = RtlUnicodeStringCopy(pName, &pOpenedInfo->Name);
+
+                    if (NT_SUCCESS(formatStatus)) {
+                        formatStatus = RtlUnicodeStringCatString(pName, L" [opened: normalize 0x");
+                    }
+
+                    if (NT_SUCCESS(formatStatus)) {
+                        formatStatus = AppendStatus(pName, normalizedStatus);
+                    }
+
+                    if (NT_SUCCESS(formatStatus)) {
+                        formatStatus = RtlUnicodeStringCatString(pName, L"]");
+                    }
 
                     goto done;
                 }
 
-                formatStatus = RtlUnicodeStringPrintf(pName, L"[name unavailable: normalize 0x%08X, opened 0x%08X]", normalizedStatus, openedStatus);
+                formatStatus = RtlUnicodeStringCopyString(pName, L"[name unavailable: normalize 0x");
+
+                if (NT_SUCCESS(formatStatus)) {
+                    formatStatus = AppendStatus(pName, normalizedStatus);
+                }
+
+                if (NT_SUCCESS(formatStatus)) {
+                    formatStatus = RtlUnicodeStringCatString(pName, L", opened 0x");
+                }
+
+                if (NT_SUCCESS(formatStatus)) {
+                    formatStatus = AppendStatus(pName, openedStatus);
+                }
+
+                if (NT_SUCCESS(formatStatus)) {
+                    formatStatus = RtlUnicodeStringCatString(pName, L"]");
+                }
 
             done:
 
