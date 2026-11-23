@@ -31,6 +31,7 @@
     <ClCompile Include="src\test\operations\info.cpp" />
     <ClCompile Include="src\test\operations\lock.cpp" />
     <ClCompile Include="src\test\operations\readwrite.cpp" />
+    <ClCompile Include="src\test\operations\security.cpp" />
     <ClCompile Include="src\test\operations\volume.cpp" />
     <ClCompile Include="src\test\report.cpp" />
     <ClCompile Include="src\test\target.cpp" />
@@ -50,6 +51,7 @@
     <ClInclude Include="src\test\operations\info.h" />
     <ClInclude Include="src\test\operations\lock.h" />
     <ClInclude Include="src\test\operations\readwrite.h" />
+    <ClInclude Include="src\test\operations\security.h" />
     <ClInclude Include="src\test\operations\volume.h" />
     <ClInclude Include="src\test\report.h" />
     <ClInclude Include="src\test\target.h" />

@@ -51,6 +51,9 @@
     <ClCompile Include="src\test\operations\readwrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\test\operations\security.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\test\operations\volume.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\test\operations\readwrite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\operations\security.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\test\operations\volume.h">
