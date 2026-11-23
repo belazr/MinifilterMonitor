@@ -40,22 +40,68 @@ namespace {
     struct Operation {
         test::report::Description description;
         uint32_t fsControlCode;
+        uint32_t outputSize;
+        bool directory;
     };
 
+    constexpr uint32_t OUTPUT_BUFFER_SIZE = 1024u;
+
     constexpr Operation OPERATIONS[]{
-        { { L"filesystem-get-compression",         STATUS_SUCCESS }, FSCTL_GET_COMPRESSION         },
-        { { L"filesystem-set-compression",         STATUS_SUCCESS }, FSCTL_SET_COMPRESSION         },
-        { { L"filesystem-get-ntfs-volume-data",    STATUS_SUCCESS }, FSCTL_GET_NTFS_VOLUME_DATA    },
-        { { L"filesystem-create-or-get-object-id", STATUS_SUCCESS }, FSCTL_CREATE_OR_GET_OBJECT_ID },
-        { { L"filesystem-set-sparse",              STATUS_SUCCESS }, FSCTL_SET_SPARSE              },
-        { { L"filesystem-set-zero-data",           STATUS_SUCCESS }, FSCTL_SET_ZERO_DATA           },
-        { { L"filesystem-query-allocated-ranges",  STATUS_SUCCESS }, FSCTL_QUERY_ALLOCATED_RANGES  },
+        { { L"filesystem-get-compression",         STATUS_SUCCESS }, FSCTL_GET_COMPRESSION,         OUTPUT_BUFFER_SIZE, false },
+        { { L"filesystem-set-compression",         STATUS_SUCCESS }, FSCTL_SET_COMPRESSION,         OUTPUT_BUFFER_SIZE, false },
+        { { L"filesystem-get-ntfs-volume-data",    STATUS_SUCCESS }, FSCTL_GET_NTFS_VOLUME_DATA,    OUTPUT_BUFFER_SIZE, false },
+        { { L"filesystem-create-or-get-object-id", STATUS_SUCCESS }, FSCTL_CREATE_OR_GET_OBJECT_ID, OUTPUT_BUFFER_SIZE, false },
+        { { L"filesystem-set-sparse",              STATUS_SUCCESS }, FSCTL_SET_SPARSE,              OUTPUT_BUFFER_SIZE, false },
+        { { L"filesystem-set-zero-data",           STATUS_SUCCESS }, FSCTL_SET_ZERO_DATA,           OUTPUT_BUFFER_SIZE, false },
+        { { L"filesystem-set-reparse-point",       STATUS_SUCCESS }, FSCTL_SET_REPARSE_POINT,       0u,                 true  },
+        { { L"filesystem-query-allocated-ranges",  STATUS_SUCCESS }, FSCTL_QUERY_ALLOCATED_RANGES,  OUTPUT_BUFFER_SIZE, false },
     };
 
     template <typename Input>
     std::vector<std::byte> MakeBuffer(const Input& payload) {
         std::vector<std::byte> buffer(sizeof(payload));
         std::memcpy(buffer.data(), &payload, sizeof(payload));
+
+        return buffer;
+    }
+
+
+    struct REPARSE_DATA_BUFFER {
+        ULONG ReparseTag;
+        USHORT ReparseDataLength;
+        USHORT Reserved;
+
+        struct {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            WCHAR PathBuffer[1u];
+        } MountPointReparseBuffer;
+    };
+
+    static_assert(offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer) == 16u, "REPARSE_DATA_BUFFER layout drift");
+
+    std::vector<std::byte> MakeMountPointBuffer() {
+        constexpr std::wstring_view SUBSTITUTE_NAME = L"\\??\\C:\\MiniMonTest.missing";
+        constexpr std::wstring_view PRINT_NAME = L"C:\\MiniMonTest.missing";
+        constexpr size_t DATA_OFFSET = offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer);
+        constexpr size_t NAME_OFFSET = offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer);
+        constexpr size_t SUBSTITUTE_NAME_SIZE = SUBSTITUTE_NAME.size() * sizeof(wchar_t);
+        constexpr size_t PRINT_NAME_OFFSET = SUBSTITUTE_NAME_SIZE + sizeof(wchar_t);
+        constexpr size_t PRINT_NAME_SIZE = PRINT_NAME.size() * sizeof(wchar_t);
+        constexpr size_t NAMES_SIZE = PRINT_NAME_OFFSET + PRINT_NAME_SIZE + sizeof(wchar_t);
+        REPARSE_DATA_BUFFER header{};
+        header.ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+        header.ReparseDataLength = static_cast<USHORT>(NAME_OFFSET - DATA_OFFSET + NAMES_SIZE);
+        header.MountPointReparseBuffer.SubstituteNameLength = static_cast<USHORT>(SUBSTITUTE_NAME_SIZE);
+        header.MountPointReparseBuffer.PrintNameOffset = static_cast<USHORT>(PRINT_NAME_OFFSET);
+        header.MountPointReparseBuffer.PrintNameLength = static_cast<USHORT>(PRINT_NAME_SIZE);
+
+        std::vector<std::byte> buffer(NAME_OFFSET + NAMES_SIZE);
+        std::memcpy(buffer.data(), &header, NAME_OFFSET);
+        std::memcpy(buffer.data() + NAME_OFFSET, SUBSTITUTE_NAME.data(), SUBSTITUTE_NAME_SIZE);
+        std::memcpy(buffer.data() + NAME_OFFSET + PRINT_NAME_OFFSET, PRINT_NAME.data(), PRINT_NAME_SIZE);
 
         return buffer;
     }
@@ -76,6 +122,10 @@ namespace {
 
                 return MakeBuffer(COMPRESSION_FORMAT);
             }
+
+            case FSCTL_SET_REPARSE_POINT:
+
+                return MakeMountPointBuffer();
 
             case FSCTL_SET_SPARSE: {
                 FILE_SET_SPARSE_BUFFER sparse{};
@@ -109,11 +159,11 @@ namespace {
     NTSTATUS Control(
         const test::Target& target,
         uint32_t fsControlCode,
-        std::span<const std::byte> inputData
+        std::span<const std::byte> inputData,
+        uint32_t outputSize
     ) {
-        constexpr size_t OUTPUT_BUFFER_SIZE = 1024u;
         std::vector<std::byte> inputBuffer(inputData.begin(), inputData.end());
-        std::vector<std::byte> outputBuffer(OUTPUT_BUFFER_SIZE);
+        std::vector<std::byte> outputBuffer(outputSize);
         IO_STATUS_BLOCK ioStatus{};
 
         return NtFsControlFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, static_cast<ULONG>(fsControlCode), inputBuffer.data(), static_cast<ULONG>(inputBuffer.size()), outputBuffer.data(), static_cast<ULONG>(outputBuffer.size()));
@@ -136,10 +186,10 @@ namespace mimo {
 
                     for (const Operation& operation : OPERATIONS) {
                         Target target{ ntDirectory, operation.description.name };
-                        const NTSTATUS createStatus = target.Create(FILE_GENERIC_READ | FILE_GENERIC_WRITE);
+                        const NTSTATUS createStatus = target.Create(FILE_GENERIC_READ | FILE_GENERIC_WRITE, false, operation.directory);
 
                         if (!NT_SUCCESS(createStatus)) {
-                            std::cerr << "Failed to create the target file\n";
+                            std::cerr << "Failed to create the target\n";
                             error::Display(RtlNtStatusToDosError(createStatus));
                             report::Add(counts, MAJOR, operation.description, std::nullopt);
 
@@ -155,7 +205,7 @@ namespace mimo {
                             continue;
                         }
 
-                        const NTSTATUS controlStatus = Control(target, operation.fsControlCode, *inputData);
+                        const NTSTATUS controlStatus = Control(target, operation.fsControlCode, *inputData, operation.outputSize);
                         report::Add(counts, MAJOR, operation.description, controlStatus);
                     }
 
