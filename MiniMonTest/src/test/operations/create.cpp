@@ -91,10 +91,8 @@ namespace {
     }
 
 
-    using FileHandle = Handle<NtClose>;
-
     NTSTATUS Create(
-        FileHandle& file,
+        NtHandle& file,
         std::wstring_view path,
         ULONG disposition,
         std::span<const std::byte> eaBuffer
@@ -141,7 +139,7 @@ namespace mimo {
                             continue;
                         }
 
-                        FileHandle file;
+                        NtHandle file;
                         const NTSTATUS status = Create(file, path, operation.disposition, eaBuffer);
 
                         const bool reverted = !operation.impersonating || StopImpersonation();

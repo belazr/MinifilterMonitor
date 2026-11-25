@@ -32,7 +32,7 @@ namespace mimo {
 
         private:
             std::wstring path;
-            Handle<NtClose> file;
+            NtHandle file;
         };
 
     }

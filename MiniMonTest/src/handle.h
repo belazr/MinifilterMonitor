@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <winternl.h>
 
 #include <utility>
 
@@ -76,8 +77,6 @@ namespace mimo {
 
     };
 
-    using NullHandle = Handle<CloseHandle>;
-    using InvalidHandle = Handle<CloseHandle, HANDLE, INVALID_HANDLE_VALUE>;
-    using RegistryKeyHandle = Handle<RegCloseKey, HKEY>;
+    using NtHandle = Handle<NtClose>;
 
 }
