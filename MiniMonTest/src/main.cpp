@@ -1,4 +1,3 @@
-#include "error.h"
 #include "test.h"
 
 #include <Windows.h>
@@ -87,27 +86,6 @@ namespace {
         return;
     }
 
-
-    bool VerifyDirectory(const std::wstring& path) {
-        const DWORD attributes = GetFileAttributesW(path.c_str());
-
-        if (attributes == INVALID_FILE_ATTRIBUTES) {
-            const DWORD lastError = GetLastError();
-            std::cerr << "Failed to query directory attributes\n";
-            error::Display(lastError);
-
-            return false;
-        }
-
-        if (!(attributes & FILE_ATTRIBUTE_DIRECTORY)) {
-            std::cerr << "Not a directory\n";
-
-            return false;
-        }
-
-        return true;
-    }
-
 }
 
 int wmain(int argc, wchar_t* argv[]) {
@@ -125,8 +103,6 @@ int wmain(int argc, wchar_t* argv[]) {
 
         return EXIT_SUCCESS;
     }
-
-    if (!VerifyDirectory(*parameters->directory)) return EXIT_FAILURE;
 
     return test::Run(*parameters->directory) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
