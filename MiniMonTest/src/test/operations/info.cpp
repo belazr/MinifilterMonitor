@@ -131,7 +131,8 @@ namespace {
         { { L"set-info-position",              STATUS_SUCCESS                        }, kernel::FilePositionInformation,            8u,                                                  true  },
         { { L"set-info-allocation",            STATUS_SUCCESS                        }, kernel::FileAllocationInformation,          4096u,                                               false },
         { { L"set-info-end-of-file",           STATUS_SUCCESS                        }, kernel::FileEndOfFileInformation,           16u,                                                 false },
-        { { L"set-info-valid-data-length",     STATUS_PRIVILEGE_NOT_HELD             }, kernel::FileValidDataLengthInformation,     16u,                                                 false },
+        // STATUS_PRIVILEGE_NOT_HELD is expected because the process runs without SeManageVolumePrivilege
+        { { L"set-info-valid-data-length",     STATUS_PRIVILEGE_NOT_HELD            }, kernel::FileValidDataLengthInformation,     16u,                                                 false },
         { { L"set-info-short-name",            STATUS_SUCCESS                        }, kernel::FileShortNameInformation,           0u,                                                  false },
         { { L"set-info-disposition-ex",        STATUS_SUCCESS                        }, kernel::FileDispositionInformationEx,       kernel::FILE_DISPOSITION_DELETE,                     false },
         { { L"set-info-rename-ex",             STATUS_SUCCESS                        }, kernel::FileRenameInformationEx,            kernel::FILE_RENAME_POSIX_SEMANTICS,                 false },

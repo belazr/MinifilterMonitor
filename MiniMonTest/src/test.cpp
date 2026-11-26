@@ -16,6 +16,7 @@
 #include "test\report.h"
 
 #include "error.h"
+#include "handle.h"
 
 #include <Windows.h>
 
@@ -30,6 +31,43 @@
 using namespace mimo;
 
 namespace {
+
+    // SeManageVolumePrivilege is removed so that the set quota request makes no persistent change to the machine
+    // and set quota and set valid data length return their expected statuses whatever the parent process enabled
+    bool RemoveVolumePrivilege() {
+        Handle<CloseHandle> token;
+
+        if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, token.Put())) {
+            const DWORD lastError = GetLastError();
+            std::cerr << "Failed to open the process token\n";
+            error::Display(lastError);
+
+            return false;
+        }
+
+        TOKEN_PRIVILEGES privileges{};
+        privileges.PrivilegeCount = 1u;
+        privileges.Privileges[0u].Attributes = SE_PRIVILEGE_REMOVED;
+
+        if (!LookupPrivilegeValueW(nullptr, SE_MANAGE_VOLUME_NAME, &privileges.Privileges[0u].Luid)) {
+            const DWORD lastError = GetLastError();
+            std::cerr << "Failed to look up the privilege\n";
+            error::Display(lastError);
+
+            return false;
+        }
+
+        if (!AdjustTokenPrivileges(token.Get(), FALSE, &privileges, 0u, nullptr, nullptr)) {
+            const DWORD lastError = GetLastError();
+            std::cerr << "Failed to remove the privilege\n";
+            error::Display(lastError);
+
+            return false;
+        }
+
+        return true;
+    }
+
 
     constexpr std::wstring_view EXTENDED_PREFIX = L"\\\\?\\";
     constexpr std::wstring_view DEVICE_PREFIX   = L"\\\\.\\";
@@ -104,6 +142,9 @@ namespace mimo {
     namespace test {
 
         bool Run(std::wstring_view directory) {
+
+            if (!RemoveVolumePrivilege()) return false;
+
             const std::optional<std::wstring> extendedDirectory = ResolveExtendedDirectory(std::wstring{ directory });
 
             if (!extendedDirectory.has_value()) return false;

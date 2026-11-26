@@ -131,6 +131,8 @@ namespace {
     }
 
 
+    // STATUS_ACCESS_DENIED is expected because the process runs without SeManageVolumePrivilege
+    // this is enough to provoke a trace and not make persistent changes to the machine
     constexpr test::report::Description SET_DESCRIPTIONS[]{
         { L"set-quota", STATUS_ACCESS_DENIED },
     };
