@@ -12,7 +12,6 @@
 #include <winternl.h>
 
 #include <cstddef>
-#include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <optional>
@@ -32,6 +31,13 @@ extern "C" NTSYSAPI NTSTATUS NTAPI NtQueryQuotaInformationFile(
     BOOLEAN restartScan
 );
 
+extern "C" NTSYSAPI NTSTATUS NTAPI NtSetQuotaInformationFile(
+    HANDLE hFile,
+    IO_STATUS_BLOCK* pIoStatus,
+    void* pBuffer,
+    ULONG bufferSize
+);
+
 using namespace mimo;
 
 namespace {
@@ -40,15 +46,8 @@ namespace {
         { L"query-quota", STATUS_SUCCESS },
     };
 
-    struct FILE_GET_QUOTA_INFORMATION {
-        ULONG NextEntryOffset;
-        ULONG SidLength;
-        SID Sid;
-    };
-
-    std::optional<std::vector<std::byte>> MakeSidListBuffer() {
-        constexpr std::wstring_view SID_TEXT = L"S-1-5-21-1-2-3-1001";
-        constexpr size_t SID_OFFSET = offsetof(FILE_GET_QUOTA_INFORMATION, Sid);
+    std::optional<std::vector<std::byte>> MakeSid() {
+        constexpr std::wstring_view SID_TEXT = L"S-1-5-21-3664179068-802908425-4097507119-1001";
         PSID pSid = nullptr;
 
         if (!ConvertStringSidToSidW(SID_TEXT.data(), &pSid)) {
@@ -59,14 +58,32 @@ namespace {
             return std::nullopt;
         }
 
-        const uint32_t sidSize = static_cast<uint32_t>(GetLengthSid(pSid));
-        FILE_GET_QUOTA_INFORMATION header{};
-        header.SidLength = static_cast<ULONG>(sidSize);
-
-        std::vector<std::byte> buffer(SID_OFFSET + sidSize);
-        std::memcpy(buffer.data(), &header, SID_OFFSET);
-        std::memcpy(buffer.data() + SID_OFFSET, pSid, sidSize);
+        std::vector<std::byte> sid(static_cast<size_t>(GetLengthSid(pSid)));
+        std::memcpy(sid.data(), pSid, sid.size());
         LocalFree(pSid);
+
+        return sid;
+    }
+
+
+    struct FILE_GET_QUOTA_INFORMATION {
+        ULONG NextEntryOffset;
+        ULONG SidLength;
+        SID Sid;
+    };
+
+    std::optional<std::vector<std::byte>> MakeSidListBuffer() {
+        constexpr size_t SID_OFFSET = offsetof(FILE_GET_QUOTA_INFORMATION, Sid);
+        const std::optional<std::vector<std::byte>> sid = MakeSid();
+
+        if (!sid.has_value()) return std::nullopt;
+
+        FILE_GET_QUOTA_INFORMATION header{};
+        header.SidLength = static_cast<ULONG>(sid->size());
+
+        std::vector<std::byte> buffer(SID_OFFSET + sid->size());
+        std::memcpy(buffer.data(), &header, SID_OFFSET);
+        std::memcpy(buffer.data() + SID_OFFSET, sid->data(), sid->size());
 
         return buffer;
     }
@@ -113,6 +130,81 @@ namespace {
         return;
     }
 
+
+    constexpr test::report::Description SET_DESCRIPTIONS[]{
+        { L"set-quota", STATUS_ACCESS_DENIED },
+    };
+
+    struct FILE_QUOTA_INFORMATION {
+        ULONG NextEntryOffset;
+        ULONG SidLength;
+        LARGE_INTEGER ChangeTime;
+        LARGE_INTEGER QuotaUsed;
+        LARGE_INTEGER QuotaThreshold;
+        LARGE_INTEGER QuotaLimit;
+        SID Sid;
+    };
+
+    std::optional<std::vector<std::byte>> MakeQuotaBuffer() {
+        // a limit of -2 asks the file system to delete the entry of the SID, so the request cannot leave one behind
+        constexpr LONGLONG DELETE_ENTRY = -2;
+        constexpr size_t SID_OFFSET = offsetof(FILE_QUOTA_INFORMATION, Sid);
+        constexpr size_t ALIGNMENT = alignof(FILE_QUOTA_INFORMATION);
+        const std::optional<std::vector<std::byte>> sid = MakeSid();
+
+        if (!sid.has_value()) return std::nullopt;
+
+        FILE_QUOTA_INFORMATION header{};
+        header.SidLength = static_cast<ULONG>(sid->size());
+        header.QuotaLimit.QuadPart = DELETE_ENTRY;
+
+        std::vector<std::byte> buffer((SID_OFFSET + sid->size() + ALIGNMENT - 1u) / ALIGNMENT * ALIGNMENT);
+        std::memcpy(buffer.data(), &header, SID_OFFSET);
+        std::memcpy(buffer.data() + SID_OFFSET, sid->data(), sid->size());
+
+        return buffer;
+    }
+
+
+    NTSTATUS Set(const test::Target& target, std::span<const std::byte> quotaData) {
+        std::vector<std::byte> buffer(quotaData.begin(), quotaData.end());
+        IO_STATUS_BLOCK ioStatus{};
+
+        return NtSetQuotaInformationFile(target.Get(), &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()));
+    }
+
+
+    constexpr std::string_view SET_MAJOR = "Set quota";
+
+    void RunSetOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+
+        for (const test::report::Description& description : SET_DESCRIPTIONS) {
+            test::Target target{ ntDirectory, description.name };
+            const NTSTATUS createStatus = target.Create(FILE_WRITE_DATA);
+
+            if (!NT_SUCCESS(createStatus)) {
+                std::cerr << "Failed to create the target file\n";
+                error::Display(RtlNtStatusToDosError(createStatus));
+                test::report::Add(counts, SET_MAJOR, description, std::nullopt);
+
+                continue;
+            }
+
+            const std::optional<std::vector<std::byte>> quotaData = MakeQuotaBuffer();
+
+            if (!quotaData.has_value()) {
+                test::report::Add(counts, SET_MAJOR, description, std::nullopt);
+
+                continue;
+            }
+
+            const NTSTATUS setStatus = Set(target, *quotaData);
+            test::report::Add(counts, SET_MAJOR, description, setStatus);
+        }
+
+        return;
+    }
+
 }
 
 namespace mimo {
@@ -125,6 +217,7 @@ namespace mimo {
 
                 bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
                     RunQueryOperations(ntDirectory, counts);
+                    RunSetOperations(ntDirectory, counts);
 
                     return true;
                 }
