@@ -45,9 +45,12 @@ namespace {
         uint32_t key;
     };
 
+    constexpr uint32_t NO_KEY = 0u;
+    constexpr uint32_t KEY    = 0x4D4Du;
+
     constexpr LockOperation LOCK_OPERATIONS[]{
-        { { L"lock",     STATUS_SUCCESS }, 0u      },
-        { { L"lock-key", STATUS_SUCCESS }, 0x4D4Du },
+        { { L"lock",     STATUS_SUCCESS }, NO_KEY },
+        { { L"lock-key", STATUS_SUCCESS }, KEY    },
     };
 
     constexpr LONGLONG RANGE_SIZE = 16;
@@ -89,8 +92,6 @@ namespace {
     constexpr test::report::Description UNLOCK_DESCRIPTIONS[]{
         { L"unlock", STATUS_SUCCESS },
     };
-
-    constexpr uint32_t NO_KEY = 0u;
 
     NTSTATUS Unlock(const test::Target& target) {
         LARGE_INTEGER byteOffset{};
