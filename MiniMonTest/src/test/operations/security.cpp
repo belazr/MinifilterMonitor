@@ -98,8 +98,8 @@ namespace {
             return std::nullopt;
         }
 
-        std::vector<std::byte> buffer(size);
-        std::memcpy(buffer.data(), pSecurityDescriptor, size);
+        std::vector<std::byte> buffer(static_cast<size_t>(size));
+        std::memcpy(buffer.data(), pSecurityDescriptor, buffer.size());
         LocalFree(pSecurityDescriptor);
 
         return buffer;

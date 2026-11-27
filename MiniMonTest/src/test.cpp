@@ -20,6 +20,7 @@
 
 #include <Windows.h>
 
+#include <cstdint>
 #include <filesystem>
 #include <format>
 #include <iostream>
@@ -73,9 +74,9 @@ namespace {
     constexpr std::wstring_view DEVICE_PREFIX   = L"\\\\.\\";
 
     std::optional<std::wstring> ResolveExtendedDirectory(const std::wstring& path) {
-        const DWORD bufferWcharCount = GetFullPathNameW(path.c_str(), 0u, nullptr, nullptr);
+        const uint32_t bufferWcharCount = static_cast<uint32_t>(GetFullPathNameW(path.c_str(), 0u, nullptr, nullptr));
         std::wstring fullPath(bufferWcharCount, L'\0');
-        const DWORD pathWcharCount = GetFullPathNameW(path.c_str(), bufferWcharCount, fullPath.data(), nullptr);
+        const uint32_t pathWcharCount = static_cast<uint32_t>(GetFullPathNameW(path.c_str(), static_cast<DWORD>(bufferWcharCount), fullPath.data(), nullptr));
 
         if (!pathWcharCount) {
             const DWORD lastError = GetLastError();
