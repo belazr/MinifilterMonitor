@@ -46,6 +46,7 @@
   <PropertyGroup>
     <CertificateStoreName>My</CertificateStoreName>
     <SubjectName>MinifilterMonitor TestCert</SubjectName>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
