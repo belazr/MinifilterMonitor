@@ -143,7 +143,7 @@ namespace {
                 constexpr size_t LABEL_OFFSET = offsetof(trace::layouts::FILE_FS_VOLUME_INFORMATION, VolumeLabel);
                 trace::layouts::FILE_FS_VOLUME_INFORMATION volume{};
 
-                if (trace::payload::ReadHeader(payload, volume, LABEL_OFFSET)) return RenderVolumePayload(volume, payload.subspan(LABEL_OFFSET));
+                if (trace::payload::ReadHeader(payload, LABEL_OFFSET, volume)) return RenderVolumePayload(volume, payload.subspan(LABEL_OFFSET));
 
                 break;
             }
@@ -152,7 +152,7 @@ namespace {
                 constexpr size_t LABEL_OFFSET = offsetof(trace::layouts::FILE_FS_LABEL_INFORMATION, VolumeLabel);
                 trace::layouts::FILE_FS_LABEL_INFORMATION label{};
 
-                if (trace::payload::ReadHeader(payload, label, LABEL_OFFSET)) return RenderLabelPayload(label, payload.subspan(LABEL_OFFSET));
+                if (trace::payload::ReadHeader(payload, LABEL_OFFSET, label)) return RenderLabelPayload(label, payload.subspan(LABEL_OFFSET));
 
                 break;
             }
@@ -177,7 +177,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::layouts::FILE_FS_ATTRIBUTE_INFORMATION, FileSystemName);
                 trace::layouts::FILE_FS_ATTRIBUTE_INFORMATION attribute{};
 
-                if (trace::payload::ReadHeader(payload, attribute, NAME_OFFSET)) return RenderAttributePayload(attribute, payload.subspan(NAME_OFFSET));
+                if (trace::payload::ReadHeader(payload, NAME_OFFSET, attribute)) return RenderAttributePayload(attribute, payload.subspan(NAME_OFFSET));
 
                 break;
             }

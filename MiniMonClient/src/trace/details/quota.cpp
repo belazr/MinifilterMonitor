@@ -37,7 +37,7 @@ namespace {
             constexpr size_t SID_OFFSET = offsetof(trace::layouts::FILE_GET_QUOTA_INFORMATION, Sid);
             trace::layouts::FILE_GET_QUOTA_INFORMATION entry{};
 
-            if (!trace::payload::ReadHeader(payload, entry, SID_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, SID_OFFSET, entry, offset)) break;
 
             const size_t sidStart = offset + SID_OFFSET;
 
@@ -97,7 +97,7 @@ namespace {
             constexpr size_t SID_OFFSET = offsetof(trace::layouts::FILE_QUOTA_INFORMATION, Sid);
             trace::layouts::FILE_QUOTA_INFORMATION entry{};
 
-            if (!trace::payload::ReadHeader(payload, entry, SID_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, SID_OFFSET, entry, offset)) break;
 
             const size_t sidStart = offset + SID_OFFSET;
 

@@ -136,7 +136,7 @@ namespace {
             constexpr size_t NAME_OFFSET = offsetof(trace::layouts::FILE_STREAM_INFORMATION, StreamName);
             trace::layouts::FILE_STREAM_INFORMATION entry{};
 
-            if (!trace::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, NAME_OFFSET, entry, offset)) break;
 
             result += std::format(L"StreamName: {}, StreamSize: {}, StreamAllocationSize: {}, ", trace::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.StreamNameLength), entry.StreamSize, entry.StreamAllocationSize);
 
@@ -226,7 +226,7 @@ namespace {
         constexpr size_t ENTRY_OFFSET = offsetof(trace::layouts::FILE_LINKS_INFORMATION, Entry);
         trace::layouts::FILE_LINKS_INFORMATION links{};
 
-        if (!trace::payload::ReadHeader(payload, links, ENTRY_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, ENTRY_OFFSET, links)) return {};
 
         std::wstring result = std::format(L"BytesNeeded: {}, EntriesReturned: {}, ", links.BytesNeeded, links.EntriesReturned);
         size_t offset = ENTRY_OFFSET;
@@ -236,7 +236,7 @@ namespace {
             constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
             Entry entry{};
 
-            if (!trace::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, NAME_OFFSET, entry, offset)) break;
 
             result += std::format(L"ParentFileId: {}, FileName: {}, ", trace::values::RenderFileId(entry.ParentFileId), trace::payload::RenderName(payload.subspan(offset + NAME_OFFSET), static_cast<uint32_t>(entry.FileNameLength * sizeof(wchar_t))));
             index++;
@@ -261,7 +261,7 @@ namespace {
         constexpr size_t PROCESS_ID_LIST_OFFSET = offsetof(trace::layouts::FILE_PROCESS_IDS_USING_FILE_INFORMATION, ProcessIdList);
         trace::layouts::FILE_PROCESS_IDS_USING_FILE_INFORMATION processIds{};
 
-        if (!trace::payload::ReadHeader(payload, processIds, PROCESS_ID_LIST_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, PROCESS_ID_LIST_OFFSET, processIds)) return {};
 
         std::wstring result = std::format(L"NumberOfProcessIdsInList: {}", processIds.NumberOfProcessIdsInList);
         size_t offset = PROCESS_ID_LIST_OFFSET;
@@ -495,7 +495,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::layouts::FILE_NAME_INFORMATION, FileName);
                 trace::layouts::FILE_NAME_INFORMATION name{};
 
-                if (trace::payload::ReadHeader(payload, name, NAME_OFFSET)) return RenderNamePayload(name, payload.subspan(NAME_OFFSET));
+                if (trace::payload::ReadHeader(payload, NAME_OFFSET, name)) return RenderNamePayload(name, payload.subspan(NAME_OFFSET));
 
                 break;
             }
@@ -512,7 +512,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::layouts::FILE_ALL_INFORMATION, NameInformation.FileName);
                 trace::layouts::FILE_ALL_INFORMATION all{};
 
-                if (trace::payload::ReadHeader(payload, all, NAME_OFFSET)) return RenderAllPayload(all, payload.subspan(NAME_OFFSET));
+                if (trace::payload::ReadHeader(payload, NAME_OFFSET, all)) return RenderAllPayload(all, payload.subspan(NAME_OFFSET));
 
                 break;
             }
@@ -589,7 +589,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::layouts::FILE_VOLUME_NAME_INFORMATION, DeviceName);
                 trace::layouts::FILE_VOLUME_NAME_INFORMATION volumeName{};
 
-                if (trace::payload::ReadHeader(payload, volumeName, NAME_OFFSET)) return RenderVolumeNamePayload(volumeName, payload.subspan(NAME_OFFSET));
+                if (trace::payload::ReadHeader(payload, NAME_OFFSET, volumeName)) return RenderVolumeNamePayload(volumeName, payload.subspan(NAME_OFFSET));
 
                 break;
             }
@@ -897,7 +897,7 @@ namespace mimo {
                             constexpr size_t OBJECT_INFORMATION_OFFSET = offsetof(layouts::FILE_TRACKING_INFORMATION, ObjectInformation);
                             layouts::FILE_TRACKING_INFORMATION tracking{};
 
-                            if (payload::ReadHeader(payload, tracking, OBJECT_INFORMATION_OFFSET)) {
+                            if (payload::ReadHeader(payload, OBJECT_INFORMATION_OFFSET, tracking)) {
                                 payloadText = RenderTrackingPayload(tracking, payload.subspan(OBJECT_INFORMATION_OFFSET));
                             }
 
@@ -918,7 +918,7 @@ namespace mimo {
                             constexpr size_t NAME_OFFSET = offsetof(layouts::FILE_NAME_INFORMATION, FileName);
                             layouts::FILE_NAME_INFORMATION shortName{};
 
-                            if (payload::ReadHeader(payload, shortName, NAME_OFFSET)) {
+                            if (payload::ReadHeader(payload, NAME_OFFSET, shortName)) {
                                 payloadText = RenderShortNamePayload(shortName, payload.subspan(NAME_OFFSET));
                             }
 
@@ -950,7 +950,7 @@ namespace mimo {
                             constexpr size_t NAME_OFFSET = offsetof(layouts::FILE_RENAME_INFORMATION_EX, FileName);
                             layouts::FILE_RENAME_INFORMATION_EX renameEx{};
 
-                            if (payload::ReadHeader(payload, renameEx, NAME_OFFSET)) {
+                            if (payload::ReadHeader(payload, NAME_OFFSET, renameEx)) {
                                 payloadText = RenderRenameExPayload(renameEx);
                             }
 
@@ -974,7 +974,7 @@ namespace mimo {
                             constexpr size_t NAME_OFFSET = offsetof(layouts::FILE_RENAME_INFORMATION_EX, FileName);
                             layouts::FILE_RENAME_INFORMATION_EX linkEx{};
 
-                            if (payload::ReadHeader(payload, linkEx, NAME_OFFSET)) {
+                            if (payload::ReadHeader(payload, NAME_OFFSET, linkEx)) {
                                 payloadText = RenderLinkExPayload(linkEx);
                             }
 

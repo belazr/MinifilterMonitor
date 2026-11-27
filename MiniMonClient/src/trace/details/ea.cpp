@@ -38,7 +38,7 @@ namespace {
             constexpr size_t NAME_OFFSET = offsetof(trace::layouts::FILE_GET_EA_INFORMATION, EaName);
             trace::layouts::FILE_GET_EA_INFORMATION entry{};
 
-            if (!trace::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, NAME_OFFSET, entry, offset)) break;
 
             result += trace::payload::RenderAsciiName(payload.subspan(offset + NAME_OFFSET), entry.EaNameLength);
             result += L'|';

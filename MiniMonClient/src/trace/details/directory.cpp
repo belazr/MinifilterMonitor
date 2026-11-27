@@ -62,7 +62,7 @@ namespace {
             constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
             Entry entry{};
 
-            if (!trace::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, NAME_OFFSET, entry, offset)) break;
 
             result += std::format(L"{}: {}, ", index, trace::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
             index++;
@@ -273,7 +273,7 @@ namespace {
             constexpr size_t NAME_OFFSET = offsetof(Entry, FileName);
             Entry entry{};
 
-            if (!trace::payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+            if (!trace::payload::ReadHeader(payload, NAME_OFFSET, entry, offset)) break;
 
             result += std::format(L"{}: Action: {}, FileName: {}, ", index, trace::names::RenderFileAction(entry.Action), trace::payload::RenderName(payload.subspan(offset + NAME_OFFSET), entry.FileNameLength));
             index++;

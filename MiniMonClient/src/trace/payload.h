@@ -45,8 +45,8 @@ namespace mimo {
             template <typename T>
             bool ReadHeader(
                 std::span<const uint8_t> payload,
-                T& value,
                 size_t headerSize,
+                T& value,
                 size_t offset = 0u
             ) {
 

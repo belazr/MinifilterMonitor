@@ -65,7 +65,7 @@ namespace {
                 constexpr size_t PARAMETERS_OFFSET = offsetof(trace::layouts::STORAGE_PROPERTY_QUERY, AdditionalParameters);
                 trace::layouts::STORAGE_PROPERTY_QUERY propertyQuery{};
 
-                if (trace::payload::ReadHeader(input, propertyQuery, PARAMETERS_OFFSET)) return RenderPropertyQueryPayload(propertyQuery);
+                if (trace::payload::ReadHeader(input, PARAMETERS_OFFSET, propertyQuery)) return RenderPropertyQueryPayload(propertyQuery);
 
                 break;
             }
@@ -75,7 +75,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::layouts::MOUNTDEV_NAME, Name);
                 trace::layouts::MOUNTDEV_NAME name{};
 
-                if (trace::payload::ReadHeader(input, name, NAME_OFFSET)) return RenderNamePayload(name, input.subspan(NAME_OFFSET));
+                if (trace::payload::ReadHeader(input, NAME_OFFSET, name)) return RenderNamePayload(name, input.subspan(NAME_OFFSET));
 
                 break;
             }
@@ -203,7 +203,7 @@ namespace {
         constexpr size_t EXTENTS_OFFSET = offsetof(trace::layouts::VOLUME_DISK_EXTENTS, Extents);
         trace::layouts::VOLUME_DISK_EXTENTS extents{};
 
-        if (!trace::payload::ReadHeader(payload, extents, EXTENTS_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, EXTENTS_OFFSET, extents)) return {};
 
         std::wstring result = std::format(L"NumberOfDiskExtents: {}, ", extents.NumberOfDiskExtents);
         size_t offset = EXTENTS_OFFSET;
@@ -259,7 +259,7 @@ namespace {
                 constexpr size_t DATA_OFFSET = offsetof(trace::layouts::DISK_GEOMETRY_EX, Data);
                 trace::layouts::DISK_GEOMETRY_EX geometryEx{};
 
-                if (trace::payload::ReadHeader(output, geometryEx, DATA_OFFSET)) return RenderGeometryExPayload(geometryEx);
+                if (trace::payload::ReadHeader(output, DATA_OFFSET, geometryEx)) return RenderGeometryExPayload(geometryEx);
 
                 break;
             }
@@ -344,7 +344,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::layouts::MOUNTDEV_NAME, Name);
                 trace::layouts::MOUNTDEV_NAME name{};
 
-                if (trace::payload::ReadHeader(output, name, NAME_OFFSET)) return RenderNamePayload(name, output.subspan(NAME_OFFSET));
+                if (trace::payload::ReadHeader(output, NAME_OFFSET, name)) return RenderNamePayload(name, output.subspan(NAME_OFFSET));
 
                 break;
             }

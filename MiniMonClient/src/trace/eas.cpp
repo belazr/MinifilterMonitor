@@ -31,7 +31,7 @@ namespace mimo {
                     constexpr size_t NAME_OFFSET = offsetof(layouts::FILE_FULL_EA_INFORMATION, EaName);
                     layouts::FILE_FULL_EA_INFORMATION entry{};
 
-                    if (!payload::ReadHeader(payload, entry, NAME_OFFSET, offset)) break;
+                    if (!payload::ReadHeader(payload, NAME_OFFSET, entry, offset)) break;
 
                     result += std::format(L"{}: EaName: {}, EaValueLength: {}", index, payload::RenderAsciiName(payload.subspan(offset + NAME_OFFSET), entry.EaNameLength), entry.EaValueLength);
                     index++;

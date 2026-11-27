@@ -111,7 +111,7 @@ namespace {
         constexpr size_t REPARSE_BUFFER_OFFSET = offsetof(trace::layouts::REPARSE_DATA_BUFFER, GenericReparseBuffer);
         trace::layouts::REPARSE_DATA_BUFFER reparse{};
 
-        if (!trace::payload::ReadHeader(payload, reparse, REPARSE_BUFFER_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, REPARSE_BUFFER_OFFSET, reparse)) return {};
 
         if (!reparse.ReparseTag) return {};
 
@@ -123,7 +123,7 @@ namespace {
             case IO_REPARSE_TAG_SYMLINK: {
                 constexpr size_t NAME_OFFSET = offsetof(trace::layouts::REPARSE_DATA_BUFFER, SymbolicLinkReparseBuffer.PathBuffer);
 
-                if (trace::payload::ReadHeader(payload, reparse, NAME_OFFSET)) {
+                if (trace::payload::ReadHeader(payload, NAME_OFFSET, reparse)) {
                     tagText = RenderReparsePayloadSymlink(reparse, payload.subspan(NAME_OFFSET));
                 }
 
@@ -133,7 +133,7 @@ namespace {
             case IO_REPARSE_TAG_MOUNT_POINT: {
                 constexpr size_t NAME_OFFSET = offsetof(trace::layouts::REPARSE_DATA_BUFFER, MountPointReparseBuffer.PathBuffer);
 
-                if (trace::payload::ReadHeader(payload, reparse, NAME_OFFSET)) {
+                if (trace::payload::ReadHeader(payload, NAME_OFFSET, reparse)) {
                     tagText = RenderReparsePayloadMountPoint(reparse, payload.subspan(NAME_OFFSET));
                 }
 
@@ -218,7 +218,7 @@ namespace {
         constexpr size_t PREFETCH_OFFSET = offsetof(trace::layouts::FILE_PREFETCH, Prefetch);
         trace::layouts::FILE_PREFETCH_EX prefetch{};
 
-        if (!trace::payload::ReadHeader(payload, prefetch, PREFETCH_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, PREFETCH_OFFSET, prefetch)) return {};
 
         std::wstring result = std::format(L"Type: {}, Count: {}", trace::names::RenderFilePrefetchType(prefetch.Type), prefetch.Count);
         size_t offset = PREFETCH_OFFSET;
@@ -267,7 +267,7 @@ namespace {
         constexpr size_t RANGES_OFFSET = offsetof(trace::layouts::FILE_LEVEL_TRIM, Ranges);
         trace::layouts::FILE_LEVEL_TRIM trim{};
 
-        if (!trace::payload::ReadHeader(payload, trim, RANGES_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, RANGES_OFFSET, trim)) return {};
 
         std::wstring result = std::format(L"Key: {}, NumRanges: {}, ", trim.Key, trim.NumRanges);
         size_t offset = RANGES_OFFSET;
@@ -521,7 +521,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::layouts::USN_RECORD_V2, FileName);
                 trace::layouts::USN_RECORD_V2 record{};
 
-                if (!trace::payload::ReadHeader(payload, record, NAME_OFFSET)) return {};
+                if (!trace::payload::ReadHeader(payload, NAME_OFFSET, record)) return {};
 
                 if (record.RecordLength < NAME_OFFSET) return {};
 
@@ -532,7 +532,7 @@ namespace {
                 constexpr size_t NAME_OFFSET = offsetof(trace::layouts::USN_RECORD_V3, FileName);
                 trace::layouts::USN_RECORD_V3 record{};
 
-                if (!trace::payload::ReadHeader(payload, record, NAME_OFFSET)) return {};
+                if (!trace::payload::ReadHeader(payload, NAME_OFFSET, record)) return {};
 
                 if (record.RecordLength < NAME_OFFSET) return {};
 
@@ -662,7 +662,7 @@ namespace {
         constexpr size_t REGION_OFFSET = offsetof(trace::layouts::FILE_REGION_OUTPUT, Region);
         trace::layouts::FILE_REGION_OUTPUT regions{};
 
-        if (!trace::payload::ReadHeader(payload, regions, REGION_OFFSET)) return {};
+        if (!trace::payload::ReadHeader(payload, REGION_OFFSET, regions)) return {};
 
         std::wstring result = std::format(L"TotalRegionEntryCount: {}, RegionEntryCount: {}, ", regions.TotalRegionEntryCount, regions.RegionEntryCount);
         size_t offset = REGION_OFFSET;
