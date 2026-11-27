@@ -179,9 +179,9 @@ namespace {
 
     NTSTATUS NotifyEx(
         const test::Target& target,
-        IO_STATUS_BLOCK& ioStatus,
+        uint32_t infoClass,
         std::span<std::byte> buffer,
-        uint32_t infoClass
+        IO_STATUS_BLOCK& ioStatus
     ) {
 
         return NtNotifyChangeDirectoryFileEx(target.Get(), nullptr, nullptr, nullptr, &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), FILE_NOTIFY_CHANGE_FILE_NAME, FALSE, static_cast<ULONG>(infoClass));
@@ -190,9 +190,9 @@ namespace {
 
     NTSTATUS Notify(
         const test::Target& target,
-        IO_STATUS_BLOCK& ioStatus,
+        bool watchTree,
         std::span<std::byte> buffer,
-        bool watchTree
+        IO_STATUS_BLOCK& ioStatus
     ) {
 
         return NtNotifyChangeDirectoryFile(target.Get(), nullptr, nullptr, nullptr, &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), FILE_NOTIFY_CHANGE_FILE_NAME, static_cast<BOOLEAN>(watchTree));
@@ -241,7 +241,7 @@ namespace {
                 continue;
             }
 
-            const NTSTATUS notifyStatus = operation.infoClass ? NotifyEx(target, ioStatus, buffer, operation.infoClass) : Notify(target, ioStatus, buffer, operation.watchTree);
+            const NTSTATUS notifyStatus = operation.infoClass ? NotifyEx(target, operation.infoClass, buffer, ioStatus) : Notify(target, operation.watchTree, buffer, ioStatus);
 
             if (notifyStatus != STATUS_PENDING) {
                 test::report::Add(counts, MAJOR, operation.description, notifyStatus);

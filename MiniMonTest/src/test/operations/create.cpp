@@ -92,10 +92,10 @@ namespace {
 
 
     NTSTATUS Create(
-        NtHandle& file,
         std::wstring_view path,
         ULONG disposition,
-        std::span<const std::byte> eaBuffer
+        std::span<const std::byte> eaBuffer,
+        NtHandle& file
     ) {
         constexpr ACCESS_MASK DESIRED_ACCESS = FILE_GENERIC_READ | FILE_WRITE_DATA | DELETE;
         constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
@@ -140,7 +140,7 @@ namespace mimo {
                         }
 
                         NtHandle file;
-                        const NTSTATUS status = Create(file, path, operation.disposition, eaBuffer);
+                        const NTSTATUS status = Create(path, operation.disposition, eaBuffer, file);
 
                         const bool reverted = !operation.impersonating || StopImpersonation();
                         report::Add(counts, MAJOR, operation.description, status);
