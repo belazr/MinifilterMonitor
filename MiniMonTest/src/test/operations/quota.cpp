@@ -94,10 +94,10 @@ namespace {
     NTSTATUS Query(const test::Target& target, std::span<const std::byte> sidListData) {
         constexpr uint32_t BUFFER_SIZE = 256u;
         std::array<std::byte, BUFFER_SIZE> buffer{};
-        std::vector<std::byte> sidList(sidListData.begin(), sidListData.end());
+        std::vector<std::byte> sidListBuffer(sidListData.begin(), sidListData.end());
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtQueryQuotaInformationFile(target.Get(), &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), TRUE, sidList.data(), static_cast<ULONG>(sidList.size()), nullptr, FALSE);
+        return NtQueryQuotaInformationFile(target.Get(), &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), TRUE, sidListBuffer.data(), static_cast<ULONG>(sidListBuffer.size()), nullptr, FALSE);
     }
 
 
