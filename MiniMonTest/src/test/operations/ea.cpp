@@ -94,7 +94,7 @@ namespace {
         CHAR EaName[1u];
     };
 
-    std::vector<std::byte> MakeEaList() {
+    std::vector<std::byte> MakeEaListBuffer() {
         constexpr size_t NAME_OFFSET = offsetof(FILE_GET_EA_INFORMATION, EaName);
         FILE_GET_EA_INFORMATION entry{};
         entry.EaNameLength = static_cast<UCHAR>(EA_NAME.size());
@@ -147,7 +147,7 @@ namespace {
                 continue;
             }
 
-            const std::vector<std::byte> eaListData = operation.listed ? MakeEaList() : std::vector<std::byte>{};
+            const std::vector<std::byte> eaListData = operation.listed ? MakeEaListBuffer() : std::vector<std::byte>{};
             const NTSTATUS queryStatus = Query(target, operation.size, eaListData);
             test::report::Add(counts, QUERY_MAJOR, operation.description, queryStatus);
         }
