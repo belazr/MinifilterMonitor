@@ -94,7 +94,7 @@ namespace {
     NTSTATUS Create(
         std::wstring_view path,
         ULONG disposition,
-        std::span<const std::byte> eaBuffer,
+        std::span<const std::byte> eaData,
         NtHandle& file
     ) {
         constexpr ACCESS_MASK DESIRED_ACCESS = FILE_GENERIC_READ | FILE_WRITE_DATA | DELETE;
@@ -108,7 +108,7 @@ namespace {
         OBJECT_ATTRIBUTES objectAttributes{};
         InitializeObjectAttributes(&objectAttributes, &objectName, OBJ_CASE_INSENSITIVE, nullptr, nullptr);
 
-        std::vector<std::byte> buffer(eaBuffer.begin(), eaBuffer.end());
+        std::vector<std::byte> buffer(eaData.begin(), eaData.end());
         IO_STATUS_BLOCK ioStatus{};
 
         return NtCreateFile(file.Put(), DESIRED_ACCESS, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, disposition, FILE_NON_DIRECTORY_FILE, buffer.data(), static_cast<ULONG>(buffer.size()));
@@ -131,7 +131,7 @@ namespace mimo {
 
                     for (const Operation& operation : OPERATIONS) {
                         const std::wstring path = std::format(L"{}\\{}", ntDirectory, operation.description.name);
-                        const std::vector<std::byte> eaBuffer = operation.eaValueSize ? MakeEaBuffer(operation.eaValueSize) : std::vector<std::byte>{};
+                        const std::vector<std::byte> eaData = operation.eaValueSize ? MakeEaBuffer(operation.eaValueSize) : std::vector<std::byte>{};
 
                         if (operation.impersonating && !StartImpersonation()) {
                             report::Add(counts, MAJOR, operation.description, std::nullopt);
@@ -140,7 +140,7 @@ namespace mimo {
                         }
 
                         NtHandle file;
-                        const NTSTATUS status = Create(path, operation.disposition, eaBuffer, file);
+                        const NTSTATUS status = Create(path, operation.disposition, eaData, file);
 
                         const bool reverted = !operation.impersonating || StopImpersonation();
                         report::Add(counts, MAJOR, operation.description, status);

@@ -80,8 +80,8 @@ namespace {
     }
 
 
-    NTSTATUS Set(const test::Target& target, std::span<const std::byte> data) {
-        std::vector<std::byte> buffer(data.begin(), data.end());
+    NTSTATUS Set(const test::Target& target, std::span<const std::byte> eaData) {
+        std::vector<std::byte> buffer(eaData.begin(), eaData.end());
         IO_STATUS_BLOCK ioStatus{};
 
         return NtSetEaFile(target.Get(), &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()));
@@ -110,9 +110,9 @@ namespace {
     NTSTATUS Query(
         const test::Target& target,
         uint32_t size,
-        std::span<const std::byte> eaList
+        std::span<const std::byte> eaListData
     ) {
-        std::vector<std::byte> listBuffer(eaList.begin(), eaList.end());
+        std::vector<std::byte> listBuffer(eaListData.begin(), eaListData.end());
         std::vector<std::byte> buffer(size);
         IO_STATUS_BLOCK ioStatus{};
 
@@ -136,8 +136,8 @@ namespace {
                 continue;
             }
 
-            const std::vector<std::byte> data = MakeEaBuffer(operation.valueSize);
-            const NTSTATUS setStatus = Set(target, data);
+            const std::vector<std::byte> eaData = MakeEaBuffer(operation.valueSize);
+            const NTSTATUS setStatus = Set(target, eaData);
 
             if (!NT_SUCCESS(setStatus)) {
                 std::cerr << "Failed to set the target file EA\n";
@@ -147,8 +147,8 @@ namespace {
                 continue;
             }
 
-            const std::vector<std::byte> eaList = operation.listed ? MakeEaList() : std::vector<std::byte>{};
-            const NTSTATUS queryStatus = Query(target, operation.size, eaList);
+            const std::vector<std::byte> eaListData = operation.listed ? MakeEaList() : std::vector<std::byte>{};
+            const NTSTATUS queryStatus = Query(target, operation.size, eaListData);
             test::report::Add(counts, QUERY_MAJOR, operation.description, queryStatus);
         }
 
@@ -182,8 +182,8 @@ namespace {
                 continue;
             }
 
-            const std::vector<std::byte> data = MakeEaBuffer(operation.valueSize);
-            const NTSTATUS setStatus = Set(target, data);
+            const std::vector<std::byte> eaData = MakeEaBuffer(operation.valueSize);
+            const NTSTATUS setStatus = Set(target, eaData);
             test::report::Add(counts, SET_MAJOR, operation.description, setStatus);
         }
 

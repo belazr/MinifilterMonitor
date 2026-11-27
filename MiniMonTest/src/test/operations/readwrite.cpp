@@ -63,8 +63,8 @@ namespace {
 
     constexpr std::byte FILL{ 0x4D };
 
-    NTSTATUS Write(const test::Target& target, std::span<const std::byte> data) {
-        std::vector<std::byte> buffer(data.begin(), data.end());
+    NTSTATUS Write(const test::Target& target, std::span<const std::byte> fileData) {
+        std::vector<std::byte> buffer(fileData.begin(), fileData.end());
         LARGE_INTEGER byteOffset{};
         IO_STATUS_BLOCK ioStatus{};
 
@@ -147,8 +147,8 @@ namespace {
                 continue;
             }
 
-            const std::vector<std::byte> data(operation.size, FILL);
-            const NTSTATUS writeStatus = Write(target, data);
+            const std::vector<std::byte> fileData(operation.size, FILL);
+            const NTSTATUS writeStatus = Write(target, fileData);
             test::report::Add(counts, WRITE_MAJOR, operation.description, writeStatus);
         }
 

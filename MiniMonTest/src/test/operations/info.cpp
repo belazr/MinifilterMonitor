@@ -304,9 +304,9 @@ namespace {
     NTSTATUS Set(
         const test::Target& target,
         uint32_t infoClass,
-        std::span<const std::byte> data
+        std::span<const std::byte> infoData
     ) {
-        std::vector<std::byte> buffer(data.begin(), data.end());
+        std::vector<std::byte> buffer(infoData.begin(), infoData.end());
         IO_STATUS_BLOCK ioStatus{};
 
         return NtSetInformationFile(target.Get(), &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), static_cast<ULONG>(infoClass));
@@ -330,16 +330,16 @@ namespace {
             }
 
             const std::wstring targetPath = std::format(L"{}\\{}-target", ntDirectory, operation.description.name);
-            const std::optional<std::vector<std::byte>> data = MakeSetBuffer(operation.infoClass, operation.value, targetPath);
+            const std::optional<std::vector<std::byte>> infoData = MakeSetBuffer(operation.infoClass, operation.value, targetPath);
 
-            if (!data.has_value()) {
+            if (!infoData.has_value()) {
                 std::cerr << "No payload for the information class\n";
                 test::report::Add(counts, SET_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
-            const NTSTATUS setStatus = Set(target, operation.infoClass, *data);
+            const NTSTATUS setStatus = Set(target, operation.infoClass, *infoData);
             test::report::Add(counts, SET_MAJOR, operation.description, setStatus);
         }
 
