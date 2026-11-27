@@ -228,6 +228,7 @@ namespace {
             // closing the target completes a waiting notify into the buffer and the status block, so they have to outlive it
             std::vector<std::byte> buffer(BUFFER_SIZE);
             IO_STATUS_BLOCK ioStatus{};
+            // keeps a status block the completion never wrote from reporting STATUS_SUCCESS
             ioStatus.Status = STATUS_PENDING;
             test::Target target{ ntDirectory, operation.description.name };
             const NTSTATUS createStatus = target.Create(FILE_LIST_DIRECTORY, true, true);
