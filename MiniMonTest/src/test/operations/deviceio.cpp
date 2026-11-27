@@ -109,7 +109,7 @@ namespace {
         uint32_t ioControlCode,
         std::span<const std::byte> inputData
     ) {
-        constexpr uint32_t OUTPUT_BUFFER_SIZE = 1024u;
+        constexpr size_t OUTPUT_BUFFER_SIZE = 1024u;
         std::vector<std::byte> inputBuffer(inputData.begin(), inputData.end());
         std::vector<std::byte> outputBuffer(OUTPUT_BUFFER_SIZE);
         IO_STATUS_BLOCK ioStatus{};
