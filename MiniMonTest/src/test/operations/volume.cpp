@@ -12,6 +12,7 @@
 #include <ntstatus.h>
 #include <winternl.h>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -58,8 +59,8 @@ namespace {
     };
 
     NTSTATUS Query(const test::Target& target, uint32_t infoClass) {
-        constexpr size_t BUFFER_SIZE = 1024u;
-        std::vector<std::byte> buffer(BUFFER_SIZE);
+        constexpr uint32_t BUFFER_SIZE = 1024u;
+        std::array<std::byte, BUFFER_SIZE> buffer{};
         IO_STATUS_BLOCK ioStatus{};
 
         return NtQueryVolumeInformationFile(target.Get(), &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), static_cast<ULONG>(infoClass));

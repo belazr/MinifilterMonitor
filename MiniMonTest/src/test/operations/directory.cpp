@@ -12,6 +12,7 @@
 #include <ntstatus.h>
 #include <winternl.h>
 
+#include <array>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -21,7 +22,6 @@
 #include <span>
 #include <string>
 #include <string_view>
-#include <vector>
 
 extern "C" NTSYSAPI NTSTATUS NTAPI NtQueryDirectoryFile(
     HANDLE hFile,
@@ -114,8 +114,8 @@ namespace {
         bool single,
         std::wstring_view filter
     ) {
-        constexpr size_t BUFFER_SIZE = 4096u;
-        std::vector<std::byte> buffer(BUFFER_SIZE);
+        constexpr uint32_t BUFFER_SIZE = 4096u;
+        std::array<std::byte, BUFFER_SIZE> buffer{};
         std::wstring filterBuffer{ filter };
         UNICODE_STRING fileName{};
         fileName.Length = static_cast<USHORT>(filterBuffer.size() * sizeof(wchar_t));
@@ -222,11 +222,11 @@ namespace {
 
 
     void RunNotifyOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
-        constexpr size_t BUFFER_SIZE = 4096u;
+        constexpr uint32_t BUFFER_SIZE = 4096u;
 
         for (const NotifyOperation& operation : NOTIFY_OPERATIONS) {
             // closing the target completes a waiting notify into the buffer and the status block, so they have to outlive it
-            std::vector<std::byte> buffer(BUFFER_SIZE);
+            std::array<std::byte, BUFFER_SIZE> buffer{};
             IO_STATUS_BLOCK ioStatus{};
             // keeps a status block the completion never wrote from reporting STATUS_SUCCESS
             ioStatus.Status = STATUS_PENDING;

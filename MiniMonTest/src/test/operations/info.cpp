@@ -12,6 +12,7 @@
 #include <ntstatus.h>
 #include <winternl.h>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -351,7 +352,7 @@ namespace {
     };
 
     NTSTATUS QueryByName(const test::Target& target) {
-        constexpr size_t BUFFER_SIZE = 1024u;
+        constexpr uint32_t BUFFER_SIZE = 1024u;
         std::wstring path{ target.GetPath() };
         UNICODE_STRING objectName{};
         objectName.Length = static_cast<USHORT>(path.size() * sizeof(wchar_t));
@@ -361,7 +362,7 @@ namespace {
         OBJECT_ATTRIBUTES objectAttributes{};
         InitializeObjectAttributes(&objectAttributes, &objectName, OBJ_CASE_INSENSITIVE, nullptr, nullptr);
 
-        std::vector<std::byte> buffer(BUFFER_SIZE);
+        std::array<std::byte, BUFFER_SIZE> buffer{};
         IO_STATUS_BLOCK ioStatus{};
 
         return NtQueryInformationByName(&objectAttributes, &ioStatus, buffer.data(), static_cast<ULONG>(buffer.size()), static_cast<ULONG>(kernel::FileStatInformation));

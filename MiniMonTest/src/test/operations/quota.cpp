@@ -11,7 +11,9 @@
 #include <sddl.h>
 #include <winternl.h>
 
+#include <array>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <optional>
@@ -90,8 +92,8 @@ namespace {
 
 
     NTSTATUS Query(const test::Target& target, std::span<const std::byte> sidListData) {
-        constexpr size_t BUFFER_SIZE = 256u;
-        std::vector<std::byte> buffer(BUFFER_SIZE);
+        constexpr uint32_t BUFFER_SIZE = 256u;
+        std::array<std::byte, BUFFER_SIZE> buffer{};
         std::vector<std::byte> sidList(sidListData.begin(), sidListData.end());
         IO_STATUS_BLOCK ioStatus{};
 

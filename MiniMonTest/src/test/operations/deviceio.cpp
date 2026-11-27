@@ -14,6 +14,7 @@
 #include <ntddvol.h>    // after winioctl.h, whose volume section it repeats under an IOCTL_VOLUME_BASE guard
 #include <winternl.h>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -109,9 +110,9 @@ namespace {
         uint32_t ioControlCode,
         std::span<const std::byte> inputData
     ) {
-        constexpr size_t OUTPUT_BUFFER_SIZE = 1024u;
+        constexpr uint32_t OUTPUT_BUFFER_SIZE = 1024u;
         std::vector<std::byte> inputBuffer(inputData.begin(), inputData.end());
-        std::vector<std::byte> outputBuffer(OUTPUT_BUFFER_SIZE);
+        std::array<std::byte, OUTPUT_BUFFER_SIZE> outputBuffer{};
         IO_STATUS_BLOCK ioStatus{};
 
         return NtDeviceIoControlFile(hVolume, nullptr, nullptr, nullptr, &ioStatus, static_cast<ULONG>(ioControlCode), inputBuffer.data(), static_cast<ULONG>(inputBuffer.size()), outputBuffer.data(), static_cast<ULONG>(outputBuffer.size()));
