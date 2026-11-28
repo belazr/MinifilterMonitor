@@ -91,8 +91,7 @@ namespace {
     }
 
 
-    // to make no persistent changes on the machine
-    // sent on a file handle so the file system refuses it and the volume label never changes
+    // the request is sent on a file handle so that the file system refuses it and the volume label never changes
     constexpr test::report::Description SET_DESCRIPTIONS[]{
         { L"set-volume-info-label", STATUS_ACCESS_DENIED },
     };

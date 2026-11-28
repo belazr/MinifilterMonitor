@@ -52,8 +52,8 @@ namespace {
     // the operations are sent on a volume handle because NTFS answers these device control codes on a file handle with STATUS_INVALID_PARAMETER
     NTSTATUS OpenVolume(std::wstring_view ntDirectory, NtHandle& volume) {
         constexpr std::wstring_view NT_PREFIX = L"\\??\\";
-        // a volume open that asks for no more than FILE_READ_ATTRIBUTES bypasses the file system
-        // FILE_EXECUTE is the access a caller without elevation gets that does not
+        // FILE_EXECUTE is requested because a volume open that asks for no more than FILE_READ_ATTRIBUTES bypasses the file system
+        // and it is the access a caller without elevation gets that does not
         constexpr ACCESS_MASK DESIRED_ACCESS = FILE_EXECUTE | SYNCHRONIZE;
         constexpr ULONG SHARE_ALL = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
         std::wstring path{ ntDirectory.substr(0u, ntDirectory.find(L'\\', NT_PREFIX.size())) };

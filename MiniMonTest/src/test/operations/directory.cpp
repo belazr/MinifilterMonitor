@@ -225,10 +225,10 @@ namespace {
         constexpr uint32_t BUFFER_SIZE = 4096u;
 
         for (const NotifyOperation& operation : NOTIFY_OPERATIONS) {
-            // closing the target completes a waiting notify into the buffer and the status block, so they have to outlive it
+            // the buffer and the status block are declared before the target because closing the target completes a waiting notify into them
             std::array<std::byte, BUFFER_SIZE> buffer{};
             IO_STATUS_BLOCK ioStatus{};
-            // keeps a status block the completion never wrote from reporting STATUS_SUCCESS
+            // the status is preset to STATUS_PENDING so that a status block the completion never wrote does not report STATUS_SUCCESS
             ioStatus.Status = STATUS_PENDING;
             test::Target target{ ntDirectory, operation.description.name };
             const NTSTATUS createStatus = target.Create(FILE_LIST_DIRECTORY, true, true);

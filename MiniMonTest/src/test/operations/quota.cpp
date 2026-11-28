@@ -150,7 +150,7 @@ namespace {
     };
 
     std::optional<std::vector<std::byte>> MakeQuotaBuffer() {
-        // a limit of -2 asks the file system to delete the entry of the SID, so the request cannot leave one behind
+        // the limit is -2 because that asks the file system to delete the entry of the SID, so the request cannot leave one behind
         constexpr LONGLONG DELETE_ENTRY = -2;
         constexpr size_t SID_OFFSET = offsetof(FILE_QUOTA_INFORMATION, Sid);
         constexpr size_t ALIGNMENT = alignof(FILE_QUOTA_INFORMATION);
