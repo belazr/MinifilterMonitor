@@ -57,6 +57,7 @@
     <ClInclude Include="src\test\operations\section.h" />
     <ClInclude Include="src\test\operations\security.h" />
     <ClInclude Include="src\test\operations\volume.h" />
+    <ClInclude Include="src\test\buffer.h" />
     <ClInclude Include="src\test\report.h" />
     <ClInclude Include="src\test\target.h" />
     <ClInclude Include="src\text.h" />

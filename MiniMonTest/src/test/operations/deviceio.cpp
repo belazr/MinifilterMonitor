@@ -1,5 +1,6 @@
 #include "deviceio.h"
 
+#include "..\buffer.h"
 #include "..\report.h"
 
 #include "..\..\error.h"
@@ -17,7 +18,6 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
 #include <iostream>
 #include <optional>
 #include <span>
@@ -93,10 +93,7 @@ namespace {
                 query.PropertyId = StorageDeviceProperty;
                 query.QueryType = PropertyStandardQuery;
 
-                std::vector<std::byte> buffer(sizeof(query));
-                std::memcpy(buffer.data(), &query, sizeof(query));
-
-                return buffer;
+                return test::MakeBuffer(query);
             }
 
         }

@@ -1,5 +1,6 @@
 #include "filesystem.h"
 
+#include "..\buffer.h"
 #include "..\report.h"
 #include "..\target.h"
 
@@ -131,15 +132,6 @@ namespace {
     }
 
 
-    template <typename Input>
-    std::vector<std::byte> MakeBuffer(const Input& payload) {
-        std::vector<std::byte> buffer(sizeof(payload));
-        std::memcpy(buffer.data(), &payload, sizeof(payload));
-
-        return buffer;
-    }
-
-
     std::vector<std::byte> MakeMountPointTagBuffer() {
         constexpr size_t DATA_OFFSET = offsetof(REPARSE_DATA_BUFFER, MountPointReparseBuffer);
         REPARSE_DATA_BUFFER header{};
@@ -166,7 +158,7 @@ namespace {
             case FSCTL_SET_COMPRESSION: {
                 constexpr USHORT COMPRESSION_FORMAT = COMPRESSION_FORMAT_DEFAULT;
 
-                return MakeBuffer(COMPRESSION_FORMAT);
+                return test::MakeBuffer(COMPRESSION_FORMAT);
             }
 
             case FSCTL_SET_REPARSE_POINT:
@@ -181,7 +173,7 @@ namespace {
                 FILE_SET_SPARSE_BUFFER sparse{};
                 sparse.SetSparse = TRUE;
 
-                return MakeBuffer(sparse);
+                return test::MakeBuffer(sparse);
             }
 
             case FSCTL_SET_ZERO_DATA: {
@@ -189,7 +181,7 @@ namespace {
                 FILE_ZERO_DATA_INFORMATION zeroData{};
                 zeroData.BeyondFinalZero.QuadPart = BEYOND_FINAL_ZERO;
 
-                return MakeBuffer(zeroData);
+                return test::MakeBuffer(zeroData);
             }
 
             case FSCTL_QUERY_ALLOCATED_RANGES: {
@@ -197,7 +189,7 @@ namespace {
                 FILE_ALLOCATED_RANGE_BUFFER allocatedRange{};
                 allocatedRange.Length.QuadPart = RANGE_SIZE;
 
-                return MakeBuffer(allocatedRange);
+                return test::MakeBuffer(allocatedRange);
             }
 
         }

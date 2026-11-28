@@ -1,5 +1,6 @@
 #include "info.h"
 
+#include "..\buffer.h"
 #include "..\report.h"
 #include "..\target.h"
 
@@ -144,15 +145,6 @@ namespace {
         { { L"set-info-known-folder",          STATUS_INVALID_PARAMETER              }, kernel::FileKnownFolderInformation,         kernel::KnownFolderDocuments,                        false },
     };
 
-    template <typename Info>
-    std::vector<std::byte> MakeBuffer(const Info& payload) {
-        std::vector<std::byte> buffer(sizeof(payload));
-        std::memcpy(buffer.data(), &payload, sizeof(payload));
-
-        return buffer;
-    }
-
-
     std::vector<std::byte> MakeNameBuffer(uint32_t flags, std::wstring_view targetPath) {
         constexpr size_t NAME_OFFSET = offsetof(FILE_RENAME_INFO, FileName);
         const size_t nameSize = targetPath.size() * sizeof(wchar_t);
@@ -211,7 +203,7 @@ namespace {
                 FILE_BASIC_INFO basic{};
                 basic.FileAttributes = static_cast<DWORD>(value);
 
-                return MakeBuffer(basic);
+                return test::MakeBuffer(basic);
             }
 
             case kernel::FileRenameInformation:
@@ -225,35 +217,35 @@ namespace {
                 FILE_DISPOSITION_INFO disposition{};
                 disposition.DeleteFile = static_cast<BOOLEAN>(value);
 
-                return MakeBuffer(disposition);
+                return test::MakeBuffer(disposition);
             }
 
             case kernel::FilePositionInformation: {
                 FILE_POSITION_INFORMATION position{};
                 position.CurrentByteOffset.QuadPart = static_cast<LONGLONG>(value);
 
-                return MakeBuffer(position);
+                return test::MakeBuffer(position);
             }
 
             case kernel::FileAllocationInformation: {
                 FILE_ALLOCATION_INFO allocation{};
                 allocation.AllocationSize.QuadPart = static_cast<LONGLONG>(value);
 
-                return MakeBuffer(allocation);
+                return test::MakeBuffer(allocation);
             }
 
             case kernel::FileEndOfFileInformation: {
                 FILE_END_OF_FILE_INFO endOfFile{};
                 endOfFile.EndOfFile.QuadPart = static_cast<LONGLONG>(value);
 
-                return MakeBuffer(endOfFile);
+                return test::MakeBuffer(endOfFile);
             }
 
             case kernel::FileValidDataLengthInformation: {
                 FILE_VALID_DATA_LENGTH_INFORMATION validDataLength{};
                 validDataLength.ValidDataLength.QuadPart = static_cast<LONGLONG>(value);
 
-                return MakeBuffer(validDataLength);
+                return test::MakeBuffer(validDataLength);
             }
 
             case kernel::FileShortNameInformation:
@@ -264,35 +256,35 @@ namespace {
                 FILE_DISPOSITION_INFO_EX dispositionEx{};
                 dispositionEx.Flags = static_cast<DWORD>(value);
 
-                return MakeBuffer(dispositionEx);
+                return test::MakeBuffer(dispositionEx);
             }
 
             case kernel::FileDesiredStorageClassInformation: {
                 FILE_DESIRED_STORAGE_CLASS_INFORMATION desiredStorageClass{};
                 desiredStorageClass.Class = static_cast<FILE_STORAGE_TIER_CLASS>(value);
 
-                return MakeBuffer(desiredStorageClass);
+                return test::MakeBuffer(desiredStorageClass);
             }
 
             case kernel::FileCaseSensitiveInformation: {
                 FILE_CASE_SENSITIVE_INFO caseSensitive{};
                 caseSensitive.Flags = static_cast<ULONG>(value);
 
-                return MakeBuffer(caseSensitive);
+                return test::MakeBuffer(caseSensitive);
             }
 
             case kernel::FileStorageReserveIdInformation: {
                 FILE_STORAGE_RESERVE_ID_INFORMATION storageReserveId{};
                 storageReserveId.StorageReserveId = static_cast<STORAGE_RESERVE_ID>(value);
 
-                return MakeBuffer(storageReserveId);
+                return test::MakeBuffer(storageReserveId);
             }
 
             case kernel::FileKnownFolderInformation: {
                 FILE_KNOWN_FOLDER_INFORMATION knownFolder{};
                 knownFolder.Type = static_cast<ULONG>(value);
 
-                return MakeBuffer(knownFolder);
+                return test::MakeBuffer(knownFolder);
             }
 
         }
