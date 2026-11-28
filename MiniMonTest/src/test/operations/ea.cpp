@@ -50,11 +50,13 @@ namespace {
         bool listed;
     };
 
+    constexpr std::string_view QUERY_MAJOR = "Query EA";
+
     constexpr QueryOperation QUERY_OPERATIONS[]{
-        { { L"query-ea",           STATUS_SUCCESS        }, 8u,    1024u, false },
-        { { L"query-ea-list",      STATUS_SUCCESS        }, 8u,    1024u, true  },
-        { { L"query-ea-oversized", STATUS_SUCCESS        }, 2048u, 4096u, false },
-        { { L"query-ea-missing",   STATUS_NO_EAS_ON_FILE }, 0u,    1024u, false },
+        { { QUERY_MAJOR, L"query-ea",           STATUS_SUCCESS        }, 8u,    1024u, false },
+        { { QUERY_MAJOR, L"query-ea-list",      STATUS_SUCCESS        }, 8u,    1024u, true  },
+        { { QUERY_MAJOR, L"query-ea-oversized", STATUS_SUCCESS        }, 2048u, 4096u, false },
+        { { QUERY_MAJOR, L"query-ea-missing",   STATUS_NO_EAS_ON_FILE }, 0u,    1024u, false },
     };
 
     constexpr std::string_view EA_NAME = "MINIMON";
@@ -121,8 +123,6 @@ namespace {
     }
 
 
-    constexpr std::string_view QUERY_MAJOR = "Query EA";
-
     void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const QueryOperation& operation : QUERY_OPERATIONS) {
@@ -132,7 +132,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(QUERY_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
@@ -143,14 +143,14 @@ namespace {
             if (!NT_SUCCESS(setStatus)) {
                 std::cerr << "Failed to set the target file EA\n";
                 error::Display(RtlNtStatusToDosError(setStatus));
-                report.Add(QUERY_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::vector<std::byte> eaListData = operation.listed ? MakeEaListBuffer() : std::vector<std::byte>{};
             const NTSTATUS queryStatus = Query(target, operation.size, eaListData);
-            report.Add(QUERY_MAJOR, operation.description, queryStatus);
+            report.Add(operation.description, queryStatus);
         }
 
         return;
@@ -162,12 +162,12 @@ namespace {
         uint16_t valueSize;
     };
 
-    constexpr SetOperation SET_OPERATIONS[]{
-        { { L"set-ea",           STATUS_SUCCESS }, 8u    },
-        { { L"set-ea-oversized", STATUS_SUCCESS }, 2048u },
-    };
-
     constexpr std::string_view SET_MAJOR = "Set EA";
+
+    constexpr SetOperation SET_OPERATIONS[]{
+        { { SET_MAJOR, L"set-ea",           STATUS_SUCCESS }, 8u    },
+        { { SET_MAJOR, L"set-ea-oversized", STATUS_SUCCESS }, 2048u },
+    };
 
     void RunSetOperations(std::wstring_view ntDirectory, test::Report& report) {
 
@@ -178,14 +178,14 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(SET_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::vector<std::byte> eaData = MakeEaBuffer(operation.valueSize);
             const NTSTATUS setStatus = Set(target, eaData);
-            report.Add(SET_MAJOR, operation.description, setStatus);
+            report.Add(operation.description, setStatus);
         }
 
         return;

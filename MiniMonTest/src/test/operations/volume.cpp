@@ -47,16 +47,18 @@ namespace {
         uint32_t infoClass;
     };
 
+    constexpr std::string_view QUERY_MAJOR = "Query volume information";
+
     constexpr QueryOperation QUERY_OPERATIONS[]{
-        { { L"query-volume-info-volume",       STATUS_SUCCESS }, kernel::FileFsVolumeInformation     },
-        { { L"query-volume-info-size",         STATUS_SUCCESS }, kernel::FileFsSizeInformation       },
-        { { L"query-volume-info-attribute",    STATUS_SUCCESS }, kernel::FileFsAttributeInformation  },
-        { { L"query-volume-info-control",      STATUS_SUCCESS }, kernel::FileFsControlInformation    },
-        { { L"query-volume-info-full-size",    STATUS_SUCCESS }, kernel::FileFsFullSizeInformation   },
-        { { L"query-volume-info-object-id",    STATUS_SUCCESS }, kernel::FileFsObjectIdInformation   },
-        { { L"query-volume-info-sector-size",  STATUS_SUCCESS }, kernel::FileFsSectorSizeInformation },
-        { { L"query-volume-info-data-copy",    STATUS_SUCCESS }, kernel::FileFsDataCopyInformation   },
-        { { L"query-volume-info-full-size-ex", STATUS_SUCCESS }, kernel::FileFsFullSizeInformationEx },
+        { { QUERY_MAJOR, L"query-volume-info-volume",       STATUS_SUCCESS }, kernel::FileFsVolumeInformation     },
+        { { QUERY_MAJOR, L"query-volume-info-size",         STATUS_SUCCESS }, kernel::FileFsSizeInformation       },
+        { { QUERY_MAJOR, L"query-volume-info-attribute",    STATUS_SUCCESS }, kernel::FileFsAttributeInformation  },
+        { { QUERY_MAJOR, L"query-volume-info-control",      STATUS_SUCCESS }, kernel::FileFsControlInformation    },
+        { { QUERY_MAJOR, L"query-volume-info-full-size",    STATUS_SUCCESS }, kernel::FileFsFullSizeInformation   },
+        { { QUERY_MAJOR, L"query-volume-info-object-id",    STATUS_SUCCESS }, kernel::FileFsObjectIdInformation   },
+        { { QUERY_MAJOR, L"query-volume-info-sector-size",  STATUS_SUCCESS }, kernel::FileFsSectorSizeInformation },
+        { { QUERY_MAJOR, L"query-volume-info-data-copy",    STATUS_SUCCESS }, kernel::FileFsDataCopyInformation   },
+        { { QUERY_MAJOR, L"query-volume-info-full-size-ex", STATUS_SUCCESS }, kernel::FileFsFullSizeInformationEx },
     };
 
     NTSTATUS Query(const test::Target& target, uint32_t infoClass) {
@@ -68,8 +70,6 @@ namespace {
     }
 
 
-    constexpr std::string_view QUERY_MAJOR = "Query volume information";
-
     void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const QueryOperation& operation : QUERY_OPERATIONS) {
@@ -79,22 +79,24 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(QUERY_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = Query(target, operation.infoClass);
-            report.Add(QUERY_MAJOR, operation.description, queryStatus);
+            report.Add(operation.description, queryStatus);
         }
 
         return;
     }
 
 
+    constexpr std::string_view SET_MAJOR = "Set volume information";
+
     // the request is sent on a file handle so that the file system refuses it and the volume label never changes
     constexpr test::Description SET_DESCRIPTIONS[]{
-        { L"set-volume-info-label", STATUS_ACCESS_DENIED },
+        { SET_MAJOR, L"set-volume-info-label", STATUS_ACCESS_DENIED },
     };
 
     struct FILE_FS_LABEL_INFORMATION {
@@ -125,8 +127,6 @@ namespace {
     }
 
 
-    constexpr std::string_view SET_MAJOR = "Set volume information";
-
     void RunSetOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const test::Description& description : SET_DESCRIPTIONS) {
@@ -136,13 +136,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(SET_MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS setStatus = SetLabel(target);
-            report.Add(SET_MAJOR, description, setStatus);
+            report.Add(description, setStatus);
         }
 
         return;

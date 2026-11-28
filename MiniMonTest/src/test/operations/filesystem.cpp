@@ -48,19 +48,21 @@ namespace {
 
     constexpr uint32_t OUTPUT_BUFFER_SIZE = 1024u;
 
+    constexpr std::string_view MAJOR = "File system control";
+
     constexpr Operation OPERATIONS[]{
-        { { L"filesystem-get-compression",         STATUS_SUCCESS }, FSCTL_GET_COMPRESSION,         OUTPUT_BUFFER_SIZE, false },
-        { { L"filesystem-set-compression",         STATUS_SUCCESS }, FSCTL_SET_COMPRESSION,         OUTPUT_BUFFER_SIZE, false },
-        { { L"filesystem-get-ntfs-volume-data",    STATUS_SUCCESS }, FSCTL_GET_NTFS_VOLUME_DATA,    OUTPUT_BUFFER_SIZE, false },
+        { { MAJOR, L"filesystem-get-compression",         STATUS_SUCCESS }, FSCTL_GET_COMPRESSION,         OUTPUT_BUFFER_SIZE, false },
+        { { MAJOR, L"filesystem-set-compression",         STATUS_SUCCESS }, FSCTL_SET_COMPRESSION,         OUTPUT_BUFFER_SIZE, false },
+        { { MAJOR, L"filesystem-get-ntfs-volume-data",    STATUS_SUCCESS }, FSCTL_GET_NTFS_VOLUME_DATA,    OUTPUT_BUFFER_SIZE, false },
         // the output size is 0 because NTFS answers FSCTL_SET_REPARSE_POINT with STATUS_INVALID_PARAMETER when an output buffer is passed
-        { { L"filesystem-set-reparse-point",       STATUS_SUCCESS }, FSCTL_SET_REPARSE_POINT,       0u,                 true  },
-        { { L"filesystem-get-reparse-point",       STATUS_SUCCESS }, FSCTL_GET_REPARSE_POINT,       OUTPUT_BUFFER_SIZE, true  },
+        { { MAJOR, L"filesystem-set-reparse-point",       STATUS_SUCCESS }, FSCTL_SET_REPARSE_POINT,       0u,                 true  },
+        { { MAJOR, L"filesystem-get-reparse-point",       STATUS_SUCCESS }, FSCTL_GET_REPARSE_POINT,       OUTPUT_BUFFER_SIZE, true  },
         // the output size is 0 because NTFS answers FSCTL_DELETE_REPARSE_POINT with STATUS_INVALID_PARAMETER when an output buffer is passed
-        { { L"filesystem-delete-reparse-point",    STATUS_SUCCESS }, FSCTL_DELETE_REPARSE_POINT,    0u,                 true  },
-        { { L"filesystem-create-or-get-object-id", STATUS_SUCCESS }, FSCTL_CREATE_OR_GET_OBJECT_ID, OUTPUT_BUFFER_SIZE, false },
-        { { L"filesystem-set-sparse",              STATUS_SUCCESS }, FSCTL_SET_SPARSE,              OUTPUT_BUFFER_SIZE, false },
-        { { L"filesystem-set-zero-data",           STATUS_SUCCESS }, FSCTL_SET_ZERO_DATA,           OUTPUT_BUFFER_SIZE, false },
-        { { L"filesystem-query-allocated-ranges",  STATUS_SUCCESS }, FSCTL_QUERY_ALLOCATED_RANGES,  OUTPUT_BUFFER_SIZE, false },
+        { { MAJOR, L"filesystem-delete-reparse-point",    STATUS_SUCCESS }, FSCTL_DELETE_REPARSE_POINT,    0u,                 true  },
+        { { MAJOR, L"filesystem-create-or-get-object-id", STATUS_SUCCESS }, FSCTL_CREATE_OR_GET_OBJECT_ID, OUTPUT_BUFFER_SIZE, false },
+        { { MAJOR, L"filesystem-set-sparse",              STATUS_SUCCESS }, FSCTL_SET_SPARSE,              OUTPUT_BUFFER_SIZE, false },
+        { { MAJOR, L"filesystem-set-zero-data",           STATUS_SUCCESS }, FSCTL_SET_ZERO_DATA,           OUTPUT_BUFFER_SIZE, false },
+        { { MAJOR, L"filesystem-query-allocated-ranges",  STATUS_SUCCESS }, FSCTL_QUERY_ALLOCATED_RANGES,  OUTPUT_BUFFER_SIZE, false },
     };
 
     struct REPARSE_DATA_BUFFER {
@@ -200,9 +202,6 @@ namespace {
         return std::nullopt;
     }
 
-
-    constexpr std::string_view MAJOR = "File system control";
-
 }
 
 namespace mimo {
@@ -222,7 +221,7 @@ namespace mimo {
                         if (!NT_SUCCESS(createStatus)) {
                             std::cerr << "Failed to create the target\n";
                             error::Display(RtlNtStatusToDosError(createStatus));
-                            report.Add(MAJOR, operation.description, std::nullopt);
+                            report.Add(operation.description, std::nullopt);
 
                             continue;
                         }
@@ -232,7 +231,7 @@ namespace mimo {
                         if (!NT_SUCCESS(prepareStatus)) {
                             std::cerr << "Failed to prepare the target\n";
                             error::Display(RtlNtStatusToDosError(prepareStatus));
-                            report.Add(MAJOR, operation.description, std::nullopt);
+                            report.Add(operation.description, std::nullopt);
 
                             continue;
                         }
@@ -241,13 +240,13 @@ namespace mimo {
 
                         if (!inputData.has_value()) {
                             std::cerr << "No payload for the control code\n";
-                            report.Add(MAJOR, operation.description, std::nullopt);
+                            report.Add(operation.description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS controlStatus = Control(target, operation.fsControlCode, *inputData, operation.outputSize);
-                        report.Add(MAJOR, operation.description, controlStatus);
+                        report.Add(operation.description, controlStatus);
                     }
 
                     return;

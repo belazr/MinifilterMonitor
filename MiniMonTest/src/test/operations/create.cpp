@@ -33,12 +33,14 @@ namespace {
         bool impersonating;
     };
 
+    constexpr std::string_view MAJOR = "Create";
+
     constexpr Operation OPERATIONS[]{
-        { { L"create-new",           STATUS_SUCCESS               }, FILE_CREATE, 0u,    false },
-        { { L"create-open-missing",  STATUS_OBJECT_NAME_NOT_FOUND }, FILE_OPEN,   0u,    false },
-        { { L"create-ea",            STATUS_SUCCESS               }, FILE_CREATE, 8u,    false },
-        { { L"create-ea-oversized",  STATUS_SUCCESS               }, FILE_CREATE, 1024u, false },
-        { { L"create-impersonating", STATUS_SUCCESS               }, FILE_CREATE, 0u,    true  },
+        { { MAJOR, L"create-new",           STATUS_SUCCESS               }, FILE_CREATE, 0u,    false },
+        { { MAJOR, L"create-open-missing",  STATUS_OBJECT_NAME_NOT_FOUND }, FILE_OPEN,   0u,    false },
+        { { MAJOR, L"create-ea",            STATUS_SUCCESS               }, FILE_CREATE, 8u,    false },
+        { { MAJOR, L"create-ea-oversized",  STATUS_SUCCESS               }, FILE_CREATE, 1024u, false },
+        { { MAJOR, L"create-impersonating", STATUS_SUCCESS               }, FILE_CREATE, 0u,    true  },
     };
 
     struct FILE_FULL_EA_INFORMATION {
@@ -115,9 +117,6 @@ namespace {
         return NtCreateFile(file.Put(), DESIRED_ACCESS, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, static_cast<ULONG>(disposition), FILE_NON_DIRECTORY_FILE, buffer.data(), static_cast<ULONG>(buffer.size()));
     }
 
-
-    constexpr std::string_view MAJOR = "Create";
-
 }
 
 namespace mimo {
@@ -135,7 +134,7 @@ namespace mimo {
                         const std::vector<std::byte> eaData = operation.eaValueSize ? MakeEaBuffer(operation.eaValueSize) : std::vector<std::byte>{};
 
                         if (operation.impersonating && !StartImpersonation()) {
-                            report.Add(MAJOR, operation.description, std::nullopt);
+                            report.Add(operation.description, std::nullopt);
 
                             continue;
                         }
@@ -144,7 +143,7 @@ namespace mimo {
                         const NTSTATUS status = Create(path, operation.disposition, eaData, file);
 
                         const bool reverted = !operation.impersonating || StopImpersonation();
-                        report.Add(MAJOR, operation.description, status);
+                        report.Add(operation.description, status);
 
                         if (!reverted) return false;
 

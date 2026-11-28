@@ -45,8 +45,10 @@ using namespace mimo;
 
 namespace {
 
+    constexpr std::string_view QUERY_MAJOR = "Query quota";
+
     constexpr test::Description QUERY_DESCRIPTIONS[]{
-        { L"query-quota", STATUS_SUCCESS },
+        { QUERY_MAJOR, L"query-quota", STATUS_SUCCESS },
     };
 
     std::optional<std::vector<std::byte>> MakeSid() {
@@ -102,8 +104,6 @@ namespace {
     }
 
 
-    constexpr std::string_view QUERY_MAJOR = "Query quota";
-
     void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const test::Description& description : QUERY_DESCRIPTIONS) {
@@ -113,7 +113,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(QUERY_MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
@@ -121,23 +121,25 @@ namespace {
             const std::optional<std::vector<std::byte>> sidListData = MakeSidListBuffer();
 
             if (!sidListData.has_value()) {
-                report.Add(QUERY_MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = Query(target, *sidListData);
-            report.Add(QUERY_MAJOR, description, queryStatus);
+            report.Add(description, queryStatus);
         }
 
         return;
     }
 
 
+    constexpr std::string_view SET_MAJOR = "Set quota";
+
     // STATUS_ACCESS_DENIED is expected because the process runs without SeManageVolumePrivilege
     // this is enough to provoke a trace and not make persistent changes to the machine
     constexpr test::Description SET_DESCRIPTIONS[]{
-        { L"set-quota", STATUS_ACCESS_DENIED },
+        { SET_MAJOR, L"set-quota", STATUS_ACCESS_DENIED },
     };
 
     struct FILE_QUOTA_INFORMATION {
@@ -179,8 +181,6 @@ namespace {
     }
 
 
-    constexpr std::string_view SET_MAJOR = "Set quota";
-
     void RunSetOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const test::Description& description : SET_DESCRIPTIONS) {
@@ -190,7 +190,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(SET_MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
@@ -198,13 +198,13 @@ namespace {
             const std::optional<std::vector<std::byte>> quotaData = MakeQuotaBuffer();
 
             if (!quotaData.has_value()) {
-                report.Add(SET_MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS setStatus = Set(target, *quotaData);
-            report.Add(SET_MAJOR, description, setStatus);
+            report.Add(description, setStatus);
         }
 
         return;

@@ -30,8 +30,10 @@ using namespace mimo;
 
 namespace {
 
+    constexpr std::string_view MAJOR = "Acquire for section synchronization";
+
     constexpr test::Description DESCRIPTIONS[]{
-        { L"section", STATUS_SUCCESS },
+        { MAJOR, L"section", STATUS_SUCCESS },
     };
 
     NTSTATUS CreateSection(const test::Target& target) {
@@ -42,9 +44,6 @@ namespace {
 
         return NtCreateSection(section.Put(), SECTION_MAP_READ | SECTION_MAP_WRITE, nullptr, &maximumSize, PAGE_READWRITE, SEC_COMMIT, target.Get());
     }
-
-
-    constexpr std::string_view MAJOR = "Acquire for section synchronization";
 
 }
 
@@ -65,13 +64,13 @@ namespace mimo {
                         if (!NT_SUCCESS(createStatus)) {
                             std::cerr << "Failed to create the target file\n";
                             error::Display(RtlNtStatusToDosError(createStatus));
-                            report.Add(MAJOR, description, std::nullopt);
+                            report.Add(description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS sectionStatus = CreateSection(target);
-                        report.Add(MAJOR, description, sectionStatus);
+                        report.Add(description, sectionStatus);
                     }
 
                     return;

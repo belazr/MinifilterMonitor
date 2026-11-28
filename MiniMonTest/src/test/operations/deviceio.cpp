@@ -35,19 +35,21 @@ namespace {
         uint32_t ioControlCode;
     };
 
+    constexpr std::string_view MAJOR = "Device control";
+
     constexpr Operation OPERATIONS[]{
-        { { L"deviceio-get-drive-geometry",      STATUS_SUCCESS }, IOCTL_DISK_GET_DRIVE_GEOMETRY            },
-        { { L"deviceio-get-drive-geometry-ex",   STATUS_SUCCESS }, IOCTL_DISK_GET_DRIVE_GEOMETRY_EX         },
-        { { L"deviceio-get-partition-info-ex",   STATUS_SUCCESS }, IOCTL_DISK_GET_PARTITION_INFO_EX         },
-        { { L"deviceio-get-disk-attributes",     STATUS_SUCCESS }, IOCTL_DISK_GET_DISK_ATTRIBUTES           },
-        { { L"deviceio-get-hotplug-info",        STATUS_SUCCESS }, IOCTL_STORAGE_GET_HOTPLUG_INFO           },
-        { { L"deviceio-get-device-number",       STATUS_SUCCESS }, IOCTL_STORAGE_GET_DEVICE_NUMBER          },
-        { { L"deviceio-get-device-number-ex",    STATUS_SUCCESS }, IOCTL_STORAGE_GET_DEVICE_NUMBER_EX       },
-        { { L"deviceio-query-property",          STATUS_SUCCESS }, IOCTL_STORAGE_QUERY_PROPERTY             },
-        { { L"deviceio-get-volume-disk-extents", STATUS_SUCCESS }, IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS     },
-        { { L"deviceio-is-dynamic",              STATUS_SUCCESS }, IOCTL_VOLUME_IS_DYNAMIC                  },
-        { { L"deviceio-is-csv",                  STATUS_SUCCESS }, IOCTL_VOLUME_IS_CSV                      },
-        { { L"deviceio-query-device-name",       STATUS_SUCCESS }, kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME },
+        { { MAJOR, L"deviceio-get-drive-geometry",      STATUS_SUCCESS }, IOCTL_DISK_GET_DRIVE_GEOMETRY            },
+        { { MAJOR, L"deviceio-get-drive-geometry-ex",   STATUS_SUCCESS }, IOCTL_DISK_GET_DRIVE_GEOMETRY_EX         },
+        { { MAJOR, L"deviceio-get-partition-info-ex",   STATUS_SUCCESS }, IOCTL_DISK_GET_PARTITION_INFO_EX         },
+        { { MAJOR, L"deviceio-get-disk-attributes",     STATUS_SUCCESS }, IOCTL_DISK_GET_DISK_ATTRIBUTES           },
+        { { MAJOR, L"deviceio-get-hotplug-info",        STATUS_SUCCESS }, IOCTL_STORAGE_GET_HOTPLUG_INFO           },
+        { { MAJOR, L"deviceio-get-device-number",       STATUS_SUCCESS }, IOCTL_STORAGE_GET_DEVICE_NUMBER          },
+        { { MAJOR, L"deviceio-get-device-number-ex",    STATUS_SUCCESS }, IOCTL_STORAGE_GET_DEVICE_NUMBER_EX       },
+        { { MAJOR, L"deviceio-query-property",          STATUS_SUCCESS }, IOCTL_STORAGE_QUERY_PROPERTY             },
+        { { MAJOR, L"deviceio-get-volume-disk-extents", STATUS_SUCCESS }, IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS     },
+        { { MAJOR, L"deviceio-is-dynamic",              STATUS_SUCCESS }, IOCTL_VOLUME_IS_DYNAMIC                  },
+        { { MAJOR, L"deviceio-is-csv",                  STATUS_SUCCESS }, IOCTL_VOLUME_IS_CSV                      },
+        { { MAJOR, L"deviceio-query-device-name",       STATUS_SUCCESS }, kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME },
     };
 
     // the operations are sent on a volume handle because NTFS answers these device control codes on a file handle with STATUS_INVALID_PARAMETER
@@ -117,9 +119,6 @@ namespace {
         return NtDeviceIoControlFile(hVolume, nullptr, nullptr, nullptr, &ioStatus, static_cast<ULONG>(ioControlCode), inputBuffer.data(), static_cast<ULONG>(inputBuffer.size()), outputBuffer.data(), static_cast<ULONG>(outputBuffer.size()));
     }
 
-
-    constexpr std::string_view MAJOR = "Device control";
-
 }
 
 namespace mimo {
@@ -139,7 +138,7 @@ namespace mimo {
                         if (!NT_SUCCESS(openStatus)) {
                             std::cerr << "Failed to open the volume\n";
                             error::Display(RtlNtStatusToDosError(openStatus));
-                            report.Add(MAJOR, operation.description, std::nullopt);
+                            report.Add(operation.description, std::nullopt);
 
                             continue;
                         }
@@ -148,13 +147,13 @@ namespace mimo {
 
                         if (!inputData.has_value()) {
                             std::cerr << "No payload for the control code\n";
-                            report.Add(MAJOR, operation.description, std::nullopt);
+                            report.Add(operation.description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS controlStatus = Control(volume.Get(), operation.ioControlCode, *inputData);
-                        report.Add(MAJOR, operation.description, controlStatus);
+                        report.Add(operation.description, controlStatus);
                     }
 
                     return;

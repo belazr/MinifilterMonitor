@@ -75,23 +75,25 @@ namespace {
         bool filtered;
     };
 
+    constexpr std::string_view MAJOR = "Directory control";
+
     constexpr QueryOperation QUERY_OPERATIONS[]{
-        { { L"query-directory-info-directory",        STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, false, false },
-        { { L"query-directory-info-full",             STATUS_SUCCESS }, kernel::FileFullDirectoryInformation,          1u, false, false },
-        { { L"query-directory-info-both",             STATUS_SUCCESS }, kernel::FileBothDirectoryInformation,          1u, false, false },
-        { { L"query-directory-info-names",            STATUS_SUCCESS }, kernel::FileNamesInformation,                  1u, false, false },
-        { { L"query-directory-info-id-both",          STATUS_SUCCESS }, kernel::FileIdBothDirectoryInformation,        1u, false, false },
-        { { L"query-directory-info-id-full",          STATUS_SUCCESS }, kernel::FileIdFullDirectoryInformation,        1u, false, false },
-        { { L"query-directory-info-id-global-tx",     STATUS_SUCCESS }, kernel::FileIdGlobalTxDirectoryInformation,    1u, false, false },
-        { { L"query-directory-info-id-extd",          STATUS_SUCCESS }, kernel::FileIdExtdDirectoryInformation,        1u, false, false },
-        { { L"query-directory-info-id-extd-both",     STATUS_SUCCESS }, kernel::FileIdExtdBothDirectoryInformation,    1u, false, false },
-        { { L"query-directory-info-id-64-extd",       STATUS_SUCCESS }, kernel::FileId64ExtdDirectoryInformation,      1u, false, false },
-        { { L"query-directory-info-id-64-extd-both",  STATUS_SUCCESS }, kernel::FileId64ExtdBothDirectoryInformation,  1u, false, false },
-        { { L"query-directory-info-id-all-extd",      STATUS_SUCCESS }, kernel::FileIdAllExtdDirectoryInformation,     1u, false, false },
-        { { L"query-directory-info-id-all-extd-both", STATUS_SUCCESS }, kernel::FileIdAllExtdBothDirectoryInformation, 1u, false, false },
-        { { L"query-directory-info-oversized",        STATUS_SUCCESS }, kernel::FileDirectoryInformation,              8u, false, false },
-        { { L"query-directory-info-single",           STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, true,  false },
-        { { L"query-directory-info-filter",           STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, false, true  },
+        { { MAJOR, L"query-directory-info-directory",        STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, false, false },
+        { { MAJOR, L"query-directory-info-full",             STATUS_SUCCESS }, kernel::FileFullDirectoryInformation,          1u, false, false },
+        { { MAJOR, L"query-directory-info-both",             STATUS_SUCCESS }, kernel::FileBothDirectoryInformation,          1u, false, false },
+        { { MAJOR, L"query-directory-info-names",            STATUS_SUCCESS }, kernel::FileNamesInformation,                  1u, false, false },
+        { { MAJOR, L"query-directory-info-id-both",          STATUS_SUCCESS }, kernel::FileIdBothDirectoryInformation,        1u, false, false },
+        { { MAJOR, L"query-directory-info-id-full",          STATUS_SUCCESS }, kernel::FileIdFullDirectoryInformation,        1u, false, false },
+        { { MAJOR, L"query-directory-info-id-global-tx",     STATUS_SUCCESS }, kernel::FileIdGlobalTxDirectoryInformation,    1u, false, false },
+        { { MAJOR, L"query-directory-info-id-extd",          STATUS_SUCCESS }, kernel::FileIdExtdDirectoryInformation,        1u, false, false },
+        { { MAJOR, L"query-directory-info-id-extd-both",     STATUS_SUCCESS }, kernel::FileIdExtdBothDirectoryInformation,    1u, false, false },
+        { { MAJOR, L"query-directory-info-id-64-extd",       STATUS_SUCCESS }, kernel::FileId64ExtdDirectoryInformation,      1u, false, false },
+        { { MAJOR, L"query-directory-info-id-64-extd-both",  STATUS_SUCCESS }, kernel::FileId64ExtdBothDirectoryInformation,  1u, false, false },
+        { { MAJOR, L"query-directory-info-id-all-extd",      STATUS_SUCCESS }, kernel::FileIdAllExtdDirectoryInformation,     1u, false, false },
+        { { MAJOR, L"query-directory-info-id-all-extd-both", STATUS_SUCCESS }, kernel::FileIdAllExtdBothDirectoryInformation, 1u, false, false },
+        { { MAJOR, L"query-directory-info-oversized",        STATUS_SUCCESS }, kernel::FileDirectoryInformation,              8u, false, false },
+        { { MAJOR, L"query-directory-info-single",           STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, true,  false },
+        { { MAJOR, L"query-directory-info-filter",           STATUS_SUCCESS }, kernel::FileDirectoryInformation,              1u, false, true  },
     };
 
     NTSTATUS CreateEntries(std::wstring_view ntDirectory, uint32_t count) {
@@ -129,8 +131,6 @@ namespace {
     }
 
 
-    constexpr std::string_view MAJOR = "Directory control";
-
     void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
         constexpr std::wstring_view FILTER = L"entry*";
 
@@ -141,7 +141,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target directory\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
@@ -151,14 +151,14 @@ namespace {
             if (!NT_SUCCESS(entriesStatus)) {
                 std::cerr << "Failed to create the target directory entries\n";
                 error::Display(RtlNtStatusToDosError(entriesStatus));
-                report.Add(MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::wstring_view filter = operation.filtered ? FILTER : std::wstring_view{};
             const NTSTATUS queryStatus = Query(target, operation.infoClass, operation.single, filter);
-            report.Add(MAJOR, operation.description, queryStatus);
+            report.Add(operation.description, queryStatus);
         }
 
         return;
@@ -172,10 +172,10 @@ namespace {
     };
 
     constexpr NotifyOperation NOTIFY_OPERATIONS[]{
-        { { L"notify-directory",             STATUS_SUCCESS }, 0u,                                         false },
-        { { L"notify-directory-watch-tree",  STATUS_SUCCESS }, 0u,                                         true  },
-        { { L"notify-directory-ex-extended", STATUS_SUCCESS }, kernel::DirectoryNotifyExtendedInformation, false },
-        { { L"notify-directory-ex-full",     STATUS_SUCCESS }, kernel::DirectoryNotifyFullInformation,     false },
+        { { MAJOR, L"notify-directory",             STATUS_SUCCESS }, 0u,                                         false },
+        { { MAJOR, L"notify-directory-watch-tree",  STATUS_SUCCESS }, 0u,                                         true  },
+        { { MAJOR, L"notify-directory-ex-extended", STATUS_SUCCESS }, kernel::DirectoryNotifyExtendedInformation, false },
+        { { MAJOR, L"notify-directory-ex-full",     STATUS_SUCCESS }, kernel::DirectoryNotifyFullInformation,     false },
     };
 
     NTSTATUS NotifyEx(
@@ -237,7 +237,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target directory\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
@@ -245,7 +245,7 @@ namespace {
             const NTSTATUS notifyStatus = operation.infoClass ? NotifyEx(target, operation.infoClass, buffer, ioStatus) : Notify(target, operation.watchTree, buffer, ioStatus);
 
             if (notifyStatus != STATUS_PENDING) {
-                report.Add(MAJOR, operation.description, notifyStatus);
+                report.Add(operation.description, notifyStatus);
 
                 continue;
             }
@@ -255,18 +255,18 @@ namespace {
             if (!NT_SUCCESS(entriesStatus)) {
                 std::cerr << "Failed to create the target directory entries\n";
                 error::Display(RtlNtStatusToDosError(entriesStatus));
-                report.Add(MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             if (!WaitForCompletion(target)) {
-                report.Add(MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
-            report.Add(MAJOR, operation.description, ioStatus.Status);
+            report.Add(operation.description, ioStatus.Status);
         }
 
         return;

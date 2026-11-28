@@ -7,7 +7,6 @@
 
 #include <cstdint>
 #include <optional>
-#include <string_view>
 
 namespace mimo {
 
@@ -15,11 +14,7 @@ namespace mimo {
 
         class Report final {
         public:
-            void Add(
-                std::string_view major,
-                const Description& description,
-                std::optional<NTSTATUS> status
-            );
+            void Add(const Description& description, std::optional<NTSTATUS> status);
 
             void PrintSummary() const;
 

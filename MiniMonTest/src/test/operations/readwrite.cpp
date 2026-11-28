@@ -54,12 +54,14 @@ namespace {
         uint32_t key;
     };
 
+    constexpr std::string_view READ_MAJOR = "Read";
+
     constexpr ReadOperation READ_OPERATIONS[]{
-        { { L"read",             STATUS_SUCCESS     }, 16u, 16u, 0u      },
-        { { L"read-oversized",   STATUS_SUCCESS     }, 64u, 64u, 0u      },
-        { { L"read-short",       STATUS_SUCCESS     }, 16u, 64u, 0u      },
-        { { L"read-end-of-file", STATUS_END_OF_FILE }, 0u,  16u, 0u      },
-        { { L"read-key",         STATUS_SUCCESS     }, 16u, 16u, 0x4D4Du },
+        { { READ_MAJOR, L"read",             STATUS_SUCCESS     }, 16u, 16u, 0u      },
+        { { READ_MAJOR, L"read-oversized",   STATUS_SUCCESS     }, 64u, 64u, 0u      },
+        { { READ_MAJOR, L"read-short",       STATUS_SUCCESS     }, 16u, 64u, 0u      },
+        { { READ_MAJOR, L"read-end-of-file", STATUS_END_OF_FILE }, 0u,  16u, 0u      },
+        { { READ_MAJOR, L"read-key",         STATUS_SUCCESS     }, 16u, 16u, 0x4D4Du },
     };
 
     constexpr std::byte FILL{ 0x4D };
@@ -86,8 +88,6 @@ namespace {
     }
 
 
-    constexpr std::string_view READ_MAJOR = "Read";
-
     void RunReadOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const ReadOperation& operation : READ_OPERATIONS) {
@@ -97,7 +97,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(READ_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
@@ -108,14 +108,14 @@ namespace {
             if (!NT_SUCCESS(writeStatus)) {
                 std::cerr << "Failed to write the target file\n";
                 error::Display(RtlNtStatusToDosError(writeStatus));
-                report.Add(READ_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             ULONG key = static_cast<ULONG>(operation.key);
             const NTSTATUS readStatus = Read(target, operation.size, operation.key ? &key : nullptr);
-            report.Add(READ_MAJOR, operation.description, readStatus);
+            report.Add(operation.description, readStatus);
         }
 
         return;
@@ -127,12 +127,12 @@ namespace {
         uint32_t size;
     };
 
-    constexpr WriteOperation WRITE_OPERATIONS[]{
-        { { L"write",           STATUS_SUCCESS }, 16u },
-        { { L"write-oversized", STATUS_SUCCESS }, 64u },
-    };
-
     constexpr std::string_view WRITE_MAJOR = "Write";
+
+    constexpr WriteOperation WRITE_OPERATIONS[]{
+        { { WRITE_MAJOR, L"write",           STATUS_SUCCESS }, 16u },
+        { { WRITE_MAJOR, L"write-oversized", STATUS_SUCCESS }, 64u },
+    };
 
     void RunWriteOperations(std::wstring_view ntDirectory, test::Report& report) {
 
@@ -143,14 +143,14 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(WRITE_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::vector<std::byte> fileData(operation.size, FILL);
             const NTSTATUS writeStatus = Write(target, fileData);
-            report.Add(WRITE_MAJOR, operation.description, writeStatus);
+            report.Add(operation.description, writeStatus);
         }
 
         return;

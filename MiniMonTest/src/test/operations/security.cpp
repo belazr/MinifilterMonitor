@@ -44,9 +44,11 @@ namespace {
         uint32_t size;
     };
 
+    constexpr std::string_view QUERY_MAJOR = "Query security";
+
     constexpr QueryOperation QUERY_OPERATIONS[]{
-        { { L"query-security",          STATUS_SUCCESS          }, 1024u },
-        { { L"query-security-overflow", STATUS_BUFFER_TOO_SMALL }, 8u    },
+        { { QUERY_MAJOR, L"query-security",          STATUS_SUCCESS          }, 1024u },
+        { { QUERY_MAJOR, L"query-security-overflow", STATUS_BUFFER_TOO_SMALL }, 8u    },
     };
 
     NTSTATUS Query(const test::Target& target, uint32_t size) {
@@ -58,8 +60,6 @@ namespace {
     }
 
 
-    constexpr std::string_view QUERY_MAJOR = "Query security";
-
     void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const QueryOperation& operation : QUERY_OPERATIONS) {
@@ -69,21 +69,23 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(QUERY_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = Query(target, operation.size);
-            report.Add(QUERY_MAJOR, operation.description, queryStatus);
+            report.Add(operation.description, queryStatus);
         }
 
         return;
     }
 
 
+    constexpr std::string_view SET_MAJOR = "Set security";
+
     constexpr test::Description SET_DESCRIPTIONS[]{
-        { L"set-security", STATUS_SUCCESS },
+        { SET_MAJOR, L"set-security", STATUS_SUCCESS },
     };
 
     std::optional<std::vector<std::byte>> MakeDescriptorBuffer() {
@@ -114,8 +116,6 @@ namespace {
     }
 
 
-    constexpr std::string_view SET_MAJOR = "Set security";
-
     void RunSetOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const test::Description& description : SET_DESCRIPTIONS) {
@@ -125,7 +125,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(SET_MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
@@ -133,13 +133,13 @@ namespace {
             const std::optional<std::vector<std::byte>> descriptorData = MakeDescriptorBuffer();
 
             if (!descriptorData.has_value()) {
-                report.Add(SET_MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS setStatus = Set(target, *descriptorData);
-            report.Add(SET_MAJOR, description, setStatus);
+            report.Add(description, setStatus);
         }
 
         return;

@@ -21,8 +21,10 @@ using namespace mimo;
 
 namespace {
 
+    constexpr std::string_view MAJOR = "Flush";
+
     constexpr test::Description DESCRIPTIONS[]{
-        { L"flush", STATUS_SUCCESS },
+        { MAJOR, L"flush", STATUS_SUCCESS },
     };
 
     NTSTATUS Flush(const test::Target& target) {
@@ -30,9 +32,6 @@ namespace {
 
         return NtFlushBuffersFile(target.Get(), &ioStatus);
     }
-
-
-    constexpr std::string_view MAJOR = "Flush";
 
 }
 
@@ -53,13 +52,13 @@ namespace mimo {
                         if (!NT_SUCCESS(createStatus)) {
                             std::cerr << "Failed to create the target file\n";
                             error::Display(RtlNtStatusToDosError(createStatus));
-                            report.Add(MAJOR, description, std::nullopt);
+                            report.Add(description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS flushStatus = Flush(target);
-                        report.Add(MAJOR, description, flushStatus);
+                        report.Add(description, flushStatus);
                     }
 
                     return;

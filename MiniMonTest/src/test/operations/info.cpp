@@ -63,25 +63,27 @@ namespace {
         bool asynchronous;
     };
 
+    constexpr std::string_view QUERY_MAJOR = "Query information";
+
     constexpr QueryOperation QUERY_OPERATIONS[]{
-        { { L"query-info-basic",         STATUS_SUCCESS         }, kernel::FileBasicInformation,        1024u, false },
-        { { L"query-info-standard",      STATUS_SUCCESS         }, kernel::FileStandardInformation,     1024u, false },
-        { { L"query-info-internal",      STATUS_SUCCESS         }, kernel::FileInternalInformation,     1024u, false },
-        { { L"query-info-ea",            STATUS_SUCCESS         }, kernel::FileEaInformation,           1024u, false },
-        { { L"query-info-name",          STATUS_SUCCESS         }, kernel::FileNameInformation,         1024u, false },
-        { { L"query-info-name-overflow", STATUS_BUFFER_OVERFLOW }, kernel::FileNameInformation,         8u,    false },
+        { { QUERY_MAJOR, L"query-info-basic",         STATUS_SUCCESS         }, kernel::FileBasicInformation,        1024u, false },
+        { { QUERY_MAJOR, L"query-info-standard",      STATUS_SUCCESS         }, kernel::FileStandardInformation,     1024u, false },
+        { { QUERY_MAJOR, L"query-info-internal",      STATUS_SUCCESS         }, kernel::FileInternalInformation,     1024u, false },
+        { { QUERY_MAJOR, L"query-info-ea",            STATUS_SUCCESS         }, kernel::FileEaInformation,           1024u, false },
+        { { QUERY_MAJOR, L"query-info-name",          STATUS_SUCCESS         }, kernel::FileNameInformation,         1024u, false },
+        { { QUERY_MAJOR, L"query-info-name-overflow", STATUS_BUFFER_OVERFLOW }, kernel::FileNameInformation,         8u,    false },
         // the handle is asynchronous because NtQueryInformationFile answers FilePositionInformation on a synchronous handle without a request to the file system
-        { { L"query-info-position",      STATUS_SUCCESS         }, kernel::FilePositionInformation,     1024u, true  },
-        { { L"query-info-all",           STATUS_SUCCESS         }, kernel::FileAllInformation,          1024u, false },
-        { { L"query-info-stream",        STATUS_SUCCESS         }, kernel::FileStreamInformation,       1024u, false },
-        { { L"query-info-compression",   STATUS_SUCCESS         }, kernel::FileCompressionInformation,  1024u, false },
-        { { L"query-info-network-open",  STATUS_SUCCESS         }, kernel::FileNetworkOpenInformation,  1024u, false },
-        { { L"query-info-attribute-tag", STATUS_SUCCESS         }, kernel::FileAttributeTagInformation, 1024u, false },
-        { { L"query-info-hard-link",     STATUS_SUCCESS         }, kernel::FileHardLinkInformation,     1024u, false },
-        { { L"query-info-standard-link", STATUS_SUCCESS         }, kernel::FileStandardLinkInformation, 1024u, false },
-        { { L"query-info-id",            STATUS_SUCCESS         }, kernel::FileIdInformation,           1024u, false },
-        { { L"query-info-stat",          STATUS_SUCCESS         }, kernel::FileStatInformation,         1024u, false },
-        { { L"query-info-stat-lx",       STATUS_SUCCESS         }, kernel::FileStatLxInformation,       1024u, false },
+        { { QUERY_MAJOR, L"query-info-position",      STATUS_SUCCESS         }, kernel::FilePositionInformation,     1024u, true  },
+        { { QUERY_MAJOR, L"query-info-all",           STATUS_SUCCESS         }, kernel::FileAllInformation,          1024u, false },
+        { { QUERY_MAJOR, L"query-info-stream",        STATUS_SUCCESS         }, kernel::FileStreamInformation,       1024u, false },
+        { { QUERY_MAJOR, L"query-info-compression",   STATUS_SUCCESS         }, kernel::FileCompressionInformation,  1024u, false },
+        { { QUERY_MAJOR, L"query-info-network-open",  STATUS_SUCCESS         }, kernel::FileNetworkOpenInformation,  1024u, false },
+        { { QUERY_MAJOR, L"query-info-attribute-tag", STATUS_SUCCESS         }, kernel::FileAttributeTagInformation, 1024u, false },
+        { { QUERY_MAJOR, L"query-info-hard-link",     STATUS_SUCCESS         }, kernel::FileHardLinkInformation,     1024u, false },
+        { { QUERY_MAJOR, L"query-info-standard-link", STATUS_SUCCESS         }, kernel::FileStandardLinkInformation, 1024u, false },
+        { { QUERY_MAJOR, L"query-info-id",            STATUS_SUCCESS         }, kernel::FileIdInformation,           1024u, false },
+        { { QUERY_MAJOR, L"query-info-stat",          STATUS_SUCCESS         }, kernel::FileStatInformation,         1024u, false },
+        { { QUERY_MAJOR, L"query-info-stat-lx",       STATUS_SUCCESS         }, kernel::FileStatLxInformation,       1024u, false },
     };
 
     NTSTATUS Query(
@@ -96,8 +98,6 @@ namespace {
     }
 
 
-    constexpr std::string_view QUERY_MAJOR = "Query information";
-
     void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const QueryOperation& operation : QUERY_OPERATIONS) {
@@ -107,13 +107,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(QUERY_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = Query(target, operation.infoClass, operation.size);
-            report.Add(QUERY_MAJOR, operation.description, queryStatus);
+            report.Add(operation.description, queryStatus);
         }
 
         return;
@@ -127,25 +127,27 @@ namespace {
         bool asynchronous;
     };
 
+    constexpr std::string_view SET_MAJOR = "Set information";
+
     constexpr SetOperation SET_OPERATIONS[]{
-        { { L"set-info-basic",                 STATUS_SUCCESS                        }, kernel::FileBasicInformation,               FILE_ATTRIBUTE_HIDDEN,                               false },
-        { { L"set-info-rename",                STATUS_SUCCESS                        }, kernel::FileRenameInformation,              1u,                                                  false },
-        { { L"set-info-link",                  STATUS_SUCCESS                        }, kernel::FileLinkInformation,                1u,                                                  false },
-        { { L"set-info-disposition",           STATUS_SUCCESS                        }, kernel::FileDispositionInformation,         1u,                                                  false },
+        { { SET_MAJOR, L"set-info-basic",                 STATUS_SUCCESS                        }, kernel::FileBasicInformation,               FILE_ATTRIBUTE_HIDDEN,                               false },
+        { { SET_MAJOR, L"set-info-rename",                STATUS_SUCCESS                        }, kernel::FileRenameInformation,              1u,                                                  false },
+        { { SET_MAJOR, L"set-info-link",                  STATUS_SUCCESS                        }, kernel::FileLinkInformation,                1u,                                                  false },
+        { { SET_MAJOR, L"set-info-disposition",           STATUS_SUCCESS                        }, kernel::FileDispositionInformation,         1u,                                                  false },
         // the handle is asynchronous because NtSetInformationFile answers FilePositionInformation on a synchronous handle without a request to the file system
-        { { L"set-info-position",              STATUS_SUCCESS                        }, kernel::FilePositionInformation,            8u,                                                  true  },
-        { { L"set-info-allocation",            STATUS_SUCCESS                        }, kernel::FileAllocationInformation,          4096u,                                               false },
-        { { L"set-info-end-of-file",           STATUS_SUCCESS                        }, kernel::FileEndOfFileInformation,           16u,                                                 false },
+        { { SET_MAJOR, L"set-info-position",              STATUS_SUCCESS                        }, kernel::FilePositionInformation,            8u,                                                  true  },
+        { { SET_MAJOR, L"set-info-allocation",            STATUS_SUCCESS                        }, kernel::FileAllocationInformation,          4096u,                                               false },
+        { { SET_MAJOR, L"set-info-end-of-file",           STATUS_SUCCESS                        }, kernel::FileEndOfFileInformation,           16u,                                                 false },
         // STATUS_PRIVILEGE_NOT_HELD is expected because the process runs without SeManageVolumePrivilege
-        { { L"set-info-valid-data-length",     STATUS_PRIVILEGE_NOT_HELD             }, kernel::FileValidDataLengthInformation,     16u,                                                 false },
-        { { L"set-info-short-name",            STATUS_SUCCESS                        }, kernel::FileShortNameInformation,           0u,                                                  false },
-        { { L"set-info-disposition-ex",        STATUS_SUCCESS                        }, kernel::FileDispositionInformationEx,       kernel::FILE_DISPOSITION_DELETE,                     false },
-        { { L"set-info-rename-ex",             STATUS_SUCCESS                        }, kernel::FileRenameInformationEx,            kernel::FILE_RENAME_POSIX_SEMANTICS,                 false },
-        { { L"set-info-desired-storage-class", STATUS_SUCCESS                        }, kernel::FileDesiredStorageClassInformation, static_cast<uint32_t>(FileStorageTierClassCapacity), false },
-        { { L"set-info-case-sensitive",        STATUS_INVALID_PARAMETER              }, kernel::FileCaseSensitiveInformation,       FILE_CS_FLAG_CASE_SENSITIVE_DIR,                     false },
-        { { L"set-info-link-ex",               STATUS_SUCCESS                        }, kernel::FileLinkInformationEx,              kernel::FILE_LINK_POSIX_SEMANTICS,                   false },
-        { { L"set-info-storage-reserve-id",    STATUS_STORAGE_RESERVE_DOES_NOT_EXIST }, kernel::FileStorageReserveIdInformation,    static_cast<uint32_t>(StorageReserveIdSoft),         false },
-        { { L"set-info-known-folder",          STATUS_INVALID_PARAMETER              }, kernel::FileKnownFolderInformation,         kernel::KnownFolderDocuments,                        false },
+        { { SET_MAJOR, L"set-info-valid-data-length",     STATUS_PRIVILEGE_NOT_HELD             }, kernel::FileValidDataLengthInformation,     16u,                                                 false },
+        { { SET_MAJOR, L"set-info-short-name",            STATUS_SUCCESS                        }, kernel::FileShortNameInformation,           0u,                                                  false },
+        { { SET_MAJOR, L"set-info-disposition-ex",        STATUS_SUCCESS                        }, kernel::FileDispositionInformationEx,       kernel::FILE_DISPOSITION_DELETE,                     false },
+        { { SET_MAJOR, L"set-info-rename-ex",             STATUS_SUCCESS                        }, kernel::FileRenameInformationEx,            kernel::FILE_RENAME_POSIX_SEMANTICS,                 false },
+        { { SET_MAJOR, L"set-info-desired-storage-class", STATUS_SUCCESS                        }, kernel::FileDesiredStorageClassInformation, static_cast<uint32_t>(FileStorageTierClassCapacity), false },
+        { { SET_MAJOR, L"set-info-case-sensitive",        STATUS_INVALID_PARAMETER              }, kernel::FileCaseSensitiveInformation,       FILE_CS_FLAG_CASE_SENSITIVE_DIR,                     false },
+        { { SET_MAJOR, L"set-info-link-ex",               STATUS_SUCCESS                        }, kernel::FileLinkInformationEx,              kernel::FILE_LINK_POSIX_SEMANTICS,                   false },
+        { { SET_MAJOR, L"set-info-storage-reserve-id",    STATUS_STORAGE_RESERVE_DOES_NOT_EXIST }, kernel::FileStorageReserveIdInformation,    static_cast<uint32_t>(StorageReserveIdSoft),         false },
+        { { SET_MAJOR, L"set-info-known-folder",          STATUS_INVALID_PARAMETER              }, kernel::FileKnownFolderInformation,         kernel::KnownFolderDocuments,                        false },
     };
 
     std::vector<std::byte> MakeNameBuffer(uint32_t flags, std::wstring_view targetPath) {
@@ -308,8 +310,6 @@ namespace {
     }
 
 
-    constexpr std::string_view SET_MAJOR = "Set information";
-
     void RunSetOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const SetOperation& operation : SET_OPERATIONS) {
@@ -319,7 +319,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(SET_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
@@ -329,21 +329,23 @@ namespace {
 
             if (!infoData.has_value()) {
                 std::cerr << "No payload for the information class\n";
-                report.Add(SET_MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS setStatus = Set(target, operation.infoClass, *infoData);
-            report.Add(SET_MAJOR, operation.description, setStatus);
+            report.Add(operation.description, setStatus);
         }
 
         return;
     }
 
 
+    constexpr std::string_view QUERY_OPEN_MAJOR = "Query open";
+
     constexpr test::Description QUERY_OPEN_DESCRIPTIONS[]{
-        { L"query-open-info", STATUS_SUCCESS },
+        { QUERY_OPEN_MAJOR, L"query-open-info", STATUS_SUCCESS },
     };
 
     NTSTATUS QueryByName(const test::Target& target) {
@@ -364,8 +366,6 @@ namespace {
     }
 
 
-    constexpr std::string_view QUERY_OPEN_MAJOR = "Query open";
-
     void RunQueryOpenOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const test::Description& description : QUERY_OPEN_DESCRIPTIONS) {
@@ -375,21 +375,23 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(QUERY_OPEN_MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = QueryByName(target);
-            report.Add(QUERY_OPEN_MAJOR, description, queryStatus);
+            report.Add(description, queryStatus);
         }
 
         return;
     }
 
 
+    constexpr std::string_view NETWORK_QUERY_OPEN_MAJOR = "Network query open";
+
     constexpr test::Description NETWORK_QUERY_OPEN_DESCRIPTIONS[]{
-        { L"network-query-open-info", STATUS_SUCCESS },
+        { NETWORK_QUERY_OPEN_MAJOR, L"network-query-open-info", STATUS_SUCCESS },
     };
 
     struct FILE_NETWORK_OPEN_INFORMATION {
@@ -418,8 +420,6 @@ namespace {
     }
 
 
-    constexpr std::string_view NETWORK_QUERY_OPEN_MAJOR = "Network query open";
-
     void RunNetworkQueryOpenOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const test::Description& description : NETWORK_QUERY_OPEN_DESCRIPTIONS) {
@@ -429,13 +429,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(NETWORK_QUERY_OPEN_MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = QueryFullAttributes(target);
-            report.Add(NETWORK_QUERY_OPEN_MAJOR, description, queryStatus);
+            report.Add(description, queryStatus);
         }
 
         return;

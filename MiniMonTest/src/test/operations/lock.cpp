@@ -49,9 +49,11 @@ namespace {
     constexpr uint32_t NO_KEY = 0u;
     constexpr uint32_t KEY    = 0x4D4Du;
 
+    constexpr std::string_view MAJOR = "Lock control";
+
     constexpr LockOperation LOCK_OPERATIONS[]{
-        { { L"lock",     STATUS_SUCCESS }, NO_KEY },
-        { { L"lock-key", STATUS_SUCCESS }, KEY    },
+        { { MAJOR, L"lock",     STATUS_SUCCESS }, NO_KEY },
+        { { MAJOR, L"lock-key", STATUS_SUCCESS }, KEY    },
     };
 
     constexpr LONGLONG RANGE_SIZE = 16;
@@ -66,8 +68,6 @@ namespace {
     }
 
 
-    constexpr std::string_view MAJOR = "Lock control";
-
     void RunLockOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const LockOperation& operation : LOCK_OPERATIONS) {
@@ -77,13 +77,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(MAJOR, operation.description, std::nullopt);
+                report.Add(operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS lockStatus = Lock(target, operation.key);
-            report.Add(MAJOR, operation.description, lockStatus);
+            report.Add(operation.description, lockStatus);
         }
 
         return;
@@ -91,7 +91,7 @@ namespace {
 
 
     constexpr test::Description UNLOCK_DESCRIPTIONS[]{
-        { L"unlock", STATUS_SUCCESS },
+        { MAJOR, L"unlock", STATUS_SUCCESS },
     };
 
     NTSTATUS Unlock(const test::Target& target) {
@@ -113,7 +113,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
@@ -123,13 +123,13 @@ namespace {
             if (!NT_SUCCESS(lockStatus)) {
                 std::cerr << "Failed to lock the target file\n";
                 error::Display(RtlNtStatusToDosError(lockStatus));
-                report.Add(MAJOR, description, std::nullopt);
+                report.Add(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS unlockStatus = Unlock(target);
-            report.Add(MAJOR, description, unlockStatus);
+            report.Add(description, unlockStatus);
         }
 
         return;

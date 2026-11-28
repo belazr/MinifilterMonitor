@@ -10,6 +10,7 @@ namespace mimo {
     namespace test {
 
         struct Description {
+            std::string_view major;
             std::wstring_view name;
             NTSTATUS expectedStatus;
         };
