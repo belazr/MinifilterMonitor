@@ -49,6 +49,7 @@ namespace {
         { { L"deviceio-query-device-name",       STATUS_SUCCESS }, kernel::IOCTL_MOUNTDEV_QUERY_DEVICE_NAME },
     };
 
+    // the operations are sent on a volume handle because NTFS answers these device control codes on a file handle with STATUS_INVALID_PARAMETER
     NTSTATUS OpenVolume(std::wstring_view ntDirectory, NtHandle& volume) {
         constexpr std::wstring_view NT_PREFIX = L"\\??\\";
         // a volume open that asks for no more than FILE_READ_ATTRIBUTES bypasses the file system

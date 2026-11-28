@@ -69,6 +69,7 @@ namespace {
         { { L"query-info-ea",            STATUS_SUCCESS         }, kernel::FileEaInformation,           1024u, false },
         { { L"query-info-name",          STATUS_SUCCESS         }, kernel::FileNameInformation,         1024u, false },
         { { L"query-info-name-overflow", STATUS_BUFFER_OVERFLOW }, kernel::FileNameInformation,         8u,    false },
+        // the handle is asynchronous because NtQueryInformationFile answers FilePositionInformation on a synchronous handle without a request to the file system
         { { L"query-info-position",      STATUS_SUCCESS         }, kernel::FilePositionInformation,     1024u, true  },
         { { L"query-info-all",           STATUS_SUCCESS         }, kernel::FileAllInformation,          1024u, false },
         { { L"query-info-stream",        STATUS_SUCCESS         }, kernel::FileStreamInformation,       1024u, false },
@@ -130,6 +131,7 @@ namespace {
         { { L"set-info-rename",                STATUS_SUCCESS                        }, kernel::FileRenameInformation,              1u,                                                  false },
         { { L"set-info-link",                  STATUS_SUCCESS                        }, kernel::FileLinkInformation,                1u,                                                  false },
         { { L"set-info-disposition",           STATUS_SUCCESS                        }, kernel::FileDispositionInformation,         1u,                                                  false },
+        // the handle is asynchronous because NtSetInformationFile answers FilePositionInformation on a synchronous handle without a request to the file system
         { { L"set-info-position",              STATUS_SUCCESS                        }, kernel::FilePositionInformation,            8u,                                                  true  },
         { { L"set-info-allocation",            STATUS_SUCCESS                        }, kernel::FileAllocationInformation,          4096u,                                               false },
         { { L"set-info-end-of-file",           STATUS_SUCCESS                        }, kernel::FileEndOfFileInformation,           16u,                                                 false },

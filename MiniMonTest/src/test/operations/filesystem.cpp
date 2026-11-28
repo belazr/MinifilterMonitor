@@ -51,8 +51,10 @@ namespace {
         { { L"filesystem-get-compression",         STATUS_SUCCESS }, FSCTL_GET_COMPRESSION,         OUTPUT_BUFFER_SIZE, false },
         { { L"filesystem-set-compression",         STATUS_SUCCESS }, FSCTL_SET_COMPRESSION,         OUTPUT_BUFFER_SIZE, false },
         { { L"filesystem-get-ntfs-volume-data",    STATUS_SUCCESS }, FSCTL_GET_NTFS_VOLUME_DATA,    OUTPUT_BUFFER_SIZE, false },
+        // the output size is 0 because NTFS answers FSCTL_SET_REPARSE_POINT with STATUS_INVALID_PARAMETER when an output buffer is passed
         { { L"filesystem-set-reparse-point",       STATUS_SUCCESS }, FSCTL_SET_REPARSE_POINT,       0u,                 true  },
         { { L"filesystem-get-reparse-point",       STATUS_SUCCESS }, FSCTL_GET_REPARSE_POINT,       OUTPUT_BUFFER_SIZE, true  },
+        // the output size is 0 because NTFS answers FSCTL_DELETE_REPARSE_POINT with STATUS_INVALID_PARAMETER when an output buffer is passed
         { { L"filesystem-delete-reparse-point",    STATUS_SUCCESS }, FSCTL_DELETE_REPARSE_POINT,    0u,                 true  },
         { { L"filesystem-create-or-get-object-id", STATUS_SUCCESS }, FSCTL_CREATE_OR_GET_OBJECT_ID, OUTPUT_BUFFER_SIZE, false },
         { { L"filesystem-set-sparse",              STATUS_SUCCESS }, FSCTL_SET_SPARSE,              OUTPUT_BUFFER_SIZE, false },
