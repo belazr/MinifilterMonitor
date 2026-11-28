@@ -12,7 +12,7 @@ namespace mimo {
 
             namespace quota {
 
-                bool Run(std::wstring_view ntDirectory, report::Counts& counts);
+                void Run(std::wstring_view ntDirectory, report::Counts& counts);
 
             }
 

@@ -448,13 +448,13 @@ namespace mimo {
 
             namespace info {
 
-                bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
                     RunQueryOperations(ntDirectory, counts);
                     RunSetOperations(ntDirectory, counts);
                     RunQueryOpenOperations(ntDirectory, counts);
                     RunNetworkQueryOpenOperations(ntDirectory, counts);
 
-                    return true;
+                    return;
                 }
 
             }

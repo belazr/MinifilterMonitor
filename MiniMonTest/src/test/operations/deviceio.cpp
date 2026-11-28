@@ -128,7 +128,7 @@ namespace mimo {
 
             namespace deviceio {
 
-                bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
 
                     for (const Operation& operation : OPERATIONS) {
                         NtHandle volume;
@@ -155,7 +155,7 @@ namespace mimo {
                         report::Add(counts, MAJOR, operation.description, controlStatus);
                     }
 
-                    return true;
+                    return;
                 }
 
             }

@@ -156,11 +156,30 @@ namespace mimo {
 
             const std::wstring ntDirectory = std::format(L"\\??\\{}", std::wstring_view{ *workDirectory }.substr(EXTENDED_PREFIX.size()));
             report::Counts counts{};
-            const bool completed = operations::create::Run(ntDirectory, counts) && operations::readwrite::Run(ntDirectory, counts) && operations::info::Run(ntDirectory, counts) && operations::ea::Run(ntDirectory, counts) && operations::flush::Run(ntDirectory, counts) && operations::volume::Run(ntDirectory, counts) && operations::directory::Run(ntDirectory, counts) && operations::filesystem::Run(ntDirectory, counts) && operations::deviceio::Run(ntDirectory, counts) && operations::lock::Run(ntDirectory, counts) && operations::security::Run(ntDirectory, counts) && operations::quota::Run(ntDirectory, counts) && operations::section::Run(ntDirectory, counts);
+
+            if (!operations::create::Run(ntDirectory, counts)) {
+                RemoveWorkDirectory(*workDirectory);
+
+                return false;
+            }
+
+            operations::readwrite::Run(ntDirectory, counts);
+            operations::info::Run(ntDirectory, counts);
+            operations::ea::Run(ntDirectory, counts);
+            operations::flush::Run(ntDirectory, counts);
+            operations::volume::Run(ntDirectory, counts);
+            operations::directory::Run(ntDirectory, counts);
+            operations::filesystem::Run(ntDirectory, counts);
+            operations::deviceio::Run(ntDirectory, counts);
+            operations::lock::Run(ntDirectory, counts);
+            operations::security::Run(ntDirectory, counts);
+            operations::quota::Run(ntDirectory, counts);
+            operations::section::Run(ntDirectory, counts);
+
             const bool removed = RemoveWorkDirectory(*workDirectory);
             std::cout << std::format("Operations: {}, not executed: {}, unexpected: {}\n", counts.operations, counts.notExecuted, counts.unexpected);
 
-            return completed && !counts.notExecuted && !counts.unexpected && removed;
+            return !counts.notExecuted && !counts.unexpected && removed;
         }
 
     }

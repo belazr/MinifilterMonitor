@@ -165,11 +165,11 @@ namespace mimo {
 
             namespace readwrite {
 
-                bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
                     RunReadOperations(ntDirectory, counts);
                     RunWriteOperations(ntDirectory, counts);
 
-                    return true;
+                    return;
                 }
 
             }

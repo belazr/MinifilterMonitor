@@ -55,7 +55,7 @@ namespace mimo {
 
             namespace section {
 
-                bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
 
                     for (const report::Description& description : DESCRIPTIONS) {
                         Target target{ ntDirectory, description.name };
@@ -73,7 +73,7 @@ namespace mimo {
                         report::Add(counts, MAJOR, description, sectionStatus);
                     }
 
-                    return true;
+                    return;
                 }
 
             }

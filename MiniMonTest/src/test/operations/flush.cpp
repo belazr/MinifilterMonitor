@@ -43,7 +43,7 @@ namespace mimo {
 
             namespace flush {
 
-                bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
 
                     for (const report::Description& description : DESCRIPTIONS) {
                         Target target{ ntDirectory, description.name };
@@ -61,7 +61,7 @@ namespace mimo {
                         report::Add(counts, MAJOR, description, flushStatus);
                     }
 
-                    return true;
+                    return;
                 }
 
             }

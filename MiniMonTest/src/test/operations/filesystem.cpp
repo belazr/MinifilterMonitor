@@ -210,7 +210,7 @@ namespace mimo {
 
             namespace filesystem {
 
-                bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
 
                     for (const Operation& operation : OPERATIONS) {
                         Target target{ ntDirectory, operation.description.name };
@@ -247,7 +247,7 @@ namespace mimo {
                         report::Add(counts, MAJOR, operation.description, controlStatus);
                     }
 
-                    return true;
+                    return;
                 }
 
             }
