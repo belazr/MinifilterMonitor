@@ -4,6 +4,7 @@
 #include "..\target.h"
 
 #include "..\..\error.h"
+#include "..\..\test.h"
 
 #include "..\..\..\..\inc\kernel.h"
 
@@ -67,7 +68,7 @@ using namespace mimo;
 namespace {
 
     struct QueryOperation {
-        test::report::Description description;
+        test::Description description;
         uint32_t infoClass;
         uint32_t entryCount;
         bool single;
@@ -130,7 +131,7 @@ namespace {
 
     constexpr std::string_view MAJOR = "Directory control";
 
-    void RunQueryOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
         constexpr std::wstring_view FILTER = L"entry*";
 
         for (const QueryOperation& operation : QUERY_OPERATIONS) {
@@ -140,7 +141,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target directory\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, MAJOR, operation.description, std::nullopt);
+                report.Add(MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
@@ -150,14 +151,14 @@ namespace {
             if (!NT_SUCCESS(entriesStatus)) {
                 std::cerr << "Failed to create the target directory entries\n";
                 error::Display(RtlNtStatusToDosError(entriesStatus));
-                test::report::Add(counts, MAJOR, operation.description, std::nullopt);
+                report.Add(MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::wstring_view filter = operation.filtered ? FILTER : std::wstring_view{};
             const NTSTATUS queryStatus = Query(target, operation.infoClass, operation.single, filter);
-            test::report::Add(counts, MAJOR, operation.description, queryStatus);
+            report.Add(MAJOR, operation.description, queryStatus);
         }
 
         return;
@@ -165,7 +166,7 @@ namespace {
 
 
     struct NotifyOperation {
-        test::report::Description description;
+        test::Description description;
         uint32_t infoClass;
         bool watchTree;
     };
@@ -221,7 +222,7 @@ namespace {
     }
 
 
-    void RunNotifyOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunNotifyOperations(std::wstring_view ntDirectory, test::Report& report) {
         constexpr uint32_t BUFFER_SIZE = 4096u;
 
         for (const NotifyOperation& operation : NOTIFY_OPERATIONS) {
@@ -236,7 +237,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target directory\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, MAJOR, operation.description, std::nullopt);
+                report.Add(MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
@@ -244,7 +245,7 @@ namespace {
             const NTSTATUS notifyStatus = operation.infoClass ? NotifyEx(target, operation.infoClass, buffer, ioStatus) : Notify(target, operation.watchTree, buffer, ioStatus);
 
             if (notifyStatus != STATUS_PENDING) {
-                test::report::Add(counts, MAJOR, operation.description, notifyStatus);
+                report.Add(MAJOR, operation.description, notifyStatus);
 
                 continue;
             }
@@ -254,18 +255,18 @@ namespace {
             if (!NT_SUCCESS(entriesStatus)) {
                 std::cerr << "Failed to create the target directory entries\n";
                 error::Display(RtlNtStatusToDosError(entriesStatus));
-                test::report::Add(counts, MAJOR, operation.description, std::nullopt);
+                report.Add(MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             if (!WaitForCompletion(target)) {
-                test::report::Add(counts, MAJOR, operation.description, std::nullopt);
+                report.Add(MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
-            test::report::Add(counts, MAJOR, operation.description, ioStatus.Status);
+            report.Add(MAJOR, operation.description, ioStatus.Status);
         }
 
         return;
@@ -281,9 +282,9 @@ namespace mimo {
 
             namespace directory {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
-                    RunQueryOperations(ntDirectory, counts);
-                    RunNotifyOperations(ntDirectory, counts);
+                void Run(std::wstring_view ntDirectory, Report& report) {
+                    RunQueryOperations(ntDirectory, report);
+                    RunNotifyOperations(ntDirectory, report);
 
                     return;
                 }

@@ -5,6 +5,7 @@
 #include "..\target.h"
 
 #include "..\..\error.h"
+#include "..\..\test.h"
 
 #include "..\..\..\..\inc\kernel.h"
 
@@ -56,7 +57,7 @@ using namespace mimo;
 namespace {
 
     struct QueryOperation {
-        test::report::Description description;
+        test::Description description;
         uint32_t infoClass;
         uint32_t size;
         bool asynchronous;
@@ -97,7 +98,7 @@ namespace {
 
     constexpr std::string_view QUERY_MAJOR = "Query information";
 
-    void RunQueryOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const QueryOperation& operation : QUERY_OPERATIONS) {
             test::Target target{ ntDirectory, operation.description.name };
@@ -106,13 +107,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, QUERY_MAJOR, operation.description, std::nullopt);
+                report.Add(QUERY_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = Query(target, operation.infoClass, operation.size);
-            test::report::Add(counts, QUERY_MAJOR, operation.description, queryStatus);
+            report.Add(QUERY_MAJOR, operation.description, queryStatus);
         }
 
         return;
@@ -120,7 +121,7 @@ namespace {
 
 
     struct SetOperation {
-        test::report::Description description;
+        test::Description description;
         uint32_t infoClass;
         uint32_t value;
         bool asynchronous;
@@ -309,7 +310,7 @@ namespace {
 
     constexpr std::string_view SET_MAJOR = "Set information";
 
-    void RunSetOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunSetOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const SetOperation& operation : SET_OPERATIONS) {
             test::Target target{ ntDirectory, operation.description.name };
@@ -318,7 +319,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, SET_MAJOR, operation.description, std::nullopt);
+                report.Add(SET_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
@@ -328,20 +329,20 @@ namespace {
 
             if (!infoData.has_value()) {
                 std::cerr << "No payload for the information class\n";
-                test::report::Add(counts, SET_MAJOR, operation.description, std::nullopt);
+                report.Add(SET_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS setStatus = Set(target, operation.infoClass, *infoData);
-            test::report::Add(counts, SET_MAJOR, operation.description, setStatus);
+            report.Add(SET_MAJOR, operation.description, setStatus);
         }
 
         return;
     }
 
 
-    constexpr test::report::Description QUERY_OPEN_DESCRIPTIONS[]{
+    constexpr test::Description QUERY_OPEN_DESCRIPTIONS[]{
         { L"query-open-info", STATUS_SUCCESS },
     };
 
@@ -365,29 +366,29 @@ namespace {
 
     constexpr std::string_view QUERY_OPEN_MAJOR = "Query open";
 
-    void RunQueryOpenOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunQueryOpenOperations(std::wstring_view ntDirectory, test::Report& report) {
 
-        for (const test::report::Description& description : QUERY_OPEN_DESCRIPTIONS) {
+        for (const test::Description& description : QUERY_OPEN_DESCRIPTIONS) {
             test::Target target{ ntDirectory, description.name };
             const NTSTATUS createStatus = target.Create(FILE_READ_ATTRIBUTES);
 
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, QUERY_OPEN_MAJOR, description, std::nullopt);
+                report.Add(QUERY_OPEN_MAJOR, description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = QueryByName(target);
-            test::report::Add(counts, QUERY_OPEN_MAJOR, description, queryStatus);
+            report.Add(QUERY_OPEN_MAJOR, description, queryStatus);
         }
 
         return;
     }
 
 
-    constexpr test::report::Description NETWORK_QUERY_OPEN_DESCRIPTIONS[]{
+    constexpr test::Description NETWORK_QUERY_OPEN_DESCRIPTIONS[]{
         { L"network-query-open-info", STATUS_SUCCESS },
     };
 
@@ -419,22 +420,22 @@ namespace {
 
     constexpr std::string_view NETWORK_QUERY_OPEN_MAJOR = "Network query open";
 
-    void RunNetworkQueryOpenOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunNetworkQueryOpenOperations(std::wstring_view ntDirectory, test::Report& report) {
 
-        for (const test::report::Description& description : NETWORK_QUERY_OPEN_DESCRIPTIONS) {
+        for (const test::Description& description : NETWORK_QUERY_OPEN_DESCRIPTIONS) {
             test::Target target{ ntDirectory, description.name };
             const NTSTATUS createStatus = target.Create(FILE_READ_ATTRIBUTES);
 
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, NETWORK_QUERY_OPEN_MAJOR, description, std::nullopt);
+                report.Add(NETWORK_QUERY_OPEN_MAJOR, description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = QueryFullAttributes(target);
-            test::report::Add(counts, NETWORK_QUERY_OPEN_MAJOR, description, queryStatus);
+            report.Add(NETWORK_QUERY_OPEN_MAJOR, description, queryStatus);
         }
 
         return;
@@ -450,11 +451,11 @@ namespace mimo {
 
             namespace info {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
-                    RunQueryOperations(ntDirectory, counts);
-                    RunSetOperations(ntDirectory, counts);
-                    RunQueryOpenOperations(ntDirectory, counts);
-                    RunNetworkQueryOpenOperations(ntDirectory, counts);
+                void Run(std::wstring_view ntDirectory, Report& report) {
+                    RunQueryOperations(ntDirectory, report);
+                    RunSetOperations(ntDirectory, report);
+                    RunQueryOpenOperations(ntDirectory, report);
+                    RunNetworkQueryOpenOperations(ntDirectory, report);
 
                     return;
                 }

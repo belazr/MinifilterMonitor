@@ -4,6 +4,7 @@
 #include "..\target.h"
 
 #include "..\..\error.h"
+#include "..\..\test.h"
 
 #include <Windows.h>
 #undef WIN32_NO_STATUS
@@ -44,7 +45,7 @@ using namespace mimo;
 
 namespace {
 
-    constexpr test::report::Description QUERY_DESCRIPTIONS[]{
+    constexpr test::Description QUERY_DESCRIPTIONS[]{
         { L"query-quota", STATUS_SUCCESS },
     };
 
@@ -103,16 +104,16 @@ namespace {
 
     constexpr std::string_view QUERY_MAJOR = "Query quota";
 
-    void RunQueryOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
 
-        for (const test::report::Description& description : QUERY_DESCRIPTIONS) {
+        for (const test::Description& description : QUERY_DESCRIPTIONS) {
             test::Target target{ ntDirectory, description.name };
             const NTSTATUS createStatus = target.Create(FILE_GENERIC_READ);
 
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, QUERY_MAJOR, description, std::nullopt);
+                report.Add(QUERY_MAJOR, description, std::nullopt);
 
                 continue;
             }
@@ -120,13 +121,13 @@ namespace {
             const std::optional<std::vector<std::byte>> sidListData = MakeSidListBuffer();
 
             if (!sidListData.has_value()) {
-                test::report::Add(counts, QUERY_MAJOR, description, std::nullopt);
+                report.Add(QUERY_MAJOR, description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = Query(target, *sidListData);
-            test::report::Add(counts, QUERY_MAJOR, description, queryStatus);
+            report.Add(QUERY_MAJOR, description, queryStatus);
         }
 
         return;
@@ -135,7 +136,7 @@ namespace {
 
     // STATUS_ACCESS_DENIED is expected because the process runs without SeManageVolumePrivilege
     // this is enough to provoke a trace and not make persistent changes to the machine
-    constexpr test::report::Description SET_DESCRIPTIONS[]{
+    constexpr test::Description SET_DESCRIPTIONS[]{
         { L"set-quota", STATUS_ACCESS_DENIED },
     };
 
@@ -180,16 +181,16 @@ namespace {
 
     constexpr std::string_view SET_MAJOR = "Set quota";
 
-    void RunSetOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunSetOperations(std::wstring_view ntDirectory, test::Report& report) {
 
-        for (const test::report::Description& description : SET_DESCRIPTIONS) {
+        for (const test::Description& description : SET_DESCRIPTIONS) {
             test::Target target{ ntDirectory, description.name };
             const NTSTATUS createStatus = target.Create(FILE_WRITE_DATA);
 
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, SET_MAJOR, description, std::nullopt);
+                report.Add(SET_MAJOR, description, std::nullopt);
 
                 continue;
             }
@@ -197,13 +198,13 @@ namespace {
             const std::optional<std::vector<std::byte>> quotaData = MakeQuotaBuffer();
 
             if (!quotaData.has_value()) {
-                test::report::Add(counts, SET_MAJOR, description, std::nullopt);
+                report.Add(SET_MAJOR, description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS setStatus = Set(target, *quotaData);
-            test::report::Add(counts, SET_MAJOR, description, setStatus);
+            report.Add(SET_MAJOR, description, setStatus);
         }
 
         return;
@@ -219,9 +220,9 @@ namespace mimo {
 
             namespace quota {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
-                    RunQueryOperations(ntDirectory, counts);
-                    RunSetOperations(ntDirectory, counts);
+                void Run(std::wstring_view ntDirectory, Report& report) {
+                    RunQueryOperations(ntDirectory, report);
+                    RunSetOperations(ntDirectory, report);
 
                     return;
                 }

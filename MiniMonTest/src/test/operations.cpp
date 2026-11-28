@@ -16,8 +16,6 @@
 
 #include "report.h"
 
-#include <format>
-#include <iostream>
 #include <string_view>
 
 namespace mimo {
@@ -27,25 +25,25 @@ namespace mimo {
         namespace operations {
 
             bool Run(std::wstring_view ntDirectory) {
-                report::Counts counts{};
+                Report report;
 
-                if (!create::Run(ntDirectory, counts)) return false;
+                if (!create::Run(ntDirectory, report)) return false;
 
-                readwrite::Run(ntDirectory, counts);
-                info::Run(ntDirectory, counts);
-                ea::Run(ntDirectory, counts);
-                flush::Run(ntDirectory, counts);
-                volume::Run(ntDirectory, counts);
-                directory::Run(ntDirectory, counts);
-                filesystem::Run(ntDirectory, counts);
-                deviceio::Run(ntDirectory, counts);
-                lock::Run(ntDirectory, counts);
-                security::Run(ntDirectory, counts);
-                quota::Run(ntDirectory, counts);
-                section::Run(ntDirectory, counts);
-                std::cout << std::format("Operations: {}, not executed: {}, unexpected: {}\n", counts.operations, counts.notExecuted, counts.unexpected);
+                readwrite::Run(ntDirectory, report);
+                info::Run(ntDirectory, report);
+                ea::Run(ntDirectory, report);
+                flush::Run(ntDirectory, report);
+                volume::Run(ntDirectory, report);
+                directory::Run(ntDirectory, report);
+                filesystem::Run(ntDirectory, report);
+                deviceio::Run(ntDirectory, report);
+                lock::Run(ntDirectory, report);
+                security::Run(ntDirectory, report);
+                quota::Run(ntDirectory, report);
+                section::Run(ntDirectory, report);
+                report.PrintSummary();
 
-                return !counts.notExecuted && !counts.unexpected;
+                return report.Succeeded();
             }
 
         }

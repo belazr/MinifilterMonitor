@@ -4,6 +4,7 @@
 #include "..\target.h"
 
 #include "..\..\error.h"
+#include "..\..\test.h"
 
 #include <Windows.h>
 #undef WIN32_NO_STATUS
@@ -47,7 +48,7 @@ using namespace mimo;
 namespace {
 
     struct ReadOperation {
-        test::report::Description description;
+        test::Description description;
         uint32_t fileSize;
         uint32_t size;
         uint32_t key;
@@ -87,7 +88,7 @@ namespace {
 
     constexpr std::string_view READ_MAJOR = "Read";
 
-    void RunReadOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunReadOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const ReadOperation& operation : READ_OPERATIONS) {
             test::Target target{ ntDirectory, operation.description.name };
@@ -96,7 +97,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, READ_MAJOR, operation.description, std::nullopt);
+                report.Add(READ_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
@@ -107,14 +108,14 @@ namespace {
             if (!NT_SUCCESS(writeStatus)) {
                 std::cerr << "Failed to write the target file\n";
                 error::Display(RtlNtStatusToDosError(writeStatus));
-                test::report::Add(counts, READ_MAJOR, operation.description, std::nullopt);
+                report.Add(READ_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             ULONG key = static_cast<ULONG>(operation.key);
             const NTSTATUS readStatus = Read(target, operation.size, operation.key ? &key : nullptr);
-            test::report::Add(counts, READ_MAJOR, operation.description, readStatus);
+            report.Add(READ_MAJOR, operation.description, readStatus);
         }
 
         return;
@@ -122,7 +123,7 @@ namespace {
 
 
     struct WriteOperation {
-        test::report::Description description;
+        test::Description description;
         uint32_t size;
     };
 
@@ -133,7 +134,7 @@ namespace {
 
     constexpr std::string_view WRITE_MAJOR = "Write";
 
-    void RunWriteOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunWriteOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const WriteOperation& operation : WRITE_OPERATIONS) {
             test::Target target{ ntDirectory, operation.description.name };
@@ -142,14 +143,14 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, WRITE_MAJOR, operation.description, std::nullopt);
+                report.Add(WRITE_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::vector<std::byte> fileData(operation.size, FILL);
             const NTSTATUS writeStatus = Write(target, fileData);
-            test::report::Add(counts, WRITE_MAJOR, operation.description, writeStatus);
+            report.Add(WRITE_MAJOR, operation.description, writeStatus);
         }
 
         return;
@@ -165,9 +166,9 @@ namespace mimo {
 
             namespace readwrite {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
-                    RunReadOperations(ntDirectory, counts);
-                    RunWriteOperations(ntDirectory, counts);
+                void Run(std::wstring_view ntDirectory, Report& report) {
+                    RunReadOperations(ntDirectory, report);
+                    RunWriteOperations(ntDirectory, report);
 
                     return;
                 }

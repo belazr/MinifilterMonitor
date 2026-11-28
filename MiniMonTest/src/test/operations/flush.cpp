@@ -4,6 +4,7 @@
 #include "..\target.h"
 
 #include "..\..\error.h"
+#include "..\..\test.h"
 
 #include <Windows.h>
 #undef WIN32_NO_STATUS
@@ -20,7 +21,7 @@ using namespace mimo;
 
 namespace {
 
-    constexpr test::report::Description DESCRIPTIONS[]{
+    constexpr test::Description DESCRIPTIONS[]{
         { L"flush", STATUS_SUCCESS },
     };
 
@@ -43,22 +44,22 @@ namespace mimo {
 
             namespace flush {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                void Run(std::wstring_view ntDirectory, Report& report) {
 
-                    for (const report::Description& description : DESCRIPTIONS) {
+                    for (const Description& description : DESCRIPTIONS) {
                         Target target{ ntDirectory, description.name };
                         const NTSTATUS createStatus = target.Create(FILE_WRITE_DATA);
 
                         if (!NT_SUCCESS(createStatus)) {
                             std::cerr << "Failed to create the target file\n";
                             error::Display(RtlNtStatusToDosError(createStatus));
-                            report::Add(counts, MAJOR, description, std::nullopt);
+                            report.Add(MAJOR, description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS flushStatus = Flush(target);
-                        report::Add(counts, MAJOR, description, flushStatus);
+                        report.Add(MAJOR, description, flushStatus);
                     }
 
                     return;

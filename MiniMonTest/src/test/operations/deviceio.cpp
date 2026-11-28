@@ -5,6 +5,7 @@
 
 #include "..\..\error.h"
 #include "..\..\handle.h"
+#include "..\..\test.h"
 
 #include "..\..\..\..\inc\kernel.h"
 
@@ -30,7 +31,7 @@ using namespace mimo;
 namespace {
 
     struct Operation {
-        test::report::Description description;
+        test::Description description;
         uint32_t ioControlCode;
     };
 
@@ -129,7 +130,7 @@ namespace mimo {
 
             namespace deviceio {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                void Run(std::wstring_view ntDirectory, Report& report) {
 
                     for (const Operation& operation : OPERATIONS) {
                         NtHandle volume;
@@ -138,7 +139,7 @@ namespace mimo {
                         if (!NT_SUCCESS(openStatus)) {
                             std::cerr << "Failed to open the volume\n";
                             error::Display(RtlNtStatusToDosError(openStatus));
-                            report::Add(counts, MAJOR, operation.description, std::nullopt);
+                            report.Add(MAJOR, operation.description, std::nullopt);
 
                             continue;
                         }
@@ -147,13 +148,13 @@ namespace mimo {
 
                         if (!inputData.has_value()) {
                             std::cerr << "No payload for the control code\n";
-                            report::Add(counts, MAJOR, operation.description, std::nullopt);
+                            report.Add(MAJOR, operation.description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS controlStatus = Control(volume.Get(), operation.ioControlCode, *inputData);
-                        report::Add(counts, MAJOR, operation.description, controlStatus);
+                        report.Add(MAJOR, operation.description, controlStatus);
                     }
 
                     return;

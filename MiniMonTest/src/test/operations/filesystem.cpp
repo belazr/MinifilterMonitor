@@ -5,6 +5,7 @@
 #include "..\target.h"
 
 #include "..\..\error.h"
+#include "..\..\test.h"
 
 #include <Windows.h>
 #undef WIN32_NO_STATUS
@@ -39,7 +40,7 @@ using namespace mimo;
 namespace {
 
     struct Operation {
-        test::report::Description description;
+        test::Description description;
         uint32_t fsControlCode;
         uint32_t outputSize;
         bool directory;
@@ -212,7 +213,7 @@ namespace mimo {
 
             namespace filesystem {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                void Run(std::wstring_view ntDirectory, Report& report) {
 
                     for (const Operation& operation : OPERATIONS) {
                         Target target{ ntDirectory, operation.description.name };
@@ -221,7 +222,7 @@ namespace mimo {
                         if (!NT_SUCCESS(createStatus)) {
                             std::cerr << "Failed to create the target\n";
                             error::Display(RtlNtStatusToDosError(createStatus));
-                            report::Add(counts, MAJOR, operation.description, std::nullopt);
+                            report.Add(MAJOR, operation.description, std::nullopt);
 
                             continue;
                         }
@@ -231,7 +232,7 @@ namespace mimo {
                         if (!NT_SUCCESS(prepareStatus)) {
                             std::cerr << "Failed to prepare the target\n";
                             error::Display(RtlNtStatusToDosError(prepareStatus));
-                            report::Add(counts, MAJOR, operation.description, std::nullopt);
+                            report.Add(MAJOR, operation.description, std::nullopt);
 
                             continue;
                         }
@@ -240,13 +241,13 @@ namespace mimo {
 
                         if (!inputData.has_value()) {
                             std::cerr << "No payload for the control code\n";
-                            report::Add(counts, MAJOR, operation.description, std::nullopt);
+                            report.Add(MAJOR, operation.description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS controlStatus = Control(target, operation.fsControlCode, *inputData, operation.outputSize);
-                        report::Add(counts, MAJOR, operation.description, controlStatus);
+                        report.Add(MAJOR, operation.description, controlStatus);
                     }
 
                     return;

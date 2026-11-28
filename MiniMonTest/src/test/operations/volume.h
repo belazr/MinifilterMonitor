@@ -12,7 +12,7 @@ namespace mimo {
 
             namespace volume {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts);
+                void Run(std::wstring_view ntDirectory, Report& report);
 
             }
 

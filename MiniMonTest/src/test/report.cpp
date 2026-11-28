@@ -1,5 +1,6 @@
 #include "report.h"
 
+#include "..\test.h"
 #include "..\text.h"
 
 #include <Windows.h>
@@ -16,37 +17,45 @@ namespace mimo {
 
     namespace test {
 
-        namespace report {
+        void Report::Add(
+            std::string_view major,
+            const Description& description,
+            std::optional<NTSTATUS> status
+        ) {
+            const std::string name = text::ConvertToUtf8(description.name);
+            this->operations++;
 
-            void Add(
-                Counts& counts,
-                std::string_view major,
-                const Description& description,
-                std::optional<NTSTATUS> status
-            ) {
-                const std::string name = text::ConvertToUtf8(description.name);
-                counts.operations++;
-
-                if (!status.has_value()) {
-                    std::cerr << std::format("{} {}: not executed, expected 0x{:08X}\n", major, name, static_cast<uint32_t>(description.expectedStatus));
-                    counts.notExecuted++;
-
-                    return;
-                }
-
-                const std::string line = std::format("{} {}: status 0x{:08X}, expected 0x{:08X}\n", major, name, static_cast<uint32_t>(*status), static_cast<uint32_t>(description.expectedStatus));
-
-                if (*status == description.expectedStatus) {
-                    std::cout << line;
-                }
-                else {
-                    std::cerr << line;
-                    counts.unexpected++;
-                }
+            if (!status.has_value()) {
+                std::cerr << std::format("{} {}: not executed, expected 0x{:08X}\n", major, name, static_cast<uint32_t>(description.expectedStatus));
+                this->notExecuted++;
 
                 return;
             }
 
+            const std::string line = std::format("{} {}: status 0x{:08X}, expected 0x{:08X}\n", major, name, static_cast<uint32_t>(*status), static_cast<uint32_t>(description.expectedStatus));
+
+            if (*status == description.expectedStatus) {
+                std::cout << line;
+            }
+            else {
+                std::cerr << line;
+                this->unexpected++;
+            }
+
+            return;
+        }
+
+
+        void Report::PrintSummary() const {
+            std::cout << std::format("Operations: {}, not executed: {}, unexpected: {}\n", this->operations, this->notExecuted, this->unexpected);
+
+            return;
+        }
+
+
+        bool Report::Succeeded() const {
+
+            return !this->notExecuted && !this->unexpected;
         }
 
     }

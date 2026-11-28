@@ -4,6 +4,7 @@
 #include "..\target.h"
 
 #include "..\..\error.h"
+#include "..\..\test.h"
 
 #include <Windows.h>
 #undef WIN32_NO_STATUS
@@ -41,7 +42,7 @@ using namespace mimo;
 namespace {
 
     struct LockOperation {
-        test::report::Description description;
+        test::Description description;
         uint32_t key;
     };
 
@@ -67,7 +68,7 @@ namespace {
 
     constexpr std::string_view MAJOR = "Lock control";
 
-    void RunLockOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunLockOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const LockOperation& operation : LOCK_OPERATIONS) {
             test::Target target{ ntDirectory, operation.description.name };
@@ -76,20 +77,20 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, MAJOR, operation.description, std::nullopt);
+                report.Add(MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS lockStatus = Lock(target, operation.key);
-            test::report::Add(counts, MAJOR, operation.description, lockStatus);
+            report.Add(MAJOR, operation.description, lockStatus);
         }
 
         return;
     }
 
 
-    constexpr test::report::Description UNLOCK_DESCRIPTIONS[]{
+    constexpr test::Description UNLOCK_DESCRIPTIONS[]{
         { L"unlock", STATUS_SUCCESS },
     };
 
@@ -103,16 +104,16 @@ namespace {
     }
 
 
-    void RunUnlockOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunUnlockOperations(std::wstring_view ntDirectory, test::Report& report) {
 
-        for (const test::report::Description& description : UNLOCK_DESCRIPTIONS) {
+        for (const test::Description& description : UNLOCK_DESCRIPTIONS) {
             test::Target target{ ntDirectory, description.name };
             const NTSTATUS createStatus = target.Create(FILE_READ_DATA);
 
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, MAJOR, description, std::nullopt);
+                report.Add(MAJOR, description, std::nullopt);
 
                 continue;
             }
@@ -122,13 +123,13 @@ namespace {
             if (!NT_SUCCESS(lockStatus)) {
                 std::cerr << "Failed to lock the target file\n";
                 error::Display(RtlNtStatusToDosError(lockStatus));
-                test::report::Add(counts, MAJOR, description, std::nullopt);
+                report.Add(MAJOR, description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS unlockStatus = Unlock(target);
-            test::report::Add(counts, MAJOR, description, unlockStatus);
+            report.Add(MAJOR, description, unlockStatus);
         }
 
         return;
@@ -144,9 +145,9 @@ namespace mimo {
 
             namespace lock {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
-                    RunLockOperations(ntDirectory, counts);
-                    RunUnlockOperations(ntDirectory, counts);
+                void Run(std::wstring_view ntDirectory, Report& report) {
+                    RunLockOperations(ntDirectory, report);
+                    RunUnlockOperations(ntDirectory, report);
 
                     return;
                 }

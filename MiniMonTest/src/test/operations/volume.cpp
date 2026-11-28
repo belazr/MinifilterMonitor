@@ -4,6 +4,7 @@
 #include "..\target.h"
 
 #include "..\..\error.h"
+#include "..\..\test.h"
 
 #include "..\..\..\..\inc\kernel.h"
 
@@ -42,7 +43,7 @@ using namespace mimo;
 namespace {
 
     struct QueryOperation {
-        test::report::Description description;
+        test::Description description;
         uint32_t infoClass;
     };
 
@@ -69,7 +70,7 @@ namespace {
 
     constexpr std::string_view QUERY_MAJOR = "Query volume information";
 
-    void RunQueryOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const QueryOperation& operation : QUERY_OPERATIONS) {
             test::Target target{ ntDirectory, operation.description.name };
@@ -78,13 +79,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, QUERY_MAJOR, operation.description, std::nullopt);
+                report.Add(QUERY_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = Query(target, operation.infoClass);
-            test::report::Add(counts, QUERY_MAJOR, operation.description, queryStatus);
+            report.Add(QUERY_MAJOR, operation.description, queryStatus);
         }
 
         return;
@@ -92,7 +93,7 @@ namespace {
 
 
     // the request is sent on a file handle so that the file system refuses it and the volume label never changes
-    constexpr test::report::Description SET_DESCRIPTIONS[]{
+    constexpr test::Description SET_DESCRIPTIONS[]{
         { L"set-volume-info-label", STATUS_ACCESS_DENIED },
     };
 
@@ -126,22 +127,22 @@ namespace {
 
     constexpr std::string_view SET_MAJOR = "Set volume information";
 
-    void RunSetOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunSetOperations(std::wstring_view ntDirectory, test::Report& report) {
 
-        for (const test::report::Description& description : SET_DESCRIPTIONS) {
+        for (const test::Description& description : SET_DESCRIPTIONS) {
             test::Target target{ ntDirectory, description.name };
             const NTSTATUS createStatus = target.Create(FILE_WRITE_DATA);
 
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, SET_MAJOR, description, std::nullopt);
+                report.Add(SET_MAJOR, description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS setStatus = SetLabel(target);
-            test::report::Add(counts, SET_MAJOR, description, setStatus);
+            report.Add(SET_MAJOR, description, setStatus);
         }
 
         return;
@@ -157,9 +158,9 @@ namespace mimo {
 
             namespace volume {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
-                    RunQueryOperations(ntDirectory, counts);
-                    RunSetOperations(ntDirectory, counts);
+                void Run(std::wstring_view ntDirectory, Report& report) {
+                    RunQueryOperations(ntDirectory, report);
+                    RunSetOperations(ntDirectory, report);
 
                     return;
                 }

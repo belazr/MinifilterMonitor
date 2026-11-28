@@ -4,6 +4,7 @@
 #include "..\target.h"
 
 #include "..\..\error.h"
+#include "..\..\test.h"
 
 #include <Windows.h>
 #undef WIN32_NO_STATUS
@@ -43,7 +44,7 @@ using namespace mimo;
 namespace {
 
     struct QueryOperation {
-        test::report::Description description;
+        test::Description description;
         uint16_t valueSize;
         uint32_t size;
         bool listed;
@@ -122,7 +123,7 @@ namespace {
 
     constexpr std::string_view QUERY_MAJOR = "Query EA";
 
-    void RunQueryOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunQueryOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const QueryOperation& operation : QUERY_OPERATIONS) {
             test::Target target{ ntDirectory, operation.description.name };
@@ -131,7 +132,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, QUERY_MAJOR, operation.description, std::nullopt);
+                report.Add(QUERY_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
@@ -142,14 +143,14 @@ namespace {
             if (!NT_SUCCESS(setStatus)) {
                 std::cerr << "Failed to set the target file EA\n";
                 error::Display(RtlNtStatusToDosError(setStatus));
-                test::report::Add(counts, QUERY_MAJOR, operation.description, std::nullopt);
+                report.Add(QUERY_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::vector<std::byte> eaListData = operation.listed ? MakeEaListBuffer() : std::vector<std::byte>{};
             const NTSTATUS queryStatus = Query(target, operation.size, eaListData);
-            test::report::Add(counts, QUERY_MAJOR, operation.description, queryStatus);
+            report.Add(QUERY_MAJOR, operation.description, queryStatus);
         }
 
         return;
@@ -157,7 +158,7 @@ namespace {
 
 
     struct SetOperation {
-        test::report::Description description;
+        test::Description description;
         uint16_t valueSize;
     };
 
@@ -168,7 +169,7 @@ namespace {
 
     constexpr std::string_view SET_MAJOR = "Set EA";
 
-    void RunSetOperations(std::wstring_view ntDirectory, test::report::Counts& counts) {
+    void RunSetOperations(std::wstring_view ntDirectory, test::Report& report) {
 
         for (const SetOperation& operation : SET_OPERATIONS) {
             test::Target target{ ntDirectory, operation.description.name };
@@ -177,14 +178,14 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                test::report::Add(counts, SET_MAJOR, operation.description, std::nullopt);
+                report.Add(SET_MAJOR, operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::vector<std::byte> eaData = MakeEaBuffer(operation.valueSize);
             const NTSTATUS setStatus = Set(target, eaData);
-            test::report::Add(counts, SET_MAJOR, operation.description, setStatus);
+            report.Add(SET_MAJOR, operation.description, setStatus);
         }
 
         return;
@@ -200,9 +201,9 @@ namespace mimo {
 
             namespace ea {
 
-                void Run(std::wstring_view ntDirectory, report::Counts& counts) {
-                    RunQueryOperations(ntDirectory, counts);
-                    RunSetOperations(ntDirectory, counts);
+                void Run(std::wstring_view ntDirectory, Report& report) {
+                    RunQueryOperations(ntDirectory, report);
+                    RunSetOperations(ntDirectory, report);
 
                     return;
                 }

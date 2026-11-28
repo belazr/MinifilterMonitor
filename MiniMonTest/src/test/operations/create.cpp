@@ -4,6 +4,7 @@
 
 #include "..\..\error.h"
 #include "..\..\handle.h"
+#include "..\..\test.h"
 
 #include <Windows.h>
 #undef WIN32_NO_STATUS
@@ -26,7 +27,7 @@ using namespace mimo;
 namespace {
 
     struct Operation {
-        test::report::Description description;
+        test::Description description;
         uint32_t disposition;
         uint16_t eaValueSize;
         bool impersonating;
@@ -127,14 +128,14 @@ namespace mimo {
 
             namespace create {
 
-                bool Run(std::wstring_view ntDirectory, report::Counts& counts) {
+                bool Run(std::wstring_view ntDirectory, Report& report) {
 
                     for (const Operation& operation : OPERATIONS) {
                         const std::wstring path = std::format(L"{}\\{}", ntDirectory, operation.description.name);
                         const std::vector<std::byte> eaData = operation.eaValueSize ? MakeEaBuffer(operation.eaValueSize) : std::vector<std::byte>{};
 
                         if (operation.impersonating && !StartImpersonation()) {
-                            report::Add(counts, MAJOR, operation.description, std::nullopt);
+                            report.Add(MAJOR, operation.description, std::nullopt);
 
                             continue;
                         }
@@ -143,7 +144,7 @@ namespace mimo {
                         const NTSTATUS status = Create(path, operation.disposition, eaData, file);
 
                         const bool reverted = !operation.impersonating || StopImpersonation();
-                        report::Add(counts, MAJOR, operation.description, status);
+                        report.Add(MAJOR, operation.description, status);
 
                         if (!reverted) return false;
 
