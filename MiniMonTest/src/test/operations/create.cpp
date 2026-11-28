@@ -27,7 +27,7 @@ namespace {
 
     struct Operation {
         test::report::Description description;
-        ULONG disposition;
+        uint32_t disposition;
         uint16_t eaValueSize;
         bool impersonating;
     };
@@ -93,7 +93,7 @@ namespace {
 
     NTSTATUS Create(
         std::wstring_view path,
-        ULONG disposition,
+        uint32_t disposition,
         std::span<const std::byte> eaData,
         NtHandle& file
     ) {
@@ -111,7 +111,7 @@ namespace {
         std::vector<std::byte> buffer(eaData.begin(), eaData.end());
         IO_STATUS_BLOCK ioStatus{};
 
-        return NtCreateFile(file.Put(), DESIRED_ACCESS, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, disposition, FILE_NON_DIRECTORY_FILE, buffer.data(), static_cast<ULONG>(buffer.size()));
+        return NtCreateFile(file.Put(), DESIRED_ACCESS, &objectAttributes, &ioStatus, nullptr, FILE_ATTRIBUTE_NORMAL, SHARE_ALL, static_cast<ULONG>(disposition), FILE_NON_DIRECTORY_FILE, buffer.data(), static_cast<ULONG>(buffer.size()));
     }
 
 
