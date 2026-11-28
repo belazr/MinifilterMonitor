@@ -38,19 +38,12 @@ namespace mimo {
             const std::string name = text::ConvertToUtf8(description.name);
 
             if (!returnedStatus.has_value()) {
-                std::cerr << std::format("{} {}: not executed, expected 0x{:08X}\n", description.major, name, static_cast<uint32_t>(description.expectedStatus));
+                std::cout << std::format("{} {}: not executed, expected 0x{:08X}\n", description.major, name, static_cast<uint32_t>(description.expectedStatus));
 
                 return;
             }
 
-            const std::string line = std::format("{} {}: status 0x{:08X}, expected 0x{:08X}\n", description.major, name, static_cast<uint32_t>(*returnedStatus), static_cast<uint32_t>(description.expectedStatus));
-
-            if (*returnedStatus == description.expectedStatus) {
-                std::cout << line;
-            }
-            else {
-                std::cerr << line;
-            }
+            std::cout << std::format("{} {}: status 0x{:08X}, expected 0x{:08X}\n", description.major, name, static_cast<uint32_t>(*returnedStatus), static_cast<uint32_t>(description.expectedStatus));
 
             return;
         }
