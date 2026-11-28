@@ -16,25 +16,40 @@ namespace mimo {
 
     namespace test {
 
-        void Report::Add(const Description& description, std::optional<NTSTATUS> status) {
-            const std::string name = text::ConvertToUtf8(description.name);
+        void Report::Count(NTSTATUS expectedStatus, std::optional<NTSTATUS> returnedStatus) {
             this->operations++;
 
-            if (!status.has_value()) {
-                std::cerr << std::format("{} {}: not executed, expected 0x{:08X}\n", description.major, name, static_cast<uint32_t>(description.expectedStatus));
+            if (!returnedStatus.has_value()) {
                 this->notExecuted++;
 
                 return;
             }
 
-            const std::string line = std::format("{} {}: status 0x{:08X}, expected 0x{:08X}\n", description.major, name, static_cast<uint32_t>(*status), static_cast<uint32_t>(description.expectedStatus));
+            if (*returnedStatus != expectedStatus) {
+                this->unexpected++;
+            }
 
-            if (*status == description.expectedStatus) {
+            return;
+        }
+
+
+        void Report::Print(const Description& description, std::optional<NTSTATUS> returnedStatus) {
+            this->Count(description.expectedStatus, returnedStatus);
+            const std::string name = text::ConvertToUtf8(description.name);
+
+            if (!returnedStatus.has_value()) {
+                std::cerr << std::format("{} {}: not executed, expected 0x{:08X}\n", description.major, name, static_cast<uint32_t>(description.expectedStatus));
+
+                return;
+            }
+
+            const std::string line = std::format("{} {}: status 0x{:08X}, expected 0x{:08X}\n", description.major, name, static_cast<uint32_t>(*returnedStatus), static_cast<uint32_t>(description.expectedStatus));
+
+            if (*returnedStatus == description.expectedStatus) {
                 std::cout << line;
             }
             else {
                 std::cerr << line;
-                this->unexpected++;
             }
 
             return;

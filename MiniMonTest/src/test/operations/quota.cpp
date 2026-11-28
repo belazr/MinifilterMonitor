@@ -113,7 +113,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(description, std::nullopt);
+                report.Print(description, std::nullopt);
 
                 continue;
             }
@@ -121,13 +121,13 @@ namespace {
             const std::optional<std::vector<std::byte>> sidListData = MakeSidListBuffer();
 
             if (!sidListData.has_value()) {
-                report.Add(description, std::nullopt);
+                report.Print(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = Query(target, *sidListData);
-            report.Add(description, queryStatus);
+            report.Print(description, queryStatus);
         }
 
         return;
@@ -190,7 +190,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(description, std::nullopt);
+                report.Print(description, std::nullopt);
 
                 continue;
             }
@@ -198,13 +198,13 @@ namespace {
             const std::optional<std::vector<std::byte>> quotaData = MakeQuotaBuffer();
 
             if (!quotaData.has_value()) {
-                report.Add(description, std::nullopt);
+                report.Print(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS setStatus = Set(target, *quotaData);
-            report.Add(description, setStatus);
+            report.Print(description, setStatus);
         }
 
         return;

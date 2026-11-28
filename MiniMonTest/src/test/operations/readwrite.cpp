@@ -97,7 +97,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
@@ -108,14 +108,14 @@ namespace {
             if (!NT_SUCCESS(writeStatus)) {
                 std::cerr << "Failed to write the target file\n";
                 error::Display(RtlNtStatusToDosError(writeStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
             ULONG key = static_cast<ULONG>(operation.key);
             const NTSTATUS readStatus = Read(target, operation.size, operation.key ? &key : nullptr);
-            report.Add(operation.description, readStatus);
+            report.Print(operation.description, readStatus);
         }
 
         return;
@@ -143,14 +143,14 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::vector<std::byte> fileData(operation.size, FILL);
             const NTSTATUS writeStatus = Write(target, fileData);
-            report.Add(operation.description, writeStatus);
+            report.Print(operation.description, writeStatus);
         }
 
         return;

@@ -14,16 +14,18 @@ namespace mimo {
 
         class Report final {
         public:
-            void Add(const Description& description, std::optional<NTSTATUS> status);
+            void Count(NTSTATUS expectedStatus, std::optional<NTSTATUS> returnedStatus);
+
+            void Print(const Description& description, std::optional<NTSTATUS> returnedStatus);
 
             void PrintSummary() const;
 
             bool Succeeded() const;
 
         private:
-            uint32_t operations = 0u;
-            uint32_t notExecuted = 0u;
-            uint32_t unexpected = 0u;
+            uint64_t operations = 0u;
+            uint64_t notExecuted = 0u;
+            uint64_t unexpected = 0u;
         };
 
     }

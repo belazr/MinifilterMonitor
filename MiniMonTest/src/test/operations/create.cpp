@@ -134,7 +134,7 @@ namespace mimo {
                         const std::vector<std::byte> eaData = operation.eaValueSize ? MakeEaBuffer(operation.eaValueSize) : std::vector<std::byte>{};
 
                         if (operation.impersonating && !StartImpersonation()) {
-                            report.Add(operation.description, std::nullopt);
+                            report.Print(operation.description, std::nullopt);
 
                             continue;
                         }
@@ -143,7 +143,7 @@ namespace mimo {
                         const NTSTATUS status = Create(path, operation.disposition, eaData, file);
 
                         const bool reverted = !operation.impersonating || StopImpersonation();
-                        report.Add(operation.description, status);
+                        report.Print(operation.description, status);
 
                         if (!reverted) return false;
 

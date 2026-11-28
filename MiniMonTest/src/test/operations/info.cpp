@@ -107,13 +107,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = Query(target, operation.infoClass, operation.size);
-            report.Add(operation.description, queryStatus);
+            report.Print(operation.description, queryStatus);
         }
 
         return;
@@ -319,7 +319,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
@@ -329,13 +329,13 @@ namespace {
 
             if (!infoData.has_value()) {
                 std::cerr << "No payload for the information class\n";
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS setStatus = Set(target, operation.infoClass, *infoData);
-            report.Add(operation.description, setStatus);
+            report.Print(operation.description, setStatus);
         }
 
         return;
@@ -375,13 +375,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(description, std::nullopt);
+                report.Print(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = QueryByName(target);
-            report.Add(description, queryStatus);
+            report.Print(description, queryStatus);
         }
 
         return;
@@ -429,13 +429,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(description, std::nullopt);
+                report.Print(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = QueryFullAttributes(target);
-            report.Add(description, queryStatus);
+            report.Print(description, queryStatus);
         }
 
         return;

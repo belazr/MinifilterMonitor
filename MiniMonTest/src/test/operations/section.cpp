@@ -64,13 +64,13 @@ namespace mimo {
                         if (!NT_SUCCESS(createStatus)) {
                             std::cerr << "Failed to create the target file\n";
                             error::Display(RtlNtStatusToDosError(createStatus));
-                            report.Add(description, std::nullopt);
+                            report.Print(description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS sectionStatus = CreateSection(target);
-                        report.Add(description, sectionStatus);
+                        report.Print(description, sectionStatus);
                     }
 
                     return;

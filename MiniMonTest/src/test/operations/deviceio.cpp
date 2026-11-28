@@ -138,7 +138,7 @@ namespace mimo {
                         if (!NT_SUCCESS(openStatus)) {
                             std::cerr << "Failed to open the volume\n";
                             error::Display(RtlNtStatusToDosError(openStatus));
-                            report.Add(operation.description, std::nullopt);
+                            report.Print(operation.description, std::nullopt);
 
                             continue;
                         }
@@ -147,13 +147,13 @@ namespace mimo {
 
                         if (!inputData.has_value()) {
                             std::cerr << "No payload for the control code\n";
-                            report.Add(operation.description, std::nullopt);
+                            report.Print(operation.description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS controlStatus = Control(volume.Get(), operation.ioControlCode, *inputData);
-                        report.Add(operation.description, controlStatus);
+                        report.Print(operation.description, controlStatus);
                     }
 
                     return;

@@ -77,13 +77,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS lockStatus = Lock(target, operation.key);
-            report.Add(operation.description, lockStatus);
+            report.Print(operation.description, lockStatus);
         }
 
         return;
@@ -113,7 +113,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(description, std::nullopt);
+                report.Print(description, std::nullopt);
 
                 continue;
             }
@@ -123,13 +123,13 @@ namespace {
             if (!NT_SUCCESS(lockStatus)) {
                 std::cerr << "Failed to lock the target file\n";
                 error::Display(RtlNtStatusToDosError(lockStatus));
-                report.Add(description, std::nullopt);
+                report.Print(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS unlockStatus = Unlock(target);
-            report.Add(description, unlockStatus);
+            report.Print(description, unlockStatus);
         }
 
         return;

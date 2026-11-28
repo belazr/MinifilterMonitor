@@ -132,7 +132,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
@@ -143,14 +143,14 @@ namespace {
             if (!NT_SUCCESS(setStatus)) {
                 std::cerr << "Failed to set the target file EA\n";
                 error::Display(RtlNtStatusToDosError(setStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::vector<std::byte> eaListData = operation.listed ? MakeEaListBuffer() : std::vector<std::byte>{};
             const NTSTATUS queryStatus = Query(target, operation.size, eaListData);
-            report.Add(operation.description, queryStatus);
+            report.Print(operation.description, queryStatus);
         }
 
         return;
@@ -178,14 +178,14 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::vector<std::byte> eaData = MakeEaBuffer(operation.valueSize);
             const NTSTATUS setStatus = Set(target, eaData);
-            report.Add(operation.description, setStatus);
+            report.Print(operation.description, setStatus);
         }
 
         return;

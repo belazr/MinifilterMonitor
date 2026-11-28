@@ -221,7 +221,7 @@ namespace mimo {
                         if (!NT_SUCCESS(createStatus)) {
                             std::cerr << "Failed to create the target\n";
                             error::Display(RtlNtStatusToDosError(createStatus));
-                            report.Add(operation.description, std::nullopt);
+                            report.Print(operation.description, std::nullopt);
 
                             continue;
                         }
@@ -231,7 +231,7 @@ namespace mimo {
                         if (!NT_SUCCESS(prepareStatus)) {
                             std::cerr << "Failed to prepare the target\n";
                             error::Display(RtlNtStatusToDosError(prepareStatus));
-                            report.Add(operation.description, std::nullopt);
+                            report.Print(operation.description, std::nullopt);
 
                             continue;
                         }
@@ -240,13 +240,13 @@ namespace mimo {
 
                         if (!inputData.has_value()) {
                             std::cerr << "No payload for the control code\n";
-                            report.Add(operation.description, std::nullopt);
+                            report.Print(operation.description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS controlStatus = Control(target, operation.fsControlCode, *inputData, operation.outputSize);
-                        report.Add(operation.description, controlStatus);
+                        report.Print(operation.description, controlStatus);
                     }
 
                     return;

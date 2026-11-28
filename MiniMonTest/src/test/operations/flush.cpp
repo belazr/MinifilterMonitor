@@ -52,13 +52,13 @@ namespace mimo {
                         if (!NT_SUCCESS(createStatus)) {
                             std::cerr << "Failed to create the target file\n";
                             error::Display(RtlNtStatusToDosError(createStatus));
-                            report.Add(description, std::nullopt);
+                            report.Print(description, std::nullopt);
 
                             continue;
                         }
 
                         const NTSTATUS flushStatus = Flush(target);
-                        report.Add(description, flushStatus);
+                        report.Print(description, flushStatus);
                     }
 
                     return;

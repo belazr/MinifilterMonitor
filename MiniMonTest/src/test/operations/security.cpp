@@ -69,13 +69,13 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS queryStatus = Query(target, operation.size);
-            report.Add(operation.description, queryStatus);
+            report.Print(operation.description, queryStatus);
         }
 
         return;
@@ -125,7 +125,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target file\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(description, std::nullopt);
+                report.Print(description, std::nullopt);
 
                 continue;
             }
@@ -133,13 +133,13 @@ namespace {
             const std::optional<std::vector<std::byte>> descriptorData = MakeDescriptorBuffer();
 
             if (!descriptorData.has_value()) {
-                report.Add(description, std::nullopt);
+                report.Print(description, std::nullopt);
 
                 continue;
             }
 
             const NTSTATUS setStatus = Set(target, *descriptorData);
-            report.Add(description, setStatus);
+            report.Print(description, setStatus);
         }
 
         return;

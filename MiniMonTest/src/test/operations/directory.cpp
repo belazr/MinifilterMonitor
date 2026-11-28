@@ -141,7 +141,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target directory\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
@@ -151,14 +151,14 @@ namespace {
             if (!NT_SUCCESS(entriesStatus)) {
                 std::cerr << "Failed to create the target directory entries\n";
                 error::Display(RtlNtStatusToDosError(entriesStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
             const std::wstring_view filter = operation.filtered ? FILTER : std::wstring_view{};
             const NTSTATUS queryStatus = Query(target, operation.infoClass, operation.single, filter);
-            report.Add(operation.description, queryStatus);
+            report.Print(operation.description, queryStatus);
         }
 
         return;
@@ -237,7 +237,7 @@ namespace {
             if (!NT_SUCCESS(createStatus)) {
                 std::cerr << "Failed to create the target directory\n";
                 error::Display(RtlNtStatusToDosError(createStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
@@ -245,7 +245,7 @@ namespace {
             const NTSTATUS notifyStatus = operation.infoClass ? NotifyEx(target, operation.infoClass, buffer, ioStatus) : Notify(target, operation.watchTree, buffer, ioStatus);
 
             if (notifyStatus != STATUS_PENDING) {
-                report.Add(operation.description, notifyStatus);
+                report.Print(operation.description, notifyStatus);
 
                 continue;
             }
@@ -255,18 +255,18 @@ namespace {
             if (!NT_SUCCESS(entriesStatus)) {
                 std::cerr << "Failed to create the target directory entries\n";
                 error::Display(RtlNtStatusToDosError(entriesStatus));
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
             if (!WaitForCompletion(target)) {
-                report.Add(operation.description, std::nullopt);
+                report.Print(operation.description, std::nullopt);
 
                 continue;
             }
 
-            report.Add(operation.description, ioStatus.Status);
+            report.Print(operation.description, ioStatus.Status);
         }
 
         return;
